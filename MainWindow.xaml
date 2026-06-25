@@ -1,0 +1,1099 @@
+﻿<Window x:Class="Fale7_POS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
+        mc:Ignorable="d"
+        Title="Fale7_POS"
+        MinWidth="1000" MinHeight="700"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFD4D0C8"
+        Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        FontFamily="Tahoma">
+    <Window.Resources>
+        <SolidColorBrush x:Key="BWin" Color="#FFD4D0C8"/>
+        <SolidColorBrush x:Key="BLine" Color="#FF8F8F8F"/>
+        <SolidColorBrush x:Key="BBlue" Color="#FF2B5F9F"/>
+        <SolidColorBrush x:Key="BBlue2" Color="#FF244E83"/>
+        <SolidColorBrush x:Key="BTile" Color="#FF2F6FAB"/>
+        <SolidColorBrush x:Key="BTile2" Color="#FF1F4F83"/>
+        <SolidColorBrush x:Key="BQueue" Color="#FFEFE9DF"/>
+        <Style x:Key="ToolbarIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="104"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Background" Value="#FFF6F6F6"/>
+            <Setter Property="BorderBrush" Value="#FF7F7F7F"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <Border x:Name="TopLeftBevel" Margin="1,1,0,0" BorderBrush="#FFFFFFFF" BorderThickness="1,1,0,0"/>
+                                <Border x:Name="BottomRightBevel" Margin="0,0,1,1" BorderBrush="#FF6A6A6A" BorderThickness="0,0,1,1"/>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="TopLeftBevel" Property="BorderBrush" Value="#FF6A6A6A"/>
+                                <Setter TargetName="BottomRightBevel" Property="BorderBrush" Value="#FFFFFFFF"/>
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="{StaticResource BWin}" ClipToBounds="True">
+        <Viewbox x:Name="RootScale" Stretch="Uniform" StretchDirection="Both">
+            <Grid x:Name="DesignRoot" Width="1920" Height="1080" Background="{StaticResource BWin}" ClipToBounds="True">
+                <Grid x:Name="LoginView">
+                    <Border Width="640" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFEFE9DF" BorderBrush="#FF7A7A7A" BorderThickness="2">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                                <TextBlock Text="Fale7 POS - Login" Foreground="White" FontSize="18" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            <Grid Grid.Row="1" Margin="24">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Login to Fale7 POS System" FontSize="14" FontWeight="Bold" Margin="0,0,0,16"/>
+                                <Grid Grid.Row="1" Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Username" VerticalAlignment="Center" FontWeight="Bold"/><TextBox x:Name="LoginUsernameTextBox" Grid.Column="1" Height="34" FontSize="14" Padding="8,4" BorderBrush="#FF8F8F8F" BorderThickness="1"/></Grid>
+                                <Grid Grid.Row="2" Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Password" VerticalAlignment="Center" FontWeight="Bold"/><PasswordBox x:Name="LoginPasswordBox" Grid.Column="1" Height="34" FontSize="14" Padding="8,4" BorderBrush="#FF8F8F8F" BorderThickness="1" KeyDown="LoginPasswordBox_KeyDown"/></Grid>
+                                <CheckBox x:Name="RememberMeCheckBox" Grid.Row="3" Content="Remember me (save local session)" FontWeight="Bold" FontSize="13" Margin="0,0,0,12"/>
+                                <Button x:Name="LoginButton" Grid.Row="4" Content="Login" Width="150" Height="38" HorizontalAlignment="Left" Background="{StaticResource BBlue2}" Foreground="White" BorderBrush="#FF1B3A64" FontWeight="Black" Click="LoginButton_Click"/>
+                                <TextBlock x:Name="LoginErrorText" Grid.Row="5" Foreground="#FFB91C1C" FontWeight="Bold" Margin="0,12,0,0" TextWrapping="Wrap"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="PlaceholderView" Visibility="Collapsed">
+                    <Border Width="760" Height="420" Background="#FFEFE9DF" BorderBrush="#FF7A7A7A" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="52"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                                <Grid Margin="10,0" FlowDirection="LeftToRight">
+                                    <TextBlock x:Name="PlaceholderTitleText" Text="الإدارة" Foreground="White" FontSize="18" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    <Button x:Name="PlaceholderLogoutButton" Width="72" Height="28" HorizontalAlignment="Left" VerticalAlignment="Center" Content="خروج" FontSize="11" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="PlaceholderLogoutButton_Click"/>
+                                </Grid>
+                            </Border>
+                            <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="24"><TextBlock x:Name="PlaceholderMessageText" Text="لوحة الإدارة قيد التجهيز" FontSize="28" FontWeight="Black" HorizontalAlignment="Center" Margin="0,0,0,12"/><TextBlock x:Name="PlaceholderUserText" Text="تم تسجيل الدخول كمسؤول" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/></StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="TakeawayView" Visibility="Collapsed" Background="{StaticResource BWin}" PreviewMouseDown="TakeawayView_PreviewMouseDown">
+                    <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="74"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{StaticResource BBlue}" BorderBrush="#FF1B3A64" BorderThickness="0,0,0,2">
+                        <Grid Margin="10,0" FlowDirection="LeftToRight">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Margin="0,6,8,6" VerticalAlignment="Center" Foreground="White" FontSize="14" FontWeight="Bold"><Run FontWeight="Black">كاشير الفرع</Run></TextBlock>
+                            <TextBlock x:Name="TakeawayHeaderInfoText" Grid.Column="1" Margin="0,6,8,6" VerticalAlignment="Center" Foreground="White" FontSize="11" FontWeight="Bold" FlowDirection="LeftToRight" TextTrimming="CharacterEllipsis" Visibility="Collapsed">
+                                <Run Text="المستخدم: "/><Run x:Name="TakeawayHeaderUserRun" Text="كاشير"/><Run Text="  |  التاريخ: "/><Run x:Name="TakeawayHeaderDateRun" Text="20/02/2026"/><Run Text="  |  الوقت: "/><Run x:Name="TakeawayHeaderClockRun" Text="00:00:00"/>
+                            </TextBlock>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Button x:Name="TakeawayAppOrdersBoardButton" Width="120" Height="22" Margin="0,0,8,0" VerticalAlignment="Center" Content="إدارة طلبات التطبيق" FontSize="10" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="TakeawayAppOrdersBoardButton_Click"/>
+                                <Button x:Name="TakeawayInventoryButton" Width="84" Height="22" Margin="0,0,8,0" VerticalAlignment="Center" Content="المخزون" FontSize="10" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="TakeawayInventoryButton_Click"/>
+                                <Button x:Name="TakeawayHeaderSwitchButton" Width="110" Height="22" VerticalAlignment="Center" Content="تحويل للدليفري" FontSize="11" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="TakeawaySwitchToDeliveryButton_Click"/>
+                                <Button x:Name="TakeawayLogoutButton" Width="72" Height="22" Margin="8,0,0,0" VerticalAlignment="Center" Content="خروج" FontSize="11" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="TakeawayLogoutButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2" Padding="8,6,8,6">
+                        <Grid FlowDirection="LeftToRight">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" VerticalAlignment="Center">
+                                <Grid x:Name="TakeawayAppCountersHeaderGrid" Margin="0,6,8,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" BorderBrush="{StaticResource BLine}" BorderThickness="1" Background="White" Padding="8,4">
+                                        <TextBlock x:Name="TakeawayAppDeliveryCountersText" Foreground="#FF1F1F1F" FontSize="12" FontWeight="Black" FlowDirection="LeftToRight" TextTrimming="CharacterEllipsis" Text="طلبات التطبيق دليفري | جديد:0 | تجهيز:0 | مع سائق:0 | تم:0"/>
+                                    </Border>
+                                    <Border Grid.Column="2" BorderBrush="{StaticResource BLine}" BorderThickness="1" Background="White" Padding="8,4">
+                                        <TextBlock x:Name="TakeawayAppPickupCountersText" Foreground="#FF1F1F1F" FontSize="12" FontWeight="Black" FlowDirection="LeftToRight" TextTrimming="CharacterEllipsis" Text="طلبات التطبيق استلام | جديد:0 | تجهيز:0 | جاهز:0 | تم:0"/>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="BtnNewOrder" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="BtnNewOrder_Click">
+                                <StackPanel><TextBlock Text="🧾" FontSize="18" HorizontalAlignment="Center" Foreground="#FF3B82F6"/><TextBlock Text="أوردر جديد" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="BtnAddPickup" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="BtnAddPickup_Click">
+                                <StackPanel><TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" Foreground="#FFEF4444"/><TextBlock Text="أوردر استلام" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="BtnKitchenConfirm" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="BtnKitchenConfirm_Click">
+                                <StackPanel><TextBlock Text="✔" FontSize="18" HorizontalAlignment="Center" Foreground="#FF22C55E"/><TextBlock Text="تأكيد" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="BtnShiftReport" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="BtnShiftReport_Click">
+                                <StackPanel><TextBlock Text="🧾" FontSize="18" HorizontalAlignment="Center" Foreground="#FF1A1A1A"/><TextBlock Text="ترحيل الشيفت" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="BtnClearOrder" Style="{StaticResource ToolbarIconButtonStyle}" Click="BtnClearOrder_Click">
+                                <StackPanel><TextBlock Text="✖" FontSize="18" HorizontalAlignment="Center" Foreground="#FFEF4444"/><TextBlock Text="مسح" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="BtnCallDrivers" Style="{StaticResource ToolbarIconButtonStyle}" Margin="6,0,0,0" Click="BtnCallDrivers_Click">
+                                <StackPanel><TextBlock Text="📍" FontSize="18" HorizontalAlignment="Center" Foreground="#FFDC2626"/><TextBlock Text="استدعاء سائقين" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="2" FlowDirection="RightToLeft" ClipToBounds="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="190"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3.3*" MinWidth="820"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="2,0,0,0" FlowDirection="LeftToRight">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2"><TextBlock Text="الانتظار" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft" Margin="8,10,8,10"/></Border>
+                                <ScrollViewer Grid.Row="1" Padding="8" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="QueueListPanel"/></ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="2,0,0,0" FlowDirection="LeftToRight">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                                    <Grid>
+                                        <TextBlock Text="استلام من الفرع" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft" Margin="8,10,8,10"/>
+                                        <Border x:Name="PickBadgeBorder" Height="18" MinWidth="18" CornerRadius="9" Background="#FFD32F2F" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0" Padding="5,0" Visibility="Collapsed"><TextBlock x:Name="PickBadgeText" Text="0" Foreground="White" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                    </Grid>
+                                </Border>
+                                <ScrollViewer Grid.Row="1" Padding="8" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="PickupsListPanel"/></ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="2" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="2,0,0,0" FlowDirection="LeftToRight">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="54"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2"><Grid><TextBlock Text="القوائم" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/><Button x:Name="TakeawayAddCategoryButton" Width="70" Height="22" Margin="6,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="إضافة قوائم" FontSize="10" FontWeight="Black" Visibility="Collapsed" Click="TakeawayAddCategoryButton_Click"/></Grid></Border>
+                                <ScrollViewer Grid.Row="1" Padding="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" VerticalContentAlignment="Top"><primitives:UniformGrid x:Name="CategoriesGridPanel" Columns="1" VerticalAlignment="Top"/></ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="3" Background="{StaticResource BQueue}" FlowDirection="LeftToRight">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="54"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2"><Grid><TextBlock Text="الأصناف" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/><Button x:Name="TakeawayAddItemButton" Width="64" Height="22" Margin="6,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="إضافة صنف" FontSize="10" FontWeight="Black" Visibility="Collapsed" Click="TakeawayAddItemButton_Click"/></Grid></Border>
+                                <Border Grid.Row="1" Margin="6" BorderBrush="{StaticResource BTile2}" BorderThickness="1" Background="{StaticResource BQueue}" Padding="2"><primitives:UniformGrid x:Name="ItemsGridPanel" Columns="4" Rows="12"/></Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="4" Background="White" BorderBrush="{StaticResource BLine}" BorderThickness="1,0,0,0" FlowDirection="LeftToRight">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/><RowDefinition Height="115"/></Grid.RowDefinitions>
+                                <Grid Background="{StaticResource BBlue2}" FlowDirection="LeftToRight">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="55*"/><ColumnDefinition Width="15*"/><ColumnDefinition Width="15*"/><ColumnDefinition Width="15*"/></Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" BorderBrush="{StaticResource BLine}" BorderThickness="1,1,1,1"><TextBlock Text="الإجمالي" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="1" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="السعر" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="2" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="الكمية" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="3" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="الوصف" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Right" Padding="6,0,10,0" FlowDirection="RightToLeft"/></Border>
+                                </Grid>
+                                <Grid x:Name="ReceiptMiddleArea" Grid.Row="1" Background="White" MouseLeftButtonDown="ReceiptMiddleArea_MouseLeftButtonDown">
+                                    <Border Background="White"/>
+                                    <ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="{Binding ElementName=ReceiptMiddleArea, Path=ActualHeight}">
+                                        <StackPanel x:Name="ReceiptRowsPanel" FlowDirection="LeftToRight"/>
+                                    </ScrollViewer>
+                                </Grid>
+                                <Border Grid.Row="2" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,2,0,0" Padding="10">
+                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="560"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Border Grid.Column="1" Width="560" Height="95" HorizontalAlignment="Right" Background="{StaticResource BTile}" BorderBrush="{StaticResource BTile2}" BorderThickness="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="254"/><ColumnDefinition Width="306"/></Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                                <Border Grid.Row="0" Grid.Column="0" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="SubtotalValText" Text="0" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/></Border>
+                                                <Border Grid.Row="0" Grid.Column="1" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock Text="مبلغ الطلبات" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                                <Border Grid.Row="1" Grid.Column="0" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="TaxValText" Text="0" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/></Border>
+                                                <Border Grid.Row="1" Grid.Column="1" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock Text="ضريبة (0)" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                                <Border Grid.Row="2" Grid.Column="0" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="GrandValText" Text="0" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/></Border>
+                                                <Border Grid.Row="2" Grid.Column="1" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock Text="الإجمالي" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <Grid x:Name="PickupOrderOverlay" Grid.RowSpan="3" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="990">
+                        <Border x:Name="PickupOrderModalBorder" Width="560" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewKeyDown="PickupOrderModalBorder_PreviewKeyDown" KeyboardNavigation.TabNavigation="Cycle">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}">
+                                    <Grid Margin="10,0" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="بيانات أوردر الاستلام" Foreground="White" FontWeight="Black" FontSize="14" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+                                        <Button x:Name="PickupOrderCloseButton" Grid.Column="1" Width="26" Height="22" Content="✕" FontWeight="Black" Foreground="White" Background="#22000000" BorderBrush="#55FFFFFF" Click="PickupFormCancelButton_Click"/>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" Padding="10">
+                                    <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="12">
+                                        <Grid FlowDirection="RightToLeft">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="رقم التليفون" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="Black" Margin="0,0,8,8"/>
+                                            <TextBox x:Name="PickupPhoneTextBox" Grid.Row="0" Grid.Column="1" Height="34" FontSize="14" Padding="8,4" BorderBrush="#FF8F8F8F" BorderThickness="1" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="اسم العميل" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="Black" Margin="0,0,8,8"/>
+                                            <TextBox x:Name="PickupCustomerNameTextBox" Grid.Row="1" Grid.Column="1" Height="34" FontSize="14" Padding="8,4" BorderBrush="#FF8F8F8F" BorderThickness="1" FlowDirection="RightToLeft" HorizontalContentAlignment="Right" Margin="0,0,0,8"/>
+
+                                            <Button x:Name="PickupKeyboardButton" Grid.Row="2" Grid.ColumnSpan="2" Width="120" Height="34" HorizontalAlignment="Left" Content="⌨ كيبورد" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="PickupKeyboardButton_Click"/>
+
+                                            <Grid Grid.Row="3" Grid.ColumnSpan="2" Margin="0,12,0,0" FlowDirection="LeftToRight">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Button x:Name="PickupFormOkButton" Grid.Column="0" Height="42" Content="صح" FontWeight="Black" Background="#FFDCFCE7" BorderBrush="#FF22C55E" Foreground="#FF14532D" Click="PickupFormOkButton_Click"/>
+                                                <Button x:Name="PickupFormCancelButton" Grid.Column="2" Height="42" Content="إلغاء" FontWeight="Black" Background="#FFFFE4E6" BorderBrush="#FFEF4444" Foreground="#FF991B1B" Click="PickupFormCancelButton_Click"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <Grid x:Name="QtyOverlay" Grid.RowSpan="3" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="1000" MouseLeftButtonDown="QtyOverlay_MouseLeftButtonDown">
+                        <Border x:Name="QtyModalBorder" Width="520" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewMouseLeftButtonDown="QtyModalBorder_PreviewMouseLeftButtonDown">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}">
+                                    <Grid Margin="10,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="تعديل الكمية" Foreground="White" FontWeight="Black" FontSize="14" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+                                        <Button x:Name="QtyCloseButton" Grid.Column="1" Width="26" Height="22" Content="✕" FontWeight="Black" Foreground="White" Background="#22000000" BorderBrush="#55FFFFFF" Click="QtyCloseButton_Click"/>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" Padding="10">
+                                    <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="10">
+                                        <StackPanel>
+                                            <Border Background="#FFF7F7F7" BorderBrush="#FF999999" BorderThickness="1" Padding="12,10"><TextBlock x:Name="QtyDisplayText" Text="1" FontSize="22" FontWeight="Black" HorizontalAlignment="Left" FlowDirection="LeftToRight"/></Border>
+                                            <primitives:UniformGrid Columns="3" Margin="0,10,0,0">
+                                                <Button Content="1" Tag="1" Margin="0,0,8,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Button Content="2" Tag="2" Margin="0,0,8,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Button Content="3" Tag="3" Margin="0,0,0,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/>
+                                                <Button Content="4" Tag="4" Margin="0,0,8,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Button Content="5" Tag="5" Margin="0,0,8,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Button Content="6" Tag="6" Margin="0,0,0,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/>
+                                                <Button Content="7" Tag="7" Margin="0,0,8,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Button Content="8" Tag="8" Margin="0,0,8,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Button Content="9" Tag="9" Margin="0,0,0,8" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/>
+                                                <Border Background="Transparent" Margin="0,0,8,0"/><Button Content="0" Tag="0" Margin="0,0,8,0" Height="56" FontSize="20" FontWeight="Black" Click="QtyDigitButton_Click"/><Border Background="Transparent"/>
+                                            </primitives:UniformGrid>
+                                            <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Button x:Name="QtyDelButton" Content="حذف" Grid.Column="0" Height="56" FontWeight="Black" Background="#FFFFE4E6" BorderBrush="#FFEF4444" Foreground="#FF991B1B" Click="QtyDelButton_Click"/>
+                                                <Button x:Name="QtyOkButton" Content="صح" Grid.Column="2" Height="56" FontWeight="Black" Background="#FFDCFCE7" BorderBrush="#FF22C55E" Foreground="#FF14532D" Click="QtyOkButton_Click"/>
+                                            </Grid>
+                                            <TextBlock Text="لوحة الكمية تظهر فقط عند الضغط على خانة (الكمية)" Margin="0,8,0,0" FontSize="12" FontWeight="Black" Foreground="#FF333333" TextWrapping="Wrap" FlowDirection="RightToLeft"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <Grid x:Name="TakeawayShiftOverlay" Grid.RowSpan="3" Background="{StaticResource BWin}" Visibility="Collapsed" Panel.ZIndex="997">
+                        <Border Margin="26" Background="White" BorderBrush="#FFB8B8B8" BorderThickness="2">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="42"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid FlowDirection="LeftToRight">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="أوردرات شيفت التيك أواي" FontSize="16" FontWeight="Black" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+                                    <Button x:Name="TakeawayShiftReportButton" Grid.Column="1" Width="110" Height="32" Margin="8,0,0,0" Content="تقرير" FontWeight="Black" Click="TakeawayShiftReportButton_Click"/>
+                                    <Button x:Name="TakeawayShiftMigrateButton" Grid.Column="2" Width="110" Height="32" Margin="8,0,0,0" Content="ترحيل" FontWeight="Black" Click="TakeawayShiftMigrateButton_Click"/>
+                                    <Button x:Name="TakeawayShiftBackButton" Grid.Column="3" Width="110" Height="32" Margin="8,0,0,0" Content="رجوع" FontWeight="Black" Click="TakeawayShiftBackButton_Click"/>
+                                </Grid>
+
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel x:Name="TakeawayShiftRowsPanel" Margin="0,8,0,0"/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="DeliveryView" Visibility="Collapsed" Background="{StaticResource BWin}" PreviewMouseDown="DeliveryView_PreviewMouseDown">
+                    <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="74"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{StaticResource BBlue}" BorderBrush="#FF1B3A64" BorderThickness="0,0,0,2">
+                        <Grid Margin="10,0" FlowDirection="LeftToRight">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Margin="0,6,8,6" VerticalAlignment="Center" Foreground="White" FontSize="14" FontWeight="Bold"><Run FontWeight="Black">كاشير الدليفري</Run></TextBlock>
+                            <TextBlock x:Name="DeliveryHeaderInfoText" Grid.Column="1" Margin="0,6,8,6" VerticalAlignment="Center" Foreground="White" FontSize="11" FontWeight="Bold" FlowDirection="LeftToRight" TextTrimming="CharacterEllipsis" Visibility="Collapsed">
+                                <Run Text="المستخدم: "/><Run x:Name="DeliveryHeaderUserRun" Text="فاتح"/><Run Text="  |  التاريخ: "/><Run x:Name="DeliveryHeaderDateRun" Text="19/02/2026"/><Run Text="  |  الوقت: "/><Run x:Name="DeliveryHeaderClockRun" Text="00:00:00"/>
+                            </TextBlock>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Button x:Name="DeliveryAppOrdersBoardButton" Width="120" Height="22" Margin="0,0,8,0" VerticalAlignment="Center" Content="إدارة طلبات التطبيق" FontSize="10" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryAppOrdersBoardButton_Click"/>
+                                <Button x:Name="DeliveryInventoryButton" Width="84" Height="22" Margin="0,0,8,0" VerticalAlignment="Center" Content="المخزون" FontSize="10" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryInventoryButton_Click"/>
+                                <Button x:Name="DeliveryHeaderSwitchButton" Width="110" Height="22" VerticalAlignment="Center" Content="تحويل للكاشير" FontSize="11" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliverySwitchToTakeawayButton_Click"/>
+                                <Button x:Name="DeliveryLogoutButton" Width="72" Height="22" Margin="8,0,0,0" VerticalAlignment="Center" Content="خروج" FontSize="11" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryLogoutButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2" Padding="8,6,8,6">
+                        <Grid FlowDirection="LeftToRight">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" VerticalAlignment="Center">
+                                <Grid x:Name="DeliveryAppCountersHeaderGrid" Margin="0,6,8,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" BorderBrush="{StaticResource BLine}" BorderThickness="1" Background="White" Padding="8,4">
+                                        <TextBlock x:Name="DeliveryAppDeliveryCountersText" Foreground="#FF1F1F1F" FontSize="12" FontWeight="Black" FlowDirection="LeftToRight" TextTrimming="CharacterEllipsis" Text="طلبات التطبيق دليفري | جديد:0 | تجهيز:0 | مع سائق:0 | تم:0"/>
+                                    </Border>
+                                    <Border Grid.Column="2" BorderBrush="{StaticResource BLine}" BorderThickness="1" Background="White" Padding="8,4">
+                                        <TextBlock x:Name="DeliveryAppPickupCountersText" Foreground="#FF1F1F1F" FontSize="12" FontWeight="Black" FlowDirection="LeftToRight" TextTrimming="CharacterEllipsis" Text="طلبات التطبيق استلام | جديد:0 | تجهيز:0 | جاهز:0 | تم:0"/>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="DeliveryBtnNewOrder" Width="78" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="DeliveryBtnNewOrder_Click">
+                                <StackPanel><TextBlock Text="👥" FontSize="18" HorizontalAlignment="Center" Foreground="#FF3B82F6"/><TextBlock Text="عملاء" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="DeliveryBtnAddPickup" Width="78" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="DeliveryBtnAddPickup_Click">
+                                <StackPanel><TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" Foreground="#FFEF4444"/><TextBlock Text="أوردر استلام" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="DeliveryBtnDrivers" Width="78" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="DeliveryBtnDrivers_Click">
+                                <StackPanel><TextBlock Text="🛵" FontSize="18" HorizontalAlignment="Center" Foreground="#FF3B82F6"/><TextBlock Text="دليفري" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="DeliveryBtnKitchen" Width="78" Style="{StaticResource ToolbarIconButtonStyle}" Margin="0,0,6,0" Click="DeliveryBtnKitchenConfirm_Click">
+                                <StackPanel><TextBlock Text="✔" FontSize="18" HorizontalAlignment="Center" Foreground="#FF22C55E"/><TextBlock Text="تأكيد" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="DeliveryBtnShift" Width="78" Style="{StaticResource ToolbarIconButtonStyle}" Click="DeliveryBtnShift_Click">
+                                <StackPanel><TextBlock Text="🧾" FontSize="18" HorizontalAlignment="Center" Foreground="#FF1A1A1A"/><TextBlock Text="أوردرات الشيفت" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            <Button x:Name="DeliveryBtnCallDrivers" Width="78" Style="{StaticResource ToolbarIconButtonStyle}" Margin="6,0,0,0" Click="DeliveryBtnCallDrivers_Click">
+                                <StackPanel><TextBlock Text="📍" FontSize="18" HorizontalAlignment="Center" Foreground="#FFDC2626"/><TextBlock Text="استدعاء سائقين" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="2" FlowDirection="RightToLeft" ClipToBounds="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="190"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3.3*" MinWidth="820"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Delivery current orders queue (source second rendering/state) -->
+                        <Border Grid.Column="0" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="2,0,0,0" FlowDirection="LeftToRight">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                                    <TextBlock Text="الانتظار" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft" Margin="8,10,8,10"/>
+                                </Border>
+
+                                <Grid Grid.Row="1" Background="{StaticResource BBlue2}" FlowDirection="LeftToRight">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="1.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" BorderBrush="#FF1B3A64" BorderThickness="1,1,1,1"><TextBlock Text="رقم" Foreground="White" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="1" BorderBrush="#FF1B3A64" BorderThickness="0,1,1,1"><TextBlock Text="منذ" Foreground="White" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="2" BorderBrush="#FF1B3A64" BorderThickness="0,1,1,1"><TextBlock Text="الحي" Foreground="White" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                </Grid>
+
+                                <Border Grid.Row="2" Margin="6" Background="White" BorderBrush="#FFBDBDBD" BorderThickness="1">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                        <StackPanel x:Name="DeliveryQueueRowsPanel"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Shared pickups (same state as Takeaway) -->
+                        <Border Grid.Column="1" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="2,0,0,0" FlowDirection="LeftToRight">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                                    <Grid>
+                                        <TextBlock Text="استلام من الفرع" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft" Margin="8,10,8,10"/>
+                                        <Border x:Name="DeliveryPickBadgeBorder" Height="18" MinWidth="18" CornerRadius="9" Background="#FFD32F2F" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0" Padding="5,0" Visibility="Collapsed"><TextBlock x:Name="DeliveryPickBadgeText" Text="0" Foreground="White" FontSize="11" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                    </Grid>
+                                </Border>
+                                <ScrollViewer Grid.Row="1" Padding="8" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="DeliveryPickupsListPanel"/></ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <!-- Categories from Takeaway -->
+                        <Border Grid.Column="2" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="2,0,0,0" FlowDirection="LeftToRight">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="54"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2"><Grid><TextBlock Text="القوائم" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/><Button x:Name="DeliveryAddCategoryButton" Width="70" Height="22" Margin="6,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="إضافة قوائم" FontSize="10" FontWeight="Black" Visibility="Collapsed" Click="DeliveryAddCategoryButton_Click"/></Grid></Border>
+                                <ScrollViewer Grid.Row="1" Padding="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" VerticalContentAlignment="Top"><primitives:UniformGrid x:Name="DeliveryCategoriesGridPanel" Columns="1" VerticalAlignment="Top"/></ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <!-- Items from Takeaway -->
+                        <Border Grid.Column="3" Background="{StaticResource BQueue}" FlowDirection="LeftToRight">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="54"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2"><Grid><TextBlock Text="الأصناف" Foreground="White" FontSize="13" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/><Button x:Name="DeliveryAddItemButton" Width="64" Height="22" Margin="6,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="إضافة صنف" FontSize="10" FontWeight="Black" Visibility="Collapsed" Click="DeliveryAddItemButton_Click"/></Grid></Border>
+                                <Border Grid.Row="1" Margin="6" BorderBrush="{StaticResource BTile2}" BorderThickness="1" Background="{StaticResource BQueue}" Padding="2"><primitives:UniformGrid x:Name="DeliveryItemsGridPanel" Columns="4" Rows="12"/></Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Delivery receipt (source second) -->
+                        <Border Grid.Column="4" Background="White" BorderBrush="{StaticResource BLine}" BorderThickness="1,0,0,0" FlowDirection="LeftToRight">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="42"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="115"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid Background="{StaticResource BBlue2}" FlowDirection="LeftToRight">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36*"/>
+                                        <ColumnDefinition Width="30*"/>
+                                        <ColumnDefinition Width="10*"/>
+                                        <ColumnDefinition Width="12*"/>
+                                        <ColumnDefinition Width="12*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" BorderBrush="{StaticResource BLine}" BorderThickness="1,1,1,1"><TextBlock Text="الإجمالي" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="1" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="السعر" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="2" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="الكمية" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="3" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="ملاحظات" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" TextAlignment="Right" Padding="0,0,8,0" FlowDirection="RightToLeft"/></Border>
+                                    <Border Grid.Column="4" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="الوصف" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" TextAlignment="Right" Padding="0,0,8,0" FlowDirection="RightToLeft"/></Border>
+                                </Grid>
+
+                                <Grid Grid.Row="1" x:Name="DeliveryReceiptMiddleArea" Background="White" MouseLeftButtonDown="DeliveryReceiptMiddleArea_MouseLeftButtonDown">
+                                    <Border Background="White"/>
+                                    <ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                        <StackPanel x:Name="DeliveryReceiptRowsPanel"/>
+                                    </ScrollViewer>
+                                </Grid>
+
+                                <Border Grid.Row="2" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,2,0,0" Padding="10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="420"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Border Grid.Column="1" Width="420" Height="95" HorizontalAlignment="Left" Background="{StaticResource BTile}" BorderBrush="{StaticResource BTile2}" BorderThickness="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="191"/><ColumnDefinition Width="229"/></Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+                                                <Border Grid.Row="0" Grid.Column="0" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="DeliverySubtotalValText" Text="0" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/></Border>
+                                                <Border Grid.Row="0" Grid.Column="1" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock Text="مبلغ الطلبات" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+
+                                                <Border Grid.Row="1" Grid.Column="0" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="DeliveryFeeValText" Text="0" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/></Border>
+                                                <Border Grid.Row="1" Grid.Column="1" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="DeliveryFeeLabelText" Text="خدمة التوصيل" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+
+                                                <Border Grid.Row="2" Grid.Column="0" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock x:Name="DeliveryGrandValText" Text="0" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"/></Border>
+                                                <Border Grid.Row="2" Grid.Column="1" BorderBrush="#33FFFFFF" BorderThickness="1"><TextBlock Text="الإجمالي" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/></Border>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Delivery notes modal (from source second receipt behavior) -->
+                    <Grid x:Name="DeliveryNotesOverlay" Grid.RowSpan="3" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="1001" MouseLeftButtonDown="DeliveryNotesOverlay_MouseLeftButtonDown">
+                        <Border x:Name="DeliveryNotesModalBorder" Width="720" MaxWidth="720" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewMouseLeftButtonDown="DeliveryNotesModalBorder_PreviewMouseLeftButtonDown">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}">
+                                    <Grid Margin="10,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="ملاحظات الصنف" Foreground="White" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+                                        <Button x:Name="DeliveryNotesCloseButton" Grid.Column="1" Width="26" Height="22" Content="✕" FontWeight="Black" Foreground="White" Background="#22000000" BorderBrush="#55FFFFFF" Click="DeliveryNotesCloseButton_Click"/>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" Padding="10">
+                                    <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="8">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBox x:Name="DeliveryNotesInputTextBox" Height="34" Padding="8,4" BorderBrush="#FF999999" BorderThickness="1" FontWeight="Bold" TextWrapping="Wrap" KeyDown="DeliveryNotesInputTextBox_KeyDown" TextChanged="DeliveryNotesInputTextBox_TextChanged"/>
+                                            <Border Grid.Row="1" Margin="0,8,0,0" BorderBrush="#FF999999" BorderThickness="1" Background="#FFF7F7F7" MaxHeight="220">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryNotesSuggestPanel"/>
+                                                </ScrollViewer>
+                                            </Border>
+                                            <TextBlock Grid.Row="2" Margin="0,8,0,0" Text="Enter للحفظ — Esc للإغلاق" FontSize="12" FontWeight="Bold" Foreground="#FF333333" FlowDirection="RightToLeft"/>
+                                            <Grid Grid.Row="3" Margin="0,10,0,0" FlowDirection="LeftToRight">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Button x:Name="DeliveryNotesSaveButton" Grid.Column="0" Height="40" Content="حفظ" FontWeight="Black" Background="#FFDCFCE7" BorderBrush="#FF22C55E" Foreground="#FF14532D" Click="DeliveryNotesSaveButton_Click"/>
+                                                <Button x:Name="DeliveryNotesCancelButton" Grid.Column="2" Height="40" Content="إلغاء" FontWeight="Black" Background="#FFFFE4E6" BorderBrush="#FFEF4444" Foreground="#FF991B1B" Click="DeliveryNotesCancelButton_Click"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="DeliveryFormOverlay" Grid.RowSpan="3" Background="White" Visibility="Collapsed" Panel.ZIndex="1003">
+                        <Grid FlowDirection="RightToLeft" Background="White" PreviewKeyDown="DeliveryFormOverlay_PreviewKeyDown">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2" Padding="12">
+                                <StackPanel>
+                                    <Grid FlowDirection="RightToLeft">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock x:Name="DeliveryFormTitleText" Text="إنشاء أوردر جديد (أوفلاين)" FontWeight="Black" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1" BorderBrush="#FF666666" BorderThickness="1" Background="White" Padding="8,2" Margin="10,0,0,0">
+                                            <TextBlock x:Name="DeliveryFormHintText" Text="اكتب الهاتف ثم Enter لإظهار العناوين" FontSize="11" FontWeight="Black"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <Grid Margin="0,12,0,0" FlowDirection="RightToLeft">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Grid.Row="0" Grid.Column="0">
+                                            <TextBlock Text="رقم الهاتف (إجباري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormPhoneTextBox" Height="34" Padding="8,4" FontWeight="Black" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" KeyDown="DeliveryFormPhoneTextBox_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="0" Grid.Column="2">
+                                            <TextBlock Text="اسم العميل (اختياري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormCustomerNameTextBox" Height="34" Padding="8,4" FontWeight="Black" FlowDirection="RightToLeft" HorizontalContentAlignment="Right" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="0" Grid.Column="4">
+                                            <TextBlock Text="الحي (إجباري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="DeliveryFormDistrictComboBox" Height="34" FontWeight="Black" IsEditable="True" IsTextSearchEnabled="True" StaysOpenOnEdit="True" KeyDown="DeliveryFormDistrictComboBox_KeyDown" SelectionChanged="DeliveryFormDistrictComboBox_SelectionChanged"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,10,0,0">
+                                            <TextBlock Text="المجاورة (إجباري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormBlockTextBox" Height="34" Padding="8,4" FontWeight="Black" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,10,0,0">
+                                            <TextBlock Text="الشارع (إجباري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormStreetTextBox" Height="34" Padding="8,4" FontWeight="Black" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="1" Grid.Column="4" Margin="0,10,0,0">
+                                            <TextBlock Text="العمارة (إجباري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormBuildingTextBox" Height="34" Padding="8,4" FontWeight="Black" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,10,0,0">
+                                            <TextBlock Text="الشقة (إجباري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormApartmentTextBox" Height="34" Padding="8,4" FontWeight="Black" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,10,0,0">
+                                            <TextBlock Text="الدور (اختياري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormFloorTextBox" Height="34" Padding="8,4" FontWeight="Black" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="4" Margin="0,10,0,0">
+                                            <TextBlock Text="ملاحظة على العنوان (اختياري)" FontSize="12" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="DeliveryFormAddressNoteTextBox" Height="34" Padding="8,4" FontWeight="Black" KeyDown="DeliveryFormInput_KeyDown" TextChanged="DeliveryFormField_TextChanged"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Border Margin="0,10,0,0" Background="White" BorderBrush="#FF999999" BorderThickness="1" Padding="10">
+                                        <TextBlock x:Name="DeliveryFormAddressPreviewText" Text="العنوان سيظهر هنا أثناء الكتابة…" FontWeight="Black" TextWrapping="Wrap" FlowDirection="RightToLeft"/>
+                                    </Border>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" FlowDirection="LeftToRight">
+                                        <Button x:Name="DeliveryFormSaveButton" Width="170" Height="38" Margin="0,0,8,0" Content="حفظ العنوان والرجوع" FontWeight="Black" Background="#FFDBEAFE" BorderBrush="#FF3A7BD5" Click="DeliveryFormSaveButton_Click"/>
+                                        <Button x:Name="DeliveryFormCancelButton" Width="120" Height="38" Margin="0,0,8,0" Content="إلغاء" FontWeight="Black" Background="#FFFFE4E6" BorderBrush="#FFB10000" Click="DeliveryFormCancelButton_Click"/>
+                                        <Button x:Name="DeliveryFormDeleteAddressButton" Width="170" Height="38" Content="حذف العنوان المحدد" FontWeight="Black" BorderBrush="#FF666666" Click="DeliveryFormDeleteAddressButton_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="1" Background="White" Padding="12">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="العناوين المحفوظة لهذا الرقم" FontWeight="Black" Margin="0,0,0,10"/>
+                                    <Border Grid.Row="1" Background="White" BorderBrush="#FF999999" BorderThickness="1">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                            <StackPanel x:Name="DeliveryFormAddressListPanel" Margin="10"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <primitives:Popup x:Name="DeliveryFormSuggestPopup"
+                                      Grid.RowSpan="3"
+                                      Placement="Bottom"
+                                      StaysOpen="False"
+                                      AllowsTransparency="True"
+                                      PopupAnimation="Fade"
+                                      Panel.ZIndex="999">
+                        <Border x:Name="DeliveryFormSuggestPopupBorder"
+                                Background="White"
+                                BorderBrush="#FF7F7F7F"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                SnapsToDevicePixels="True">
+                            <ListBox x:Name="DeliveryFormSuggestListBox"
+                                     MaxHeight="140"
+                                     MinWidth="180"
+                                     BorderThickness="0"
+                                     FontWeight="Black"
+                                     FlowDirection="LeftToRight"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     PreviewMouseLeftButtonUp="DeliveryFormSuggestListBox_PreviewMouseLeftButtonUp">
+                                <ListBox.Resources>
+                                    <Style TargetType="{x:Type ListBoxItem}">
+                                        <Setter Property="Padding" Value="8,4,8,4"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                    </Style>
+                                </ListBox.Resources>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" TextAlignment="Left" FlowDirection="LeftToRight" TextWrapping="NoWrap"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </primitives:Popup>
+
+                    <primitives:Popup x:Name="DeliveryDistrictPickerPopup"
+                                      Grid.RowSpan="3"
+                                      Placement="Bottom"
+                                      StaysOpen="False"
+                                      AllowsTransparency="True"
+                                      PopupAnimation="Fade"
+                                      Panel.ZIndex="1003">
+                        <Border x:Name="DeliveryDistrictPickerPopupBorder"
+                                Background="White"
+                                BorderBrush="#FF7F7F7F"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Width="420"
+                                Padding="8"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBox x:Name="DeliveryDistrictSearchTextBox"
+                                         Height="34"
+                                         Padding="8,4"
+                                         FontWeight="Black"
+                                         FlowDirection="RightToLeft"
+                                         HorizontalContentAlignment="Right"
+                                         TextChanged="DeliveryDistrictSearchTextBox_TextChanged"
+                                         PreviewKeyDown="DeliveryDistrictSearchTextBox_KeyDown"
+                                         KeyDown="DeliveryDistrictSearchTextBox_KeyDown"/>
+                                <ListBox x:Name="DeliveryDistrictListBox"
+                                         Grid.Row="2"
+                                         MinHeight="180"
+                                         MaxHeight="280"
+                                         BorderBrush="#FFCCCCCC"
+                                         BorderThickness="1"
+                                         FontWeight="Black"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         KeyDown="DeliveryDistrictListBox_KeyDown"
+                                         MouseDoubleClick="DeliveryDistrictListBox_MouseDoubleClick">
+                                    <ListBox.Resources>
+                                        <Style TargetType="{x:Type ListBoxItem}">
+                                            <Setter Property="Padding" Value="8,6"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </ListBox.Resources>
+                                </ListBox>
+                            </Grid>
+                        </Border>
+                    </primitives:Popup>
+
+                    <Grid x:Name="DeliveryPickupOrderOverlay" Grid.RowSpan="3" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="995">
+                        <Border x:Name="DeliveryPickupOrderModalBorder" Width="560" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewKeyDown="DeliveryPickupOrderModalBorder_PreviewKeyDown" KeyboardNavigation.TabNavigation="Cycle">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}">
+                                    <Grid Margin="10,0" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="بيانات أوردر الاستلام" Foreground="White" FontWeight="Black" FontSize="14" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+                                        <Button x:Name="DeliveryPickupOrderCloseButton" Grid.Column="1" Width="26" Height="22" Content="✕" FontWeight="Black" Foreground="White" Background="#22000000" BorderBrush="#55FFFFFF" Click="DeliveryPickupFormCancelButton_Click"/>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" Padding="10">
+                                    <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="12">
+                                        <Grid FlowDirection="RightToLeft">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="رقم التليفون" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="Black" Margin="0,0,8,8"/>
+                                            <TextBox x:Name="DeliveryPickupPhoneTextBox" Grid.Row="0" Grid.Column="1" Height="34" FontSize="14" Padding="8,4" BorderBrush="#FF8F8F8F" BorderThickness="1" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="اسم العميل" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="Black" Margin="0,0,8,8"/>
+                                            <TextBox x:Name="DeliveryPickupCustomerNameTextBox" Grid.Row="1" Grid.Column="1" Height="34" FontSize="14" Padding="8,4" BorderBrush="#FF8F8F8F" BorderThickness="1" FlowDirection="RightToLeft" HorizontalContentAlignment="Right" Margin="0,0,0,8"/>
+
+                                            <Button x:Name="DeliveryPickupKeyboardButton" Grid.Row="2" Grid.ColumnSpan="2" Width="120" Height="34" HorizontalAlignment="Left" Content="⌨ كيبورد" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryPickupKeyboardButton_Click"/>
+
+                                            <Grid Grid.Row="3" Grid.ColumnSpan="2" Margin="0,12,0,0" FlowDirection="LeftToRight">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Button x:Name="DeliveryPickupFormOkButton" Grid.Column="0" Height="42" Content="صح" FontWeight="Black" Background="#FFDCFCE7" BorderBrush="#FF22C55E" Foreground="#FF14532D" Click="DeliveryPickupFormOkButton_Click"/>
+                                                <Button x:Name="DeliveryPickupFormCancelButton" Grid.Column="2" Height="42" Content="إلغاء" FontWeight="Black" Background="#FFFFE4E6" BorderBrush="#FFEF4444" Foreground="#FF991B1B" Click="DeliveryPickupFormCancelButton_Click"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="DeliveryDriversOverlay" Grid.RowSpan="3" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="1002" MouseLeftButtonDown="DeliveryDriversOverlay_MouseLeftButtonDown">
+                        <Border x:Name="DeliveryDriversModalBorder" Width="520" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewMouseLeftButtonDown="DeliveryDriversModalBorder_PreviewMouseLeftButtonDown">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Background="{StaticResource BBlue2}">
+                                    <Grid Margin="10,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="اختيار سائق (دبل كليك للتعيين والطباعة)" Foreground="White" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+                                        <Button x:Name="DeliveryDriversCloseButton" Grid.Column="1" Width="26" Height="22" Content="✕" FontWeight="Black" Foreground="White" Background="#22000000" BorderBrush="#55FFFFFF" Click="DeliveryDriversCloseButton_Click"/>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" Padding="10">
+                                    <StackPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="300">
+                                            <StackPanel x:Name="DeliveryDriversListPanel"/>
+                                        </ScrollViewer>
+                                        <TextBlock Text="دبل كليك على السائق = تعيين + طباعة فاتورة السائق" Margin="0,10,0,0" FontSize="12" FontWeight="Bold" Foreground="#FF333333" FlowDirection="RightToLeft"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="DeliveryAppOrdersBoardView" Grid.RowSpan="3" Background="{StaticResource BWin}" Visibility="Collapsed" Panel.ZIndex="998">
+                        <Grid.RowDefinitions><RowDefinition Height="72"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                            <Grid Margin="12,0" FlowDirection="LeftToRight">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="لوحة طلبات التطبيق (دليفري + استلام)" FontWeight="Black" VerticalAlignment="Center" Foreground="#FF111111"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="LeftToRight" VerticalAlignment="Center">
+                                    <Button x:Name="DeliveryAppOrdersBoardBackButton" Width="140" Height="34" Content="رجوع إلى الديليفري" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryAppOrdersBoardBackButton_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Row="1" Margin="12">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource BLine}" BorderThickness="1" CornerRadius="6">
+                                <Grid>
+                                    <Grid.RowDefinitions><RowDefinition Height="36"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <Border Grid.Row="0" Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,1" CornerRadius="6,6,0,0">
+                                        <TextBlock Text="طلبات التطبيق دليفري" Foreground="White" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Grid Grid.Row="1" Margin="10">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8" FlowDirection="LeftToRight">
+                                            <Button x:Name="DeliveryAppDeliverySelectAllButton" Width="90" Height="24" Margin="0,0,6,0" Content="تحديد الكل" FontSize="10" FontWeight="Black" Click="DeliveryAppDeliverySelectAllButton_Click"/>
+                                            <Button x:Name="DeliveryAppDeliveryApplyStatusButton" Width="110" Height="24" Content="تطبيق حالة" FontSize="10" FontWeight="Black" Click="DeliveryAppDeliveryApplyStatusButton_Click"/>
+                                        </StackPanel>
+                                        <TabControl Grid.Row="1" x:Name="DeliveryAppDeliveryStatusTabs" Background="#FFF9F9F9" BorderBrush="{StaticResource BLine}" BorderThickness="1" Padding="4">
+                                            <TabItem Header="جديد">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppDeliveryPendingPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                            <TabItem Header="قيد التجهيز">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppDeliveryPreparingPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                            <TabItem Header="تم تعيين سائق">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppDeliveryWithDriverPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                            <TabItem Header="تم التسليم">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppDeliveryDonePanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                        </TabControl>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Column="2" Background="White" BorderBrush="{StaticResource BLine}" BorderThickness="1" CornerRadius="6">
+                                <Grid>
+                                    <Grid.RowDefinitions><RowDefinition Height="36"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <Border Grid.Row="0" Background="{StaticResource BBlue2}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,1" CornerRadius="6,6,0,0">
+                                        <TextBlock Text="طلبات التطبيق استلام" Foreground="White" FontWeight="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Grid Grid.Row="1" Margin="10">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8" FlowDirection="LeftToRight">
+                                            <Button x:Name="DeliveryAppPickupSelectAllButton" Width="90" Height="24" Margin="0,0,6,0" Content="تحديد الكل" FontSize="10" FontWeight="Black" Click="DeliveryAppPickupSelectAllButton_Click"/>
+                                            <Button x:Name="DeliveryAppPickupApplyStatusButton" Width="110" Height="24" Content="تطبيق حالة" FontSize="10" FontWeight="Black" Click="DeliveryAppPickupApplyStatusButton_Click"/>
+                                        </StackPanel>
+                                        <TabControl Grid.Row="1" x:Name="DeliveryAppPickupStatusTabs" Background="#FFF9F9F9" BorderBrush="{StaticResource BLine}" BorderThickness="1" Padding="4">
+                                            <TabItem Header="جديد">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppPickupPendingPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                            <TabItem Header="قيد التجهيز">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppPickupPreparingPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                            <TabItem Header="جاهز للاستلام">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppPickupReadyPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                            <TabItem Header="تم التسليم">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="DeliveryAppPickupDeliveredPanel" Margin="8"/>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                        </TabControl>
+                                        <StackPanel x:Name="DeliveryAppPickupAcceptedPanel" Grid.Row="2" Visibility="Collapsed"/>
+                                        <TextBlock x:Name="DeliveryAppPickupAcceptedLabel" Grid.Row="2" Visibility="Collapsed"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                    <Grid x:Name="DeliveryShiftOverlay" Grid.RowSpan="3" Background="{StaticResource BWin}" Visibility="Collapsed" Panel.ZIndex="997">
+                        <Grid.RowDefinitions><RowDefinition Height="72"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{StaticResource BQueue}" BorderBrush="{StaticResource BLine}" BorderThickness="0,0,0,2">
+                            <Grid Margin="12,0" FlowDirection="RightToLeft">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="أوردرات الشيفت (المسلّمة للسائق)" FontWeight="Black" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="LeftToRight" VerticalAlignment="Center">
+                                    <Button x:Name="DeliveryShiftFilterButton" Width="44" Height="34" Margin="0,0,8,0" Content="⛃" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryShiftFilterButton_Click"/>
+                                    <ComboBox x:Name="DeliveryShiftDriverFilterComboBox" Width="220" Height="34" Margin="0,0,8,0" FontWeight="Black" SelectionChanged="DeliveryShiftDriverFilterComboBox_SelectionChanged"/>
+                                    <Button x:Name="DeliveryShiftReportButton" Width="120" Height="34" Margin="0,0,8,0" Content="طباعة تقرير اليوم" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryShiftReportButton_Click"/>
+                                    <Button x:Name="DeliveryShiftCloseButton" Width="100" Height="34" Margin="0,0,8,0" Content="ترحيل الشيفت" FontWeight="Black" Background="#FFFFE4E6" BorderBrush="#FFB10000" Click="DeliveryShiftCloseButton_Click"/>
+                                    <Button x:Name="DeliveryShiftBackButton" Width="100" Height="34" Content="رجوع" FontWeight="Black" BorderBrush="#FF7F7F7F" Click="DeliveryShiftBackButton_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="1" Margin="12" Background="White" BorderBrush="{StaticResource BLine}" BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Background="{StaticResource BBlue2}" FlowDirection="RightToLeft">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" BorderBrush="{StaticResource BLine}" BorderThickness="1,1,1,1"><TextBlock Text="رقم الفاتورة" Foreground="White" FontSize="12" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                    <Border Grid.Column="1" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="الوقت" Foreground="White" FontSize="12" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                    <Border Grid.Column="2" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="هاتف العميل" Foreground="White" FontSize="12" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                    <Border Grid.Column="3" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="السائق" Foreground="White" FontSize="12" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                    <Border Grid.Column="4" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="الإجمالي" Foreground="White" FontSize="12" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                    <Border Grid.Column="5" BorderBrush="{StaticResource BLine}" BorderThickness="0,1,1,1"><TextBlock Text="إجراءات" Foreground="White" FontSize="12" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                </Grid>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel x:Name="DeliveryShiftRowsPanel"/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="InventoryOverviewOverlay" Background="#50000000" Visibility="Collapsed" Panel.ZIndex="1195" MouseLeftButtonDown="InventoryOverviewOverlay_MouseLeftButtonDown">
+                    <Border x:Name="InventoryOverviewModalBorder" Width="1100" Height="780" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewMouseLeftButtonDown="InventoryOverviewModalBorder_PreviewMouseLeftButtonDown">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Border Background="{StaticResource BBlue2}">
+                                <Grid Margin="10,0" FlowDirection="LeftToRight">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <Button x:Name="InventoryOverviewRefreshButton" Grid.Column="0" Width="92" Height="28" Margin="0,0,8,0" VerticalAlignment="Center" Content="تحديث" FontWeight="Black" FontSize="12" Click="InventoryOverviewRefreshButton_Click"/>
+                                    <TextBlock x:Name="InventoryOverviewTitleText" Grid.Column="1" Text="المخزون المشترك" Foreground="White" FontWeight="Black" FontSize="17" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/>
+                                    <Button x:Name="InventoryOverviewCloseButton" Grid.Column="2" Width="26" Height="22" Content="✕" FontWeight="Black" Foreground="White" Background="#22000000" BorderBrush="#55FFFFFF" VerticalAlignment="Center" Click="InventoryOverviewCloseButton_Click"/>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="1" Padding="10">
+                                <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="10">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                        <StackPanel x:Name="InventoryOverviewRowsPanel"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="AdminAddCategoryOverlay" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="1200">
+                    <Border x:Name="AdminAddCategoryModalBorder" Width="420" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewKeyDown="AdminAddCategoryModalBorder_PreviewKeyDown">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Border Background="{StaticResource BBlue2}">
+                                <TextBlock Text="إضافة قائمة" Foreground="White" FontWeight="Black" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/>
+                            </Border>
+                            <Border Grid.Row="1" Padding="10">
+                                <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="12">
+                                    <Grid FlowDirection="RightToLeft">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="اسم القائمة" FontWeight="Black" Margin="0,0,0,6"/>
+                                            <TextBox x:Name="AdminAddCategoryNameTextBox" Height="34" Padding="8,4" FontWeight="Black"/>
+                                        </StackPanel>
+                                        <Grid Grid.Row="1" Margin="0,12,0,0" FlowDirection="LeftToRight">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Button Grid.Column="0" Height="38" Content="حفظ" FontWeight="Black" Click="AdminAddCategorySaveButton_Click"/>
+                                            <Button Grid.Column="2" Height="38" Content="إلغاء" FontWeight="Black" Click="AdminAddCategoryCancelButton_Click"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="AdminAddItemOverlay" Background="#40000000" Visibility="Collapsed" Panel.ZIndex="1201">
+                    <Border x:Name="AdminAddItemModalBorder" Width="620" Background="{StaticResource BQueue}" BorderBrush="#FF6B6B6B" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" PreviewKeyDown="AdminAddItemModalBorder_PreviewKeyDown">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Border Background="{StaticResource BBlue2}">
+                                <TextBlock Text="إضافة صنف" Foreground="White" FontWeight="Black" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" FlowDirection="RightToLeft"/>
+                            </Border>
+                            <Border Grid.Row="1" Padding="10">
+                                <Border Background="White" BorderBrush="#FF666666" BorderThickness="1" Padding="12">
+                                    <Grid FlowDirection="RightToLeft">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="القائمة النشطة" FontWeight="Black" Margin="0,0,0,4"/>
+                                            <Border BorderBrush="#FF999999" BorderThickness="1" Background="#FFF7F7F7" Padding="8,6">
+                                                <TextBlock x:Name="AdminAddItemCategoryNameText" FontWeight="Black" FlowDirection="RightToLeft"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <Grid Grid.Row="1" Margin="0,10,0,0">
+                                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="120"/></Grid.RowDefinitions>
+                                            <TextBlock Text="ربط منتج التطبيق (Linked App Product)" FontWeight="Black" Margin="0,0,0,6"/>
+                                            <TextBox x:Name="AdminAddItemProductSearchTextBox" Grid.Row="1" Height="34" Padding="8,4" FontWeight="Black" TextChanged="AdminAddItemProductSearchTextBox_TextChanged"/>
+                                            <ListBox x:Name="AdminAddItemProductsListBox" Grid.Row="2" Margin="0,8,0,0" BorderBrush="#FF999999" BorderThickness="1" SelectionChanged="AdminAddItemProductsListBox_SelectionChanged"/>
+                                        </Grid>
+                                        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+                                            <TextBlock Text="Fixed Options (اختياري)" FontWeight="Black" Margin="0,0,0,6"/>
+                                            <Border BorderBrush="#FF999999" BorderThickness="1" Background="#FFF7F7F7" Padding="6">
+                                                <ScrollViewer Height="108" VerticalScrollBarVisibility="Auto">
+                                                    <StackPanel x:Name="AdminAddItemOptionsPanel"/>
+                                                </ScrollViewer>
+                                            </Border>
+                                        </StackPanel>
+                                        <Grid Grid.Row="3" Margin="0,10,0,0">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="POS Display Name" FontWeight="Black" Margin="0,0,0,6"/>
+                                                <TextBox x:Name="AdminAddItemNameTextBox" Height="34" Padding="8,4" FontWeight="Black"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Price Preview" FontWeight="Black" Margin="0,0,0,6"/>
+                                                <Border Height="34" BorderBrush="#FF999999" BorderThickness="1" Background="#FFF7F7F7" Padding="8,4">
+                                                    <TextBlock x:Name="AdminAddItemPricePreviewText" FontWeight="Black" FlowDirection="LeftToRight" VerticalAlignment="Center" Text="0"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Grid.Row="4" Margin="0,12,0,0" FlowDirection="LeftToRight">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Button Grid.Column="0" Height="38" Content="حفظ" FontWeight="Black" Click="AdminAddItemSaveButton_Click"/>
+                                            <Button Grid.Column="2" Height="38" Content="إلغاء" FontWeight="Black" Click="AdminAddItemCancelButton_Click"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <primitives:Popup x:Name="AdminCategoryReorderPopup" Placement="Right" StaysOpen="True" AllowsTransparency="True" Closed="AdminCategoryReorderPopup_Closed">
+                    <Border Background="{StaticResource BQueue}" BorderBrush="#FF666666" BorderThickness="1" Padding="4">
+                        <StackPanel>
+                            <Button Width="34" Height="28" FontWeight="Black" Content="↑" Click="AdminCategoryReorderUpButton_Click"/>
+                            <Button Width="34" Height="28" FontWeight="Black" Content="↓" Margin="0,4,0,0" Click="AdminCategoryReorderDownButton_Click"/>
+                            <Button Width="52" Height="24" FontSize="10" FontWeight="Black" Content="تعديل" Margin="0,6,0,0" Click="AdminCategoryEditButton_Click"/>
+                            <Button Width="52" Height="24" FontSize="10" FontWeight="Black" Content="حذف" Margin="0,4,0,0" Click="AdminCategoryDeleteButton_Click"/>
+                        </StackPanel>
+                    </Border>
+                </primitives:Popup>
+
+                <primitives:Popup x:Name="AdminItemReorderPopup" Placement="Right" StaysOpen="True" AllowsTransparency="True" Closed="AdminItemReorderPopup_Closed">
+                    <Border Background="{StaticResource BQueue}" BorderBrush="#FF666666" BorderThickness="1" Padding="4">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="28"/><RowDefinition Height="28"/><RowDefinition Height="30"/></Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="44"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                            <Button Grid.Row="0" Grid.Column="1" FontWeight="Black" Content="↑" Click="AdminItemReorderUpButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="0" FontWeight="Black" Content="←" Click="AdminItemReorderLeftButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="2" FontWeight="Black" Content="→" Click="AdminItemReorderRightButton_Click"/>
+                            <Button Grid.Row="2" Grid.Column="1" FontWeight="Black" Content="↓" Click="AdminItemReorderDownButton_Click"/>
+                            <Button Grid.Row="3" Grid.Column="0" FontWeight="Black" FontSize="10" Content="تعديل" Click="AdminItemEditButton_Click"/>
+                            <Button Grid.Row="3" Grid.Column="2" FontWeight="Black" FontSize="10" Content="حذف" Click="AdminItemDeleteButton_Click"/>
+                        </Grid>
+                    </Border>
+                </primitives:Popup>
+            </Grid>
+        </Viewbox>
+    </Grid>
+</Window>
