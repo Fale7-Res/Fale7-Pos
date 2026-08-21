@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useAppStore } from '@/lib/store';
 import { Product, ProductVariant, OrderType, PaymentMethod } from '@/lib/types';
 import { createOperationId } from '@/lib/financial-posting';
+import { usePosShortcuts } from '@/hooks/usePosShortcuts';
+import { useBarcodeScanner } from '@/hooks/useBarcodeScanner';
 import {
   Search,
   Plus,
@@ -35,6 +37,11 @@ export default function PosScreen() {
     categories,
     products,
     orders,
+    cartTabs,
+    activeCartTabId,
+    switchCartTab,
+    addCartTab,
+    removeCartTab,
     cart,
     addToCart,
     updateCartItemQty,
@@ -66,15 +73,16 @@ export default function PosScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]?.id || 'cat-sandwiches-faleh');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [variantModalProduct, setVariantModalProduct] = useState<Product | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [itemNotes, setItemNotes] = useState<string>('');
+
 
   // Checkout modal
   const [checkoutModalOpen, setCheckoutModalOpen] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [amountPaidInput, setAmountPaidInput] = useState<string>('');
   const [checkoutError, setCheckoutError] = useState<string>('');
+  const [multiCash, setMultiCash] = useState<string>('');
+  const [multiCard, setMultiCard] = useState<string>('');
+  const [selectedZoneId, setSelectedZoneId] = useState<string>('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const checkoutRequestIdRef = useRef<string | null>(null);
 
@@ -98,36 +106,60 @@ export default function PosScreen() {
   // Click on product card
   const handleProductClick = (product: Product) => {
     if (product.variants && product.variants.length > 0) {
-      setVariantModalProduct(product);
-      setSelectedVariant(product.variants[0]);
-      setItemNotes('');
+      addToCart(product, product.variants[0], undefined);
     } else {
       addToCart(product, undefined, undefined);
     }
   };
 
-  // Confirm variant selection
-  const handleConfirmVariant = () => {
-    if (variantModalProduct && selectedVariant) {
-      addToCart(variantModalProduct, selectedVariant, itemNotes || undefined);
-      setVariantModalProduct(null);
-      setSelectedVariant(null);
-      setItemNotes('');
-    }
-  };
-
   // Open Checkout
   const handleOpenCheckout = () => {
-    if (cart.length === 0) return;
-    const finalTotal = cartTotal + (orderType === 'delivery' ? settings.deliveryFee : 0);
+    if (cart.length === 0) {
+      setCheckoutError('السلة فارغة!');
+      return;
+    }
+    const currentDeliveryFee = orderType === 'delivery' ? (settings.deliveryZones?.find(z => z.id === selectedZoneId)?.fee ?? settings.deliveryFee) : 0;
+    const finalTotal = cartTotal + currentDeliveryFee;
     setAmountPaidInput(String(finalTotal));
     setPaymentMethod('cash');
     setCheckoutError('');
+    setMultiCash('');
+    setMultiCard('');
     checkoutRequestIdRef.current = createOperationId('checkout-request');
     setCheckoutModalOpen(true);
   };
 
-  // Handle Quick Cash Buttons (e.g. 50, 100, 200, 500)
+  usePosShortcuts({
+    onCheckout: () => handleOpenCheckout(),
+    onHold: () => addCartTab(),
+    onDiscount: () => setDiscountModalOpen(true),
+    onCancel: () => {
+      setCheckoutModalOpen(false);
+      setDiscountModalOpen(false);
+    }
+  });
+
+  useBarcodeScanner((barcode) => {
+    const product = products.find(p => p.id === barcode || p.name.includes(barcode));
+    if (product) {
+      addToCart(product, undefined, undefined);
+    }
+  });
+
+  // Dynamic Quick Cash Amounts
+  const getSuggestedCashAmounts = (total: number) => {
+    if (total === 0) return [50, 100, 200];
+    const amounts = new Set<number>();
+    amounts.add(total);
+    if (total % 10 !== 0) amounts.add(Math.ceil(total / 10) * 10);
+    if (total % 20 !== 0) amounts.add(Math.ceil(total / 20) * 20);
+    if (total % 50 !== 0) amounts.add(Math.ceil(total / 50) * 50);
+    if (total % 100 !== 0) amounts.add(Math.ceil(total / 100) * 100);
+    if (total % 200 !== 0) amounts.add(Math.ceil(total / 200) * 200);
+    return Array.from(amounts).sort((a, b) => a - b).filter(a => a >= total).slice(0, 4);
+  };
+
+  // Handle Quick Cash Buttons
   const handleQuickCash = (amount: number) => {
     setAmountPaidInput(String(amount));
   };
@@ -146,10 +178,23 @@ export default function PosScreen() {
   // Perform Final Payment
   const handleFinalCheckout = () => {
     if (isProcessingPayment) return;
-    const finalTotal = cartTotal + (orderType === 'delivery' ? settings.deliveryFee : 0);
-    const paidNum = paymentMethod === 'cash' ? Number(amountPaidInput) || 0 : finalTotal;
+    const currentDeliveryFee = orderType === 'delivery' ? (settings.deliveryZones?.find(z => z.id === selectedZoneId)?.fee ?? settings.deliveryFee) : 0;
+    const finalTotal = cartTotal + currentDeliveryFee;
+    let paidNum = paymentMethod === 'cash' ? Number(amountPaidInput) || 0 : finalTotal;
+    let splits: { method: 'cash' | 'card' | 'instapay', amount: number }[] | undefined = undefined;
 
-    if (paymentMethod === 'cash' && paidNum < finalTotal) {
+    if (paymentMethod === 'multi') {
+      const c = Number(multiCash) || 0;
+      const r = Number(multiCard) || 0;
+      paidNum = c + r;
+      if (paidNum < finalTotal) {
+         setCheckoutError(`المبلغ المدفوع (${paidNum} ج) أقل من إجمالي الطلب (${finalTotal} ج).`);
+         return;
+      }
+      splits = [];
+      if (c > 0) splits.push({ method: 'cash', amount: c });
+      if (r > 0) splits.push({ method: 'card', amount: r });
+    } else if (paymentMethod === 'cash' && paidNum < finalTotal) {
       setCheckoutError(`المبلغ المدفوع (${paidNum} ج) أقل من إجمالي الطلب (${finalTotal} ج).`);
       return;
     }
@@ -158,7 +203,7 @@ export default function PosScreen() {
       setIsProcessingPayment(true);
       const requestId = checkoutRequestIdRef.current || createOperationId('checkout-request');
       checkoutRequestIdRef.current = requestId;
-      checkout(paymentMethod, paidNum, requestId);
+      checkout(paymentMethod, paidNum, requestId, splits, currentDeliveryFee);
       checkoutRequestIdRef.current = null;
       setCheckoutModalOpen(false);
     } catch (err: unknown) {
@@ -194,7 +239,8 @@ export default function PosScreen() {
     }
   };
 
-  const grandTotal = cartTotal + (orderType === 'delivery' ? settings.deliveryFee : 0);
+  const currentDeliveryFee = orderType === 'delivery' ? (settings.deliveryZones?.find(z => z.id === selectedZoneId)?.fee ?? settings.deliveryFee) : 0;
+  const grandTotal = cartTotal + currentDeliveryFee;
   const changeDue = Math.max(0, (Number(amountPaidInput) || 0) - grandTotal);
 
   if (!activeShift) {
@@ -224,6 +270,36 @@ export default function PosScreen() {
     <div className="flex h-full overflow-hidden bg-[#F3F6FA] font-sans" dir="rtl">
       {/* 1. LEFT PANEL: CURRENT ORDER CART & CHECKOUT (Width: 380px) */}
       <div className="w-[390px] bg-[#151C24] border-l border-[#2C343E] flex flex-col h-full shadow-xl shrink-0 z-10">
+        {/* Tabs Bar */}
+        <div className="flex overflow-x-auto bg-[#0A0D11] border-b border-[#2C343E] scrollbar-hide shrink-0">
+          {cartTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => switchCartTab(tab.id)}
+              className={`flex-shrink-0 px-3 py-2 text-xs font-bold transition-colors flex items-center gap-2 border-r border-[#2C343E] ${
+                activeCartTabId === tab.id ? 'bg-[#151B23] text-white border-t-2 border-t-blue-500' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {tab.name}
+              {cartTabs.length > 1 && (
+                <X
+                  className="w-3 h-3 opacity-50 hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeCartTab(tab.id);
+                  }}
+                />
+              )}
+            </button>
+          ))}
+          <button
+            onClick={() => addCartTab()}
+            className="flex-shrink-0 px-3 py-2 text-slate-400 hover:text-white transition-colors border-r border-[#2C343E]"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
+
         {/* Cart Header */}
         <div className="p-3 bg-[#151B23] text-white border-b border-[#2C343E]">
           <div className="mb-3 flex items-center justify-between">
@@ -304,6 +380,18 @@ export default function PosScreen() {
                   className="w-1/2 bg-slate-800 text-white px-2 py-1 rounded-lg border border-slate-700"
                 />
               </div>
+              {settings.deliveryZones && settings.deliveryZones.length > 0 && (
+                <select
+                  value={selectedZoneId}
+                  onChange={(e) => setSelectedZoneId(e.target.value)}
+                  className="w-full bg-slate-800 text-white px-2 py-1.5 rounded-lg border border-slate-700"
+                >
+                  <option value="">اختر المنطقة (الافتراضي: {settings.deliveryFee} ج)</option>
+                  {settings.deliveryZones.map(z => (
+                    <option key={z.id} value={z.id}>{z.name} - {z.fee} ج</option>
+                  ))}
+                </select>
+              )}
               <input
                 type="text"
                 value={deliveryAddress}
@@ -351,6 +439,17 @@ export default function PosScreen() {
                         ملاحظة: {item.notes}
                       </p>
                     )}
+                    <div className="flex gap-1 mt-1.5 flex-wrap">
+                      {['بدون بصل', 'بدون طماطم', 'حار'].map(note => (
+                        <button
+                          key={note}
+                          onClick={() => updateCartItemNotes(item.id, item.notes ? `${item.notes}، ${note}` : note)}
+                          className="text-[9px] bg-[#2C343E] text-slate-300 px-1.5 py-0.5 rounded-sm hover:bg-slate-700 transition-colors"
+                        >
+                          + {note}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -408,7 +507,7 @@ export default function PosScreen() {
             {orderType === 'delivery' && (
               <div className="flex justify-between text-slate-600">
                 <span>خدمة التوصيل:</span>
-                <span className="font-bold">+ {settings.deliveryFee} ج</span>
+                <span className="font-bold">+ {currentDeliveryFee} ج</span>
               </div>
             )}
 
@@ -580,83 +679,7 @@ export default function PosScreen() {
         </div>
       </div>
 
-      {/* 3. PRODUCT VARIANT SELECTION POPUP MODAL (Fast Touch Overlay) */}
-      {variantModalProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 p-6 space-y-5 text-slate-800">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-xs font-bold text-red-600 uppercase tracking-wide">اختيار نوع الخبز / الحجم</span>
-                <h3 className="text-xl font-black text-slate-900 mt-0.5">{variantModalProduct.name}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setVariantModalProduct(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            {/* Variant buttons */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 block">حدد الخيار المطلوب:</label>
-              <div className="grid grid-cols-3 gap-2">
-                {variantModalProduct.variants.map((variant) => {
-                  const isSelected = selectedVariant?.id === variant.id;
-                  return (
-                    <button
-                      key={variant.id}
-                      type="button"
-                      onClick={() => setSelectedVariant(variant)}
-                      className={`p-3 rounded-2xl border-2 text-center transition-all ${
-                        isSelected
-                          ? 'border-red-600 bg-red-50 text-red-900 shadow-sm'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                      }`}
-                    >
-                      <div className="font-black text-sm">{variant.name}</div>
-                      <div className="font-extrabold text-xs text-red-600 mt-1">{variant.price} ج</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Notes Input */}
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">ملاحظة التحضير (اختياري):</label>
-              <input
-                type="text"
-                value={itemNotes}
-                onChange={(e) => setItemNotes(e.target.value)}
-                placeholder="مثال: بدون طماطم، طحينة زيادة، خبز محمص..."
-                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-red-500"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setVariantModalProduct(null)}
-                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl"
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmVariant}
-                disabled={!selectedVariant}
-                className="flex-1 py-3 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-40 text-white text-sm font-black rounded-xl shadow-md flex items-center justify-center gap-1.5"
-              >
-                <Check className="w-4 h-4" />
-                إضافة للطلب ({selectedVariant?.price || 0} ج)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 4. FAST CHECKOUT MODAL WITH TOUCH NUMERIC KEYPAD */}
       {checkoutModalOpen && (
@@ -683,21 +706,21 @@ export default function PosScreen() {
             {/* Modal Body */}
             <div className="p-6 space-y-4">
               {/* Payment Method Selector */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setPaymentMethod('cash');
                     setAmountPaidInput(String(grandTotal));
                   }}
-                  className={`py-3 px-4 rounded-2xl border-2 font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-3 px-2 rounded-2xl border-2 font-bold text-xs flex flex-col items-center justify-center gap-1 transition-all ${
                     paymentMethod === 'cash'
                       ? 'border-emerald-600 bg-emerald-50 text-emerald-900 shadow-sm'
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <Banknote className="w-5 h-5 text-emerald-600" />
-                  <span>دفع نقدي (كاش)</span>
+                  <span>كاش</span>
                 </button>
                 <button
                   type="button"
@@ -705,14 +728,14 @@ export default function PosScreen() {
                     setPaymentMethod('card');
                     setAmountPaidInput(String(grandTotal));
                   }}
-                  className={`py-3 px-4 rounded-2xl border-2 font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-3 px-2 rounded-2xl border-2 font-bold text-xs flex flex-col items-center justify-center gap-1 transition-all ${
                     paymentMethod === 'card'
                       ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-sm'
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <CreditCard className="w-5 h-5 text-blue-600" />
-                  <span>بطاقة بنكية (فيزا)</span>
+                  <span>فيزا</span>
                 </button>
                 <button
                   type="button"
@@ -720,14 +743,29 @@ export default function PosScreen() {
                     setPaymentMethod('instapay');
                     setAmountPaidInput(String(grandTotal));
                   }}
-                  className={`py-3 px-4 rounded-2xl border-2 font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-3 px-2 rounded-2xl border-2 font-bold text-xs flex flex-col items-center justify-center gap-1 transition-all ${
                     paymentMethod === 'instapay'
                       ? 'border-violet-600 bg-violet-50 text-violet-900 shadow-sm'
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <Smartphone className="w-5 h-5 text-violet-600" />
-                  <span>InstaPay</span>
+                  <span>إنستاباي</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod('multi');
+                    setAmountPaidInput('');
+                  }}
+                  className={`py-3 px-2 rounded-2xl border-2 font-bold text-xs flex flex-col items-center justify-center gap-1 transition-all ${
+                    paymentMethod === 'multi'
+                      ? 'border-amber-600 bg-amber-50 text-amber-900 shadow-sm'
+                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <PieChart className="w-5 h-5 text-amber-600" />
+                  <span>مقسم</span>
                 </button>
               </div>
 
@@ -757,6 +795,26 @@ export default function PosScreen() {
                 )}
               </div>
 
+              {paymentMethod === 'multi' && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3">
+                  <h4 className="font-bold text-sm text-amber-900 mb-2">توزيع المبلغ</h4>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="text-xs font-bold text-slate-700 block mb-1">نقدي (كاش)</label>
+                      <input type="number" value={multiCash} onChange={e => setMultiCash(e.target.value)} className="w-full text-center font-bold text-lg p-2 rounded-xl border border-slate-300" placeholder="0" />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-xs font-bold text-slate-700 block mb-1">فيزا</label>
+                      <input type="number" value={multiCard} onChange={e => setMultiCard(e.target.value)} className="w-full text-center font-bold text-lg p-2 rounded-xl border border-slate-300" placeholder="0" />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-extrabold pt-2 border-t border-amber-200/50">
+                    <span className="text-amber-800">مجموع المدفوع:</span>
+                    <span className="text-amber-900">{(Number(multiCash) || 0) + (Number(multiCard) || 0)} ج.م</span>
+                  </div>
+                </div>
+              )}
+
               {checkoutError && (
                 <div className="bg-red-50 text-red-700 text-xs font-bold p-2.5 rounded-xl border border-red-200 text-center">
                   {checkoutError}
@@ -768,7 +826,7 @@ export default function PosScreen() {
                 <div className="space-y-3">
                   {/* Quick Cash Buttons */}
                   <div className="flex gap-2">
-                    {[grandTotal, 50, 100, 200, 500].map((amt, idx) => (
+                    {getSuggestedCashAmounts(grandTotal).map((amt, idx) => (
                       <button
                         key={idx}
                         type="button"

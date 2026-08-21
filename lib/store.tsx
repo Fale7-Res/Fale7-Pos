@@ -69,6 +69,19 @@ import {
   INITIAL_NOTIFICATIONS,
 } from './mock-data';
 
+export interface CartTab {
+  id: string;
+  name: string;
+  cart: OrderItem[];
+  orderType: OrderType;
+  tableNumber: string;
+  customerName: string;
+  customerPhone: string;
+  deliveryAddress: string;
+  discount: number;
+  discountReason: string;
+}
+
 interface AppContextType {
   // Navigation & User
   activeModule: string;
@@ -102,6 +115,11 @@ interface AppContextType {
   deleteCategory: (id: string) => void;
 
   // POS & Cart
+  cartTabs: CartTab[];
+  activeCartTabId: string;
+  switchCartTab: (tabId: string) => void;
+  addCartTab: () => void;
+  removeCartTab: (tabId: string) => void;
   cart: OrderItem[];
   orderType: OrderType;
   setOrderType: (type: OrderType) => void;
@@ -123,7 +141,7 @@ interface AppContextType {
   clearCart: () => void;
   cartSubtotal: number;
   cartTotal: number;
-  checkout: (paymentMethod: PaymentMethod, amountPaid: number, checkoutRequestId: string) => Order;
+  checkout: (paymentMethod: PaymentMethod, amountPaid: number, checkoutRequestId: string, splitPayments?: { method: Exclude<PaymentMethod, 'multi'>, amount: number }[], customDeliveryFee?: number) => Order;
 
   // Orders
   orders: Order[];
@@ -243,15 +261,61 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
 
-  // POS State
-  const [cart, setCart] = useState<OrderItem[]>([]);
-  const [orderType, setOrderType] = useState<OrderType>('dine_in');
-  const [tableNumber, setTableNumber] = useState<string>('صالة 1');
-  const [customerName, setCustomerName] = useState<string>('');
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
-  const [discount, setDiscountState] = useState<number>(0);
-  const [discountReason, setDiscountReason] = useState<string>('');
+  // POS State - Tabs
+  const [cartTabs, setCartTabs] = useState<CartTab[]>([{
+    id: 'tab-1', name: 'طلب 1', cart: [], orderType: 'dine_in', tableNumber: 'صالة 1', customerName: '', customerPhone: '', deliveryAddress: '', discount: 0, discountReason: ''
+  }]);
+  const [activeCartTabId, setActiveCartTabId] = useState<string>('tab-1');
+
+  const activeTab = useMemo(() => cartTabs.find(t => t.id === activeCartTabId) || cartTabs[0], [cartTabs, activeCartTabId]);
+  const cart = activeTab.cart;
+  const orderType = activeTab.orderType;
+  const tableNumber = activeTab.tableNumber;
+  const customerName = activeTab.customerName;
+  const customerPhone = activeTab.customerPhone;
+  const deliveryAddress = activeTab.deliveryAddress;
+  const discount = activeTab.discount;
+  const discountReason = activeTab.discountReason;
+
+  const switchCartTab = useCallback((tabId: string) => setActiveCartTabId(tabId), []);
+  const addCartTab = useCallback(() => {
+    const newId = `tab-${Date.now()}`;
+    setCartTabs(prev => [...prev, { id: newId, name: `طلب ${prev.length + 1}`, cart: [], orderType: 'dine_in', tableNumber: 'صالة 1', customerName: '', customerPhone: '', deliveryAddress: '', discount: 0, discountReason: '' }]);
+    setActiveCartTabId(newId);
+  }, []);
+  const removeCartTab = useCallback((tabId: string) => {
+    setCartTabs(prev => {
+      const filtered = prev.filter(t => t.id !== tabId);
+      if (filtered.length === 0) return [{ id: 'tab-1', name: 'طلب 1', cart: [], orderType: 'dine_in', tableNumber: 'صالة 1', customerName: '', customerPhone: '', deliveryAddress: '', discount: 0, discountReason: '' }];
+      return filtered;
+    });
+    setActiveCartTabId(prev => prev === tabId ? 'tab-1' : prev);
+  }, []);
+
+  const setCart = useCallback((updater: React.SetStateAction<OrderItem[]>) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, cart: typeof updater === 'function' ? updater(tab.cart) : updater } : tab));
+  }, [activeCartTabId]);
+  const setOrderType = useCallback((type: OrderType) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, orderType: type } : tab));
+  }, [activeCartTabId]);
+  const setTableNumber = useCallback((table: string) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, tableNumber: table } : tab));
+  }, [activeCartTabId]);
+  const setCustomerName = useCallback((name: string) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, customerName: name } : tab));
+  }, [activeCartTabId]);
+  const setCustomerPhone = useCallback((phone: string) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, customerPhone: phone } : tab));
+  }, [activeCartTabId]);
+  const setDeliveryAddress = useCallback((address: string) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, deliveryAddress: address } : tab));
+  }, [activeCartTabId]);
+  const setDiscountState = useCallback((amount: number) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, discount: amount } : tab));
+  }, [activeCartTabId]);
+  const setDiscountReason = useCallback((reason: string) => {
+    setCartTabs(prev => prev.map(tab => tab.id === activeCartTabId ? { ...tab, discountReason: reason } : tab));
+  }, [activeCartTabId]);
 
   // Operational Data State
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
@@ -675,7 +739,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // POS Checkout Workflow (Connected State Engine)
   const checkout = useCallback(
-    (paymentMethod: PaymentMethod, amountPaid: number, checkoutRequestId: string) => {
+    (paymentMethod: PaymentMethod, amountPaid: number, checkoutRequestId: string, splitPayments?: { method: Exclude<PaymentMethod, 'multi'>, amount: number }[], customDeliveryFee?: number) => {
       assertBrowserWriter(window.localStorage);
       if (!checkoutRequestId.trim()) {
         throw new Error('تعذر تحديد طلب الدفع. أعد فتح شاشة الدفع وحاول مرة أخرى.');
@@ -692,10 +756,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (!hasPermission('pos')) {
         throw new Error('ليس لديك صلاحية تسجيل عملية بيع.');
       }
-      if (paymentMethod === 'multi') {
-        throw new Error('الدفع المتعدد غير مدعوم في مسار التحصيل المالي الحالي.');
+      if (paymentMethod === 'multi' && (!splitPayments || splitPayments.length === 0)) {
+        throw new Error('يجب تحديد تفاصيل الدفع المتعدد.');
       }
-      const deliveryFee = orderType === 'delivery' ? settings.deliveryFee : 0;
+      const deliveryFee = orderType === 'delivery' ? (customDeliveryFee !== undefined ? customDeliveryFee : settings.deliveryFee) : 0;
       const payableTotal = cartTotal + deliveryFee;
       const taxCalculation = calculateTax(
         Math.round(Math.max(0, cartSubtotal - discount) * 100),
@@ -752,6 +816,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         taxRuleName: activeTaxRule?.name,
         total: payableTotal,
         paymentMethod,
+        splitPayments,
         amountPaid,
         changeDue,
         status: hasGrill ? 'preparing' : 'completed',
@@ -762,31 +827,73 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       };
 
       if (!cashOnDelivery) startFinancialJournalEntry({ operationId, idempotencyKey: `sale-${checkoutRequestId}`, kind: 'sale' });
-      const paymentMovement = cashOnDelivery ? undefined : enterprise.postSaleCollection({
-        operationId,
-        checkoutRequestId,
-        orderId,
-        shiftId: activeShift.id,
-        paymentMethod,
-        amountPiastres: toPiastres(payableTotal),
-        createdBy: currentUser.name,
-      });
-      const effectiveOperationId = paymentMovement?.operationId || operationId;
+      let paymentMovements: any[] = [];
+      if (!cashOnDelivery) {
+        if (paymentMethod === 'multi' && splitPayments) {
+          paymentMovements = splitPayments.map((sp, idx) => enterprise.postSaleCollection({
+            operationId,
+            checkoutRequestId: `${checkoutRequestId}-${idx}`,
+            orderId,
+            shiftId: activeShift.id,
+            paymentMethod: sp.method,
+            amountPiastres: toPiastres(sp.amount),
+            createdBy: currentUser.name,
+          }));
+        } else {
+          paymentMovements = [enterprise.postSaleCollection({
+            operationId,
+            checkoutRequestId,
+            orderId,
+            shiftId: activeShift.id,
+            paymentMethod: paymentMethod as Exclude<PaymentMethod, 'multi'>,
+            amountPiastres: toPiastres(payableTotal),
+            createdBy: currentUser.name,
+          })];
+        }
+      }
+
+      const primaryMovement = paymentMovements[0];
+      const effectiveOperationId = primaryMovement?.operationId || operationId;
       const newOrder: Order = {
         ...orderDraft,
         businessDayId: enterprise.businessDays.find(day=>day.status!=='closed')?.id,
-        id: paymentMovement?.referenceId || orderId,
-        financialOperationId: paymentMovement ? effectiveOperationId : undefined,
-        paymentTreasuryMovementId: paymentMovement?.id,
+        id: primaryMovement?.referenceId || orderId,
+        financialOperationId: primaryMovement ? effectiveOperationId : undefined,
+        paymentTreasuryMovementId: primaryMovement?.id,
       };
-      if (paymentMovement) try {
-        completeFinancialJournalEntry(`sale-${checkoutRequestId}`, paymentMovement, newOrder);
-      } catch {
-        // The two primary states still commit together in this render. The journal is
-        // crash-recovery support and must not leave a posted collection without its order.
+
+      for (const movement of paymentMovements) {
+        if (movement) {
+          try {
+            completeFinancialJournalEntry(`sale-${checkoutRequestId}`, movement, newOrder);
+          } catch {}
+        }
       }
 
-      // 1. Add order to order history
+      // 1. Deduct inventory based on recipes (Food Costing)
+      for (const item of newOrder.items) {
+        const targetRecipeId = item.variant?.recipeId || products.find(p => p.id === item.productId)?.recipeId;
+        if (targetRecipeId) {
+          const recipe = enterprise.recipes.find(r => r.id === targetRecipeId && r.active);
+          if (recipe) {
+            const rItems = enterprise.recipeItems.filter(ri => ri.recipeId === recipe.id);
+            for (const rItem of rItems) {
+              enterprise.postStockMovement({
+                inventoryItemId: rItem.inventoryItemId,
+                type: 'usage',
+                direction: 'out',
+                quantityMilliUnits: rItem.quantityMilliUnits * item.quantity,
+                reason: `طلب ${newOrder.orderNumber}`,
+                createdBy: currentUser.name,
+                operationId: effectiveOperationId,
+                idempotencyKey: `usage-${newOrder.id}-${item.id}-${rItem.inventoryItemId}`,
+              });
+            }
+          }
+        }
+      }
+
+      // 2. Add order to order history
       ordersRef.current = [newOrder, ...ordersRef.current];
       checkoutRequestsRef.current.set(checkoutRequestId, newOrder);
       setOrders((prev) => [newOrder, ...prev]);
@@ -799,7 +906,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         orderNumber:newOrder.orderNumber, createdAt:newOrder.createdAt, status:newOrder.hasGrillItems?'preparing':'ready', readyAt:newOrder.hasGrillItems?undefined:newOrder.createdAt,
       });
 
-      // 2. If grill items exist, route to Grill Station KDS queue
+      // 3. If grill items exist, route to Grill Station KDS queue
       if (hasGrill) {
         const newGrillTicket: GrillTicket = {
           id: `gt-${newOrder.id}`,
@@ -1395,9 +1502,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const dateStr = now.toISOString().slice(0, 10);
 
+      const mockLateMins = Math.floor(Math.random() * 30); // Mock up to 30 mins late
+      const mockOvertime = Math.random() > 0.5 ? Math.floor(Math.random() * 3) + 1 : 0; // 50% chance of 1-3 hrs overtime
+
       setAttendance((prev) =>
         prev.map((a) =>
-          a.employeeId === employeeId && a.date === dateStr ? { ...a, checkOut: timeStr } : a
+          a.employeeId === employeeId && a.date === dateStr ? { 
+            ...a, 
+            checkOut: timeStr, 
+            lateMinutes: a.lateMinutes || mockLateMins, 
+            overtimeHours: mockOvertime,
+            workHours: 8 + mockOvertime 
+          } : a
         )
       );
 
@@ -1888,6 +2004,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addCategory,
         updateCategory,
         deleteCategory,
+        cartTabs,
+        activeCartTabId,
+        switchCartTab,
+        addCartTab,
+        removeCartTab,
         cart,
         orderType,
         setOrderType,

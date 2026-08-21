@@ -35,6 +35,7 @@ export interface ProductVariant {
   id: string;
   name: string; // e.g. 'صمون', 'صاج', 'فرنساوي' or 'صغير', 'وسط', 'كبير'
   price: number;
+  recipeId?: string;
 }
 
 export interface Product {
@@ -49,6 +50,7 @@ export interface Product {
   sortOrder: number;
   popular?: boolean;
   image?: string;
+  recipeId?: string;
 }
 
 export interface Category {
@@ -104,6 +106,7 @@ export interface Order {
   taxRuleName?: string;
   total: number;
   paymentMethod: PaymentMethod;
+  splitPayments?: { method: Exclude<PaymentMethod, 'multi'>; amount: number }[];
   amountPaid: number;
   changeDue: number;
   status: OrderStatus;

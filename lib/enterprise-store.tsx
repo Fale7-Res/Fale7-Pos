@@ -64,6 +64,8 @@ interface EnterpriseState {
   purchases: Purchase[];
   inventoryItems: InventoryItem[];
   stockMovements: StockMovement[];
+  recipes: Recipe[];
+  recipeItems: RecipeItem[];
   payrollRuns: PayrollRun[];
   payrollLines: PayrollLine[];
   leaveRequests: LeaveRequest[];
@@ -207,7 +209,7 @@ interface PurchasePaymentCommandInput {
 
 const initial: EnterpriseState = {
   treasuryAccounts: seedAccounts, treasuryMovements: [], cashHandovers: [], suppliers: [], supplierLedger: [], purchases: [],
-  inventoryItems: seedInventory, stockMovements: [], payrollRuns: [], payrollLines: [], leaveRequests: [], taxRules: [],
+  inventoryItems: seedInventory, stockMovements: [], recipes: [], recipeItems: [], payrollRuns: [], payrollLines: [], leaveRequests: [], taxRules: [],
   businessDays: [{ id: `day-${new Date().toISOString().slice(0, 10)}`, date: new Date().toISOString().slice(0, 10), businessDate:new Date().toISOString().slice(0,10), openedAt:now(), openedBy:'system', status: 'open' }],
   drivers: [], deliveries: [], deliveryTrips: [], driverCustodies: [], deliveryReassignments: [], deliveryEvents: [], driverSettlements: [],
   diningTables: Array.from({ length: 12 }, (_, i) => ({ id: `table-${i+1}`, name: `طاولة ${i+1}`, area: i < 8 ? 'الصالة الرئيسية' : 'العائلات', status: 'available' as const })),
