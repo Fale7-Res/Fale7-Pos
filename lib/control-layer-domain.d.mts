@@ -1,0 +1,18 @@
+export declare const EGYPTIAN_DENOMINATIONS_PIASTRES: readonly number[];
+export declare const CONTROL_THRESHOLDS: Readonly<Record<string,number>>;
+export declare const ACTIVE_BUSINESS_DAY_STATUSES:readonly string[];
+export function isActiveBusinessDay(day:any):boolean;
+export function assertBusinessDayTransition(from:string,to:string):true;
+export function buildOpenedBusinessDay(input:any):any;
+export function buildReopenedBusinessDay(input:any):any;
+export function snapshotsForBusinessDay(snapshots:any[],id:string):any[];
+export function latestBusinessDaySnapshot(snapshots:any[],id:string):any;
+export function belongsToBusinessDay(record:any,day:any,shifts?:any[]):boolean;
+export function selectBusinessDayRecords<T>(records:T[],day:any,shifts?:any[]):T[];
+export function calculateDenominationCount(rows:any[],expectedPiastres?:number):any;
+export function reconcileBusinessDay(input:any):any;
+export function evaluateCloseBlockers(input:any):any[];
+export function createDailyCloseSnapshot(input:any):any;
+export function buildControlExceptions(input:any):any[];
+export function updateExceptionState(states:any,id:string,status:string,actor:any,reason:string,timestamp:string):any;
+export function buildSafeDropMovement(input:any):any;

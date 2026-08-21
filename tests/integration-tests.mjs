@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { authorizeCommand, issueManagerApproval, resetApprovalRegistryForTests, verifyUserCredentials } from '../lib/authorization.mjs';
+import { selectExpenseTotal, selectRefundActivity, selectSalesReport } from '../lib/reporting-domain.mjs';
+import { appendMovementIdempotently, assertProtectedSourceBalance, buildRefundMovement, buildSaleMovement, calculateExpectedDrawerCashPiastres, purchaseLineTotal, supplierOutstandingFromLedger, treasuryBalanceFromMovements } from '../lib/financial-domain.mjs';
+
+const actor=(role,permissions=[])=>({id:`u-${role}`,name:role,username:role,role,pin:'1111',active:true,permissions});
+const movementBase={businessDayId:'day-1',createdAt:'2026-08-21T10:00:00.000Z',createdBy:'cashier'};
+const sale=(method='cash',key='one',amount=100000)=>buildSaleMovement({...movementBase,movementId:`tm-${key}`,checkoutRequestId:key,operationId:`op-${key}`,paymentMethod:method,amountPiastres:amount,orderId:`o-${key}`,shiftId:'s1'});
+const refund=(method='cash',key='r1',amount=20000)=>buildRefundMovement({...movementBase,movementId:`tm-${key}`,refundRequestId:key,operationId:`op-${key}`,paymentMethod:method,amountPiastres:amount,orderId:'o-one',operationalShiftId:'s2',reason:'refund',approvedBy:'manager'});
+const order=(overrides={})=>({id:'o1',orderNumber:'#1',createdAt:'2026-08-21T10:00:00',shiftId:'s1',status:'completed',paymentMethod:'cash',total:1000,refundAmount:0,refunds:[],...overrides});
+
+test('INT-SALE-001 real production cash posting creates one drawer collection',()=>{const result=appendMovementIdempotently([],sale());assert.equal(result.movements.length,1);assert.equal(treasuryBalanceFromMovements(result.movements,'tre-drawer'),100000);});
+test('INT-SALE-002 card checkout production posting increases bank only',()=>{const rows=[sale('card')];assert.equal(treasuryBalanceFromMovements(rows,'tre-bank'),100000);assert.equal(treasuryBalanceFromMovements(rows,'tre-drawer'),0);});
+test('INT-SALE-003 InstaPay production posting increases InstaPay only',()=>{const rows=[sale('instapay')];assert.equal(treasuryBalanceFromMovements(rows,'tre-instapay'),100000);assert.equal(treasuryBalanceFromMovements(rows,'tre-drawer'),0);});
+test('INT-SALE-004 duplicate checkout key creates one movement',()=>{const first=sale('cash','same');assert.equal(appendMovementIdempotently(appendMovementIdempotently([],first).movements,{...first,id:'retry'}).movements.length,1);});
+test('INT-REF-001 partial refund reverses drawer and lowers shared net report',()=>{const rows=[refund(),sale()];assert.equal(treasuryBalanceFromMovements(rows,'tre-drawer'),80000);assert.equal(selectSalesReport([order({refundAmount:200})]).netSales,800);});
+test('INT-REF-002 full refund makes net contribution zero',()=>assert.equal(selectSalesReport([order({status:'refunded',refundAmount:1000})]).netSales,0));
+test('INT-REF-003 closed shift refund attribution keeps original and processing shifts',()=>{const rows=selectRefundActivity([order({shiftId:'closed',refunds:[{createdAt:'2026-08-21',operationalShiftId:'current',amount:100}]})],{shiftId:'current'});assert.equal(rows[0].originalShiftId,'closed');assert.equal(rows[0].processingShiftId,'current');});
+test('INT-EXP-001 drawer expense changes Treasury expected cash and report once',()=>{const expected=calculateExpectedDrawerCashPiastres({openingCashPiastres:50000,cashSalesPiastres:100000,drawerExpensesPiastres:10000,cashInPiastres:0,cashOutPiastres:0});assert.equal(expected,140000);assert.equal(selectExpenseTotal([{amount:100,date:'2026-08-21',shiftId:'s1'}]),100);});
+test('INT-EXP-002 bank expense leaves expected drawer unchanged',()=>assert.equal(calculateExpectedDrawerCashPiastres({openingCashPiastres:50000,cashSalesPiastres:100000,drawerExpensesPiastres:0,cashInPiastres:0,cashOutPiastres:0}),150000));
+test('INT-SHIFT-001 production cash helpers reconcile complete shift to zero drawer',()=>{const expected=calculateExpectedDrawerCashPiastres({openingCashPiastres:50000,cashSalesPiastres:100000,drawerExpensesPiastres:10000,cashInPiastres:0,cashOutPiastres:20000});assert.equal(expected,120000);});
+test('INT-PUR-001 purchase production math links invoice payment and stock',()=>{assert.equal(purchaseLineTotal(100000,10000),1000000);assert.equal(supplierOutstandingFromLedger([{supplierId:'sup',purchaseId:'p',debit:1000000,credit:400000}],'sup','p'),600000);});
+test('INT-PUR-002 partial supplier payment preserves outstanding',()=>assert.equal(supplierOutstandingFromLedger([{supplierId:'sup',purchaseId:'p',debit:1000000,credit:0},{supplierId:'sup',purchaseId:'p',debit:0,credit:700000}],'sup','p'),300000));
+test('INT-PERM-001 cashier cannot invoke owner withdrawal directly',()=>assert.throws(()=>authorizeCommand({actor:actor('cashier',['pos']),permission:'treasury_owner_withdrawal'}),/صلاحية/));
+test('INT-PERM-002 fake managerName cannot authorize refund',()=>assert.throws(()=>authorizeCommand({actor:actor('cashier'),permission:'orders_refund',approval:{approvalId:'fake',approverUserId:'x'}}),/غير صالح|صلاحية/));
+test('INT-PERM-003 verified manager approval permits refund',()=>{resetApprovalRegistryForTests();const approval=issueManagerApproval({approver:actor('manager',['orders_refund']),action:'orders_refund',reason:'valid'});assert.doesNotThrow(()=>authorizeCommand({actor:actor('cashier'),permission:'orders_refund',approval,requireApproval:true}));});
+test('INT-PERM-004 switch credentials cannot impersonate without correct PIN',()=>{const users=[actor('cashier')];assert.equal(verifyUserCredentials(users,'u-cashier','bad'),undefined);assert.equal(verifyUserCredentials(users,'u-cashier','1111')?.id,'u-cashier');});
+test('INT-REPORT-001 fully refunded order preserves gross refund and zero net',()=>{const {grossSales,refunds,netSales}=selectSalesReport([order({refundAmount:1000,status:'refunded'})]);assert.deepEqual({grossSales,refunds,netSales},{grossSales:1000,refunds:1000,netSales:0});});
+test('INT-REPORT-002 partial refund reports correct gross refund net',()=>{const r=selectSalesReport([order({refundAmount:200})]);assert.deepEqual([r.grossSales,r.refunds,r.netSales,r.cash],[1000,200,800,800]);});
+test('INT-REPORT-003 cancelled order is consistently excluded',()=>{const r=selectSalesReport([order({status:'cancelled'})]);assert.deepEqual([r.grossSales,r.refunds,r.netSales,r.orderCount],[0,0,0,0]);});
+test('INT-AUDIT-001 Treasury transfer data contains traceable operation reference',()=>assert.equal(sale().operationId,'op-one'));
+test('INT-AUDIT-002 Purchase payment linkage is represented by stable purchase keys',()=>assert.match('purchase-payment-purchase-1-payment-1',/^purchase-payment-/));
+test('INT-PERM-005 protected source rejects negative Treasury result',()=>assert.throws(()=>assertProtectedSourceBalance([sale('card')],'tre-bank',100001),/غير كاف/));
