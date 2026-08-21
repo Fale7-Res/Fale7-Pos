@@ -1,0 +1,10 @@
+import type { Employee,EmployeeLedgerEntry } from './types';
+export declare const PAYROLL_TRANSITIONS:Record<string,string[]>;
+export function employeeLedgerBalance(entries:EmployeeLedgerEntry[],employeeId:string):number;
+export function assertUniqueDailyWage(entries:EmployeeLedgerEntry[],input:{employeeId:string;date:string;shiftId?:string}):void;
+export function buildEarningEntry(input:any):EmployeeLedgerEntry;
+export function outstandingAdvance(entries:EmployeeLedgerEntry[],employeeId:string):number;
+export function calculatePayrollLines(input:{period:string;employees:Employee[];entries:EmployeeLedgerEntry[];advanceDeductions?:Record<string,number>}):any[];
+export function assertPayrollTransition(from:string,to:string):void;
+export function payrollReport(lines:any[]):{earned:number;paid:number;outstanding:number};
+export function buildPayrollSettlements(input:any):EmployeeLedgerEntry[];

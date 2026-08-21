@@ -1,0 +1,12 @@
+export type DeliveryStatus = 'new'|'preparing'|'ready'|'assigned'|'handed_to_driver'|'out_for_delivery'|'delivered'|'failed'|'returned'|'settled'|'cancelled';
+export declare const DELIVERY_TRANSITIONS: Record<DeliveryStatus, DeliveryStatus[]>;
+export function assertDeliveryTransition(from: DeliveryStatus, to: DeliveryStatus): void;
+export function deliveryCashResponsibility(paymentMethod:string,paymentStatus:string,amountPiastres:number):number;
+export function createDeliveryTrip(input:any):any;
+export function createCashCustody(input:any):any;
+export function calculateTripSettlement(custodies:any[],actualPiastres:number):{expectedPiastres:number;actualPiastres:number;differencePiastres:number};
+export function assertCollectionAmount(expectedPiastres:number,collectedPiastres:number,reason?:string):void;
+export function assertShiftHasNoUnsettledCustody(custodies:any[],deliveries:any[],shiftId:string):true;
+export function deliveryReport(deliveries:any[],trips:any[],custodies:any[],settlements:any[]):any;
+export function deliveryExceptions(deliveries:any[],trips:any[],custodies:any[],settlements:any[],now?:number,oldMinutes?:number):any[];
+export function driverOperationalStatus(driverId:string,trips:any[],custodies:any[]):'available'|'assigned'|'out'|'returning'|'settlement_pending';
