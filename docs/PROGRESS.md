@@ -1,9 +1,36 @@
 # تقرير التقدم — نسخة C#
 
-آخر تحديث: 2026-09-01 (المرحلة 5)
+آخر تحديث: 2026-09-02 (قرار التقنية النهائي: SQL Server + WinUI 3)
 
-## الحالة العامة
-المرحلة 5 خلصت: **Menu/Products/Pricing/Inventory/Recipes persistence حقيقي**، والسيرفر بقى **المصدر الوحيد للسعر**، وربط المخزون بالـ checkout داخل نفس الضمانات الذرية. **162/162 اختبار ناجح** (119 Domain unit tests + 43 integration tests). لسه مفيش UI.
+## ملاحظة عن الفجوة بين هذا التحديث والي قبله
+بعد المرحلة 5 (تحت) تم فعليًا بناء أول واجهة WPF كاملة للكاشير (تسجيل دخول بـ PIN، فتح وردية، منيو/فئات/منتجات/خيارات، سلة، دفع نقدي/إلكتروني، استرجاع، تأكيد دفع إلكتروني معلّق) ثم عملية مطابقة بصرية حقيقية بالقياس الفعلي (`getBoundingClientRect`/`getComputedStyle`) مقابل التطبيق القديم شغّال فعليًا — تفاصيل هذا كله موثقة في `docs/LEGACY_PARITY_MAP.md` مش هنا. هذا الملف (`PROGRESS.md`) فات عليه تحديث في وقتها؛ بيتسجل هنا فقط قرار التقنية النهائي ومرحلة SQL Server عشان توثيق الـ backend يفضل مستمر.
+
+## القرار النهائي للتقنية (غير قابل لإعادة النقاش إلا لسبب تقني حقيقي مانع)
+**C# / .NET / ASP.NET Core / EF Core / SQL Server / WinUI 3 / MVVM / Windows فقط.** SQLite وWPF كانا اختيار مرحلي؛ الـ Domain/Application اتبنيا بطريقة لم تسرّب أي تفاصيل SQLite تقريبًا، فالانتقال كان في طبقة الـ Infrastructure بس. مشروع WPF (`Falah.Client.Cashier`) **لسه موجود كمرجع مؤقت**، لم يُحذف.
+
+## مرحلة الانتقال من SQLite إلى SQL Server — خلصت وكل الاختبارات خضراء
+- **SQL Server 2022 Express** كان مثبّت بالفعل على الجهاز (`MSSQL$SQLEXPRESS` شغّال) — لم يحتج تثبيت. Express **مجاني بالكامل**، بدون أي ترخيص مدفوع.
+- قاعدة `Falah` الحقيقية اتعملت بملفات `.mdf`/`.ldf` على **E:** صراحةً (`E:\SqlData\Falah`) لأن المسار الافتراضي لـ SQL Server على **C:** والقرص ده لسه فاضي منه 0 GB تمامًا.
+- الاتصال: **Windows Integrated Authentication** (`Trusted_Connection=True`) — **لا يوجد أي باسورد مخزّن في أي مكان**.
+- كل آلية خاصة بـ SQLite اتستبدلت بمعادلها الصحيح على SQL Server، مش بمحاكاة ساذجة:
+  - `OrderSequenceService`: `UPDATE ... RETURNING` (SQLite) → `UPDATE ... OUTPUT INSERTED.LastAllocated` (T-SQL).
+  - `RefundOrderHandler` / `ConfirmElectronicPaymentHandler`: كانا بيستخدموا `IsolationLevel.Serializable` (بيتحول لـ `BEGIN IMMEDIATE` في SQLite = قفل حصري فوري). على SQL Server نفس الـ isolation level بياخد أقفال تدريجية بس ممكن يعمل **deadlock حقيقي** بين طلبين متزامنين بيعملوا read-then-write على نفس الصف. الحل الصحيح: `ReadCommitted` + تلميح `WITH (UPDLOCK, ROWLOCK, HOLDLOCK)` على قراءة الطلب الأولى — نفس ضمان "الطلب التاني بيستنى" بدون خطر الـ deadlock.
+  - `PRAGMA busy_timeout` (SQLite) — اتشالت، مش لها لازمة على SQL Server (الـ `LOCK_TIMEOUT` الافتراضي بيستنى أصلًا).
+  - `PRAGMA journal_mode=WAL` (كان الغرض منه: قراءة الكول سنتر ما تستناش كتابة الكاشير) → استُبدلت بمعادلها الحقيقي على SQL Server: **`READ_COMMITTED_SNAPSHOT` مفعّلة على القاعدة** (`ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON`) — نفس الضمان، بس بآلية SQL Server الأصلية.
+  - `Version` (concurrency token على `Orders`/`Shifts`): فضل زي ما هو (عمود `uint` مُدار من التطبيق، مش `rowversion` حقيقي) لأن الآلية دي provider-agnostic أصلًا (`IsConcurrencyToken()` بتشتغل نفس الشكل على أي قاعدة) — مفيش داعي لإعادة تصميمها، وده مش "محاكاة SQLite" لأنها أصلًا مش خاصية SQLite.
+- **Migrations اتعملت من الصفر** (migrations الخاصة بـ SQLite القديمة اتمسحت — مينفعش تتشغل على provider مختلف). Migration واحدة حاليًا: `InitialCreate`.
+- **FalahApiFactory** (الـ integration test harness): كل تِست بياخد قاعدة SQL Server منفصلة فعليًا (مش SQLite file)، بملفاتها على `E:\SqlData\Tests`، وبتتحذف عند انتهاء التِست (`DROP DATABASE`). اتأكدت بعد تشغيل السويت كامل: صفر قواعد تِست متبقية.
+
+## نتيجة الاختبارات: 170/170 ناجحة — **ضد SQL Server حقيقي، مش SQLite ولا mock**
+- **124 Domain unit tests** — لم تتأثر إطلاقًا (provider-agnostic أصلًا).
+- **46 integration tests** — بما فيها **كل** اختبارات التزامن الحرجة (نفس مفتاح idempotency متزامن للـ checkout/refund/confirm، مفاتيح مختلفة متزامنة، خصم مخزون بلا تكرار، عدم تكرار OrderNumber، بقاء الـ manager approval بعد إعادة تشغيل سيرفر كامل، ثبات الـ snapshot التاريخي) — **كلها عدّت فعليًا من خلال آلية الـ UPDLOCK/HOLDLOCK الجديدة**، مش مجرد "البناء نجح".
+- تحقق إضافي بعد نجاح الاختبارات (مش اكتفاء بالبناء فقط): تشغيل السيرفر الحقيقي فعليًا ضد قاعدة `Falah` الحقيقية — migrations اتطبّقت، RCSI اتفعّلت (`is_read_committed_snapshot_on = 1` اتأكدت من القاعدة مباشرة)، بيانات العرض التوضيحي اتزرعت، و`/health` و`/api/menu` بيردّوا صح.
+
+## الخطوة الجاية
+بناء أساس WinUI 3 (Windows App SDK) الجديد، وبعدها إعادة بناء شاشة الكاشير فيه بالاعتماد البصري على **التطبيق القديم الأصلي** (مش على محاولة WPF اللي اتعملت قبل كده — دي لسه مرجع تقني بس، مش بصري)، مع الطباعة الحرارية (Xprinter XP-D200N/ESC-POS) ودرج الكاش كطبقتين منفصلتين تمامًا عن إتمام الدفع.
+
+## الحالة العامة (تاريخي — قبل هذا التحديث)
+المرحلة 5 خلصت: **Menu/Products/Pricing/Inventory/Recipes persistence حقيقي**، والسيرفر بقى **المصدر الوحيد للسعر**، وربط المخزون بالـ checkout داخل نفس الضمانات الذرية. **162/162 اختبار ناجح** (119 Domain unit tests + 43 integration tests) — هذا العدد قبل إضافة اختبارات المراحل اللاحقة.
 
 ## الجداول والـ Migrations الجديدة
 Migration: `AddMenuPricingInventory`. كل العلاقات جداول حقيقية — **صفر JSON/Array بديل عن علاقة**:
@@ -76,4 +103,4 @@ Migration: `AddMenuPricingInventory`. كل العلاقات جداول حقيق�
 ```
 
 ## ملاحظة تشغيلية عن جهاز التطوير (مش مشكلة كود)
-قرص C: على هذا الجهاز لسه ممتلئ تمامًا (0 GB متاح). محتاج تفريغ مساحة حقيقي قبل أي تشغيل فعلي على أجهزة المحل.
+قرص C: على هذا الجهاز لسه ممتلئ تمامًا (0 GB متاح). كل ملفات SQL Server (قاعدة `Falah` الحقيقية وقواعد الاختبارات المؤقتة) اتوجّهت صراحةً لـ `E:\SqlData\` بدل المسار الافتراضي على C:. محتاج تفريغ مساحة حقيقي على C: قبل أي تشغيل فعلي على أجهزة المحل، أو تأكيد إن الجهازين الحقيقيين في المحل مالهمش نفس المشكلة.
