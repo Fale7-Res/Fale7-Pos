@@ -4,32 +4,50 @@ using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// Boots the REAL Falah.Server (real minimal-API endpoints, real EF Core, a real SQLite file on
-/// disk - not an in-memory provider) so these tests exercise the exact path a physical Cashier/
-/// Call Center request takes, migrations included. Each factory instance gets its own SQLite file
-/// under the repo (never the system temp dir - the dev machine's C: drive has been observed to run
-/// out of space entirely) so tests never share state unless a test deliberately shares a factory.
+/// Boots the REAL Falah.Server (real minimal-API endpoints, real EF Core, a real SQL Server
+/// database on the local SQLEXPRESS instance - not an in-memory provider) so these tests exercise
+/// the exact path a physical Cashier/Call Center request takes, migrations included. Each factory
+/// instance gets its own SQL Server database, with data/log files placed under E:\SqlData\Tests
+/// rather than the instance's default path - the dev machine's C: drive has been observed to run
+/// out of space entirely - so tests never share state unless a test deliberately shares a factory.
 /// </summary>
 public sealed class FalahApiFactory : WebApplicationFactory<Program>
 {
-    private static readonly string DataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".testdata");
-    public string DbPath { get; }
-    private readonly bool _ownsFile;
+    private const string MasterConnectionString = @"Server=.\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;";
+    private static readonly string DataDir = @"E:\SqlData\Tests";
 
-    /// <param name="reuseDbPath">Pass another factory's DbPath to boot a second, independent
-    /// server instance against the SAME database file - the cleanest way to prove that something
-    /// (e.g. a persisted manager approval) genuinely survives a full Server restart, not just a
-    /// method call within the same running process. The reusing instance does not delete the file
-    /// on dispose; only the original owner does, once both are done with it.</param>
-    public FalahApiFactory(string? reuseDbPath = null)
+    public string DatabaseName { get; }
+    private readonly bool _ownsDatabase;
+
+    /// <param name="reuseDatabaseName">Pass another factory's DatabaseName to boot a second,
+    /// independent server instance against the SAME database - the cleanest way to prove that
+    /// something (e.g. a persisted manager approval) genuinely survives a full Server restart, not
+    /// just a method call within the same running process. The reusing instance does not drop the
+    /// database on dispose; only the original owner does, once both are done with it.</param>
+    public FalahApiFactory(string? reuseDatabaseName = null)
+    {
+        _ownsDatabase = reuseDatabaseName is null;
+        DatabaseName = reuseDatabaseName ?? $"FalahTest_{Guid.NewGuid():N}";
+        if (_ownsDatabase) CreateDatabase();
+    }
+
+    private void CreateDatabase()
     {
         Directory.CreateDirectory(DataDir);
-        _ownsFile = reuseDbPath is null;
-        DbPath = reuseDbPath ?? Path.Combine(DataDir, $"falah-test-{Guid.NewGuid():N}.db");
+        using var connection = new SqlConnection(MasterConnectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            CREATE DATABASE [{DatabaseName}]
+            ON PRIMARY (NAME = N'{DatabaseName}', FILENAME = N'{DataDir}\{DatabaseName}.mdf', SIZE = 32MB, FILEGROWTH = 32MB)
+            LOG ON (NAME = N'{DatabaseName}_log', FILENAME = N'{DataDir}\{DatabaseName}_log.ldf', SIZE = 16MB, FILEGROWTH = 16MB);
+            """;
+        command.ExecuteNonQuery();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -38,7 +56,7 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:Falah"] = $"Data Source={DbPath};Cache=Shared",
+                ["ConnectionStrings:Falah"] = $@"Server=.\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
             });
         });
     }
@@ -135,10 +153,18 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (!_ownsFile) return; // a "restart" factory reusing another's file never deletes it
-        foreach (var suffix in new[] { "", "-shm", "-wal", "-journal" })
+        if (!_ownsDatabase) return; // a "restart" factory reusing another's database never drops it
+        try
         {
-            try { File.Delete(DbPath + suffix); } catch { /* best-effort cleanup */ }
+            using var connection = new SqlConnection(MasterConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            // SET SINGLE_USER WITH ROLLBACK IMMEDIATE force-disconnects any of this test process's
+            // own pooled connections to the database before DROP DATABASE, regardless of ADO.NET
+            // client-side pooling state.
+            command.CommandText = $"ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{DatabaseName}];";
+            command.ExecuteNonQuery();
         }
+        catch { /* best-effort cleanup */ }
     }
 }

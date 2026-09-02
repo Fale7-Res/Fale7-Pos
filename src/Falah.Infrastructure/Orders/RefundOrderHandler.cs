@@ -17,10 +17,14 @@ using Microsoft.EntityFrameworkCore;
 /// - only Status and RefundAmount move, and only by appending a new, immutable OrderRefund record
 /// alongside a new TreasuryMovement. Old financial history is never edited or deleted.
 ///
-/// Concurrency: uses IsolationLevel.Serializable, which Microsoft.Data.Sqlite maps to
-/// "BEGIN IMMEDIATE TRANSACTION" - a second concurrent refund against the SAME order blocks at
-/// transaction start until the first fully commits, instead of both reading the same stale
-/// "amount remaining" and racing past each other into an overdraw.
+/// Concurrency: the initial read of the order takes an UPDLOCK (plus ROWLOCK/HOLDLOCK) hint - SQL
+/// Server's idiomatic "select for update" - so a second concurrent refund against the SAME order
+/// blocks right there until the first fully commits or rolls back, instead of both reading the
+/// same stale "amount remaining" and racing past each other into an overdraw. Plain
+/// IsolationLevel.Serializable was deliberately NOT used here: on SQL Server it takes shared
+/// range locks progressively rather than an upfront exclusive lock (unlike SQLite's BEGIN
+/// IMMEDIATE), so two concurrent Serializable transactions reading then writing the same row can
+/// deadlock on lock conversion instead of simply queuing.
 /// </summary>
 public sealed class RefundOrderHandler
 {
@@ -44,12 +48,13 @@ public sealed class RefundOrderHandler
             ?? throw new InvalidOperationException("الكاشير غير موجود.");
         var cashier = OrderMapper.ToActor(cashierUser);
 
-        await _db.Database.ExecuteSqlRawAsync("PRAGMA busy_timeout=10000;", ct);
-        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         try
         {
-            var orderEntity = await _db.Orders.Include(o => o.Items).Include(o => o.Refunds)
-                .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
+            var orderEntity = await _db.Orders
+                .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
+                .Include(o => o.Items).Include(o => o.Refunds)
+                .FirstOrDefaultAsync(ct)
                 ?? throw new InvalidOperationException("الطلب غير موجود.");
 
             // Refunds always require either the permission or a manager approval - unlike a shift

@@ -108,11 +108,11 @@ public class ManagerApprovalTests : IAsyncLifetime
     {
         // Proves durability independent of any in-process cache: a second WebApplicationFactory is
         // a fresh app host with its own DI container and its own fresh EfApprovalRegistry instance
-        // - the only thing it shares with the first is the SQLite file on disk.
+        // - the only thing it shares with the first is the SQL Server database itself.
         var approval = await IssueAsync("orders_comp");
         var productId = await _factory.SeedProductAsync(10000);
 
-        using var restarted = new FalahApiFactory(reuseDbPath: _factory.DbPath);
+        using var restarted = new FalahApiFactory(reuseDatabaseName: _factory.DatabaseName);
         var restartedClient = restarted.CreateClient();
 
         var request = new CheckoutOrderRequest(

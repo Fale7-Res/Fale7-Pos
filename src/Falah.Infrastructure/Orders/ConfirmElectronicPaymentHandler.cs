@@ -29,14 +29,20 @@ public sealed class ConfirmElectronicPaymentHandler
         var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
             ?? throw new InvalidOperationException("الكاشير غير موجود.");
 
-        await _db.Database.ExecuteSqlRawAsync("PRAGMA busy_timeout=10000;", ct);
-        // Serializable (BEGIN IMMEDIATE on SQLite): a second concurrent confirm on the same order
-        // blocks here instead of both reading "still pending" and both trying to post the movement.
-        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        // The initial read below takes an UPDLOCK (plus ROWLOCK/HOLDLOCK) hint - SQL Server's
+        // idiomatic "select for update" - so a second concurrent confirm on the same order blocks
+        // right there instead of both reading "still pending" and both trying to post the
+        // movement. Plain IsolationLevel.Serializable was deliberately avoided: on SQL Server it
+        // takes locks progressively rather than upfront, which can deadlock two concurrent
+        // read-then-write transactions on the same row instead of simply queuing one behind the
+        // other the way SQLite's BEGIN IMMEDIATE did.
+        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         try
         {
-            var orderEntity = await _db.Orders.Include(o => o.Items).Include(o => o.Refunds)
-                .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
+            var orderEntity = await _db.Orders
+                .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
+                .Include(o => o.Items).Include(o => o.Refunds)
+                .FirstOrDefaultAsync(ct)
                 ?? throw new InvalidOperationException("الطلب غير موجود.");
 
             if (orderEntity.ElectronicPaymentStatus == "confirmed")

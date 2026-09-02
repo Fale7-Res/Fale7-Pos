@@ -19,8 +19,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<FalahDbContext>((sp, options) =>
 {
     var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("Falah")
-        ?? "Data Source=falah.db;Cache=Shared";
-    options.UseSqlite(connectionString);
+        ?? @"Server=.\SQLEXPRESS;Database=Falah;Trusted_Connection=True;TrustServerCertificate=True;";
+    options.UseSqlServer(connectionString);
 });
 
 // EF Core-backed and persisted: issuing (a manager approves) and consuming (a cashier's later
@@ -48,9 +48,14 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
     db.Database.Migrate();
-    // WAL lets Call Center's reads proceed without waiting on a Cashier write in progress, and
-    // vice versa - only actual writers ever block each other.
-    db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+    // READ_COMMITTED_SNAPSHOT is the SQL Server equivalent of what WAL gave the SQLite version of
+    // this system: Call Center's reads proceed from a consistent snapshot without waiting on a
+    // Cashier write in progress, and vice versa - only actual writers ever block each other. Runs
+    // once at startup before any real client connects, so ROLLBACK IMMEDIATE never has a live
+    // transaction to actually roll back.
+    db.Database.ExecuteSqlRaw(
+        "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE database_id = DB_ID() AND is_read_committed_snapshot_on = 1) " +
+        "ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;");
     await DemoDataSeeder.SeedIfEmptyAsync(db);
 }
 

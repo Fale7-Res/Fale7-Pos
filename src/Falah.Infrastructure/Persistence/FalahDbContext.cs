@@ -39,10 +39,11 @@ public class FalahDbContext : DbContext
             // race between a same-task double click and its own network retry cannot both win.
             b.HasIndex(o => o.CheckoutRequestId).IsUnique();
             b.HasIndex(o => o.SequenceNumber).IsUnique();
-            // SQLite has no natively auto-updating rowversion column, so this is a plain
-            // application-managed concurrency token rather than IsRowVersion() - callers that
-            // mutate an existing order (refund, payment confirmation - not part of this slice,
-            // which only ever inserts) are responsible for incrementing it before SaveChanges.
+            // A plain application-managed concurrency token rather than a native SQL Server
+            // rowversion column (IsRowVersion()) - callers that mutate an existing order (refund,
+            // payment confirmation) are responsible for incrementing it before SaveChanges. This
+            // works identically to SQLite here: IsConcurrencyToken() adds a WHERE Version = @original
+            // clause to the UPDATE regardless of provider.
             b.Property(o => o.Version).IsConcurrencyToken();
             b.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(o => o.Refunds).WithOne().HasForeignKey(r => r.OrderId).OnDelete(DeleteBehavior.Cascade);

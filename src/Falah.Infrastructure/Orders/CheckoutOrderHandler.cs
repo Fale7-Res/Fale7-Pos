@@ -95,7 +95,6 @@ public sealed class CheckoutOrderHandler
         var plan = CheckoutRules.BuildPlan(orderType, paymentMethod, items, discount, taxRule,
             deliveryFee, compAmount, amountPaid, splits, request.WalletProvider);
 
-        await _db.Database.ExecuteSqlRawAsync("PRAGMA busy_timeout=10000;", ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
