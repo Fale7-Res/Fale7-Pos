@@ -1,0 +1,77 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Every size/weight below was measured with getComputedStyle() against the ACTUAL RENDERED
+        reference app (localhost:3000, cashier PIN 1111, 1366x768) during the 2026-09-02 visual
+        parity pass - not eyeballed from a screenshot and not guessed from source class names.
+        Segoe UI matches the reference app's own font-family stack exactly.
+    -->
+    <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+
+    <Style x:Key="TextBase" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+    </Style>
+
+    <!-- Grand total figure ("الإجمالي النهائي"): measured 24px/900. -->
+    <Style x:Key="TotalAmountText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+
+    <Style x:Key="TitleText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+
+    <Style x:Key="SectionTitleText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+    </Style>
+
+    <Style x:Key="BodyText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style x:Key="MutedText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    </Style>
+
+    <!-- Product tile name: measured 15px/800, 2-line wrap. -->
+    <Style x:Key="ProductNameText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Product tile / variant price: measured 16px/900, brand blue. -->
+    <Style x:Key="PriceText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="Black"/>
+        <Setter Property="Foreground" Value="{StaticResource BrandPrimaryBrush}"/>
+    </Style>
+
+    <!-- Category tile label: measured 12px/700. -->
+    <Style x:Key="CategoryLabelText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Small badge/pill text (variant tag, offer tag): measured 11px/700. -->
+    <Style x:Key="SmallBadgeText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- Cart line product name: measured 13px/700, white (on the dark cart panel). -->
+    <Style x:Key="CartItemNameText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+</ResourceDictionary>

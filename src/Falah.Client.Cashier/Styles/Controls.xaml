@@ -1,0 +1,215 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Reusable WPF controls. Sizes/paddings/radii for the POS-specific styles (category tile,
+        product tile, cart item, quantity button, checkout CTA) were measured with
+        getComputedStyle() against the ACTUAL RENDERED reference app during the 2026-09-02 visual
+        parity pass - not eyeballed, not guessed from Tailwind class names.
+    -->
+
+    <!-- Base template: rounded rectangle, content centered, hover/pressed/disabled all handled
+         here so every derived style only needs to override brush setters. -->
+    <Style x:Key="BaseButtonStyle" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="MinHeight" Value="48"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Tag" Value="12"/>
+        <!-- corner radius, overridable per instance -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding Tag}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.92"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Brand-blue primary action. -->
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource BrandPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <!-- The one big checkout CTA - brighter blue. Measured 357x52 (the width is a container-fill
+         concern, not this style's) at font-size 16/900. -->
+    <Style x:Key="CtaButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource ActionBlueBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="Black"/>
+        <Setter Property="Height" Value="52"/>
+    </Style>
+
+    <Style x:Key="SuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="#F1F5F9"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    </Style>
+
+    <!-- Order-type / payment-method segmented option - compact, used inside a small UniformGrid.
+         Selected state is applied per-instance in the view (it depends on a view-specific bound
+         value), this is just the unselected base look. -->
+    <Style x:Key="SegmentButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="#232931"/>
+        <Setter Property="Foreground" Value="#94A3B8"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Tag" Value="8"/>
+    </Style>
+
+    <!-- Numeric keypad key (checkout amount entry, PIN pad). -->
+    <Style x:Key="KeypadButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="#1E293B"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="MinHeight" Value="64"/>
+        <Setter Property="MinWidth" Value="64"/>
+        <Setter Property="Tag" Value="16"/>
+    </Style>
+
+    <!-- Card container: white rounded panel with a light border. -->
+    <Style x:Key="CardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <!-- Category tile: measured 114x80, radius 12, padding 10x16, font 12/700. Fixed size, not
+         stretched - the reference app's category strip is a row of small fixed tiles, not a
+         proportionally-stretched button bar. -->
+    <Style x:Key="CategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Width" Value="114"/>
+        <Setter Property="Height" Value="80"/>
+        <Setter Property="Padding" Value="8"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+
+    <Style x:Key="CategoryButtonSelectedStyle" TargetType="Button" BasedOn="{StaticResource CategoryButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource ActionBlueBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- Product tile: measured 145x208, radius 12, padding 10. Fixed size to match the reference
+         app's dense, uniform grid rather than letting content dictate height. -->
+    <Style x:Key="ProductCardStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Width" Value="145"/>
+        <Setter Property="Height" Value="180"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <!-- Stand-in for real product photography (not yet available - no image asset pipeline in this
+         phase): a tinted rounded tile with a food glyph, sized to occupy the same visual weight the
+         reference app's product image holds, rather than leaving that area blank. -->
+    <Style x:Key="ProductImagePlaceholderStyle" TargetType="Border">
+        <Setter Property="Background" Value="#F1F5F9"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Height" Value="66"/>
+    </Style>
+
+    <!-- Cart line card: measured bg #1B242E, border 0.8px #2C3744, radius 12, padding 12. -->
+    <Style x:Key="CartItemCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CartItemCardBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CartItemBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0.8"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="12"/>
+    </Style>
+
+    <!-- Cart line quantity +/- : small, round-ish, touch-sized without dominating the row. -->
+    <Style x:Key="QuantityButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Tag" Value="8"/>
+    </Style>
+
+    <!-- Quick-note chip inside a cart line ("بدون بصل" etc.) - a tiny pill, not a full button. -->
+    <Style x:Key="NoteChipButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource GraphiteBorderBrush}"/>
+        <Setter Property="Foreground" Value="#CBD5E1"/>
+        <Setter Property="FontSize" Value="9"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Padding" Value="6,3"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Tag" Value="4"/>
+    </Style>
+
+    <!-- Small colored badge under a product/cart-line name (variant tag, offer tag). -->
+    <Style x:Key="VariantBadgeStyle" TargetType="Border">
+        <Setter Property="Background" Value="#FEF2F2"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="6,2"/>
+    </Style>
+
+    <Style x:Key="OfferBadgeStyle" TargetType="Border">
+        <Setter Property="Background" Value="#D1FAE5"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="8,5"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

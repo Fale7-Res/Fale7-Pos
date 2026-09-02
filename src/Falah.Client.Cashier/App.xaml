@@ -1,0 +1,28 @@
+﻿<Application x:Class="Falah.Client.Cashier.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Falah.Client.Cashier"
+             xmlns:conv="clr-namespace:Falah.Client.Cashier.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/Colors.xaml"/>
+                <ResourceDictionary Source="Styles/Typography.xaml"/>
+                <ResourceDictionary Source="Styles/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <conv:NullToCollapsedConverter x:Key="NullToCollapsedConverter"/>
+            <conv:BoolToVisibleConverter x:Key="BoolToVisibleConverter"/>
+            <conv:InverseBoolToVisibleConverter x:Key="InverseBoolToVisibleConverter"/>
+            <conv:BoolToLoginLabelConverter x:Key="BoolToLoginLabelConverter"/>
+            <conv:OnlineStatusTextConverter x:Key="OnlineStatusTextConverter"/>
+            <conv:OnlineStatusBrushConverter x:Key="OnlineStatusBrushConverter"/>
+            <conv:PiastresToEgpConverter x:Key="PiastresToEgpConverter"/>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <conv:ZeroToVisibleConverter x:Key="ZeroToVisibleConverter"/>
+            <conv:CashOnlyVisibleConverter x:Key="CashOnlyVisibleConverter"/>
+            <conv:EqualsConverter x:Key="EqualsConverter"/>
+            <conv:NoteAppendPairConverter x:Key="NoteAppendPairConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

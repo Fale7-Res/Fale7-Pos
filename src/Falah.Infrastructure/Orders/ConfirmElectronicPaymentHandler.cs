@@ -1,0 +1,87 @@
+namespace Falah.Infrastructure.Orders;
+
+using System.Data;
+using Falah.Application.Orders;
+using Falah.Domain.Financial;
+using Falah.Infrastructure.Persistence;
+using Falah.Infrastructure.Persistence.Entities;
+using Microsoft.EntityFrameworkCore;
+
+/// <summary>
+/// Confirms a still-pending InstaPay/wallet claim and, in the same atomic step, posts the
+/// deferred sale_collection Treasury movement that checkout intentionally never posted for it.
+/// Reuses the SAME idempotency key checkout would have used had the payment settled immediately
+/// ("sale-{CheckoutRequestId}") - a claim can only ever be confirmed once, so it is exactly the
+/// financial event checkout deferred, not a new one.
+/// </summary>
+public sealed class ConfirmElectronicPaymentHandler
+{
+    private readonly FalahDbContext _db;
+    public ConfirmElectronicPaymentHandler(FalahDbContext db) => _db = db;
+
+    public async Task<ConfirmElectronicPaymentResult> HandleAsync(ConfirmElectronicPaymentRequest request, CancellationToken ct = default)
+    {
+        var preCheck = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
+            ?? throw new InvalidOperationException("الطلب غير موجود.");
+        if (preCheck.ElectronicPaymentStatus == "confirmed")
+            return await BuildReplayResultAsync(preCheck, ct);
+
+        var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
+            ?? throw new InvalidOperationException("الكاشير غير موجود.");
+
+        await _db.Database.ExecuteSqlRawAsync("PRAGMA busy_timeout=10000;", ct);
+        // Serializable (BEGIN IMMEDIATE on SQLite): a second concurrent confirm on the same order
+        // blocks here instead of both reading "still pending" and both trying to post the movement.
+        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        try
+        {
+            var orderEntity = await _db.Orders.Include(o => o.Items).Include(o => o.Refunds)
+                .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
+                ?? throw new InvalidOperationException("الطلب غير موجود.");
+
+            if (orderEntity.ElectronicPaymentStatus == "confirmed")
+            {
+                await transaction.RollbackAsync(ct);
+                return await BuildReplayResultAsync(orderEntity, ct);
+            }
+
+            var order = OrderMapper.ToDomain(orderEntity);
+            order.ConfirmElectronicPayment(); // throws DomainException if there is no pending leg
+            var leg = order.ElectronicPayment!;
+
+            orderEntity.ElectronicPaymentStatus = leg.Status.ToWireString();
+            orderEntity.IsPaid = order.IsPaid;
+            orderEntity.Version++;
+
+            var saleKey = $"sale-{orderEntity.CheckoutRequestId}";
+            var journal = new EfFinancialJournal(_db);
+            if (!journal.TryStart(saleKey, "sale"))
+                throw new ConfirmConflictException("مفتاح العملية المالية لهذا الطلب مستخدم بالفعل رغم أن الدفع لم يكن مؤكدًا - يحتاج مراجعة يدوية.");
+
+            var movement = TreasuryMovementFactory.BuildSaleMovement(
+                $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", orderEntity.CheckoutRequestId, orderEntity.Id,
+                leg.Method, leg.Amount, orderEntity.BusinessDayId, orderEntity.ShiftId, cashierUser.Name, DateTimeOffset.UtcNow);
+            _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
+            journal.Complete(saleKey);
+
+            await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return new ConfirmElectronicPaymentResult(orderEntity.Id, orderEntity.ElectronicPaymentStatus, orderEntity.IsPaid, movement.Id, WasReplayed: false);
+        }
+        catch (Exception ex) when (ex is DbUpdateException or DbUpdateConcurrencyException or ConfirmConflictException)
+        {
+            await transaction.RollbackAsync(ct);
+            var reloaded = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
+            if (reloaded?.ElectronicPaymentStatus == "confirmed") return await BuildReplayResultAsync(reloaded, ct);
+            throw new ConfirmConflictException("تعذر تأكيد الدفع الإلكتروني بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
+        }
+    }
+
+    private async Task<ConfirmElectronicPaymentResult> BuildReplayResultAsync(OrderEntity order, CancellationToken ct)
+    {
+        var movementId = await _db.TreasuryMovements.AsNoTracking()
+            .Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection")
+            .Select(m => m.Id).FirstOrDefaultAsync(ct);
+        return new ConfirmElectronicPaymentResult(order.Id, order.ElectronicPaymentStatus!, order.IsPaid, movementId, WasReplayed: true);
+    }
+}

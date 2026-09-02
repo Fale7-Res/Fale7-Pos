@@ -1,0 +1,464 @@
+<UserControl x:Class="Falah.Client.Cashier.Views.CashierView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Falah.Client.Cashier.ViewModels"
+             xmlns:models="clr-namespace:Falah.Client.Cashier.Models"
+             d:DataContext="{d:DesignInstance vm:CashierViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" FlowDirection="RightToLeft">
+    <Grid>
+
+        <!-- ============ NO OPEN SHIFT ============ -->
+        <Grid Background="{StaticResource SurfaceBrush}" Visibility="{Binding IsShiftOpen, Converter={StaticResource InverseBoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="420" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="32">
+                <StackPanel>
+                    <TextBlock Text="⏰" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock Text="لا توجد وردية مفتوحة" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="يجب فتح وردية وتسجيل الرصيد الافتتاحي قبل استخدام نقطة البيع." Style="{StaticResource MutedText}"
+                               TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,16"/>
+                    <TextBlock Text="الرصيد الافتتاحي (بالجنيه):" Style="{StaticResource BodyText}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding OpeningCashText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12"/>
+                    <TextBlock Text="{Binding OpenShiftError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold" FontSize="12"
+                               TextWrapping="Wrap" Margin="0,0,0,10" Visibility="{Binding OpenShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Button Content="فتح وردية الآن" Style="{StaticResource SuccessButtonStyle}" Command="{Binding OpenShiftCommand}" FontSize="16"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============ MAIN POS WORKSPACE ============ -->
+        <Grid Visibility="{Binding IsShiftOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Grid.ColumnDefinitions>
+                <!-- First column = RIGHT under RightToLeft flow, matching the reference app's dark
+                     cart column always sitting on the right of the screen. -->
+                <ColumnDefinition Width="420"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== CART COLUMN (dark) ===== -->
+            <Grid Grid.Column="0" Background="{StaticResource CartBackgroundBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Order type + header -->
+                <StackPanel Grid.Row="0" Background="{StaticResource CartHeaderBrush}" Margin="0,0,0,0">
+                    <Grid Margin="12,10,12,6">
+                        <TextBlock Text="الطلب الحالي" Style="{StaticResource SectionTitleText}" Foreground="White"/>
+                        <Border Background="{StaticResource BrandPrimaryBrush}" CornerRadius="8" Padding="8,3" HorizontalAlignment="Right">
+                            <TextBlock Foreground="White" FontWeight="Bold" FontSize="11">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} صنف">
+                                        <Binding Path="Cart.Count"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+                    <UniformGrid Columns="3" Margin="0,0,0,10" Background="#232931">
+                        <Button Content="🍽 صالة" Margin="1" Command="{Binding SetOrderTypeCommand}" CommandParameter="dine_in">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqualsConverter}">
+                                                    <Binding Path="OrderType"/>
+                                                    <Binding Source="dine_in"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="Background" Value="{StaticResource ActionBlueBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="🛍 تيك أواي" Margin="1" Command="{Binding SetOrderTypeCommand}" CommandParameter="takeaway">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqualsConverter}">
+                                                    <Binding Path="OrderType"/>
+                                                    <Binding Source="takeaway"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="Background" Value="{StaticResource ActionBlueBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="🚚 دليفري" Margin="1" Style="{StaticResource SegmentButtonStyle}" IsEnabled="False" Opacity="0.4"
+                                ToolTip="نموذج بيانات التوصيل الكامل قيد التنفيذ في مرحلة قادمة - راجع خريطة التكافؤ"/>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Cart items -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <TextBlock Text="السلة فارغة - اختر أصنافًا من القائمة" Style="{StaticResource MutedText}" Foreground="#64748B"
+                                   HorizontalAlignment="Center" Margin="0,40,0,0"
+                                   Visibility="{Binding Cart.Count, Converter={StaticResource ZeroToVisibleConverter}, FallbackValue=Collapsed}"/>
+                        <ItemsControl ItemsSource="{Binding Cart}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:CartLine}">
+                                    <Border Style="{StaticResource CartItemCardStyle}" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <Grid>
+                                                <StackPanel HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding ProductName}" Style="{StaticResource CartItemNameText}"/>
+                                                    <Border Style="{StaticResource VariantBadgeStyle}" HorizontalAlignment="Right" Margin="0,3,0,0"
+                                                            Visibility="{Binding VariantName, Converter={StaticResource NullToCollapsedConverter}}">
+                                                        <TextBlock Text="{Binding VariantName}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding AppliedOfferName}" Foreground="#34D399" FontSize="11" FontWeight="Bold" Margin="0,3,0,0"
+                                                               Visibility="{Binding AppliedOfferName, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                                </StackPanel>
+                                                <Button Content="✕" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" Foreground="#64748B" BorderThickness="0"
+                                                        Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}" Padding="4" FontSize="12" Cursor="Hand"/>
+                                            </Grid>
+
+                                            <!-- Quick note chips, matching the reference's predefined-modifier row. -->
+                                            <WrapPanel Margin="0,8,0,0">
+                                                <Button Content="+ بدون بصل" Style="{StaticResource NoteChipButtonStyle}" Margin="0,0,4,4"
+                                                        Command="{Binding DataContext.AppendNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                                                    <Button.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource NoteAppendPairConverter}">
+                                                            <Binding/>
+                                                            <Binding Source="بدون بصل"/>
+                                                        </MultiBinding>
+                                                    </Button.CommandParameter>
+                                                </Button>
+                                                <Button Content="+ حار" Style="{StaticResource NoteChipButtonStyle}" Margin="0,0,4,4"
+                                                        Command="{Binding DataContext.AppendNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                                                    <Button.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource NoteAppendPairConverter}">
+                                                            <Binding/>
+                                                            <Binding Source="حار"/>
+                                                        </MultiBinding>
+                                                    </Button.CommandParameter>
+                                                </Button>
+                                            </WrapPanel>
+                                            <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0"
+                                                     Background="#0F151C" Foreground="White" BorderBrush="#3A4757" FontSize="11" MinHeight="30"
+                                                     ToolTip="ملاحظة (اختياري)"/>
+
+                                            <Grid Margin="0,8,0,0">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                    <Button Content="−" Style="{StaticResource QuantityButtonStyle}" Background="#F1F5F9" Foreground="#334155"
+                                                            Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <TextBlock Text="{Binding Quantity}" Foreground="White" FontWeight="Black" FontSize="15" Width="26" TextAlignment="Center" VerticalAlignment="Center"/>
+                                                    <Button Content="+" Style="{StaticResource QuantityButtonStyle}" Background="{StaticResource BrandPrimaryBrush}" Foreground="White"
+                                                            Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}"/>
+                                                </StackPanel>
+                                                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding LineTotalDisplay}" Foreground="White" FontWeight="Black" FontSize="14" HorizontalAlignment="Left"/>
+                                                    <TextBlock Text="{Binding UnitPriceDisplay}" Foreground="#64748B" FontSize="9" HorizontalAlignment="Left"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Totals + checkout -->
+                <StackPanel Grid.Row="2" Background="{StaticResource CartFooterBrush}" Margin="0,0,0,0">
+                    <StackPanel Margin="14,10,14,4">
+                        <Grid>
+                            <TextBlock Text="الإجمالي النهائي:" Foreground="White" FontWeight="ExtraBold" FontSize="14" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{Binding GrandTotalDisplay}" Style="{StaticResource TotalAmountText}" Foreground="White" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </StackPanel>
+                    <UniformGrid Columns="2" Margin="14,4,14,4">
+                        <Button Content="طلب / استرجاع" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding OpenOrderLookupCommand}" Margin="0,0,4,0"/>
+                        <Button Content="إفراغ السلة" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ClearCartCommand}" Margin="4,0,0,0"/>
+                    </UniformGrid>
+                    <Button Content="{Binding GrandTotalDisplay, StringFormat='دفع وإنهاء الطلب ({0})'}" Style="{StaticResource CtaButtonStyle}"
+                            Command="{Binding OpenCheckoutCommand}" Margin="14,6,14,14"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ===== PRODUCTS COLUMN ===== -->
+            <Grid Grid.Column="1" Background="{StaticResource PosSurfaceBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Top bar: measured 66px tall in the reference app. -->
+                <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,12" Height="66">
+                    <Grid VerticalAlignment="Center">
+                        <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" Width="320" HorizontalAlignment="Right"
+                                 Tag="بحث عن صنف..."/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Border Background="#F1F5F9" CornerRadius="10" Padding="10,6" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding CurrentUserName, StringFormat='الكاشير: {0}'}" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <Border Background="#EFF6FF" CornerRadius="10" Padding="10,6">
+                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="{StaticResource BrandPrimaryBrush}">
+                                    <Run Text="الأصناف المعروضة: "/><Run Text="{Binding VisibleProducts.Count, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Categories: measured 106px strip housing 114x80 tiles. -->
+                <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="12,10" Height="106">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Categories}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource CategoryButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{StaticResource EqualsConverter}">
+                                                                <Binding/>
+                                                                <Binding Path="DataContext.SelectedCategory" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="Background" Value="{StaticResource ActionBlueBrush}"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="BorderThickness" Value="0"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Icon, TargetNullValue='🍽️'}" FontSize="22" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource CategoryLabelText}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Product grid: measured 145x208 tiles, 14px gap, 16px outer padding. -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding VisibleProducts}" Margin="16">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel ItemWidth="159" ItemHeight="220"/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:ProductTile}">
+                                <StackPanel>
+                                    <Button Style="{StaticResource ProductCardStyle}"
+                                            Command="{Binding DataContext.SelectProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding Product}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="🔥 فحم" FontSize="9" FontWeight="Bold" Foreground="#B45309" HorizontalAlignment="Right" Margin="0,0,0,4"
+                                                       Visibility="{Binding Product.SendToGrill, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                            <Border Grid.Row="1" Style="{StaticResource ProductImagePlaceholderStyle}">
+                                                <TextBlock Text="🥙" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Grid.Row="2" Text="{Binding Product.Name}" Style="{StaticResource ProductNameText}" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" MaxHeight="40"/>
+                                            <Border Grid.Row="3" BorderBrush="#F1F5F9" BorderThickness="0,1,0,0" Padding="0,6,0,0" Margin="0,4,0,0">
+                                                <TextBlock Text="{Binding Product.BasePricePiastres, Converter={StaticResource PiastresToEgpConverter}}" Style="{StaticResource PriceText}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Button>
+                                    <ItemsControl ItemsSource="{Binding Offers}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type models:OfferChoice}">
+                                                <Button Margin="0,4,0,0" Background="#D1FAE5" BorderThickness="0" Tag="8" Cursor="Hand"
+                                                        Command="{Binding DataContext.SelectOfferCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                                <StackPanel Margin="8,5">
+                                                                    <TextBlock Text="{Binding Offer.Name}" FontSize="10" FontWeight="Bold" Foreground="#065F46" TextWrapping="Wrap"/>
+                                                                    <TextBlock Text="{Binding Offer.FixedPricePiastres, Converter={StaticResource PiastresToEgpConverter}}" FontSize="12" FontWeight="Black" Foreground="#065F46"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+        <!-- ============ VARIANT PICKER ============ -->
+        <Grid Background="#AA000000" Visibility="{Binding IsVariantPickerOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="اختر النوع" Style="{StaticResource SectionTitleText}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding VariantPickerProduct.Name}" Style="{StaticResource MutedText}" Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding VariantPickerProduct.Variants}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Margin="0,0,0,8" Style="{StaticResource SecondaryButtonStyle}" HorizontalContentAlignment="Stretch"
+                                        Command="{Binding DataContext.SelectVariantCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <Grid>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                        <TextBlock Text="{Binding PricePiastres, Converter={StaticResource PiastresToEgpConverter}}" HorizontalAlignment="Left" FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="إلغاء" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CloseVariantPickerCommand}" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============ CHECKOUT MODAL ============ -->
+        <Grid Background="#AA000000" Visibility="{Binding IsCheckoutOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="520" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="إنهاء ودفع الطلب" Style="{StaticResource TitleText}" Margin="0,0,0,10"/>
+
+                    <UniformGrid Columns="4" Margin="0,0,0,10">
+                        <Button Content="كاش" Command="{Binding SetPaymentMethodCommand}" CommandParameter="cash" Margin="2" Style="{StaticResource SuccessButtonStyle}"/>
+                        <Button Content="فيزا" Command="{Binding SetPaymentMethodCommand}" CommandParameter="card" Margin="2" Style="{StaticResource PrimaryButtonStyle}"/>
+                        <Button Content="إنستاباي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="instapay" Margin="2" Background="{StaticResource InstaPayBrush}" Foreground="White" Style="{StaticResource BaseButtonStyle}"/>
+                        <Button Content="محفظة" Command="{Binding SetPaymentMethodCommand}" CommandParameter="wallet" Margin="2" Background="{StaticResource WalletBrush}" Foreground="White" Style="{StaticResource BaseButtonStyle}"/>
+                    </UniformGrid>
+
+                    <Border Background="#F8FAFC" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <Grid>
+                                <TextBlock Text="الإجمالي المطلوب:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                <TextBlock Text="{Binding GrandTotalDisplay}" FontWeight="Black" FontSize="18" HorizontalAlignment="Left"/>
+                            </Grid>
+                            <Grid Margin="0,6,0,0" Visibility="{Binding PaymentMethod, Converter={StaticResource CashOnlyVisibleConverter}}">
+                                <TextBlock Text="المبلغ المدفوع:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                <TextBlock Text="{Binding AmountPaidText}" FontWeight="Black" FontSize="16" Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Left"/>
+                            </Grid>
+                            <Grid Margin="0,4,0,0" Visibility="{Binding PaymentMethod, Converter={StaticResource CashOnlyVisibleConverter}}">
+                                <TextBlock Text="الباقي للعميل:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                <TextBlock Text="{Binding ChangeDuePiastres, Converter={StaticResource PiastresToEgpConverter}}" FontWeight="Black" HorizontalAlignment="Left"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <UniformGrid Columns="3" Margin="0,0,0,8" Visibility="{Binding PaymentMethod, Converter={StaticResource CashOnlyVisibleConverter}}">
+                        <Button Content="1" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="1"/>
+                        <Button Content="2" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="2"/>
+                        <Button Content="3" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="3"/>
+                        <Button Content="4" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="4"/>
+                        <Button Content="5" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="5"/>
+                        <Button Content="6" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="6"/>
+                        <Button Content="7" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="7"/>
+                        <Button Content="8" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="8"/>
+                        <Button Content="9" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="9"/>
+                        <Button Content="مسح" FontSize="12" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="clear"/>
+                        <Button Content="0" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="0"/>
+                        <Button Content="⌫" Style="{StaticResource KeypadButtonStyle}" Margin="3" Command="{Binding PressAmountKeyCommand}" CommandParameter="back"/>
+                    </UniformGrid>
+
+                    <TextBlock Text="{Binding CheckoutError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
+                               Margin="0,0,0,8" Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                    <UniformGrid Columns="2">
+                        <Button Content="رجوع" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CloseCheckoutCommand}" Margin="0,0,4,0"/>
+                        <Button Content="{Binding IsProcessingCheckout, Converter={StaticResource BoolToLoginLabelConverter}, ConverterParameter=checkout}"
+                                Style="{StaticResource SuccessButtonStyle}" Command="{Binding SubmitPaymentCommand}" Margin="4,0,0,0"
+                                IsEnabled="{Binding IsProcessingCheckout, Converter={StaticResource InverseBoolConverter}, FallbackValue=True}"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============ ORDER RESULT ============ -->
+        <Grid Background="#CC000000" Visibility="{Binding HasCheckoutResult, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="420" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="✔" FontSize="34" Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                    <TextBlock Text="تم تسجيل الطلب بنجاح" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding LastCheckoutResult.OrderNumber}" FontSize="34" FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}"
+                               HorizontalAlignment="Center" Margin="0,6,0,6"/>
+                    <TextBlock HorizontalAlignment="Center" Margin="0,0,0,4">
+                        <Run Text="الإجمالي: " FontWeight="Bold"/>
+                        <Run Text="{Binding LastCheckoutResult.TotalPiastres, Converter={StaticResource PiastresToEgpConverter}}"/>
+                    </TextBlock>
+                    <TextBlock Text="بانتظار تأكيد وصول التحويل الإلكتروني" Foreground="{StaticResource WarningBrush}" FontWeight="Bold"
+                               HorizontalAlignment="Center" Margin="0,4,0,8"
+                               Visibility="{Binding ShowConfirmElectronicPaymentButton, Converter={StaticResource BoolToVisibleConverter}}"/>
+                    <Button Content="{Binding IsConfirmingElectronicPayment, Converter={StaticResource BoolToLoginLabelConverter}, ConverterParameter=confirm}"
+                            Style="{StaticResource SuccessButtonStyle}" Command="{Binding ConfirmElectronicPaymentCommand}" Margin="0,0,0,8"
+                            Visibility="{Binding ShowConfirmElectronicPaymentButton, Converter={StaticResource BoolToVisibleConverter}}"/>
+                    <TextBlock Text="{Binding ConfirmElectronicPaymentError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" HorizontalAlignment="Center"
+                               Visibility="{Binding ConfirmElectronicPaymentError, Converter={StaticResource NullToCollapsedConverter}}" Margin="0,0,0,8"/>
+                    <Button Content="طلب جديد" Style="{StaticResource CtaButtonStyle}" Command="{Binding StartNewOrderCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============ ORDER LOOKUP / REFUND ============ -->
+        <Grid Background="#CC000000" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="480" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <TextBlock Text="بحث عن طلب / استرجاع" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Right"/>
+                        <Button Content="✕" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" Command="{Binding CloseOrderLookupCommand}"/>
+                    </Grid>
+                    <Grid Margin="0,0,0,8">
+                        <TextBox Text="{Binding LookupOrderNumber, UpdateSourceTrigger=PropertyChanged}" Tag="رقم الطلب مثل #0128" Margin="0,0,90,0"/>
+                        <Button Content="بحث" Width="80" HorizontalAlignment="Left" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LookupOrderCommand}"/>
+                    </Grid>
+                    <TextBlock Text="{Binding LookupError}" Foreground="{StaticResource DangerBrush}" Margin="0,0,0,8"
+                               Visibility="{Binding LookupError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                    <StackPanel Visibility="{Binding LookedUpOrder, Converter={StaticResource NullToCollapsedConverter}}">
+                        <Border Background="#F8FAFC" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                            <StackPanel>
+                                <Grid><TextBlock Text="الحالة:" FontWeight="Bold" HorizontalAlignment="Right"/><TextBlock Text="{Binding LookedUpOrder.Status}" HorizontalAlignment="Left"/></Grid>
+                                <Grid><TextBlock Text="الإجمالي:" FontWeight="Bold" HorizontalAlignment="Right"/><TextBlock Text="{Binding LookedUpOrder.TotalPiastres, Converter={StaticResource PiastresToEgpConverter}}" HorizontalAlignment="Left"/></Grid>
+                                <Grid><TextBlock Text="مسترجَع سابقًا:" FontWeight="Bold" HorizontalAlignment="Right"/><TextBlock Text="{Binding LookedUpOrder.RefundAmountPiastres, Converter={StaticResource PiastresToEgpConverter}}" HorizontalAlignment="Left"/></Grid>
+                                <Grid><TextBlock Text="القابل للاسترجاع:" FontWeight="Bold" HorizontalAlignment="Right"/><TextBlock Text="{Binding RefundableRemainingPiastres, Converter={StaticResource PiastresToEgpConverter}}" HorizontalAlignment="Left"/></Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="مبلغ الاسترجاع (بالجنيه):" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding RefundAmountText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+                        <TextBlock Text="سبب الاسترجاع:" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding RefundReason, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding RefundError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="0,0,0,8"
+                                   Visibility="{Binding RefundError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <TextBlock Text="{Binding RefundSuccessMessage}" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" TextWrapping="Wrap" Margin="0,0,0,8"
+                                   Visibility="{Binding RefundSuccessMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <Button Content="تنفيذ الاسترجاع" Style="{StaticResource DangerButtonStyle}" Command="{Binding SubmitRefundCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>
