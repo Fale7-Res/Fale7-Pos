@@ -9,7 +9,7 @@ public sealed record MenuVariantDto(string Id, string Name, long PricePiastres);
 
 public sealed record MenuProductDto(
     string Id, string Name, long BasePricePiastres, bool SendToGrill, bool IsAvailable,
-    IReadOnlyList<MenuVariantDto> Variants, IReadOnlyList<MenuOfferDto> ApplicableOffers);
+    IReadOnlyList<MenuVariantDto> Variants, IReadOnlyList<MenuOfferDto> ApplicableOffers, string? PreparationStation);
 
 public sealed record MenuCategoryDto(string Id, string Name, string? Icon, IReadOnlyList<MenuProductDto> Products);
 

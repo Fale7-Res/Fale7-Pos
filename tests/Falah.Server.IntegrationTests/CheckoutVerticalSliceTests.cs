@@ -2,6 +2,7 @@ namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
+using Falah.Application.Approvals;
 using Falah.Application.Orders;
 using Falah.Application.Shifts;
 using Falah.Infrastructure.Persistence.Entities;
@@ -19,7 +20,8 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateClient();
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "orders_comp");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "orders_comp", "orders_discount", "shifts_open_own");
+        await _factory.SeedOpenBusinessDayWithFundedMainAsync();
 
         var openResponse = await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000));
@@ -192,14 +194,110 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
             return true;
         });
 
+        // Baseline, not zero: InitializeAsync's business-day/shift setup already posts its own
+        // funding + shift_opening_float movements - the point of this assertion is that the failed
+        // attempt below adds no NEW movement on top of those, not that the table is literally empty.
+        var movementCountBefore = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync());
+
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", await CashOrder(requestId));
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         var orderCount = await _factory.QueryAsync(db => db.Orders.CountAsync(o => o.CheckoutRequestId == requestId));
         var itemCount = await _factory.QueryAsync(db => db.OrderItems.CountAsync());
-        var movementCount = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync());
+        var movementCountAfter = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync());
         Assert.Equal(0, orderCount);
         Assert.Equal(0, itemCount);
-        Assert.Equal(0, movementCount);
+        Assert.Equal(movementCountBefore, movementCountAfter);
+    }
+
+    // Legacy-parity audit (2026-09-04): comp checkouts used to skip the base 'pos' permission check
+    // entirely (only orders_comp was checked). Fixed so 'pos' is required unconditionally, matching
+    // checkout()'s own unconditional hasPermission('pos') check in lib/store.tsx.
+    [Fact]
+    public async Task A_comp_checkout_still_requires_the_base_pos_permission()
+    {
+        var managerId = await _factory.SeedUserAsync("مدير", "manager", "all");
+        var noPosCashier = await _factory.SeedUserAsync("كاشير بلا pos", "cashier", "orders_comp");
+        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(managerId, "orders_comp", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+
+        var productId = await _factory.SeedProductAsync(10000);
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: noPosCashier, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
+            CompApprovalId: approval!.ApprovalId, CompApproverUserId: managerId, CompReason: "ضيافة",
+            AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            CompReasonCode: "hospitality");
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    // Legacy-parity audit (2026-09-04): a manual discount had no server-side authorization anywhere
+    // - orders_discount did not even exist in the permission catalog. Fixed to require it whenever
+    // DiscountPiastres > 0.
+    [Fact]
+    public async Task A_manual_discount_requires_the_orders_discount_permission()
+    {
+        var noDiscountCashier = await _factory.SeedUserAsync("كاشير بلا خصم", "cashier", "pos");
+        var productId = await _factory.SeedProductAsync(10000);
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: noDiscountCashier, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 1000, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 9000, SplitPayments: null, WalletProvider: null,
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+        var orderCount = await _factory.QueryAsync(db => db.Orders.CountAsync(o => o.CheckoutRequestId == request.CheckoutRequestId));
+        Assert.Equal(0, orderCount);
+    }
+
+    [Fact]
+    public async Task A_manual_discount_succeeds_for_a_cashier_holding_orders_discount()
+    {
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with { DiscountPiastres = 1000, AmountPaidPiastres = 9000 });
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Legacy-parity audit (2026-09-04): the reference app's own comp-reason-code taxonomy
+    // (hospitality/complaint/kitchen_error/staff_meal/owner_guest) was never captured at checkout -
+    // only a free-text CompReason reached the audit log. Fixed to require and persist one.
+    [Fact]
+    public async Task A_comp_checkout_requires_a_valid_comp_reason_code()
+    {
+        var managerId = await _factory.SeedUserAsync("مدير", "manager", "all");
+        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(managerId, "orders_comp", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+        var productId = await _factory.SeedProductAsync(10000);
+
+        CheckoutOrderRequest MakeRequest(string? reasonCode) => new(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
+            CompApprovalId: approval!.ApprovalId, CompApproverUserId: managerId, CompReason: "ضيافة",
+            AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            CompReasonCode: reasonCode);
+
+        var missing = await _client.PostAsJsonAsync("/api/orders/checkout", MakeRequest(null));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, missing.StatusCode);
+
+        var invalid = await _client.PostAsJsonAsync("/api/orders/checkout", MakeRequest("made_up_reason"));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, invalid.StatusCode);
+
+        var valid = await _client.PostAsJsonAsync("/api/orders/checkout", MakeRequest("staff_meal"));
+        valid.EnsureSuccessStatusCode();
+        var order = await valid.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var storedCode = await _factory.QueryAsync(db => db.Orders.Where(o => o.Id == order!.OrderId).Select(o => o.CompReasonCode).FirstAsync());
+        Assert.Equal("staff_meal", storedCode);
     }
 }

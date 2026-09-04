@@ -29,11 +29,33 @@ public sealed class MenuQueryService
                 var offers = PricingRules.ApplicableRules(product.Id, domainRules, now, BusinessClock.CairoTimeZone)
                     .Select(r => new MenuOfferDto(r.Id, r.Name, r.FixedPrice.Piastres)).ToList();
                 var variants = product.Variants.Select(v => new MenuVariantDto(v.Id, v.Name, v.PricePiastres)).ToList();
-                return new MenuProductDto(product.Id, product.Name, product.BasePricePiastres, product.SendToGrill, product.IsAvailable, variants, offers);
+                return new MenuProductDto(product.Id, product.Name, product.BasePricePiastres, product.SendToGrill, product.IsAvailable, variants, offers, product.PreparationStation);
             }).ToList();
             return new MenuCategoryDto(category.Id, category.Name, category.Icon, categoryProducts);
         }).ToList();
 
         return new MenuResponse(categoryDtos);
     }
+
+    /// <summary>Management view - unlike GetMenuAsync (the POS-facing menu, active categories and
+    /// available products only), this includes inactive categories too, since an administrator
+    /// reviewing or reactivating one needs to see it.</summary>
+    public async Task<List<CategoryDetailsDto>> ListAllCategoriesAsync(CancellationToken ct) =>
+        (await _db.Categories.AsNoTracking().OrderBy(c => c.SortOrder).ToListAsync(ct))
+            .Select(c => new CategoryDetailsDto(c.Id, c.Name, c.Icon, c.SortOrder, c.Active)).ToList();
+
+    /// <summary>Management view - includes unavailable products too, unlike GetMenuAsync.</summary>
+    public async Task<List<ProductDetailsDto>> ListAllProductsAsync(CancellationToken ct) =>
+        (await _db.Products.AsNoTracking().Include(p => p.Variants).OrderBy(p => p.SortOrder).ToListAsync(ct))
+            .Select(ToProductDetailsDto).ToList();
+
+    public async Task<ProductDetailsDto?> GetProductAsync(string id, CancellationToken ct)
+    {
+        var product = await _db.Products.AsNoTracking().Include(p => p.Variants).FirstOrDefaultAsync(p => p.Id == id, ct);
+        return product is null ? null : ToProductDetailsDto(product);
+    }
+
+    private static ProductDetailsDto ToProductDetailsDto(Falah.Infrastructure.Persistence.Entities.ProductEntity p) => new(
+        p.Id, p.CategoryId, p.Name, p.BasePricePiastres, p.SendToGrill, p.PreparationStation, p.IsAvailable, p.SortOrder, p.RecipeId,
+        p.Variants.Select(v => new ProductVariantDetailsDto(v.Id, v.Name, v.PricePiastres, v.RecipeId)).ToList());
 }

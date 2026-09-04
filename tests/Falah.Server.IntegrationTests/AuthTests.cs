@@ -25,7 +25,12 @@ public class AuthTests : IAsyncLifetime
     {
         await _factory.QueryAsync(async db =>
         {
-            db.Users.Add(new UserEntity { Id = id, Name = name, Role = role, Active = true, Permissions = string.Join(",", permissions), Pin = pin });
+            var hashed = Falah.Domain.Authorization.PinHasher.HashWithoutValidation(pin);
+            db.Users.Add(new UserEntity
+            {
+                Id = id, Name = name, Role = role, Active = true, Permissions = string.Join(",", permissions),
+                PinHash = hashed.HashBase64, PinSalt = hashed.SaltBase64, PinIterations = hashed.Iterations,
+            });
             await db.SaveChangesAsync();
             return true;
         });
@@ -55,7 +60,12 @@ public class AuthTests : IAsyncLifetime
     {
         await _factory.QueryAsync(async db =>
         {
-            db.Users.Add(new UserEntity { Id = "user-2", Name = "موظف سابق", Role = "cashier", Active = false, Permissions = "pos", Pin = "7777" });
+            var hashed = Falah.Domain.Authorization.PinHasher.HashWithoutValidation("7777");
+            db.Users.Add(new UserEntity
+            {
+                Id = "user-2", Name = "موظف سابق", Role = "cashier", Active = false, Permissions = "pos",
+                PinHash = hashed.HashBase64, PinSalt = hashed.SaltBase64, PinIterations = hashed.Iterations,
+            });
             await db.SaveChangesAsync();
             return true;
         });

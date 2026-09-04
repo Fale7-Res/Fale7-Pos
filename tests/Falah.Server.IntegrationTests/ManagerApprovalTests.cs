@@ -19,8 +19,9 @@ public class ManagerApprovalTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateClient();
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
+        await _factory.SeedOpenBusinessDayWithFundedMainAsync();
         var opened = await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000))).Content.ReadFromJsonAsync<OpenShiftResult>();
         _shiftId = opened!.ShiftId;
@@ -44,7 +45,8 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            CompReasonCode: "hospitality");
 
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
@@ -64,7 +66,8 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            CompReasonCode: "hospitality");
 
         var first = await _client.PostAsJsonAsync("/api/orders/checkout", MakeRequest($"req-{Guid.NewGuid():N}"));
         first.EnsureSuccessStatusCode();
@@ -122,7 +125,8 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            CompReasonCode: "hospitality");
 
         var response = await restartedClient.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();

@@ -24,11 +24,28 @@ public sealed class Order
     public Money DeliveryFee { get; init; } = Money.Zero;
     public required IReadOnlyList<OrderItem> Items { get; init; }
     public required Money Subtotal { get; init; }
+    /// <summary>Manual discount applied to the taxable base at checkout time - a plain historical
+    /// fact carried alongside the order (like CustomerName/DeliveryArea), never fed back into any
+    /// Domain calculation here since it was already spent computing Subtotal/TaxAmount/Total via
+    /// CheckoutRules.BuildPlan before this aggregate is ever created. Kept separate from CompAmount
+    /// (PIN-authorized hospitality) and any live price rule's own discount - three distinct
+    /// giveaway buckets a report must never merge (see Falah.Domain.Reports.SalesRules).</summary>
+    public Money Discount { get; init; } = Money.Zero;
     public Money CompAmount { get; init; } = Money.Zero;
     public string? CompReasonCode { get; init; }
     public string? CompAuthorizedBy { get; init; }
     public string? CompApprovalId { get; init; }
     public Money TaxAmount { get; init; } = Money.Zero;
+    /// <summary>The base tax was actually computed on at checkout time (subtotal-discount) - a
+    /// real gap found during the legacy-parity audit: previously only the final TaxAmount was
+    /// frozen, so a later Tax Report could not tell "gross" from "taxable" for a historical order
+    /// without recomputing from today's rules (exactly what this snapshot exists to prevent).</summary>
+    public Money TaxableBase { get; init; } = Money.Zero;
+    /// <summary>Null when no tax rule was active at checkout - never recomputed from whatever rule
+    /// happens to be active today (see TaxScreen.tsx's own comment on this exact failure mode).</summary>
+    public int? TaxRateBasisPoints { get; init; }
+    public string? TaxMode { get; init; }
+    public string? TaxRuleName { get; init; }
     public required Money Total { get; init; }
     public required PaymentMethod PaymentMethod { get; init; }
     public IReadOnlyList<PaymentSplit>? SplitPayments { get; init; }
@@ -49,7 +66,9 @@ public sealed class Order
     public static Order Create(CheckoutRules.CheckoutPlan plan, string id, string orderNumber, long sequenceNumber,
         string cashierId, string shiftId, IReadOnlyList<OrderItem> items, string checkoutRequestId,
         string? businessDayId, DateTimeOffset createdAtUtc, string? customerName = null, string? customerPhone = null,
-        string? deliveryAddress = null, string? deliveryArea = null)
+        string? deliveryAddress = null, string? deliveryArea = null, Money discount = default,
+        string? compReasonCode = null, string? compAuthorizedBy = null, string? compApprovalId = null,
+        int? taxRateBasisPoints = null, string? taxMode = null, string? taxRuleName = null)
     {
         var order = new Order
         {
@@ -66,8 +85,16 @@ public sealed class Order
             DeliveryFee = plan.DeliveryFee,
             Items = items,
             Subtotal = plan.Subtotal,
+            Discount = discount,
             CompAmount = plan.CompAmount,
+            CompReasonCode = compReasonCode,
+            CompAuthorizedBy = compAuthorizedBy,
+            CompApprovalId = compApprovalId,
             TaxAmount = plan.Tax.Tax,
+            TaxableBase = plan.Tax.Taxable,
+            TaxRateBasisPoints = taxRateBasisPoints,
+            TaxMode = taxMode,
+            TaxRuleName = taxRuleName,
             Total = plan.PayableTotal,
             PaymentMethod = plan.PaymentMethod,
             SplitPayments = plan.SplitPayments,
@@ -96,7 +123,8 @@ public sealed class Order
         string? compApprovalId, Money taxAmount, Money total, PaymentMethod paymentMethod, IReadOnlyList<PaymentSplit>? splitPayments,
         Money amountPaid, Money changeDue, string checkoutRequestId, string? businessDayId, DateTimeOffset createdAtUtc,
         OrderStatus status, bool isPaid, ElectronicPayment? electronicPayment, Money refundAmount, IEnumerable<OrderRefund> refunds,
-        DateTimeOffset? cancelledAtUtc = null, string? cancelReason = null, string? cancelledBy = null)
+        DateTimeOffset? cancelledAtUtc = null, string? cancelReason = null, string? cancelledBy = null, Money discount = default,
+        Money taxableBase = default, int? taxRateBasisPoints = null, string? taxMode = null, string? taxRuleName = null)
     {
         var order = new Order
         {
@@ -113,11 +141,16 @@ public sealed class Order
             DeliveryFee = deliveryFee,
             Items = items,
             Subtotal = subtotal,
+            Discount = discount,
             CompAmount = compAmount,
             CompReasonCode = compReasonCode,
             CompAuthorizedBy = compAuthorizedBy,
             CompApprovalId = compApprovalId,
             TaxAmount = taxAmount,
+            TaxableBase = taxableBase,
+            TaxRateBasisPoints = taxRateBasisPoints,
+            TaxMode = taxMode,
+            TaxRuleName = taxRuleName,
             Total = total,
             PaymentMethod = paymentMethod,
             SplitPayments = splitPayments,

@@ -48,6 +48,36 @@ public sealed class Shift
     public static Shift Open(string id, string shiftName, string openedByUserId, Money openingCash, DateTimeOffset nowUtc)
         => new(id, shiftName, openedByUserId, openingCash, BusinessClock.BusinessDate(nowUtc), nowUtc);
 
+    /// <summary>Rehydrates a shift already recorded by persistence - open or closed - so a handler
+    /// can call Close() on a legitimate aggregate instance (enforcing Status/reason invariants)
+    /// rather than writing close-state fields onto the entity directly. Mirrors Order.Reconstitute.</summary>
+    private Shift(string id, string shiftName, string openedByUserId, Money openingCash, DateOnly businessDate,
+        DateTimeOffset openedAtUtc, ShiftStatus status, string? closedByUserId, Money? actualCash, Money? expectedCash,
+        Money? cashDifference, string? differenceReason, string? differenceAuthorizedBy, DateTimeOffset? closedAtUtc)
+    {
+        Id = id;
+        ShiftName = shiftName;
+        OpenedByUserId = openedByUserId;
+        OpeningCash = openingCash;
+        BusinessDate = businessDate;
+        OpenedAtUtc = openedAtUtc;
+        Status = status;
+        ClosedByUserId = closedByUserId;
+        ActualCash = actualCash;
+        ExpectedCash = expectedCash;
+        CashDifference = cashDifference;
+        DifferenceReason = differenceReason;
+        DifferenceAuthorizedBy = differenceAuthorizedBy;
+        ClosedAtUtc = closedAtUtc;
+    }
+
+    public static Shift Reconstitute(string id, string shiftName, string openedByUserId, Money openingCash,
+        DateOnly businessDate, DateTimeOffset openedAtUtc, ShiftStatus status, string? closedByUserId,
+        Money? actualCash, Money? expectedCash, Money? cashDifference, string? differenceReason,
+        string? differenceAuthorizedBy, DateTimeOffset? closedAtUtc) =>
+        new(id, shiftName, openedByUserId, openingCash, businessDate, openedAtUtc, status, closedByUserId,
+            actualCash, expectedCash, cashDifference, differenceReason, differenceAuthorizedBy, closedAtUtc);
+
     public readonly record struct BlindCloseResult(Money Expected, Money Actual, Money Difference, bool RequiresManagerApproval)
     {
         public bool IsBalanced => Difference.IsZero;

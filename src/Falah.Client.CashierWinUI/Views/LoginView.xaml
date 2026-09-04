@@ -1,0 +1,65 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!-- Mirrors the reference app's LockScreenModal: dark background, red lock accent, PIN display,
+         a 3x3 + clear/0/backspace touch keypad, no username field anywhere - the server determines
+         who this PIN belongs to. -->
+    <Grid Background="#0F172A">
+        <Border Background="#1E293B" CornerRadius="24" Padding="40" Width="440"
+                BorderBrush="#334155" BorderThickness="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="4">
+                <Border Background="#3D1F1F" CornerRadius="16" Width="64" Height="64"
+                        HorizontalAlignment="Center" Margin="0,0,0,12">
+                    <TextBlock Text="🔒" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="فالح أبو العنبة" Style="{StaticResource TitleText}" Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock Text="شاشة النظام مقفلة لحماية العمليات المالية" Style="{StaticResource MutedText}"
+                           Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,4,0,20" TextAlignment="Center"/>
+
+                <TextBlock Text="{Binding PinDisplay}" FontSize="28" FontWeight="Black" Foreground="#DC2626"
+                           HorizontalAlignment="Center" Margin="0,0,0,8" MinHeight="34"/>
+
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#F87171" FontWeight="Bold" FontSize="12"
+                           HorizontalAlignment="Center" Margin="0,0,0,10" TextWrapping="Wrap" TextAlignment="Center"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                <Grid ColumnSpacing="8" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" Grid.Column="0" Content="1" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="1"/>
+                    <Button Grid.Row="0" Grid.Column="1" Content="2" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="2"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="3" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="3"/>
+                    <Button Grid.Row="1" Grid.Column="0" Content="4" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="4"/>
+                    <Button Grid.Row="1" Grid.Column="1" Content="5" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="5"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="6" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="6"/>
+                    <Button Grid.Row="2" Grid.Column="0" Content="7" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="7"/>
+                    <Button Grid.Row="2" Grid.Column="1" Content="8" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="8"/>
+                    <Button Grid.Row="2" Grid.Column="2" Content="9" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="9"/>
+                    <Button Grid.Row="3" Grid.Column="0" Content="مسح" FontSize="13" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ClearCommand}"/>
+                    <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="0"/>
+                    <Button Grid.Row="3" Grid.Column="2" Content="⌫" Style="{StaticResource KeypadButtonStyle}" Command="{Binding BackspaceCommand}"/>
+                </Grid>
+
+                <Button Content="{Binding SubmitLabel}"
+                        Style="{StaticResource DangerButtonStyle}" Command="{Binding SubmitCommand}"
+                        Margin="0,16,0,0" MinHeight="52" FontSize="16" HorizontalAlignment="Stretch"/>
+
+                <TextBlock Text="أدخل رمزك الشخصي؛ سيحدد النظام المستخدم وصلاحياته تلقائيًا."
+                           Style="{StaticResource MutedText}" Foreground="#64748B" TextAlignment="Center"
+                           TextWrapping="Wrap" Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

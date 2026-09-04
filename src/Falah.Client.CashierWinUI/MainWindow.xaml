@@ -1,0 +1,29 @@
+<Window x:Class="Falah.Client.CashierWinUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:Falah.Client.CashierWinUI.Views"
+        Title="فلاح - نقطة البيع">
+
+    <Grid x:Name="RootGrid" FlowDirection="RightToLeft" Background="{StaticResource SurfaceBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Persistent branded header - present on every screen once logged in, matching the
+             reference app's AppShell header exactly (not shown on the PIN screen, matching the
+             reference where the lock overlay covers it anyway). -->
+        <views:AppHeaderView x:Name="HeaderHost" Grid.Row="0" Visibility="Collapsed"/>
+
+        <!-- Persistent connectivity banner - only takes space when actually offline, so it never
+             steals a pixel from the workspace during normal operation. -->
+        <Border x:Name="OfflineBanner" Grid.Row="1" Background="{StaticResource DangerBrush}" Padding="8" Visibility="Collapsed">
+            <TextBlock Text="⚠ غير متصل بالسيرفر - تحقق من تشغيل Falah.Server" Foreground="White" FontWeight="Bold"
+                       HorizontalAlignment="Center" FontFamily="{StaticResource AppFontFamily}"/>
+        </Border>
+
+        <ContentControl x:Name="RootContent" Grid.Row="2"
+                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+    </Grid>
+</Window>

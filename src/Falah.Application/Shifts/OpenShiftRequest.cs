@@ -5,3 +5,16 @@ namespace Falah.Application.Shifts;
 public sealed record OpenShiftRequest(string RequestId, string ShiftName, string OpenedByUserId, long OpeningCashPiastres);
 
 public sealed record OpenShiftResult(string ShiftId, string ShiftName, string Status, long OpeningCashPiastres, bool WasReplayed);
+
+/// <summary>The one currently open shift, if any - a station with no shift-open UI of its own (Call
+/// Center) reads this to discover which shift id to attach its checkout requests to, matching the
+/// reference app's own single system-wide active-shift model (activeShift in lib/store.tsx).</summary>
+public sealed record CurrentShiftDto(string ShiftId, string ShiftName, string OpenedByUserId, long OpeningCashPiastres, DateTimeOffset OpenedAtUtc);
+
+/// <summary>Ported from openNewShift's own guard: `if (activeShift) throw new Error('توجد وردية
+/// مفتوحة بالفعل...')`. There is only ever one active shift system-wide - a second open attempt
+/// must close the first one first, never quietly proceed alongside it.</summary>
+public sealed class ShiftAlreadyOpenException : Exception
+{
+    public ShiftAlreadyOpenException(string message) : base(message) { }
+}

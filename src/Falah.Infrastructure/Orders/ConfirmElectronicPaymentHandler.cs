@@ -2,6 +2,8 @@ namespace Falah.Infrastructure.Orders;
 
 using System.Data;
 using Falah.Application.Orders;
+using Falah.Domain.Authorization;
+using Falah.Domain.Common;
 using Falah.Domain.Financial;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
@@ -28,6 +30,17 @@ public sealed class ConfirmElectronicPaymentHandler
 
         var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
             ?? throw new InvalidOperationException("الكاشير غير موجود.");
+
+        // Ported from confirmElectronicPayment in lib/store.tsx: `pos` or `cash_drawer_sale`, and
+        // an active shift, both required before any money is confirmed/posted - a real gap found
+        // during the legacy-parity audit, since neither check existed here at all: any caller who
+        // knew a valid orderId + any existing cashierId could confirm a claimed electronic payment
+        // and post real money with zero authorization.
+        var actor = OrderMapper.ToActor(cashierUser);
+        if (!AuthorizationPolicy.HasPermission(actor, "pos") && !AuthorizationPolicy.HasPermission(actor, "cash_drawer_sale"))
+            throw new DomainException("ليس لديك صلاحية تأكيد التحصيل الإلكتروني.");
+        if (!await _db.Shifts.AsNoTracking().AnyAsync(s => s.Status == "Open", ct))
+            throw new DomainException("يجب فتح وردية قبل تأكيد التحصيل.");
 
         // The initial read below takes an UPDLOCK (plus ROWLOCK/HOLDLOCK) hint - SQL Server's
         // idiomatic "select for update" - so a second concurrent confirm on the same order blocks

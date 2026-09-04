@@ -1,8 +1,10 @@
 namespace Falah.Infrastructure.Orders;
 
 using Falah.Application.Orders;
+using Falah.Domain.Audit;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
+using Falah.Domain.Delivery;
 using Falah.Domain.Financial;
 using Falah.Domain.Orders;
 using Falah.Domain.Pricing;
@@ -24,13 +26,15 @@ public sealed class CheckoutOrderHandler
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly MenuPricingService _pricing;
     private readonly InventoryDeductionService _inventory;
+    private readonly IAuditLog _auditLog;
 
-    public CheckoutOrderHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, MenuPricingService pricing, InventoryDeductionService inventory)
+    public CheckoutOrderHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, MenuPricingService pricing, InventoryDeductionService inventory, IAuditLog auditLog)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
         _pricing = pricing;
         _inventory = inventory;
+        _auditLog = auditLog;
     }
 
     public async Task<CheckoutOrderResult> HandleAsync(CheckoutOrderRequest request, CancellationToken ct = default)
@@ -68,6 +72,37 @@ public sealed class CheckoutOrderHandler
             .Select(s => new PaymentSplit(OrderEnumMapping.ParsePaymentMethod(s.Method), Money.FromPiastres(s.AmountPiastres)))
             .ToList();
 
+        // Ported from checkout()'s own re-validation in lib/store.tsx: a delivery order without a
+        // complete customer/address is rejected here too, not just at the pre-checkout "save
+        // delivery details" form step - Call Center (and any future client) submits straight to
+        // this endpoint with no such form gate of its own, so the server must be the one place this
+        // is actually enforced.
+        string? composedDeliveryAddress = null;
+        if (orderType == OrderType.Delivery)
+        {
+            var missing = DeliveryRules.FirstMissingDeliveryField(
+                request.CustomerPhone, request.CustomerName, request.DeliveryServiceId, request.DeliveryArea, request.DeliveryStreet);
+            if (missing is not null) throw new DomainException(missing);
+
+            composedDeliveryAddress = DeliveryRules.ComposeDeliveryAddress(
+                request.DeliveryArea, request.DeliveryStreet, request.DeliveryBuilding, request.DeliveryFloor,
+                request.DeliveryApartment, request.DeliveryLandmark);
+        }
+
+        // Ported from checkout() in lib/store.tsx: 'pos' is the base gate on EVERY checkout,
+        // unconditionally, before any comp logic runs at all - a comped checkout is still a
+        // checkout. A real gap found during the legacy-parity audit: this used to be checked only
+        // in the no-comp branch, so a comped order needed just orders_comp and silently skipped the
+        // base 'pos' requirement entirely.
+        if (!AuthorizationPolicy.HasPermission(cashier, "pos"))
+            throw new DomainException("ليس لديك صلاحية تسجيل عملية بيع.");
+
+        // Ported from store.tsx's own discount gate: a manual discount &gt; 0 requires orders_discount
+        // - previously enforced nowhere server-side in this port despite the field being fully live.
+        if (discount.IsPositive && !AuthorizationPolicy.HasPermission(cashier, "orders_discount"))
+            throw new DomainException("ليس لديك صلاحية تطبيق خصم يدوي.");
+
+        string? compApprovedByName = null;
         if (compAmount.IsPositive)
         {
             var preCompSubtotal = CheckoutRules.ComputeSubtotal(items);
@@ -75,6 +110,7 @@ public sealed class CheckoutOrderHandler
             if (preCompTaxable.IsNegative) preCompTaxable = Money.Zero;
             var orderValueBeforeComp = TaxEngine.Calculate(preCompTaxable, taxRule).Final + deliveryFee;
             PricingRules.AssertCompAmount(compAmount, orderValueBeforeComp);
+            PricingRules.AssertCompReasonCode(request.CompReasonCode);
 
             if (string.IsNullOrEmpty(request.CompApprovalId) || string.IsNullOrEmpty(request.CompApproverUserId))
                 throw new DomainException("الضيافة تتطلب اعتماد مدير.");
@@ -86,10 +122,7 @@ public sealed class CheckoutOrderHandler
             var approval = new ManagerApproval(request.CompApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "orders_comp", request.CompReason);
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, cashier, "orders_comp", approval, requireApproval: true);
-        }
-        else if (!AuthorizationPolicy.HasPermission(cashier, "pos"))
-        {
-            throw new DomainException("ليس لديك صلاحية تسجيل عملية بيع.");
+            compApprovedByName = approverUser.Name;
         }
 
         var plan = CheckoutRules.BuildPlan(orderType, paymentMethod, items, discount, taxRule,
@@ -111,12 +144,55 @@ public sealed class CheckoutOrderHandler
             var orderNumber = FinancialRules.FormatOrderNumber(sequence);
             var now = DateTimeOffset.UtcNow;
 
+            // Server-resolved, never trusted from the client (request.BusinessDayId is accepted on
+            // the wire only for source-compat and otherwise ignored) - see BusinessDayGate.
+            // TryGetActiveAsync's own doc comment for why a plain sale does not REQUIRE one to exist.
+            var businessDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(_db, ct);
+
             var order = Order.Create(plan, orderId, orderNumber, sequence, request.CashierId, request.ShiftId,
-                items, request.CheckoutRequestId, request.BusinessDayId, now,
-                request.CustomerName, request.CustomerPhone, request.DeliveryAddress, request.DeliveryArea);
+                items, request.CheckoutRequestId, businessDayId, now,
+                request.CustomerName, request.CustomerPhone, composedDeliveryAddress, request.DeliveryArea, discount,
+                compAmount.IsPositive ? request.CompReasonCode : null,
+                compApprovedByName, compAmount.IsPositive ? request.CompApprovalId : null,
+                taxRule?.RateBasisPoints, taxRule?.Mode.ToString(), taxRule?.Name);
 
             var orderEntity = ToEntity(order);
+            // Structured delivery breakdown - kept off the Order Domain aggregate entirely (no
+            // business rule of Order's own reads them, they are pure display/navigation data for a
+            // driver/receipt/Call Center), set directly on the persistence row exactly like
+            // Delivery's own side-effect row below.
+            orderEntity.DeliveryStreet = request.DeliveryStreet;
+            orderEntity.DeliveryBuilding = request.DeliveryBuilding;
+            orderEntity.DeliveryFloor = request.DeliveryFloor;
+            orderEntity.DeliveryApartment = request.DeliveryApartment;
+            orderEntity.DeliveryLandmark = request.DeliveryLandmark;
+            orderEntity.DeliveryNotes = request.DeliveryNotes;
+            orderEntity.DeliveryServiceId = request.DeliveryServiceId;
+            orderEntity.DeliveryServiceName = request.DeliveryServiceName;
             _db.Orders.Add(orderEntity);
+
+            if (compAmount.IsPositive)
+            {
+                _auditLog.Append(new AuditEvent(
+                    $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
+                    "ضيافة على طلب", "order", $"ضيافة {compAmount.Piastres} قرش على طلب {orderNumber} - {request.CompReason}",
+                    "critical", now, ShiftId: request.ShiftId, Reason: request.CompReason, AuthorizedBy: compApprovedByName,
+                    ReferenceId: orderId));
+            }
+
+            // Ported from registerDeliveryOrder in the reference app: every delivery-type order gets
+            // exactly one Delivery row, created here rather than by a separate call, since this
+            // system has no other path that produces a delivery order. Starts 'New' - dispatch
+            // cannot assign a driver until it's explicitly marked 'ready' (POST /api/delivery/{id}/
+            // ready), matching Falah.Domain.Delivery.DeliveryTransitions' own tested contract.
+            if (order.OrderType == OrderType.Delivery)
+            {
+                _db.Deliveries.Add(new DeliveryEntity
+                {
+                    Id = $"delivery-{orderId}", OrderId = orderId, Status = nameof(DeliveryStatus.New),
+                    ShiftId = order.ShiftId, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
+                });
+            }
 
             // Stock leaves the kitchen the moment the order is made, independent of whether the
             // money settles now or later (cash-on-delivery, a pending electronic transfer) - same
@@ -133,7 +209,7 @@ public sealed class CheckoutOrderHandler
                         if (split.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet) { idx++; continue; }
                         var movement = TreasuryMovementFactory.BuildSaleMovement($"tm-{Guid.NewGuid():N}",
                             $"op-{Guid.NewGuid():N}", $"{request.CheckoutRequestId}-{idx}", orderId,
-                            split.Method, split.Amount, request.BusinessDayId, request.ShiftId, cashierUser.Name, now);
+                            split.Method, split.Amount, businessDayId, request.ShiftId, cashierUser.Name, now);
                         _db.TreasuryMovements.Add(ToEntity(movement));
                         idx++;
                     }
@@ -142,7 +218,7 @@ public sealed class CheckoutOrderHandler
                 {
                     var movement = TreasuryMovementFactory.BuildSaleMovement($"tm-{Guid.NewGuid():N}",
                         $"op-{Guid.NewGuid():N}", request.CheckoutRequestId, orderId,
-                        paymentMethod, plan.PayableTotal, request.BusinessDayId, request.ShiftId, cashierUser.Name, now);
+                        paymentMethod, plan.PayableTotal, businessDayId, request.ShiftId, cashierUser.Name, now);
                     _db.TreasuryMovements.Add(ToEntity(movement));
                 }
                 new EfFinancialJournal(_db).Complete(saleKey);

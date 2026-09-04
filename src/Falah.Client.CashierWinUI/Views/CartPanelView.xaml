@@ -1,0 +1,183 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.CartPanelView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!-- The order workspace: head (order type), middle (cart items, the only scrolling region), foot
+         (totals + checkout). Split into its own UserControl - alongside ProductCatalogueView - so
+         each XAML file holds one non-trivial DataTemplate rather than two; see CashierView.xaml.cs
+         for why. -->
+    <Grid Background="{StaticResource CartBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEAD band -->
+        <StackPanel Grid.Row="0" Background="{StaticResource CartHeaderBrush}" Padding="12,8" Spacing="8">
+            <Grid>
+                <TextBlock Text="الطلب الحالي" FontSize="15" FontWeight="Black" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <Border Background="{StaticResource BrandPrimaryBrush}" CornerRadius="8" Padding="10,4"
+                        HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock FontSize="12" FontWeight="Black" Foreground="White">
+                        <Run Text="{Binding CartItemCount}"/><Run Text=" صنف"/>
+                    </TextBlock>
+                </Border>
+            </Grid>
+
+            <!-- Both sit here rather than the app header because they are meaningfully
+                 Cashier-workspace actions (this view already owns CashierViewModel directly; the
+                 header is a separate ViewModel with no clean route to it) - see
+                 CashierViewModel.ShiftClose.cs / CashierViewModel.Expense.cs. -->
+            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left">
+                <Button Content="🧾 تسجيل مصروف" Background="Transparent"
+                        Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Padding="6,4" MinHeight="0"
+                        Command="{Binding OpenAddExpenseCommand}"/>
+                <Button Content="🔒 إغلاق الوردية" Background="Transparent"
+                        Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Padding="6,4" MinHeight="0"
+                        Command="{Binding OpenCloseShiftCommand}"/>
+            </StackPanel>
+
+            <!-- Order type: dine-in / takeaway only in this slice (delivery intake is a
+                 separate, not-yet-built screen). -->
+            <Grid ColumnSpacing="6" Background="{StaticResource GraphiteButtonBrush}" CornerRadius="12" Padding="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="صالة" Command="{Binding SetOrderTypeCommand}" CommandParameter="dine_in"
+                        Style="{StaticResource SegmentButtonStyle}"
+                        Background="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=dine_in|DangerBrush|TransparentBrush}"
+                        Foreground="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=dine_in|WhiteBrush|TextOnDarkMutedBrush}"/>
+                <Button Grid.Column="1" Content="تيك أواي" Command="{Binding SetOrderTypeCommand}" CommandParameter="takeaway"
+                        Style="{StaticResource SegmentButtonStyle}"
+                        Background="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=takeaway|DangerBrush|TransparentBrush}"
+                        Foreground="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=takeaway|WhiteBrush|TextOnDarkMutedBrush}"/>
+            </Grid>
+
+            <TextBox PlaceholderText="رقم الطاولة" Text="{Binding TableNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Visibility="{Binding OrderType, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=dine_in}"/>
+        </StackPanel>
+
+        <!-- MIDDLE band: the only region that scrolls -->
+        <Grid Grid.Row="1">
+            <!-- Visibility of both is kept in sync with Cart.Count from code-behind, since WinUI has
+                 no "collection is empty" converter input other than Count. -->
+            <TextBlock x:Name="EmptyCartHint" Text="السلة فارغة - اضغط على الأصناف من القائمة لإضافتها للطلب"
+                       Foreground="#64748B" FontSize="12" TextAlignment="Center" TextWrapping="Wrap"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"/>
+            <ScrollViewer x:Name="CartScrollViewer" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Cart}" Padding="10">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource CartItemCardStyle}" Margin="0,0,0,6" Padding="10,8">
+                                <StackPanel Spacing="5">
+                                    <!-- Real columns, not overlapping HorizontalAlignment - a long product name plus
+                                         a grill/variant tag needs its wrap width capped so it can never grow under
+                                         the remove button; a plain Grid gives it the whole row's width to wrap into. -->
+                                    <Grid ColumnSpacing="4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" HorizontalAlignment="Right" Spacing="2">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="{Binding ProductName}" Style="{StaticResource CartItemNameText}" TextWrapping="Wrap"/>
+                                                <Border Background="#4B3A1F" CornerRadius="4" Padding="4,1"
+                                                        Visibility="{Binding SendToGrill, Converter={StaticResource BoolToVisibleConverter}}">
+                                                    <TextBlock Text="🔥" FontSize="10"/>
+                                                </Border>
+                                                <Border Background="#3A1414" CornerRadius="4" Padding="5,1"
+                                                        Visibility="{Binding VariantName, Converter={StaticResource NullToCollapsedConverter}}">
+                                                    <TextBlock Text="{Binding VariantName}" FontSize="10" FontWeight="Bold" Foreground="#FCA5A5"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Notes}" FontSize="10" Foreground="#FCD34D" TextWrapping="Wrap"
+                                                       Visibility="{Binding Notes, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="✕" VerticalAlignment="Top"
+                                                Background="Transparent" Foreground="#64748B" Padding="4" MinHeight="0" MinWidth="0" FontSize="11"
+                                                Command="{Binding ElementName=Root, Path=DataContext.RemoveLineCommand}" CommandParameter="{Binding}"/>
+                                    </Grid>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <Button Content="+ بدون بصل" Style="{StaticResource NoteChipButtonStyle}" Tag="بدون بصل" Click="OnNoteChipClicked"/>
+                                        <Button Content="+ حار" Style="{StaticResource NoteChipButtonStyle}" Tag="حار" Click="OnNoteChipClicked"/>
+                                    </StackPanel>
+
+                                    <!-- Auto column for the fixed-size quantity stepper, Star for the price so a
+                                         high-quantity/high-price line total (e.g. "3,400.00 ج") has real room to
+                                         grow instead of overlapping the stepper buttons. -->
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                                            <Button Content="－" Style="{StaticResource QuantityButtonStyle}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.DecreaseQuantityCommand}" CommandParameter="{Binding}"/>
+                                            <TextBlock Text="{Binding Quantity}" FontWeight="Black" FontSize="14" Foreground="White"
+                                                       VerticalAlignment="Center" Width="24" TextAlignment="Center"/>
+                                            <Button Content="＋" Style="{StaticResource QuantityButtonStyle}"
+                                                    Background="{StaticResource DangerBrush}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.IncreaseQuantityCommand}" CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                                            <TextBlock Text="{Binding LineTotalDisplay}" FontWeight="Black" FontSize="14" Foreground="White" HorizontalAlignment="Left"/>
+                                            <TextBlock Text="{Binding UnitPriceDisplay}" FontSize="10" Foreground="#64748B" HorizontalAlignment="Left"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- FOOT band: totals + checkout, always visible -->
+        <StackPanel Grid.Row="2" Background="{StaticResource CartFooterBrush}" Padding="14,10" Spacing="6">
+            <!-- Auto column for the fixed label, Star for the amount - a big multi-item order's total
+                 is exactly the string most likely to grow long, right above the checkout button. -->
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="المجموع الفرعي:" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="1" Text="{Binding CartSubtotalDisplay}" FontSize="12" FontWeight="Bold" Foreground="#94A3B8" HorizontalAlignment="Left"/>
+            </Grid>
+            <Border Height="1" Background="{StaticResource GraphiteBorderBrush}" Margin="0,2"/>
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="الإجمالي النهائي:" FontSize="14" FontWeight="ExtraBold" Foreground="White" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="1" Text="{Binding GrandTotalDisplay}" Style="{StaticResource TotalAmountText}" Foreground="White" HorizontalAlignment="Left"/>
+            </Grid>
+
+            <!-- De-emphasized on purpose: a destructive, rarely-used action sitting right above the
+                 primary checkout CTA must never compete with it visually, or a hurried touch risks
+                 clearing a real order by mistake. -->
+            <Button Content="إلغاء الطلب" Background="Transparent" Foreground="#94A3B8" FontSize="11" FontWeight="Bold"
+                    HorizontalAlignment="Left" Padding="6,4" MinHeight="0"
+                    Command="{Binding ClearCartCommand}"/>
+
+            <TextBlock Text="{Binding CheckoutError}" Foreground="#FCA5A5" FontWeight="Bold" FontSize="11"
+                       TextAlignment="Center" TextWrapping="Wrap"
+                       Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+            <Button Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
+                    Command="{Binding OpenCheckoutCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock Text="💳" FontSize="16"/>
+                    <TextBlock FontWeight="Black" FontSize="16" Foreground="White">
+                        <Run Text="دفع وإنهاء الطلب ("/><Run Text="{Binding GrandTotalDisplay}"/><Run Text=")"/>
+                    </TextBlock>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

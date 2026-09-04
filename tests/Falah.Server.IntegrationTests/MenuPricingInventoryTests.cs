@@ -19,7 +19,8 @@ public class MenuPricingInventoryTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateClient();
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
+        await _factory.SeedOpenBusinessDayWithFundedMainAsync();
         var opened = await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000))).Content.ReadFromJsonAsync<OpenShiftResult>();
         _shiftId = opened!.ShiftId;
@@ -130,7 +131,7 @@ public class MenuPricingInventoryTests : IAsyncLifetime
 
         var movement = await _factory.QueryAsync(db => db.StockMovements.AsNoTracking().FirstAsync(m => m.InventoryItemId == inventoryItemId));
         Assert.Equal(600, movement.QuantityMilliUnits); // 200 * 3
-        Assert.Equal("usage", movement.Type);
+        Assert.Equal("Usage", movement.Type);
     }
 
     [Fact]

@@ -18,6 +18,13 @@ public sealed record PrepRecipe(string Id, string OutputInventoryItemId, long Ou
 
 public enum StockMovementType { PurchaseReceipt, ManualReceipt, Usage, Waste, Spoilage, Breakage, CountAdjustment }
 
-public sealed record StockMovementFacts(string InventoryItemId, StockMovementType Type, Money? UnitCost, DateTimeOffset CreatedAtUtc);
+public enum StockDirection { In, Out }
+
+/// <summary>QuantityMilliUnits/Direction default to 0/Out so every existing positional construction
+/// of this record (costing, which only ever needed Type/UnitCost/CreatedAtUtc) keeps compiling
+/// unchanged - added for InventoryRules' balance/variance functions, which need the full shape.</summary>
+public sealed record StockMovementFacts(
+    string InventoryItemId, StockMovementType Type, Money? UnitCost, DateTimeOffset CreatedAtUtc,
+    long QuantityMilliUnits = 0, StockDirection Direction = StockDirection.Out);
 
 public sealed record OrderPackagingRule(string OrderType, string InventoryItemId, long QuantityMilliUnits, bool Active);

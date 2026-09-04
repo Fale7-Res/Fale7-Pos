@@ -27,7 +27,11 @@ public static class OrderMapper
             i.TotalPricePiastres, i.PriceRuleName, i.Notes)).ToList(),
         order.SubtotalPiastres, order.TaxAmountPiastres, order.CompAmountPiastres, order.TotalPiastres,
         order.AmountPaidPiastres, order.ChangeDuePiastres, order.Status, order.IsPaid,
-        order.ElectronicPaymentStatus, order.RefundAmountPiastres, order.CreatedAtUtc, order.CashierId);
+        order.ElectronicPaymentStatus, order.RefundAmountPiastres, order.CreatedAtUtc, order.CashierId,
+        order.CustomerName, order.CustomerPhone, order.DeliveryArea, order.DeliveryAddress,
+        order.DeliveryStreet, order.DeliveryBuilding, order.DeliveryFloor, order.DeliveryApartment,
+        order.DeliveryLandmark, order.DeliveryNotes, order.DeliveryServiceId, order.DeliveryServiceName,
+        order.DeliveryFeePiastres, order.DiscountPiastres, order.ShiftId);
 
     public static Order ToDomain(OrderEntity entity)
     {
@@ -36,7 +40,7 @@ public static class OrderMapper
                 i.Id.ToString(), i.ProductId, i.VariantId, i.ProductName, i.VariantName,
                 Money.FromPiastres(i.UnitPricePiastres), Money.FromPiastres(i.ListUnitPricePiastres),
                 i.Quantity, Money.FromPiastres(i.TotalPricePiastres), i.SendToGrill,
-                i.PriceRuleId, i.PriceRuleName, i.Notes))
+                i.PriceRuleId, i.PriceRuleName, i.Notes, i.PreparationStation))
             .ToList();
 
         var refunds = entity.Refunds
@@ -68,7 +72,8 @@ public static class OrderMapper
             entity.CheckoutRequestId, entity.BusinessDayId, entity.CreatedAtUtc,
             ParseOrderStatus(entity.Status), entity.IsPaid, electronicPayment,
             Money.FromPiastres(entity.RefundAmountPiastres), refunds,
-            entity.CancelledAtUtc, entity.CancelReason, entity.CancelledBy);
+            entity.CancelledAtUtc, entity.CancelReason, entity.CancelledBy, Money.FromPiastres(entity.DiscountPiastres),
+            Money.FromPiastres(entity.TaxableBasePiastres), entity.TaxRateBasisPoints, entity.TaxMode, entity.TaxRuleName);
     }
 
     public static OrderEntity ToEntity(Order order) => new()
@@ -85,11 +90,16 @@ public static class OrderMapper
         DeliveryArea = order.DeliveryArea,
         DeliveryFeePiastres = order.DeliveryFee.Piastres,
         SubtotalPiastres = order.Subtotal.Piastres,
+        DiscountPiastres = order.Discount.Piastres,
         CompAmountPiastres = order.CompAmount.Piastres,
         CompReasonCode = order.CompReasonCode,
         CompAuthorizedBy = order.CompAuthorizedBy,
         CompApprovalId = order.CompApprovalId,
         TaxAmountPiastres = order.TaxAmount.Piastres,
+        TaxableBasePiastres = order.TaxableBase.Piastres,
+        TaxRateBasisPoints = order.TaxRateBasisPoints,
+        TaxMode = order.TaxMode,
+        TaxRuleName = order.TaxRuleName,
         TotalPiastres = order.Total.Piastres,
         PaymentMethod = order.PaymentMethod.ToWireString(),
         SplitPaymentsJson = order.SplitPayments is null ? null :
@@ -124,6 +134,7 @@ public static class OrderMapper
             PriceRuleId = i.PriceRuleId,
             PriceRuleName = i.PriceRuleName,
             Notes = i.Notes,
+            PreparationStation = i.PreparationStation,
         }).ToList(),
     };
 

@@ -33,6 +33,18 @@ public static class PurchasingRules
         if (paid > total) throw new DomainException("المبلغ المدفوع لا يمكن أن يتجاوز إجمالي الفاتورة.");
     }
 
+    /// <summary>Ported from purchasePaymentAccountFor in lib/financial-domain.mjs. "credit" (آجل) is
+    /// deliberately not a real treasury account - it means no cash moved yet, the whole invoice is
+    /// outstanding on the supplier ledger until a later payPurchase settles some or all of it.</summary>
+    public static string? PurchasePaymentAccountFor(string paymentMethod) => paymentMethod switch
+    {
+        "cash" => Financial.TreasuryAccounts.Main,
+        "bank" => Financial.TreasuryAccounts.Bank,
+        "instapay" => Financial.TreasuryAccounts.InstaPay,
+        "credit" => null,
+        _ => throw new DomainException("مصدر دفع المشتريات غير مدعوم."),
+    };
+
     public static Money SupplierOutstandingFromLedger(IEnumerable<SupplierLedgerEntry> entries, string supplierId, string? purchaseId) =>
         Money.FromPiastres(entries
             .Where(e => e.SupplierId == supplierId && (purchaseId is null || e.PurchaseId == purchaseId || e.ReferenceId == purchaseId))

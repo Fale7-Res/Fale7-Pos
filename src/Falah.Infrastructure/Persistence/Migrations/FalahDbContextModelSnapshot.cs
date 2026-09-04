@@ -22,6 +22,446 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CheckIn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CheckOut")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CorrectedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("EmployeeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsManualCorrection")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastCheckInEventId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastCheckOutEventId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LateMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<double>("OvertimeHours")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ShiftName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TatbiqCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("WorkHours")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("AttendanceRecords");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.AuditEventEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuthorizedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Device")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreviousValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferenceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("TimestampUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserRole")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("TimestampUtc");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditEvents");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.BackupRecordEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RequestedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VerificationStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("VerifiedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BackupRecords");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Authoritative")
+                        .HasColumnType("bit");
+
+                    b.Property<DateOnly>("BusinessDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("BusinessDayId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ChecklistJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CloseRevision")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ClosedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExceptionsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("GeneratedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("OperationId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreviousSnapshotId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReconciliationJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessDayId");
+
+                    b.ToTable("BusinessDayCloseSnapshots");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.BusinessDayEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("BusinessDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("CloseRevision")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ClosedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OpenRequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("OpenedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("OpenedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("PreviousClosedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PreviousClosedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreviousSnapshotId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReopenApprovalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReopenApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReopenReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReopenRequestId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ReopenedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ReopenedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SnapshotId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OpenRequestId")
+                        .IsUnique();
+
+                    b.ToTable("BusinessDays");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BusinessDayId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CountedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("DifferencePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ExpectedPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("FinalizedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RowsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TotalPiastres")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessDayId");
+
+                    b.ToTable("CashDenominationCounts");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ReportedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RequestedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("CashDrawerOpens");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CashHandoverEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("AmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("FromAccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HandedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ToAccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TreasuryMovementId")
+                        .IsUnique()
+                        .HasFilter("[TreasuryMovementId] IS NOT NULL");
+
+                    b.ToTable("CashHandovers");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CategoryEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -43,6 +483,828 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity", b =>
+                {
+                    b.Property<string>("BusinessDayId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ItemId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CompletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("BusinessDayId", "ItemId");
+
+                    b.ToTable("ChecklistCompletions");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phase")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Required")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChecklistItems");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "open-drawer",
+                            Active = true,
+                            Label = "تجهيز درج النقدية",
+                            Phase = "Opening",
+                            Required = true,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = "open-printer",
+                            Active = true,
+                            Label = "فحص الطابعة",
+                            Phase = "Opening",
+                            Required = false,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = "open-stations",
+                            Active = true,
+                            Label = "تأكيد جاهزية محطات التشغيل والتنظيف",
+                            Phase = "Opening",
+                            Required = false,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = "close-shifts",
+                            Active = true,
+                            Label = "مراجعة إغلاق كل الورديات",
+                            Phase = "Closing",
+                            Required = true,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = "close-drawer",
+                            Active = true,
+                            Label = "عد درج النقدية",
+                            Phase = "Closing",
+                            Required = true,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = "close-delivery",
+                            Active = true,
+                            Label = "مراجعة عهد السائقين",
+                            Phase = "Closing",
+                            Required = true,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = "close-review",
+                            Active = true,
+                            Label = "مراجعة المرتجعات والمصروفات",
+                            Phase = "Closing",
+                            Required = false,
+                            SortOrder = 4
+                        });
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("AmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BlockerCodesJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.ToTable("ControlAuditEvents");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("TimestampUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ControlExceptionStates");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Apartment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Building")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Floor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Landmark")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastUsedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ServiceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ServiceName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CustomerAddresses");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CustomerEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Phone")
+                        .IsUnique();
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DeliveryEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset?>("AssignedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("AssignedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("CollectedAmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeliveredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DriverId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DriverNameAtHandover")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("FailedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("FailureNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset?>("OutForDeliveryAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ReturnReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ReturnedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("SettledAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ShiftId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TripId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("Deliveries");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("AmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Approver")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeliveryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DriverId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TripId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId");
+
+                    b.ToTable("DeliveryEvents");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("ChangedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ChangedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("NewDriverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewDriverName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldDriverId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldDriverName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId");
+
+                    b.ToTable("DeliveryReassignments");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("FeePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliveryServices");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("CollectedPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeliveryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("DifferencePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DriverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("ExpectedPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("SettledAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("SettledPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TripId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId")
+                        .IsUnique();
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("DriverCustodies");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DriverEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EmployeeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Drivers");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("ActualPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("DifferencePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DriverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DriverName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ExpectedPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GrossOrderPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OperationId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrderIdsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PrepaidPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("DriverSettlements");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.EmployeeEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("CanDeliver")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CompensationType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("DailyWagePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmployeeNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("EmploymentArrangement")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FingerprintId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("HireDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LifecycleStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("MonthlySalaryPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NationalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("OvertimeRatePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ShiftValuePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeNumber")
+                        .IsUnique();
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("BalanceAfterPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("CreditPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DebitPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double?>("Hours")
+                        .HasColumnType("float");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PayrollRunId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("RateSnapshotPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RecordedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferenceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ValueSnapshotPiastres")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("[IdempotencyKey] IS NOT NULL");
+
+                    b.ToTable("EmployeeLedgerEntries");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ExpenseEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("AmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("BusinessDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("BusinessDayId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OperationId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PaidFromDrawer")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PaymentAccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessDate");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("ShiftId", "PaidFromDrawer");
+
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity", b =>
@@ -71,11 +1333,31 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("CostSource")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsPackaging")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("MinimumMilliUnits")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("StandardDailyUsageMilliUnits")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -174,10 +1456,37 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("DeliveryAddress")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DeliveryApartment")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DeliveryArea")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DeliveryBuilding")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("DeliveryFeePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DeliveryFloor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryLandmark")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryServiceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryServiceName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryStreet")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("DiscountPiastres")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("ElectronicPaymentAmountPiastres")
@@ -230,6 +1539,18 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long>("TaxAmountPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("TaxMode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TaxRateBasisPoints")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TaxRuleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TaxableBasePiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("TotalPiastres")
                         .HasColumnType("bigint");
 
@@ -269,6 +1590,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("OrderId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PreparationStation")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PriceRuleId")
                         .HasColumnType("nvarchar(max)");
@@ -311,6 +1635,32 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasIndex("VariantId");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("InventoryItemId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OrderType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("QuantityMilliUnits")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("OrderPackagingRules");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.OrderRefundEntity", b =>
@@ -400,6 +1750,164 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PayrollLineEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("AdvanceDeductionsPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BasePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BonusesPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DeductionsPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ExtraShiftsPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("NetPayablePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("OvertimePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("PaidAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PayrollRunId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SettlementEntryId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PayrollRunId");
+
+                    b.ToTable("PayrollLines");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PayrollRunEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("PaidAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PaymentAccountId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ReviewedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("[IdempotencyKey] IS NOT NULL");
+
+                    b.ToTable("PayrollRuns");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OutputInventoryItemId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("OutputQuantityMilliUnits")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OutputInventoryItemId");
+
+                    b.ToTable("PrepRecipes");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("InventoryItemId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PrepRecipeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("QuantityMilliUnits")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("PrepRecipeId");
+
+                    b.ToTable("PrepRecipeLines");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity", b =>
                 {
                     b.Property<string>("PriceRuleId")
@@ -454,6 +1962,100 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.ToTable("PriceRuleProducts");
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("AttemptedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PrintJobId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ReportedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Succeeded")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("PrintJobId");
+
+                    b.ToTable("PrintJobAttempts");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrintJobEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreateRequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsReprint")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LastAttemptAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateRequestId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("Route", "Status");
+
+                    b.ToTable("PrintJobs");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ProductEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -471,6 +2073,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreparationStation")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecipeId")
@@ -513,6 +2118,165 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductVariants");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchaseEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PaidPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PaymentAccountId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("RemainingAmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("SubtotalPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SupplierId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("TotalPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("Purchases");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("InventoryItemId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("LineTotalPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PurchaseId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("QuantityMilliUnits")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UnitCostPiastres")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.ToTable("PurchaseLines");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("AmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OperationId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentAccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PurchaseId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SupplierId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("PurchaseId");
+
+                    b.ToTable("PurchasePayments");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.RecipeEntity", b =>
@@ -573,6 +2337,99 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.ToTable("RecipeItems");
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.SettingsEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ActiveShiftName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AutoLockMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("AutoPrintPreparationTicket")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AutoPrintReceipt")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("CashDiscrepancyThresholdPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ComplaintsPhone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("DeliveryFeePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("GrillScreenSoundAlert")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LateGraceMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<double>("LatePenaltyMultiplier")
+                        .HasColumnType("float");
+
+                    b.Property<int>("MaxLatePenaltyHours")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfReceiptCopies")
+                        .HasColumnType("int");
+
+                    b.Property<long>("OvertimeHourlyRatePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("OvertimeMultiplier")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Phone1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone2")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneLandline")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PrinterWidth")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiptFooter")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RestaurantName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StandardWorkdayHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SubName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ShiftEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -586,6 +2443,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<long?>("CashDifferencePiastres")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("CloseRequestId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset?>("ClosedAtUtc")
                         .HasColumnType("datetimeoffset");
@@ -602,6 +2462,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long?>("ExpectedCashPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("HandoverTreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("OpenRequestId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -616,13 +2479,16 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long>("OpeningCashPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ReconciliationTreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ShiftName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
@@ -630,8 +2496,16 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CloseRequestId")
+                        .IsUnique()
+                        .HasFilter("[CloseRequestId] IS NOT NULL");
+
                     b.HasIndex("OpenRequestId")
                         .IsUnique();
+
+                    b.HasIndex("Status")
+                        .IsUnique()
+                        .HasFilter("[Status] = 'Open'");
 
                     b.ToTable("Shifts");
                 });
@@ -644,10 +2518,17 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Direction")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -658,6 +2539,12 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("InventoryItemId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<long?>("LossValuePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("QuantityMilliUnits")
                         .HasColumnType("bigint");
@@ -674,6 +2561,102 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SupplierId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("UnitCostPiastres")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("StockMovements");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.SupplierEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("CreditPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DebitPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OperationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PurchaseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferenceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupplierId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -683,9 +2666,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
 
-                    b.HasIndex("InventoryItemId");
+                    b.HasIndex("SupplierId", "PurchaseId");
 
-                    b.ToTable("StockMovements");
+                    b.ToTable("SupplierLedgerEntries");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.TaxRuleEntity", b =>
@@ -794,9 +2777,16 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Pin")
+                    b.Property<string>("PinHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PinIterations")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PinSalt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -804,10 +2794,59 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Pin")
-                        .IsUnique();
-
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.BusinessDayEntity", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessDayId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.CustomerEntity", null)
+                        .WithMany("Addresses")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DeliveryEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.DriverEntity", null)
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.OrderEntity", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.ShiftEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.DeliveryEntity", null)
+                        .WithMany()
+                        .HasForeignKey("DeliveryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.DriverEntity", null)
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.OrderEntity", b =>
@@ -845,11 +2884,44 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.InventoryItemEntity", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.OrderRefundEntity", b =>
                 {
                     b.HasOne("Falah.Infrastructure.Persistence.Entities.OrderEntity", null)
                         .WithMany("Refunds")
                         .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.InventoryItemEntity", null)
+                        .WithMany()
+                        .HasForeignKey("OutputInventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.InventoryItemEntity", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("PrepRecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -878,6 +2950,15 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.PrintJobEntity", null)
+                        .WithMany("Attempts")
+                        .HasForeignKey("PrintJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ProductEntity", b =>
                 {
                     b.HasOne("Falah.Infrastructure.Persistence.Entities.CategoryEntity", null)
@@ -892,6 +2973,39 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasOne("Falah.Infrastructure.Persistence.Entities.ProductEntity", null)
                         .WithMany("Variants")
                         .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchaseEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.SupplierEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.InventoryItemEntity", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.PurchaseEntity", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("PurchaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.PurchaseEntity", null)
+                        .WithMany("Payments")
+                        .HasForeignKey("PurchaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -927,6 +3041,25 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasForeignKey("InventoryItemId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.SupplierEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.SupplierEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CustomerEntity", b =>
+                {
+                    b.Navigation("Addresses");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.OrderEntity", b =>
@@ -936,6 +3069,11 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Navigation("Refunds");
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity", b =>
+                {
+                    b.Navigation("Lines");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleEntity", b =>
                 {
                     b.Navigation("Days");
@@ -943,9 +3081,21 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PrintJobEntity", b =>
+                {
+                    b.Navigation("Attempts");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ProductEntity", b =>
                 {
                     b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PurchaseEntity", b =>
+                {
+                    b.Navigation("Lines");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.RecipeEntity", b =>

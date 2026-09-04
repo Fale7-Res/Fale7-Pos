@@ -1,0 +1,29 @@
+<Application x:Class="Falah.Client.CashierWinUI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:Falah.Client.CashierWinUI.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- WinUI 3's own Fluent control resources (default TextBox/GridView/ProgressRing/etc.
+                     templates and the theme brushes they reference) - every WinUI 3 app needs this;
+                     its absence was a real bug here, surfacing as "Cannot find a Resource with the
+                     Name/Key TabViewButtonBackground" the first time a control needing it rendered. -->
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
+                <ResourceDictionary Source="Styles/Colors.xaml"/>
+                <ResourceDictionary Source="Styles/Typography.xaml"/>
+                <ResourceDictionary Source="Styles/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:BoolToVisibleConverter x:Key="BoolToVisibleConverter"/>
+            <conv:InverseBoolToVisibleConverter x:Key="InverseBoolToVisibleConverter"/>
+            <conv:NullToCollapsedConverter x:Key="NullToCollapsedConverter"/>
+            <conv:ShiftDotBrushConverter x:Key="ShiftDotBrushConverter"/>
+            <conv:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+            <conv:StringEqualsToBrushConverter x:Key="StringEqualsToBrushConverter"/>
+            <conv:StringEqualsToVisibleConverter x:Key="StringEqualsToVisibleConverter"/>
+            <conv:CountGreaterThanOneToVisibleConverter x:Key="CountGreaterThanOneToVisibleConverter"/>
+            <conv:PiastresToDisplayConverter x:Key="PiastresToDisplayConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

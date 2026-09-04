@@ -58,7 +58,8 @@ public sealed class MenuPricingService
                 $"item-{Guid.NewGuid():N}", product.Id, variant?.Id, product.Name, variant?.Name,
                 price.EffectiveUnitPrice, price.ListUnitPrice, request.Quantity,
                 price.EffectiveUnitPrice * request.Quantity, product.SendToGrill,
-                price.AppliedPriceRuleId, price.AppliedPriceRuleName, request.Notes);
+                price.AppliedPriceRuleId, price.AppliedPriceRuleName, request.Notes,
+                product.PreparationStation);
 
             resolved.Add(new ResolvedItem(orderItem, variant?.RecipeId ?? product.RecipeId));
         }

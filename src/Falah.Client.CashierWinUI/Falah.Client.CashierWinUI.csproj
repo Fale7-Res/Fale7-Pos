@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Falah.Client.CashierWinUI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <UseWinUI>true</UseWinUI>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Genuinely unpackaged: WindowsPackageType=None means no MSIX/AppxManifest, no Windows Store
+         identity, just an .exe + loose DLLs (matches the WPF client's deployment shape). Windows App
+         SDK is carried alongside the app via WindowsAppSDKSelfContained rather than a machine-wide
+         runtime install. -->
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+    <!-- Required purely to satisfy the WinUI 3 build pipeline's PRI (resource index) generation
+         step, which every WinUI 3 app needs at build time to resolve its own built-in XAML styles -
+         NOT because this app is being packaged as MSIX. Without this flag, `dotnet build` fails with
+         "Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent task could not be loaded" even though
+         WindowsPackageType is None. See docs/PROGRESS.md for the tooling investigation. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Falah.Application\Falah.Application.csproj" />
+  </ItemGroup>
+
+</Project>

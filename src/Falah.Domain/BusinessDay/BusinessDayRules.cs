@@ -108,4 +108,29 @@ public static class BusinessDayRules
     {
         if (blockers.Count > 0) throw new DomainException("لا يمكن إغلاق يوم العمل قبل معالجة الموانع المالية الحرجة.");
     }
+
+    /// <summary>Ported verbatim from EGYPTIAN_DENOMINATIONS_PIASTRES in lib/control-layer-domain.mjs
+    /// - the fixed set of Egyptian pound cash denominations (piastres) a blind physical count is
+    /// broken down by, largest first.</summary>
+    public static readonly IReadOnlyList<long> EgyptianDenominationsPiastres =
+        new long[] { 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 25 };
+
+    public readonly record struct DenominationRow(long DenominationPiastres, long Quantity, long TotalPiastres);
+    public readonly record struct DenominationCountResult(
+        IReadOnlyList<DenominationRow> Rows, long TotalPiastres, long ExpectedPiastres, long DifferencePiastres);
+
+    /// <summary>Ported verbatim from calculateDenominationCount in lib/control-layer-domain.mjs - a
+    /// negative counted quantity is clamped to zero (a physical count can never be negative), never
+    /// rejected outright, matching the reference app's own tolerant `Math.max(0, ...)`.</summary>
+    public static DenominationCountResult CalculateDenominationCount(
+        IReadOnlyList<(long DenominationPiastres, long Quantity)> rows, long expectedPiastres)
+    {
+        var normalized = rows.Select(r =>
+        {
+            var quantity = Math.Max(0, r.Quantity);
+            return new DenominationRow(r.DenominationPiastres, quantity, r.DenominationPiastres * quantity);
+        }).ToList();
+        var total = normalized.Sum(r => r.TotalPiastres);
+        return new DenominationCountResult(normalized, total, expectedPiastres, total - expectedPiastres);
+    }
 }

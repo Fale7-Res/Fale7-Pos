@@ -2,13 +2,16 @@ namespace Falah.Infrastructure.Orders;
 
 using System.Data;
 using Falah.Application.Orders;
+using Falah.Domain.Audit;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
+using Falah.Domain.ControlCenter;
 using Falah.Domain.Financial;
 using Falah.Domain.Orders;
 using Falah.Domain.Shifts;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
+using Falah.Infrastructure.Treasury;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -30,11 +33,13 @@ public sealed class RefundOrderHandler
 {
     private readonly FalahDbContext _db;
     private readonly IApprovalRegistry _approvalRegistry;
+    private readonly IAuditLog _auditLog;
 
-    public RefundOrderHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+    public RefundOrderHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
+        _auditLog = auditLog;
     }
 
     public async Task<RefundOrderResult> HandleAsync(RefundOrderRequest request, CancellationToken ct = default)
@@ -77,6 +82,16 @@ public sealed class RefundOrderHandler
             var safeAmount = RefundRules.ClampRefundAmount(Money.FromPiastres(request.AmountPiastres), refundable);
             if (!safeAmount.IsPositive) throw new DomainException("لا يوجد مبلغ متبقٍ للاسترجاع.");
 
+            // Ported from postRefund in lib/enterprise-store.tsx: a refund can only leave a
+            // protected account (drawer/main/bank/instapay - never wallet) if it actually holds
+            // enough posted balance. A real gap found during the legacy-parity audit: every other
+            // money-out handler in this codebase (expenses, purchasing, treasury, shift-open) calls
+            // this same guard; RefundOrderHandler alone skipped it, so a refund could silently drive
+            // an account negative.
+            var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(order.PaymentMethod);
+            var refundSourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, refundSourceAccount, ct);
+            FinancialRules.AssertProtectedSourceBalance(refundSourceMovements, refundSourceAccount, safeAmount);
+
             var originalShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == order.ShiftId, ct)
                 ?? throw new InvalidOperationException("وردية الطلب الأصلية غير موجودة.");
             var activeShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == nameof(ShiftStatus.Open), ct);
@@ -104,6 +119,13 @@ public sealed class RefundOrderHandler
             var refundEntity = OrderMapper.ToEntity(refund);
             orderEntity.Refunds.Add(refundEntity);
             _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
+
+            _auditLog.Append(new AuditEvent(
+                $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
+                "استرداد طلب", "order", $"استرداد {safeAmount.Piastres} قرش لطلب {order.OrderNumber} - {request.Reason}",
+                safeAmount.Piastres >= ControlCenterRules.LargeRefundThresholdPiastres ? "critical" : "normal", now,
+                ShiftId: shiftPolicy.OperationalShiftId, Reason: request.Reason, AuthorizedBy: authorizedByName,
+                OperationId: movement.OperationId, ReferenceId: order.Id));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

@@ -1,0 +1,85 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Same measured values as the WPF technical-reference client's Styles/Colors.xaml, which were
+        themselves extracted directly from the reference Falah web app (app/globals.css + PosScreen.tsx
+        + AppShell.tsx) - not invented, not re-guessed for this port. The brand color is genuinely two
+        blues: BrandPrimary (#0F52BA) for nav/active-state/prices, and ActionBlue (#0866E8, brighter)
+        reserved for the single big checkout CTA - the reference app deliberately distinguishes them.
+    -->
+
+    <Color x:Key="BrandPrimaryColor">#0F52BA</Color>
+    <Color x:Key="BrandPrimaryHoverColor">#0A3D8F</Color>
+    <Color x:Key="ActionBlueColor">#0866E8</Color>
+    <Color x:Key="ActionBlueHoverColor">#2563EB</Color>
+
+    <Color x:Key="SurfaceColor">#F5F5F5</Color>
+    <Color x:Key="PosSurfaceColor">#F3F6FA</Color>
+    <Color x:Key="CardBorderColor">#E2E8F0</Color>
+
+    <!-- Dark app header -->
+    <Color x:Key="GraphiteColor">#1A1F26</Color>
+    <Color x:Key="GraphiteBorderColor">#2C343E</Color>
+    <Color x:Key="GraphiteButtonColor">#232931</Color>
+
+    <!-- Dark cart/sidebar palette - POS order workspace only -->
+    <Color x:Key="CartBackgroundColor">#151C24</Color>
+    <Color x:Key="CartHeaderColor">#151B23</Color>
+    <Color x:Key="CartTabBarColor">#0A0D11</Color>
+    <Color x:Key="CartItemCardColor">#1B242E</Color>
+    <Color x:Key="CartItemBorderColor">#2C3744</Color>
+    <Color x:Key="CartFooterColor">#11171E</Color>
+
+    <!-- Semantic -->
+    <Color x:Key="SuccessColor">#059669</Color>
+    <Color x:Key="SuccessHoverColor">#047857</Color>
+    <Color x:Key="WarningColor">#D97706</Color>
+    <Color x:Key="DangerColor">#DC2626</Color>
+    <Color x:Key="DangerHoverColor">#B91C1C</Color>
+    <Color x:Key="DangerBackgroundColor">#FEF2F2</Color>
+    <Color x:Key="InstaPayColor">#7C3AED</Color>
+    <Color x:Key="WalletColor">#C026D3</Color>
+    <Color x:Key="MultiPayColor">#D97706</Color>
+
+    <Color x:Key="TextPrimaryColor">#1E293B</Color>
+    <Color x:Key="TextMutedColor">#64748B</Color>
+    <Color x:Key="TextOnDarkColor">#FFFFFF</Color>
+    <Color x:Key="TextOnDarkMutedColor">#94A3B8</Color>
+
+    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="{StaticResource BrandPrimaryColor}"/>
+    <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="{StaticResource BrandPrimaryHoverColor}"/>
+    <SolidColorBrush x:Key="ActionBlueBrush" Color="{StaticResource ActionBlueColor}"/>
+    <SolidColorBrush x:Key="ActionBlueHoverBrush" Color="{StaticResource ActionBlueHoverColor}"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
+    <SolidColorBrush x:Key="PosSurfaceBrush" Color="{StaticResource PosSurfaceColor}"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource CardBorderColor}"/>
+    <SolidColorBrush x:Key="GraphiteBrush" Color="{StaticResource GraphiteColor}"/>
+    <SolidColorBrush x:Key="GraphiteBorderBrush" Color="{StaticResource GraphiteBorderColor}"/>
+    <SolidColorBrush x:Key="GraphiteButtonBrush" Color="{StaticResource GraphiteButtonColor}"/>
+    <SolidColorBrush x:Key="CartBackgroundBrush" Color="{StaticResource CartBackgroundColor}"/>
+    <SolidColorBrush x:Key="CartHeaderBrush" Color="{StaticResource CartHeaderColor}"/>
+    <SolidColorBrush x:Key="CartTabBarBrush" Color="{StaticResource CartTabBarColor}"/>
+    <SolidColorBrush x:Key="CartItemCardBrush" Color="{StaticResource CartItemCardColor}"/>
+    <SolidColorBrush x:Key="CartItemBorderBrush" Color="{StaticResource CartItemBorderColor}"/>
+    <SolidColorBrush x:Key="CartFooterBrush" Color="{StaticResource CartFooterColor}"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="SuccessHoverBrush" Color="{StaticResource SuccessHoverColor}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="DangerHoverBrush" Color="{StaticResource DangerHoverColor}"/>
+    <SolidColorBrush x:Key="DangerBackgroundBrush" Color="{StaticResource DangerBackgroundColor}"/>
+    <SolidColorBrush x:Key="InstaPayBrush" Color="{StaticResource InstaPayColor}"/>
+    <SolidColorBrush x:Key="WalletBrush" Color="{StaticResource WalletColor}"/>
+    <SolidColorBrush x:Key="MultiPayBrush" Color="{StaticResource MultiPayColor}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}"/>
+    <SolidColorBrush x:Key="TextOnDarkBrush" Color="{StaticResource TextOnDarkColor}"/>
+    <SolidColorBrush x:Key="TextOnDarkMutedBrush" Color="{StaticResource TextOnDarkMutedColor}"/>
+
+    <!-- Plain utility brushes needed for runtime Background/Foreground swaps (selected-state
+         coloring) - see BoolToBrushConverter/StringEqualsToBrushConverter in Converters.cs. -->
+    <SolidColorBrush x:Key="TransparentBrush" Color="Transparent"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="White"/>
+
+</ResourceDictionary>

@@ -143,6 +143,34 @@ public class DeliveryRulesTests
         Assert.Contains("رقم هاتف", message);
     }
 
+    [Fact]
+    public void Composed_delivery_address_joins_only_the_parts_that_are_present()
+    {
+        var address = DeliveryRules.ComposeDeliveryAddress("المعادي", "شارع 9", "عمارة 5", "3", "12", null);
+        Assert.Equal("المنطقة المعادي، ش شارع 9، عمارة عمارة 5، دور 3، شقة 12", address);
+    }
+
+    [Fact]
+    public void Composed_delivery_address_skips_missing_parts_without_leaving_empty_separators()
+    {
+        var address = DeliveryRules.ComposeDeliveryAddress("المعادي", "شارع 9", building: null, floor: null, apartment: null, landmark: null);
+        Assert.Equal("المنطقة المعادي، ش شارع 9", address);
+    }
+
+    [Fact]
+    public void A_landmark_is_appended_after_the_composed_parts_with_its_own_separator()
+    {
+        var address = DeliveryRules.ComposeDeliveryAddress("المعادي", "شارع 9", null, null, null, "بجوار الصيدلية");
+        Assert.Equal("المنطقة المعادي، ش شارع 9 — بجوار الصيدلية", address);
+    }
+
+    [Fact]
+    public void A_landmark_alone_with_no_structured_parts_is_the_entire_composed_address()
+    {
+        var address = DeliveryRules.ComposeDeliveryAddress(null, null, null, null, null, "بجوار الصيدلية");
+        Assert.Equal("بجوار الصيدلية", address);
+    }
+
     private static DeliveryFacts MakeDelivery(string id, string orderId, PaymentMethod method, bool settled, Money amount) =>
         new(id, orderId, $"#{orderId}", "driver-1", DeliveryStatus.Ready, method, settled, amount, amount, "shift-1", "trip-1", Money.Zero);
 }

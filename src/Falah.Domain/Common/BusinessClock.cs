@@ -27,4 +27,16 @@ public static class BusinessClock
     }
 
     public static DateOnly Today() => BusinessDate(DateTimeOffset.UtcNow);
+
+    /// <summary>The [Start, End) UTC instant range covering one Cairo calendar day - the reverse of
+    /// BusinessDate. Lets a query filter timestamped rows (Orders.CreatedAtUtc, etc.) by business
+    /// date directly in SQL (a plain range comparison, translatable by EF) instead of loading every
+    /// row into memory just to re-derive its business date client-side.</summary>
+    public static (DateTimeOffset Start, DateTimeOffset End) UtcRangeForBusinessDate(DateOnly date)
+    {
+        var localMidnight = date.ToDateTime(TimeOnly.MinValue);
+        var start = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight, DateTimeKind.Unspecified), CairoTimeZone);
+        var end = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight.AddDays(1), DateTimeKind.Unspecified), CairoTimeZone);
+        return (new DateTimeOffset(start, TimeSpan.Zero), new DateTimeOffset(end, TimeSpan.Zero));
+    }
 }

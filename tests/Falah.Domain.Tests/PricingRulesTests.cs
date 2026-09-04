@@ -85,4 +85,35 @@ public class PricingRulesTests
     {
         PricingRules.AssertCompAmount(Money.FromEgp(100m), Money.FromEgp(100m));
     }
+
+    [Fact]
+    public void AssertPriceRuleInput_requires_a_name()
+    {
+        Assert.Throws<DomainException>(() => PricingRules.AssertPriceRuleInput("", new[] { "prod-1" }, Money.FromEgp(50m), null));
+    }
+
+    [Fact]
+    public void AssertPriceRuleInput_requires_at_least_one_product()
+    {
+        Assert.Throws<DomainException>(() => PricingRules.AssertPriceRuleInput("عرض", Array.Empty<string>(), Money.FromEgp(50m), null));
+    }
+
+    [Fact]
+    public void AssertPriceRuleInput_requires_a_positive_fixed_price()
+    {
+        Assert.Throws<DomainException>(() => PricingRules.AssertPriceRuleInput("عرض", new[] { "prod-1" }, Money.Zero, null));
+    }
+
+    [Fact]
+    public void AssertPriceRuleInput_rejects_an_out_of_range_day_of_week()
+    {
+        Assert.Throws<DomainException>(() => PricingRules.AssertPriceRuleInput("عرض", new[] { "prod-1" }, Money.FromEgp(50m), new[] { 7 }));
+        Assert.Throws<DomainException>(() => PricingRules.AssertPriceRuleInput("عرض", new[] { "prod-1" }, Money.FromEgp(50m), new[] { -1 }));
+    }
+
+    [Fact]
+    public void AssertPriceRuleInput_accepts_a_fully_valid_input()
+    {
+        PricingRules.AssertPriceRuleInput("عرض الغداء", new[] { "prod-1" }, Money.FromEgp(50m), new[] { 0, 6 });
+    }
 }

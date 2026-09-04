@@ -36,9 +36,26 @@ public sealed record CheckoutOrderRequest(
     string? WalletProvider,
     string? CustomerName,
     string? CustomerPhone,
+    /// <summary>Free-text one-liner from the client, kept for backward source-compat - the actual
+    /// persisted DeliveryAddress is always the server-composed one (DeliveryRules.
+    /// ComposeDeliveryAddress from the structured parts below), never trusted raw from a client.</summary>
     string? DeliveryAddress,
     string? DeliveryArea,
-    string? BusinessDayId);
+    string? BusinessDayId,
+    string? DeliveryStreet = null,
+    string? DeliveryBuilding = null,
+    string? DeliveryFloor = null,
+    string? DeliveryApartment = null,
+    string? DeliveryLandmark = null,
+    string? DeliveryNotes = null,
+    string? DeliveryServiceId = null,
+    string? DeliveryServiceName = null,
+    /// <summary>One of PricingRules.CompReasonCodes ("hospitality"/"complaint"/"kitchen_error"/
+    /// "staff_meal"/"owner_guest") - required whenever CompAmountPiastres &gt; 0, ported from the
+    /// reference app's own compReasonCode/compReasonLabel taxonomy (types.ts) so "how much was
+    /// given away, by reason" reporting is possible. CompReason above remains the separate free-text
+    /// note.</summary>
+    string? CompReasonCode = null);
 
 public sealed record CheckoutOrderResult(
     string OrderId,

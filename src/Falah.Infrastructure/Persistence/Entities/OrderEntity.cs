@@ -16,15 +16,40 @@ public class OrderEntity
     public string OrderType { get; set; } = default!;
     public string? CustomerName { get; set; }
     public string? CustomerPhone { get; set; }
+    /// <summary>Composed one-liner (DeliveryRules.ComposeDeliveryAddress), computed server-side from
+    /// the structured parts below plus the landmark - never trusted as raw client input. Used by
+    /// receipts/search/driver view; the structured parts exist for a driver who needs real fields
+    /// to navigate by, not just a sentence.</summary>
     public string? DeliveryAddress { get; set; }
     public string? DeliveryArea { get; set; }
+    public string? DeliveryStreet { get; set; }
+    public string? DeliveryBuilding { get; set; }
+    public string? DeliveryFloor { get; set; }
+    public string? DeliveryApartment { get; set; }
+    /// <summary>Free-text landmark/notes - the only unstructured part of the address, appended last.</summary>
+    public string? DeliveryLandmark { get; set; }
+    public string? DeliveryNotes { get; set; }
+    /// <summary>Pricing service snapshot (which priced delivery zone/service funded the fee) -
+    /// separate from DeliveryArea (the physical neighborhood name). Frozen at checkout time like
+    /// every other order snapshot; no referential integrity to a service catalog is enforced here.</summary>
+    public string? DeliveryServiceId { get; set; }
+    public string? DeliveryServiceName { get; set; }
     public long DeliveryFeePiastres { get; set; }
     public long SubtotalPiastres { get; set; }
+    /// <summary>Manual discount applied to the taxable base at checkout time - ported from
+    /// order.discount in the reference app. Previously computed and used only transiently (to feed
+    /// the tax calc) and then discarded; now frozen here so a report can ever separate it from
+    /// offersValue (a live price rule) and compsValue (a PIN-authorized comp) - see SalesRules.</summary>
+    public long DiscountPiastres { get; set; }
     public long CompAmountPiastres { get; set; }
     public string? CompReasonCode { get; set; }
     public string? CompAuthorizedBy { get; set; }
     public string? CompApprovalId { get; set; }
     public long TaxAmountPiastres { get; set; }
+    public long TaxableBasePiastres { get; set; }
+    public int? TaxRateBasisPoints { get; set; }
+    public string? TaxMode { get; set; }
+    public string? TaxRuleName { get; set; }
     public long TotalPiastres { get; set; }
     public string PaymentMethod { get; set; } = default!;
     /// <summary>Small, order-scoped list serialized as JSON - not a candidate for its own table
@@ -72,6 +97,11 @@ public class OrderItemEntity
     public string? PriceRuleId { get; set; }
     public string? PriceRuleName { get; set; }
     public string? Notes { get; set; }
+
+    /// <summary>The kitchen station this line routed to AT SALE TIME, frozen exactly like ProductName/
+    /// UnitPrice - never overwritten by a later change to ProductEntity.PreparationStation, which only
+    /// governs future orders.</summary>
+    public string? PreparationStation { get; set; }
 }
 
 public class OrderRefundEntity

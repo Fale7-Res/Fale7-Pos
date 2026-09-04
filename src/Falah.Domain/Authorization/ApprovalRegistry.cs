@@ -88,4 +88,47 @@ public static class AuthorizationPolicy
         if (discrepancyNeedsManager)
             AuthorizeCommand(registry, actor, "shifts_manage", approval, requireApproval: true);
     }
+
+    /// <summary>
+    /// Ported from addExpense in lib/store.tsx. The source account decides who may authorize: petty
+    /// cash out of the cashier's OWN drawer is routine floor work (permission OR a matching
+    /// approval, same shape as every other gate here) - but anything leaving Main Treasury/bank/
+    /// InstaPay is owner-only money, and deliberately has NO approval-token fallback at all. A
+    /// manager approval can substitute for shifts_manage or orders_refund; it can never substitute
+    /// for expenses_main_treasury. Getting this backwards would let a manager route an
+    /// approval-carrying request around a restriction the actual owner never delegated.
+    /// </summary>
+    public static AuthorizationResult AuthorizeExpense(IApprovalRegistry registry, Actor actor, bool paidFromDrawer, ManagerApproval? approval)
+    {
+        if (paidFromDrawer)
+            return AuthorizeCommand(registry, actor, "expenses_add_drawer", approval, requireApproval: true);
+        if (!HasPermission(actor, "expenses_main_treasury"))
+            throw new DomainException("صرف المصروفات من الخزنة الرئيسية مسموح للمالك فقط.");
+        return new AuthorizationResult(actor, null);
+    }
+
+    /// <summary>Ported from openNewShift in lib/store.tsx: `if (!hasPermission('shifts_manage') &amp;&amp;
+    /// !hasPermission('shifts_open_own')) throw` - a bare either/or permission check with no
+    /// approval-token fallback at all (legacy never passes an approval object into this gate). A real
+    /// gap found during the legacy-parity audit: OpenShiftHandler had no permission check whatsoever
+    /// since the day it was built - any user id could open a shift regardless of role.</summary>
+    public static AuthorizationResult AuthorizeShiftOpen(Actor actor)
+    {
+        if (HasPermission(actor, "shifts_manage") || HasPermission(actor, "shifts_open_own"))
+            return new AuthorizationResult(actor, null);
+        throw new DomainException("ليس لديك صلاحية فتح وردية.");
+    }
+
+    /// <summary>Ported from PurchasingScreen.tsx's own addSupplier gate - a real gap the reference
+    /// app's UI comment documents finding and fixing: adding a supplier previously had NO
+    /// authorization at all, while every other purchasing action requires purchasing_manage. Fixed
+    /// there (and ported here) to accept EITHER purchasing_manage OR a dedicated suppliers_manage
+    /// permission (seeded on the manager role but, before that fix, checked nowhere), with a manager-
+    /// approval fallback bound to suppliers_manage for anyone holding neither.</summary>
+    public static AuthorizationResult AuthorizeAddSupplier(IApprovalRegistry registry, Actor actor, ManagerApproval? approval)
+    {
+        if (HasPermission(actor, "purchasing_manage") || HasPermission(actor, "suppliers_manage"))
+            return new AuthorizationResult(actor, null);
+        return AuthorizeCommand(registry, actor, "suppliers_manage", approval, requireApproval: true);
+    }
 }

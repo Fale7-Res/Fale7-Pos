@@ -20,7 +20,8 @@ public class RefundVerticalSliceTests : IAsyncLifetime
         _client = _factory.CreateClient();
         // Holds both pos and orders_refund so most tests don't need a manager approval detour;
         // one dedicated test below exercises the approval path with a separate, unprivileged user.
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "orders_refund", "orders_comp");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "orders_refund", "orders_comp", "shifts_open_own", "cash_drawer");
+        await _factory.SeedOpenBusinessDayWithFundedMainAsync();
 
         var opened = await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000))).Content.ReadFromJsonAsync<OpenShiftResult>();
@@ -234,5 +235,26 @@ public class RefundVerticalSliceTests : IAsyncLifetime
         Assert.Equal(0, refundCount);
         var orderRow = await _factory.QueryAsync(db => db.Orders.AsNoTracking().FirstAsync(o => o.Id == order.OrderId));
         Assert.Equal(0, orderRow.RefundAmountPiastres);
+    }
+
+    // Legacy-parity audit (2026-09-04): RefundOrderHandler never checked the source account's
+    // protected balance before posting - every other money-out handler in this codebase does. Fixed
+    // via FinancialRules.AssertProtectedSourceBalance on the refund's own payment-method account.
+    [Fact]
+    public async Task A_cash_refund_larger_than_the_drawers_actual_balance_is_rejected()
+    {
+        var order = await CheckoutAsync(20000); // posts 20000 into tre-drawer on top of the 50000 opening float
+        // Drain the drawer down to 5000 via a manual cash-out (drawer -> main) before attempting to
+        // refund the full 20000 - the drawer no longer actually holds enough to give it back.
+        var cashOut = await _client.PostAsJsonAsync("/api/cash-drawer/cash-movement",
+            new Falah.Application.CashDrawer.CashierCashMovementRequest(
+                $"co-{Guid.NewGuid():N}", _shiftId, "cash_out", 65000, "سحب زائد", _cashierId, null, null));
+        cashOut.EnsureSuccessStatusCode();
+
+        var response = await _client.PostAsJsonAsync("/api/orders/refund", RefundRequest(order.OrderId, 20000, $"refund-{Guid.NewGuid():N}"));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+        var refundCount = await _factory.QueryAsync(db => db.OrderRefunds.CountAsync(r => r.OrderId == order.OrderId));
+        Assert.Equal(0, refundCount);
     }
 }

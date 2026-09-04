@@ -101,4 +101,48 @@ public class AuthorizationTests
         Assert.Throws<DomainException>(() =>
             AuthorizationPolicy.AuthorizeShiftClose(registry, strippedManager, approval: null, discrepancyNeedsManager: true));
     }
+
+    // ---- AuthorizeAddSupplier: ported from a real gap PurchasingScreen.tsx's own comment
+    // documents finding - adding a supplier previously had NO authorization at all. ----
+
+    [Fact]
+    public void Purchasing_manage_alone_is_enough_to_add_a_supplier()
+    {
+        var registry = new InMemoryApprovalRegistry();
+        var actor = MakeActor("supervisor", true, "purchasing_manage");
+        var result = AuthorizationPolicy.AuthorizeAddSupplier(registry, actor, approval: null);
+        Assert.Null(result.Approver);
+    }
+
+    [Fact]
+    public void Suppliers_manage_alone_is_also_enough_to_add_a_supplier()
+    {
+        var registry = new InMemoryApprovalRegistry();
+        var actor = MakeActor("supervisor", true, "suppliers_manage");
+        var result = AuthorizationPolicy.AuthorizeAddSupplier(registry, actor, approval: null);
+        Assert.Null(result.Approver);
+    }
+
+    [Fact]
+    public void Neither_permission_requires_a_suppliers_manage_approval_to_add_a_supplier()
+    {
+        var registry = new InMemoryApprovalRegistry();
+        var cashier = MakeActor("cashier", true, "pos");
+        Assert.Throws<DomainException>(() => AuthorizationPolicy.AuthorizeAddSupplier(registry, cashier, approval: null));
+
+        var manager = MakeActor("manager", true, "all");
+        var approval = AuthorizationPolicy.IssueManagerApproval(registry, manager, "suppliers_manage", null, Now);
+        var result = AuthorizationPolicy.AuthorizeAddSupplier(registry, cashier, approval);
+        Assert.Equal(manager.Name, result.Approver!.ApproverName);
+    }
+
+    [Fact]
+    public void An_approval_issued_for_purchasing_manage_cannot_substitute_for_suppliers_manage()
+    {
+        var registry = new InMemoryApprovalRegistry();
+        var cashier = MakeActor("cashier", true, "pos");
+        var manager = MakeActor("manager", true, "all");
+        var approval = AuthorizationPolicy.IssueManagerApproval(registry, manager, "purchasing_manage", null, Now);
+        Assert.Throws<DomainException>(() => AuthorizationPolicy.AuthorizeAddSupplier(registry, cashier, approval));
+    }
 }

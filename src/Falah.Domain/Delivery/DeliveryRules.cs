@@ -118,6 +118,27 @@ public static class DeliveryRules
         return null;
     }
 
+    /// <summary>One readable line built from the structured address parts, used by the receipt,
+    /// order search and the driver view - ported verbatim from the reference app's composedAddress/
+    /// effectiveAddress in lib/store.tsx checkout(). The free-text landmark is appended last and
+    /// separately (it is notes, not a geographic part), joined only when non-empty on either
+    /// side.</summary>
+    public static string ComposeDeliveryAddress(string? area, string? street, string? building, string? floor, string? apartment, string? landmark)
+    {
+        var parts = new[]
+        {
+            string.IsNullOrWhiteSpace(area) ? null : $"المنطقة {area}",
+            string.IsNullOrWhiteSpace(street) ? null : $"ش {street}",
+            string.IsNullOrWhiteSpace(building) ? null : $"عمارة {building}",
+            string.IsNullOrWhiteSpace(floor) ? null : $"دور {floor}",
+            string.IsNullOrWhiteSpace(apartment) ? null : $"شقة {apartment}",
+        }.Where(p => p is not null);
+        var composed = string.Join("، ", parts);
+
+        var withLandmark = new[] { composed, landmark?.Trim() }.Where(p => !string.IsNullOrEmpty(p));
+        return string.Join(" — ", withLandmark);
+    }
+
     public static bool EmployeeDriverEligible(Employee? employee) => employee is { IsActive: true, CanDeliver: true };
 
     /// <summary>The one gate every dispatch action (assign, reassign-in, explicit reactivate) must

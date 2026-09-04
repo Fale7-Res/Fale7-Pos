@@ -49,4 +49,34 @@ public static class PricingRules
         if (orderValue.Piastres <= 0) throw new DomainException("لا يمكن تسجيل ضيافة على طلب بدون قيمة.");
         if (compAmount > orderValue) throw new DomainException("قيمة الضيافة لا يمكن أن تتجاوز قيمة الطلب.");
     }
+
+    /// <summary>The reference app's own comp-reason taxonomy (types.ts `CompReasonCode`) - kept as a
+    /// closed set so "how much was given away, by reason" reporting is possible later, the same way
+    /// legacy's own compReasonCode/compReasonLabel pair was structured (the free-text note is a
+    /// separate field, unchanged).</summary>
+    public static readonly IReadOnlySet<string> CompReasonCodes = new HashSet<string>
+    {
+        "hospitality", "complaint", "kitchen_error", "staff_meal", "owner_guest",
+    };
+
+    public static void AssertCompReasonCode(string? code)
+    {
+        if (string.IsNullOrWhiteSpace(code) || !CompReasonCodes.Contains(code))
+            throw new DomainException("سبب الضيافة غير صالح.");
+    }
+
+    /// <summary>Ported verbatim from assertPriceRuleInput in lib/pricing-domain.mjs. Deliberately does
+    /// NOT check for overlap with another rule on the same product/window - the reference app never
+    /// validates that either (ApplicableRules/ValidateAppliedRule above are both already built to
+    /// tolerate several rules matching the same product at once; the cashier/dispatcher picks one
+    /// explicitly), so inventing an overlap-rejection rule here would be a new policy this system's
+    /// own evidence does not support.</summary>
+    public static void AssertPriceRuleInput(string name, IReadOnlyCollection<string> productIds, Money fixedPrice, IReadOnlyCollection<int>? daysOfWeek)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new DomainException("اسم العرض مطلوب.");
+        if (productIds.Count == 0) throw new DomainException("يجب اختيار صنف واحد على الأقل للعرض.");
+        if (!fixedPrice.IsPositive) throw new DomainException("سعر العرض يجب أن يكون رقمًا صحيحًا أكبر من صفر.");
+        if (daysOfWeek is { Count: > 0 } days && days.Any(d => d is < 0 or > 6))
+            throw new DomainException("أيام العرض غير صالحة.");
+    }
 }

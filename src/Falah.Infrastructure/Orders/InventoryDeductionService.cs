@@ -44,7 +44,8 @@ public sealed class InventoryDeductionService
                 {
                     IdempotencyKey = $"usage-{orderId}-{resolved.Item.Id}-{line.InventoryItemId}",
                     InventoryItemId = line.InventoryItemId,
-                    Type = "usage",
+                    Type = nameof(StockMovementType.Usage),
+                    Direction = nameof(StockDirection.Out),
                     QuantityMilliUnits = baseQuantity.Value * resolved.Item.Quantity,
                     ReferenceType = "order",
                     ReferenceId = orderId,

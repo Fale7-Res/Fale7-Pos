@@ -23,16 +23,22 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
 
     public string DatabaseName { get; }
     private readonly bool _ownsDatabase;
+    private readonly IReadOnlyDictionary<string, string?>? _configOverrides;
 
     /// <param name="reuseDatabaseName">Pass another factory's DatabaseName to boot a second,
     /// independent server instance against the SAME database - the cleanest way to prove that
     /// something (e.g. a persisted manager approval) genuinely survives a full Server restart, not
     /// just a method call within the same running process. The reusing instance does not drop the
     /// database on dispose; only the original owner does, once both are done with it.</param>
-    public FalahApiFactory(string? reuseDatabaseName = null)
+    /// <param name="configOverrides">Extra configuration keys layered on top of the test database
+    /// connection string - e.g. RateLimit:Login:WindowSeconds, so a rate-limit test can shrink the
+    /// window to a couple of seconds instead of racing a real 60-second wall-clock window against
+    /// the rest of a large parallel suite.</param>
+    public FalahApiFactory(string? reuseDatabaseName = null, IReadOnlyDictionary<string, string?>? configOverrides = null)
     {
         _ownsDatabase = reuseDatabaseName is null;
         DatabaseName = reuseDatabaseName ?? $"FalahTest_{Guid.NewGuid():N}";
+        _configOverrides = configOverrides;
         if (_ownsDatabase) CreateDatabase();
     }
 
@@ -58,6 +64,7 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
             {
                 ["ConnectionStrings:Falah"] = $@"Server=.\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
             });
+            if (_configOverrides is not null) config.AddInMemoryCollection(_configOverrides);
         });
     }
 
@@ -66,9 +73,15 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
         var id = $"user-{Guid.NewGuid():N}";
-        // A random-but-unique pin - no test in this suite exercises PIN login itself, so any value
-        // satisfying the unique constraint is fine here.
-        db.Users.Add(new UserEntity { Id = id, Name = name, Role = role, Active = true, Permissions = string.Join(",", permissions), Pin = Guid.NewGuid().ToString("N")[..6] });
+        // A random pin, hashed - no test in this suite exercises PIN login itself via this seeded
+        // user, so any value is fine here (HashWithoutValidation since this doesn't need to satisfy
+        // the real PIN-strength rule either).
+        var pin = Falah.Domain.Authorization.PinHasher.HashWithoutValidation(Random.Shared.Next(100_000, 999_999).ToString());
+        db.Users.Add(new UserEntity
+        {
+            Id = id, Name = name, Role = role, Active = true, Permissions = string.Join(",", permissions),
+            PinHash = pin.HashBase64, PinSalt = pin.SaltBase64, PinIterations = pin.Iterations,
+        });
         await db.SaveChangesAsync();
         return id;
     }
@@ -126,7 +139,11 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         var categoryId = $"cat-{Guid.NewGuid():N}";
         db.Categories.Add(new CategoryEntity { Id = categoryId, Name = "قسم اختبار", SortOrder = 0, Active = true });
         var inventoryItemId = $"inv-{Guid.NewGuid():N}";
-        db.InventoryItems.Add(new InventoryItemEntity { Id = inventoryItemId, Name = "مكوّن اختبار", CostSource = "Purchase" });
+        db.InventoryItems.Add(new InventoryItemEntity
+        {
+            Id = inventoryItemId, Name = "مكوّن اختبار", CostSource = "Purchase",
+            Category = "خامات", Unit = "kg", MinimumMilliUnits = 0, Active = true,
+        });
         var productId = $"prod-{Guid.NewGuid():N}";
         var recipeId = $"recipe-{Guid.NewGuid():N}";
         db.Recipes.Add(new RecipeEntity
@@ -141,6 +158,59 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         });
         await db.SaveChangesAsync();
         return (productId, recipeId, inventoryItemId);
+    }
+
+    /// <summary>Most tests just need "a shift can open with cash" to work, not to exercise Treasury
+    /// itself - this seeds an open business day plus enough funds in tre-main directly (bypassing
+    /// the API/permission path, same as SeedUserAsync/SeedProductAsync) so OpenShiftHandler's real
+    /// shift_opening_float movement (tre-main -> tre-drawer) has something to draw from instead of
+    /// every unrelated test needing its own manager user + deposit call.</summary>
+    public async Task<string> SeedOpenBusinessDayWithFundedMainAsync(long mainAccountFundingPiastres = 100_000_00)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
+        var dayId = $"day-{Guid.NewGuid():N}";
+        db.BusinessDays.Add(new BusinessDayEntity
+        {
+            // Cairo business-date, matching Falah.Domain.Common.BusinessClock.Today() exactly - not
+            // a plain UTC "today". A real, pre-existing test-flakiness bug found during
+            // re-verification: OpenShiftHandler stamps a shift's own BusinessDate via
+            // BusinessClock.Today() (Cairo-based), so a UTC-based seed here silently mismatched the
+            // shift against this seeded business day for the ~2-3 hours of every UTC day that fall
+            // on the other side of the Cairo midnight boundary, making any report/reconciliation
+            // query that joins shifts to a business day by BusinessDate intermittently see zero
+            // shifts.
+            Id = dayId, BusinessDate = Falah.Domain.Common.BusinessClock.Today(), OpenedBy = "seed",
+            OpenedAtUtc = DateTimeOffset.UtcNow, Status = "Open", CloseRevision = 0, OpenRequestId = $"seed-{Guid.NewGuid():N}",
+        });
+        db.TreasuryMovements.Add(new TreasuryMovementEntity
+        {
+            Id = $"tm-{Guid.NewGuid():N}", IdempotencyKey = $"seed-funding-{Guid.NewGuid():N}", OperationId = "op-seed",
+            Type = "capital_injection", DestinationAccountId = "tre-main", AmountPiastres = mainAccountFundingPiastres,
+            ReferenceType = "external_funding", ReferenceId = "seed", Reason = "seed funding for tests",
+            CreatedBy = "seed", CreatedAtUtc = DateTimeOffset.UtcNow, Status = "Posted",
+        });
+        await db.SaveChangesAsync();
+        return dayId;
+    }
+
+    /// <summary>Funds tre-main directly (bypassing the API/permission path) WITHOUT opening a
+    /// business day - for tests that open their OWN business day through the real
+    /// POST /api/business-day/open endpoint (e.g. to exercise close/reopen) but still need enough
+    /// balance in tre-main for a shift's opening float or a purchase/expense/treasury command to
+    /// draw from.</summary>
+    public async Task FundMainAccountAsync(long amountPiastres = 100_000_00)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
+        db.TreasuryMovements.Add(new TreasuryMovementEntity
+        {
+            Id = $"tm-{Guid.NewGuid():N}", IdempotencyKey = $"seed-funding-{Guid.NewGuid():N}", OperationId = "op-seed",
+            Type = "capital_injection", DestinationAccountId = "tre-main", AmountPiastres = amountPiastres,
+            ReferenceType = "external_funding", ReferenceId = "seed", Reason = "seed funding for tests",
+            CreatedBy = "seed", CreatedAtUtc = DateTimeOffset.UtcNow, Status = "Posted",
+        });
+        await db.SaveChangesAsync();
     }
 
     public async Task<T> QueryAsync<T>(Func<FalahDbContext, Task<T>> query)
