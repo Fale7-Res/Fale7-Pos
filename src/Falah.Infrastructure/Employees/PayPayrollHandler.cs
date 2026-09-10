@@ -85,7 +85,26 @@ public sealed class PayPayrollHandler
 
         var lines = await _db.PayrollLines.Where(l => l.PayrollRunId == request.PayrollRunId).ToListAsync(ct);
         var total = lines.Sum(l => l.NetPayablePiastres);
-        if (total <= 0) throw new DomainException("إجمالي Payroll غير صالح للدفع.");
+        if (total <= 0)
+        {
+            // Refusing is right - there is nothing to pay. But "the total is invalid" tells an
+            // operator nothing about why, and the commonest cause by far is silent: an employee
+            // marked Monthly whose monthly salary was never entered computes a base of zero, no
+            // matter how many daily-wage entries their ledger holds (see
+            // PayrollRules.CalculatePayrollLines). Naming them turns a dead end into a task.
+            var employeeIds = lines.Select(l => l.EmployeeId).ToList();
+            var unpriced = await _db.Employees.AsNoTracking()
+                .Where(e => employeeIds.Contains(e.Id)
+                    && e.CompensationType == nameof(CompensationType.Monthly)
+                    && (e.MonthlySalaryPiastres == null || e.MonthlySalaryPiastres == 0))
+                .Select(e => e.Name).ToListAsync(ct);
+
+            throw new DomainException(lines.Count == 0
+                ? $"لا توجد بنود في مسير {run.Period} - لم تُسجَّل أجور لهذه الفترة بعد."
+                : unpriced.Count > 0
+                    ? $"إجمالي المسير صفر. لا يوجد راتب شهري مُسجَّل للموظفين: {string.Join("، ", unpriced)}."
+                    : "إجمالي المسير صفر بعد الاستقطاعات، فلا يوجد مبلغ للصرف.");
+        }
         var totalMoney = Money.FromPiastres(total);
 
         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);

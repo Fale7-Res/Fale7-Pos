@@ -68,7 +68,13 @@ public sealed record CashPositionDto(
     long DineInPiastres,
     long TakeawayPiastres,
     long DeliveryPiastres,
-    TreasuryBalancesDto TreasuryNow);
+    TreasuryBalancesDto TreasuryNow,
+    /// <summary>Driver custody settled into the restaurant's own treasury during the period. This
+    /// is the difference between the four channel figures above and CollectedSalesPiastres: money
+    /// that WAS collected, but arrived through a settlement rather than through a sale's own payment
+    /// leg. Without this line an owner comparing the two totals would reasonably conclude that one
+    /// of them was wrong.</summary>
+    long SettledFromDriversPiastres = 0);
 
 /// <summary>The money that left without being stolen - discounts, hospitality, refunds, waste. Each
 /// is legitimate on its own and dangerous in aggregate, which is why they are shown together.</summary>

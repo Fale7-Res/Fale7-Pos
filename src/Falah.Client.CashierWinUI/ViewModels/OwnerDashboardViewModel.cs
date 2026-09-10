@@ -154,6 +154,7 @@ public partial class OwnerDashboardViewModel : ObservableObject
             nameof(HasData), nameof(PeriodLabel), nameof(ComparisonLabel), nameof(HasUnknownFoodCost),
             nameof(UnknownCostLabel), nameof(HasAttention), nameof(AttentionCount), nameof(HasLowStock),
             nameof(BackupLabel), nameof(BackupIsMissing), nameof(SeriesTitle), nameof(SeriesPoints),
+            nameof(HasDriverSettlementNote), nameof(DriverSettlementNote),
         }) OnPropertyChanged(name);
     }
 
@@ -320,6 +321,16 @@ public partial class OwnerDashboardViewModel : ObservableObject
     public bool HasAttention => Attention.Count > 0;
 
     // ---------------- where the money came from ----------------
+
+    /// <summary>The channel figures (نقدي/بطاقة/إنستاباي/محفظة) deliberately do not sum to the
+    /// collected total, because a settled driver's cash arrived through a settlement rather than
+    /// through any sale's payment leg. Saying so is the difference between a reader trusting the
+    /// numbers and a reader concluding one of them is broken.</summary>
+    public bool HasDriverSettlementNote => Data is { Cash.SettledFromDriversPiastres: > 0 };
+
+    public string DriverSettlementNote => Data is null ? ""
+        : $"يشمل «المحصَّل» مبلغ {Money(Data.Cash.SettledFromDriversPiastres)} وصل من تسويات السائقين،"
+          + " ولذلك لا يساوي مجموع طرق الدفع أعلاه.";
 
     private void RebuildSplit(OwnerDashboardDto? d)
     {

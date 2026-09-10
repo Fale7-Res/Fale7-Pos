@@ -51,7 +51,8 @@ public sealed class OwnerDashboardQueryService
             sales.AverageOrderValuePiastres, sales.CashPiastres, sales.CardPiastres,
             sales.InstaPayPiastres, sales.WalletPiastres,
             sales.DineInPiastres, sales.TakeawayPiastres, sales.DeliveryPiastres,
-            await CurrentTreasuryAsync(ct));
+            await CurrentTreasuryAsync(ct),
+            await LoadSettledFromDriversAsync(start, end, ct));
 
         var leakage = await LoadLeakageAsync(range, sales, expenses.TotalPiastres, refunds.Count, start, end, ct);
         var wages = await LoadWagesPostedAsync(start, end, ct);
@@ -221,6 +222,15 @@ public sealed class OwnerDashboardQueryService
             gross.SoldLineCount, gross.KnownLineCount, gross.IsComplete,
             foodCost.Missing);
     }
+
+    /// <summary>Driver custody that reached the restaurant's own treasury during the period. It is
+    /// the reconciling line between "collected" and the four payment-channel figures: a settled COD
+    /// order counts as collected, but its money arrived through a settlement movement rather than
+    /// through any sale's payment leg, so it appears in neither cash nor card nor instapay.</summary>
+    private async Task<long> LoadSettledFromDriversAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct) =>
+        await _db.TreasuryMovements.AsNoTracking()
+            .Where(m => m.Type == "driver_settlement" && m.CreatedAtUtc >= start && m.CreatedAtUtc < end)
+            .SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;
 
     private async Task<AttentionDto> LoadAttentionAsync(BusinessDateRange range, CancellationToken ct)
     {

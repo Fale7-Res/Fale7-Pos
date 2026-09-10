@@ -180,6 +180,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <!-- Present only when driver settlements actually contributed. It names
+                                 the one reason the channel figures do not add up to "المحصَّل",
+                                 rather than leaving the reader to decide which number is wrong. -->
+                            <TextBlock Text="{Binding DriverSettlementNote}" Style="{StaticResource CaptionText}"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding HasDriverSettlementNote, Converter={StaticResource BoolToVisibleConverter}}"/>
                         </StackPanel>
                     </Border>
 
