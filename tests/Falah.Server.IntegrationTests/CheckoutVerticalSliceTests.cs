@@ -19,7 +19,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "orders_comp", "orders_discount", "shifts_open_own");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
 
@@ -219,7 +219,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
         var managerId = await _factory.SeedUserAsync("مدير", "manager", "all");
         var noPosCashier = await _factory.SeedUserAsync("كاشير بلا pos", "cashier", "orders_comp");
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(managerId, "orders_comp", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(managerId), "orders_comp", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
 
         var productId = await _factory.SeedProductAsync(10000);
         var request = new CheckoutOrderRequest(
@@ -275,7 +275,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
     {
         var managerId = await _factory.SeedUserAsync("مدير", "manager", "all");
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(managerId, "orders_comp", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(managerId), "orders_comp", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var productId = await _factory.SeedProductAsync(10000);
 
         CheckoutOrderRequest MakeRequest(string? reasonCode) => new(

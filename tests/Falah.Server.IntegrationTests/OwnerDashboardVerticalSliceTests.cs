@@ -28,7 +28,7 @@ public class OwnerDashboardVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _ownerId = await _factory.SeedUserAsync("المالك", "owner", "all");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();

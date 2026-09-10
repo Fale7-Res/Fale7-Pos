@@ -17,7 +17,7 @@ public class RefundVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         // Holds both pos and orders_refund so most tests don't need a manager approval detour;
         // one dedicated test below exercises the approval path with a separate, unprivileged user.
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "orders_refund", "orders_comp", "shifts_open_own", "cash_drawer");

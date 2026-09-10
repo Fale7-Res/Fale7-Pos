@@ -26,7 +26,7 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _hrUserId = await _factory.SeedUserAsync("مسؤول الموارد البشرية", "supervisor", "employees_manage", "employees_ledger");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
@@ -185,7 +185,7 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
             (await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/ledger-entries",
                 new RecordManualLedgerEntryRequest(employee.Id, "DailyWage", 50000, true, "رصيد مستحق", _hrUserId, null, null))).EnsureSuccessStatusCode();
         var issued = await _client.PostAsJsonAsync("/api/approvals/issue",
-            new Falah.Application.Approvals.IssueManagerApprovalRequest(_managerId, "employees_ledger", "اعتماد صرف"));
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_managerId), "employees_ledger", "اعتماد صرف"));
         issued.EnsureSuccessStatusCode();
         var approval = await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
         // The first commit consumes the approval and empties the drawer (and, for a

@@ -25,7 +25,7 @@ public class TreasuryVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
     }
 
@@ -323,7 +323,7 @@ public class TreasuryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, denied.StatusCode);
 
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "treasury_manage", "اعتماد إيداع"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "treasury_manage", "اعتماد إيداع"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var allowed = await _client.PostAsJsonAsync("/api/treasury/deposit",
             new DepositRequest($"dep-{Guid.NewGuid():N}", "owner_deposit", 10000, "tre-main", "محاولة بموافقة", null, unprivileged, approval!.ApprovalId, _managerId));
         allowed.EnsureSuccessStatusCode();

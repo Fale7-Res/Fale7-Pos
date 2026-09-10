@@ -77,21 +77,16 @@ public partial class CashierViewModel
                     ExpenseError = "أدخل رمز المدير المخوّل باعتماد هذا المصروف.";
                     return;
                 }
-                var managerLogin = await _session.Api.LoginByPinAsync(ExpenseManagerPin);
-                if (!managerLogin.Success || managerLogin.Value is null)
-                {
-                    ExpenseError = "رمز المدير غير صحيح.";
-                    return;
-                }
+                // One call, not two: the server checks the PIN and decides who approved.
                 var approval = await _session.Api.IssueManagerApprovalAsync(
-                    new IssueManagerApprovalRequest(managerLogin.Value.Id, "expenses_add_drawer", ExpenseDescription));
+                    new IssueManagerApprovalRequest(ExpenseManagerPin, "expenses_add_drawer", ExpenseDescription));
                 if (!approval.Success || approval.Value is null)
                 {
-                    ExpenseError = approval.Error ?? "هذا المستخدم غير مخول باعتماد هذا المصروف.";
+                    ExpenseError = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد هذا المصروف.";
                     return;
                 }
                 approvalId = approval.Value.ApprovalId;
-                approverUserId = managerLogin.Value.Id;
+                approverUserId = approval.Value.ApproverUserId;
             }
 
             var request = new AddExpenseRequest(

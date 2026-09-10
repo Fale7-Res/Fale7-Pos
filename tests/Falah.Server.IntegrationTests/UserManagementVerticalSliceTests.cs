@@ -28,7 +28,7 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _ownerId = await _factory.SeedUserAsync("المالك", "owner", "all");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         // Holds users_manage but only a couple of OTHER permissions - used to prove privilege

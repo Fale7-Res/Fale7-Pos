@@ -26,7 +26,7 @@ public class CashDrawerVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close", "cash_drawer");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();

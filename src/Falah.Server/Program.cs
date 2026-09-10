@@ -1318,6 +1318,8 @@ app.MapPost("/api/orders/cancel-pending-electronic-payment", async (Falah.Applic
     }
 });
 
+// Rate limited like the login screen, and for the same reason: this endpoint now accepts a PIN,
+// and a PIN is short enough to guess if guessing is free.
 app.MapPost("/api/approvals/issue", async (Falah.Application.Approvals.IssueManagerApprovalRequest request, IssueManagerApprovalHandler handler, CancellationToken ct) =>
 {
     try

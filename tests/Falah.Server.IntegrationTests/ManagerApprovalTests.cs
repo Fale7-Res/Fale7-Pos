@@ -18,7 +18,7 @@ public class ManagerApprovalTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
@@ -30,7 +30,7 @@ public class ManagerApprovalTests : IAsyncLifetime
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
 
     private async Task<IssueManagerApprovalResult> IssueAsync(string action, string reason = "اعتماد اختبار") =>
-        (await (await _client.PostAsJsonAsync("/api/approvals/issue", new IssueManagerApprovalRequest(_managerId, action, reason)))
+        (await (await _client.PostAsJsonAsync("/api/approvals/issue", new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, reason)))
             .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
 
     [Fact]
@@ -80,7 +80,7 @@ public class ManagerApprovalTests : IAsyncLifetime
     public async Task An_approval_issued_by_a_plain_cashier_is_rejected()
     {
         var response = await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_cashierId, "orders_comp", "محاولة غير مصرح بها"));
+            new IssueManagerApprovalRequest(_factory.PinFor(_cashierId), "orders_comp", "محاولة غير مصرح بها"));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 

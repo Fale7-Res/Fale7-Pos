@@ -26,7 +26,7 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _menuManagerId = await _factory.SeedUserAsync("مسؤول المنيو", "supervisor", "menu_manage", "offers_manage", "settings_manage");
         _ownerId = await _factory.SeedUserAsync("المالك", "owner", "all");
     }
@@ -329,7 +329,7 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, withoutApproval.StatusCode);
 
         var approvalId = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_ownerId, "offers_manage", "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
+            new IssueManagerApprovalRequest(_factory.PinFor(_ownerId), "offers_manage", "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
         var withApproval = await _client.PostAsJsonAsync("/api/price-rules", new SavePriceRuleRequest(
             $"req-{Guid.NewGuid():N}", null, "عرض", new[] { product.ProductId }, 8000, null, null, null, true, noPermissionUser, approvalId, _ownerId));
         withApproval.EnsureSuccessStatusCode();

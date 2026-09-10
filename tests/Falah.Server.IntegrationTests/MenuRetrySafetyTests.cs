@@ -13,7 +13,7 @@ public class MenuRetrySafetyTests : IAsyncLifetime
     private static string Key() => Guid.NewGuid().ToString("N");
     public async Task InitializeAsync()
     {
-        _factory = new(); _client = _factory.CreateClient();
+        _factory = new(); _client = _factory.CreateAuthenticatedClient();
         _actor = await _factory.SeedUserAsync("مراجع", "owner", "all");
     }
     public Task DisposeAsync() { _client.Dispose(); _factory.Dispose(); return Task.CompletedTask; }

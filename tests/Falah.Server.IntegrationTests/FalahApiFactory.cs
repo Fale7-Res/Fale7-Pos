@@ -68,6 +68,30 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         });
     }
 
+    /// <summary>Real session tokens for the users this factory seeded, so requests go through the
+    /// server's real authentication rather than around it. See ActorTokenHandler.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _tokens = new();
+
+    public string? TokenFor(string userId) => _tokens.TryGetValue(userId, out var token) ? token : null;
+
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _pins = new();
+
+    /// <summary>The PIN of a user this factory seeded. Manager approval identifies its approver by
+    /// PIN now, so a test approving as someone has to know that someone's PIN.</summary>
+    public string PinFor(string userId) => _pins[userId];
+
+    /// <summary>Any seeded session, for requests that name no acting user of their own - manager
+    /// approval is the case that matters: its security is the PIN it carries, but it still has to
+    /// come from a station where somebody is logged in.</summary>
+    public string? AnySessionToken() => _tokens.Values.FirstOrDefault();
+
+    /// <summary>A client that presents the seeded session of whichever user each request names.
+    /// Tests keep the shape they already have; the server still enforces the real rule.</summary>
+    protected override void ConfigureClient(HttpClient client) => base.ConfigureClient(client);
+
+    public HttpClient CreateAuthenticatedClient() =>
+        CreateDefaultClient(new ActorTokenHandler(TokenFor, AnySessionToken));
+
     public async Task<string> SeedUserAsync(string name, string role, params string[] permissions)
     {
         using var scope = Services.CreateScope();
@@ -76,13 +100,30 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         // A random pin, hashed - no test in this suite exercises PIN login itself via this seeded
         // user, so any value is fine here (HashWithoutValidation since this doesn't need to satisfy
         // the real PIN-strength rule either).
-        var pin = Falah.Domain.Authorization.PinHasher.HashWithoutValidation(Random.Shared.Next(100_000, 999_999).ToString());
+        // Deterministic and remembered, because manager approval now verifies the PIN server-side:
+        // a test that wants a manager to approve has to be able to present that manager's actual PIN.
+        var pinValue = Random.Shared.Next(100_000, 999_999).ToString();
+        var pin = Falah.Domain.Authorization.PinHasher.HashWithoutValidation(pinValue);
         db.Users.Add(new UserEntity
         {
             Id = id, Name = name, Role = role, Active = true, Permissions = string.Join(",", permissions),
             PinHash = pin.HashBase64, PinSalt = pin.SaltBase64, PinIterations = pin.Iterations,
         });
+        // A real session row, hashed exactly the way a real login stores one - so these tests
+        // exercise the production authentication path instead of a test-only shortcut around it.
+        var token = Falah.Domain.Authorization.SessionToken.Issue();
+        db.UserSessions.Add(new Falah.Infrastructure.Persistence.Entities.UserSessionEntity
+        {
+            Id = $"sess-{Guid.NewGuid():N}",
+            TokenHash = Falah.Domain.Authorization.SessionToken.Hash(token),
+            UserId = id,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            LastSeenAtUtc = DateTimeOffset.UtcNow,
+        });
+
         await db.SaveChangesAsync();
+        _tokens[id] = token;
+        _pins[id] = pinValue;
         return id;
     }
 

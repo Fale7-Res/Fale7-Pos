@@ -30,7 +30,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close", "inventory_manage");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
@@ -53,7 +53,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
     {
         var productId = await _factory.SeedProductAsync(10000);
         var approvalId = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new Falah.Application.Approvals.IssueManagerApprovalRequest(_managerId, "orders_comp", "ضيافة عميل مميز")))
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_managerId), "orders_comp", "ضيافة عميل مميز")))
             .Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!.ApprovalId;
 
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(

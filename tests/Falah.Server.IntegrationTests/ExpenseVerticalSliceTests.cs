@@ -23,7 +23,7 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
     }
@@ -79,7 +79,7 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
         var cashierId = await _factory.SeedUserAsync("كاشير بلا صلاحية", "cashier", "pos", "shifts_open_own");
         var shiftId = await OpenShiftAsync(cashierId);
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "expenses_add_drawer", "اعتماد مصروف"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_add_drawer", "اعتماد مصروف"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
 
         var response = await _client.PostAsJsonAsync("/api/expenses",
             MakeRequest(shiftId, cashierId, "tre-drawer", approvalId: approval!.ApprovalId, approverId: _managerId));
@@ -94,7 +94,7 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
         var cashierId = await _factory.SeedUserAsync("كاشير", "cashier", "pos", "shifts_open_own");
         var shiftId = await OpenShiftAsync(cashierId);
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "expenses_main_treasury", "محاولة اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_main_treasury", "محاولة اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
 
         var response = await _client.PostAsJsonAsync("/api/expenses",
             MakeRequest(shiftId, cashierId, "tre-main", approvalId: approval!.ApprovalId, approverId: _managerId));

@@ -115,22 +115,16 @@ public partial class CashierViewModel
                     return;
                 }
 
-                var managerLogin = await _session.Api.LoginByPinAsync(CloseShiftManagerPin);
-                if (!managerLogin.Success || managerLogin.Value is null)
-                {
-                    CloseShiftError = "رمز المدير غير صحيح.";
-                    return;
-                }
-
+                // One call, not two: the server checks the PIN and decides who approved.
                 var approval = await _session.Api.IssueManagerApprovalAsync(
-                    new IssueManagerApprovalRequest(managerLogin.Value.Id, "shifts_manage", CloseShiftReason));
+                    new IssueManagerApprovalRequest(CloseShiftManagerPin, "shifts_manage", CloseShiftReason));
                 if (!approval.Success || approval.Value is null)
                 {
-                    CloseShiftError = approval.Error ?? "هذا المستخدم غير مخول لاعتماد إغلاق الوردية.";
+                    CloseShiftError = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل لاعتماد إغلاق الوردية.";
                     return;
                 }
                 approvalId = approval.Value.ApprovalId;
-                approverUserId = managerLogin.Value.Id;
+                approverUserId = approval.Value.ApproverUserId;
             }
 
             var closeRequest = new CloseShiftRequest(

@@ -107,9 +107,36 @@ public sealed class ApiClient
 
     private sealed record ErrorBody(string? error);
 
+    /// <summary>The session token this client presents on every later request. Set once at login
+    /// and cleared at logout; without it the server refuses everything, which is the point - the
+    /// acting user is now something the server establishes rather than something we assert.</summary>
+    private string? _sessionToken;
+
     public async Task<ApiResult<UserSummaryDto>> LoginByPinAsync(string pin, CancellationToken ct = default)
     {
-        return await SendAsync<UserSummaryDto>(() => _http.PostAsJsonAsync("/api/auth/login-by-pin", new LoginByPinRequest(pin), ct), ct);
+        var result = await SendAsync<LoginResultDto>(
+            () => _http.PostAsJsonAsync("/api/auth/login-by-pin", new LoginByPinRequest(pin), ct), ct);
+        if (!result.Success || result.Value is null)
+            return new ApiResult<UserSummaryDto>(false, null, result.Error, result.OutcomeUnknown, result.StatusCode);
+
+        _sessionToken = result.Value.Token;
+        _http.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+
+        return new ApiResult<UserSummaryDto>(true,
+            new UserSummaryDto(result.Value.Id, result.Value.Name, result.Value.Role, result.Value.Permissions),
+            null, false, result.StatusCode);
+    }
+
+    /// <summary>Ends the session server-side. Locking the screen without this would leave a working
+    /// token behind, which is exactly the state a shared till should not be left in.</summary>
+    public async Task LogoutAsync(CancellationToken ct = default)
+    {
+        if (_sessionToken is null) return;
+        try { await _http.PostAsync("/api/auth/logout", content: null, ct); }
+        catch { /* the local session ends either way; a stranded token expires on its own. */ }
+        _sessionToken = null;
+        _http.DefaultRequestHeaders.Authorization = null;
     }
 
     public async Task<ApiResult<MenuResponse>> GetMenuAsync(CancellationToken ct = default)

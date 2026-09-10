@@ -25,7 +25,7 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
 

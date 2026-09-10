@@ -29,7 +29,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
@@ -93,7 +93,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
 
     private async Task<string> IssueApprovalAsync(string action) =>
         (await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
 
     // ---- Lifecycle ----
 

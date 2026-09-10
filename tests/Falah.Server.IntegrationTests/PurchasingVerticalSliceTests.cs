@@ -26,7 +26,7 @@ public class PurchasingVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _purchasingManagerId = await _factory.SeedUserAsync("مسؤول المشتريات", "supervisor", "purchasing_manage", "inventory_manage");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();

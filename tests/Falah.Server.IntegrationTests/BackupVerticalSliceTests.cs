@@ -28,7 +28,7 @@ public class BackupVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _backupAdminId = await _factory.SeedUserAsync("مسؤول النسخ الاحتياطي", "supervisor", "backup_manage");
     }
 

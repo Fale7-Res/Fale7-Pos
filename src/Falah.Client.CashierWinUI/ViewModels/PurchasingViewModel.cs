@@ -506,19 +506,16 @@ public partial class PurchasingViewModel : ObservableObject
             onError("أدخل رمز المدير المخوّل باعتماد هذا الإجراء.");
             return (null, null, false);
         }
-        var login = await _session.Api.LoginByPinAsync(managerPin);
-        if (!login.Success || login.Value is null)
-        {
-            onError(login.Error ?? "تعذر التحقق من رمز المدير.");
-            return (null, null, false);
-        }
+        // One call, not two: the server checks the PIN and decides who approved. Verifying it
+        // here and then naming the manager made the check a formality anything could skip.
         var approval = await _session.Api.IssueManagerApprovalAsync(
-            new Falah.Application.Approvals.IssueManagerApprovalRequest(login.Value.Id, permission, reason));
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(managerPin, permission, reason));
         if (!approval.Success || approval.Value is null)
         {
-            onError(approval.Error ?? "هذا المستخدم غير مخول باعتماد هذا الإجراء.");
+            onError(approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد هذا الإجراء.");
             return (null, null, false);
         }
-        return (approval.Value.ApprovalId, login.Value.Id, true);
+
+        return (approval.Value.ApprovalId, approval.Value.ApproverUserId, true);
     }
 }

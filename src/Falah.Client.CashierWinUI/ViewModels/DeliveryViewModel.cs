@@ -391,22 +391,17 @@ public partial class DeliveryViewModel : ObservableObject
                     SettleError = "أدخل رمز المدير المخوّل باعتماد فارق التسليم.";
                     return;
                 }
-                var managerLogin = await _session.Api.LoginByPinAsync(SettleManagerPin);
-                if (!managerLogin.Success || managerLogin.Value is null)
-                {
-                    SettleError = managerLogin.Error ?? "تعذر التحقق من رمز المدير.";
-                    return;
-                }
+                // One call, not two: the server checks the PIN and decides who approved.
                 var approval = await _session.Api.IssueManagerApprovalAsync(
                     new Falah.Application.Approvals.IssueManagerApprovalRequest(
-                        managerLogin.Value.Id, "delivery_settlement_approve", SettleReason));
+                        SettleManagerPin, "delivery_settlement_approve", SettleReason));
                 if (!approval.Success || approval.Value is null)
                 {
-                    SettleError = approval.Error ?? "هذا المستخدم غير مخول باعتماد فارق التسليم.";
+                    SettleError = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد فارق التسليم.";
                     return;
                 }
                 approvalId = approval.Value.ApprovalId;
-                approverUserId = managerLogin.Value.Id;
+                approverUserId = approval.Value.ApproverUserId;
             }
 
             await CompleteSettlementAsync(new SettleDriverCustodyRequest(

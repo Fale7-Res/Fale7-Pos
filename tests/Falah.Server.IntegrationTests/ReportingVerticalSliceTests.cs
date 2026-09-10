@@ -31,7 +31,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close", "expenses_add_drawer", "orders_discount");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _businessDayId = await _factory.SeedOpenBusinessDayWithFundedMainAsync();
@@ -79,7 +79,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     public async Task Sales_report_separates_offers_comps_and_manual_discounts_into_three_buckets()
     {
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "orders_comp", "ضيافة"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "orders_comp", "ضيافة"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var productId = await _factory.SeedProductAsync(10000);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
@@ -127,7 +127,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     {
         var order = await CashOrderAsync(20000);
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "orders_refund", "طلب العميل"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "orders_refund", "طلب العميل"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         await _client.PostAsJsonAsync("/api/orders/refund", new RefundOrderRequest(
             $"refreq-{Guid.NewGuid():N}", order.OrderId, 5000, "طلب العميل", _managerId, approval!.ApprovalId, _managerId));
 
@@ -236,7 +236,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     public async Task Significant_actions_lists_a_manager_approved_drawer_expense()
     {
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "expenses_add_drawer", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_add_drawer", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var noPermCashier = await _factory.SeedUserAsync("كاشير بلا صلاحية", "cashier", "pos");
         await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 4000, "بند حساس", "tre-drawer", noPermCashier, approval!.ApprovalId, _managerId));
 

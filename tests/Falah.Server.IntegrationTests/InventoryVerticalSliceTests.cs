@@ -25,7 +25,7 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _inventoryManagerId = await _factory.SeedUserAsync("مسؤول المخزون", "supervisor", "inventory_manage", "menu_manage", "reports_view");
     }
@@ -187,7 +187,7 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, noApproval.StatusCode);
 
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "inventory_manage", "اعتماد جرد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "inventory_manage", "اعتماد جرد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var withApproval = await _client.PostAsJsonAsync("/api/inventory/count-adjustments",
             new RecordCountAdjustmentRequest($"req-{Guid.NewGuid():N}", itemId, 500, "In", "جرد", cashierId, approval!.ApprovalId, _managerId));
         withApproval.EnsureSuccessStatusCode();

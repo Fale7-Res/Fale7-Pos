@@ -22,7 +22,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _hrUserId = await _factory.SeedUserAsync("مسؤول الموارد البشرية", "supervisor", "employees_manage", "employees_ledger", "attendance_manage");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
     }
@@ -290,7 +290,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
             new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
         var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new Falah.Application.Approvals.IssueManagerApprovalRequest(_hrUserId, "attendance_manage", "مراجعة")))
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_hrUserId), "attendance_manage", "مراجعة")))
             .Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
         var request = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
             10, 2, 0, "مراجعة", _cashierId, approval!.ApprovalId, _hrUserId);

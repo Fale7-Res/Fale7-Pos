@@ -23,7 +23,7 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _hrUserId = await _factory.SeedUserAsync("مسؤول الموارد البشرية", "supervisor", "employees_manage", "employees_ledger");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _payerId = await _factory.SeedUserAsync("صاحب صلاحية الدفع", "supervisor", "employees_manage", "payroll_approve", "payroll_pay");

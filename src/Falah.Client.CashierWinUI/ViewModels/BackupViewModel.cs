@@ -223,19 +223,15 @@ public partial class BackupViewModel : ObservableObject
             RestoreError = "أدخل رمز المدير المخوّل باعتماد الاستعادة.";
             return (null, null, false);
         }
-        var login = await _session.Api.LoginByPinAsync(RestoreManagerPin);
-        if (!login.Success || login.Value is null)
-        {
-            RestoreError = login.Error ?? "تعذر التحقق من رمز المدير.";
-            return (null, null, false);
-        }
+        // One call, not two: the server checks the PIN and decides who approved. Verifying it
+        // here and then naming the manager made the check a formality anything could skip.
         var approval = await _session.Api.IssueManagerApprovalAsync(
-            new Falah.Application.Approvals.IssueManagerApprovalRequest(login.Value.Id, "backup_manage", RestoreReason.Trim()));
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(RestoreManagerPin, "backup_manage", RestoreReason.Trim()));
         if (!approval.Success || approval.Value is null)
         {
-            RestoreError = approval.Error ?? "هذا المستخدم غير مخول باعتماد الاستعادة.";
+            RestoreError = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد الاستعادة.";
             return (null, null, false);
         }
-        return (approval.Value.ApprovalId, login.Value.Id, true);
+        return (approval.Value.ApprovalId, approval.Value.ApproverUserId, true);
     }
 }

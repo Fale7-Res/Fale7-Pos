@@ -32,7 +32,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
@@ -81,7 +81,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
 
     private async Task<string> IssueApprovalAsync(string action) =>
         (await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
 
     /// <summary>A day with all shifts closed and the required closing checklist complete - the
     /// minimal "should be closeable" baseline every blocker-specific test starts from, then adds

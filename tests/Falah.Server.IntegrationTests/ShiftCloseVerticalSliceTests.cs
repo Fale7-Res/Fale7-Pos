@@ -24,7 +24,7 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new FalahApiFactory();
-        _client = _factory.CreateClient();
+        _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
@@ -147,7 +147,7 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
     {
         var shiftId = await OpenShiftAsync(50000);
         var approval = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_managerId, "shifts_manage", "فرق كبير")))
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "shifts_manage", "فرق كبير")))
             .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
 
         var response = await _client.PostAsJsonAsync("/api/shifts/close",
