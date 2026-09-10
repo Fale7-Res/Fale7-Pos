@@ -116,7 +116,7 @@ public class ManagerApprovalTests : IAsyncLifetime
         var productId = await _factory.SeedProductAsync(10000);
 
         using var restarted = new FalahApiFactory(reuseDatabaseName: _factory.DatabaseName);
-        var restartedClient = restarted.CreateClient();
+        var restartedClient = restarted.CreateAuthenticatedClient(_factory);
 
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,

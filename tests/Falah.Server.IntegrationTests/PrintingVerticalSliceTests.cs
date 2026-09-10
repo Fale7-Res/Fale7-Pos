@@ -37,6 +37,16 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var opened = await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000))).Content.ReadFromJsonAsync<OpenShiftResult>();
         _shiftId = opened!.ShiftId;
+
+        // Automatic printing off for this class. Checkout now creates an order's tickets by itself
+        // (OrderAutoPrintService), which is the behaviour a restaurant needs and the reason these
+        // tests started counting more jobs than they expected. But every test HERE is about the
+        // explicit create-print-jobs endpoint - its idempotency, its reprints, its routing - and
+        // mixing automatic jobs into those counts would make each one assert two things at once.
+        // Automatic printing has its own test at the bottom of this file, with it switched on.
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول الإعدادات", "manager", "settings_manage");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, AutoPrintReceipt: false, AutoPrintPreparationTicket: false))).EnsureSuccessStatusCode();
     }
 
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
@@ -53,10 +63,15 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         return productId;
     }
 
-    private async Task<CheckoutOrderResult> CheckoutAsync(params (string ProductId, int Quantity)[] items)
+    private Task<CheckoutOrderResult> CheckoutAsync(params (string ProductId, int Quantity)[] items) =>
+        CheckoutAsync($"req-{Guid.NewGuid():N}", items);
+
+    /// <summary>Checkout under a caller-chosen idempotency key, so a test can replay the exact same
+    /// sale and check that its tickets are not printed twice.</summary>
+    private async Task<CheckoutOrderResult> CheckoutAsync(string checkoutRequestId, params (string ProductId, int Quantity)[] items)
     {
         var request = new CheckoutOrderRequest(
-            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            CheckoutRequestId: checkoutRequestId, CashierId: _cashierId, ShiftId: _shiftId,
             OrderType: "takeaway", PaymentMethod: "cash",
             Items: items.Select(i => new CheckoutItemRequest(i.ProductId, null, i.Quantity, null, null)).ToArray(),
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
@@ -476,5 +491,63 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var text = string.Join('\n', ticket!.Lines.Select(l => l.Text));
         Assert.Contains("الإجمالي", text);
         Assert.Contains(order.OrderNumber, text);
+    }
+
+    // ---- Automatic printing at checkout ----
+
+    [Fact]
+    public async Task A_sale_creates_its_own_tickets_without_anyone_asking()
+    {
+        // The defect this guards: no print job was created at checkout by anything - not the server,
+        // and in the cashier client not at all - so an order was taken on screen and the kitchen
+        // never heard about it, while the Settings screen showed automatic printing switched on.
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول الإعدادات ٢", "manager", "settings_manage");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, AutoPrintReceipt: true, AutoPrintPreparationTicket: true))).EnsureSuccessStatusCode();
+
+        var charcoal = await CreateProductAsync("كباب فحم", 8000, "Charcoal");
+        var order = await CheckoutAsync((charcoal, 1));
+
+        var jobs = await (await _client.GetAsync($"/api/orders/{order.OrderId}/print-jobs")).Content.ReadFromJsonAsync<List<PrintJobDto>>();
+
+        Assert.Equal(2, jobs!.Count);
+        Assert.Contains(jobs, j => j.Route == "Receipt");
+        Assert.Contains(jobs, j => j.Route == "Charcoal");
+        Assert.All(jobs, j => Assert.False(j.IsReprint));
+    }
+
+    [Fact]
+    public async Task Turning_automatic_preparation_tickets_off_leaves_only_the_customer_copy()
+    {
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول الإعدادات ٣", "manager", "settings_manage");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, AutoPrintReceipt: true, AutoPrintPreparationTicket: false))).EnsureSuccessStatusCode();
+
+        var charcoal = await CreateProductAsync("كباب فحم ٢", 8000, "Charcoal");
+        var order = await CheckoutAsync((charcoal, 1));
+
+        var jobs = await (await _client.GetAsync($"/api/orders/{order.OrderId}/print-jobs")).Content.ReadFromJsonAsync<List<PrintJobDto>>();
+
+        // The switches in Settings used to be read by nothing at all. They govern this now.
+        Assert.Single(jobs!);
+        Assert.Equal("Receipt", jobs![0].Route);
+    }
+
+    [Fact]
+    public async Task Replaying_a_checkout_does_not_print_the_kitchen_a_second_copy()
+    {
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول الإعدادات ٤", "manager", "settings_manage");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, AutoPrintReceipt: true, AutoPrintPreparationTicket: true))).EnsureSuccessStatusCode();
+
+        var charcoal = await CreateProductAsync("كباب فحم ٣", 8000, "Charcoal");
+        var checkoutRequestId = $"co-{Guid.NewGuid():N}";
+
+        var first = await CheckoutAsync(checkoutRequestId, (charcoal, 1));
+        var again = await CheckoutAsync(checkoutRequestId, (charcoal, 1));
+
+        Assert.Equal(first.OrderNumber, again.OrderNumber);
+        var jobs = await (await _client.GetAsync($"/api/orders/{first.OrderId}/print-jobs")).Content.ReadFromJsonAsync<List<PrintJobDto>>();
+        Assert.Equal(2, jobs!.Count);
     }
 }

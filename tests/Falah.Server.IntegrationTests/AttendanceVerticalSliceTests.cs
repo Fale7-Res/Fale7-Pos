@@ -297,7 +297,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         var first = await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", request);
         first.EnsureSuccessStatusCode();
         using var restarted = new FalahApiFactory(_factory.DatabaseName);
-        using var client = restarted.CreateClient();
+        using var client = restarted.CreateAuthenticatedClient(_factory);
         var replay = await client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", request);
         replay.EnsureSuccessStatusCode();
         Assert.Equal(await first.Content.ReadFromJsonAsync<AttendanceRecordDto>(), await replay.Content.ReadFromJsonAsync<AttendanceRecordDto>());

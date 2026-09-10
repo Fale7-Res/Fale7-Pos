@@ -129,7 +129,10 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
         // OpenShiftHandler) - the only way to get an open shift with NO open business day in this
         // system, to isolate this gate from the shift-open gate that would otherwise also require one.
         using var freshFactory = new FalahApiFactory();
-        var freshClient = freshFactory.CreateClient();
+        // Its own factory AND its own database - not a restart over a shared one, so its
+        // sessions are its own. TokenFor mints lazily, so the client can be built before the
+        // user it will act as exists.
+        var freshClient = freshFactory.CreateAuthenticatedClient();
         var cashierId = await freshFactory.SeedUserAsync("كاشير", "cashier", "pos", "shifts_open_own", "expenses_add_drawer");
         var shift = await (await freshClient.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", cashierId, 0))).Content.ReadFromJsonAsync<OpenShiftResult>();

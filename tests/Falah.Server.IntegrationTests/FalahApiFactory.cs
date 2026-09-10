@@ -72,7 +72,36 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
     /// server's real authentication rather than around it. See ActorTokenHandler.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _tokens = new();
 
-    public string? TokenFor(string userId) => _tokens.TryGetValue(userId, out var token) ? token : null;
+    /// <summary>A real session for this user, minting one on first use.
+    ///
+    /// Lazy on purpose: plenty of tests create their users through the API rather than through
+    /// SeedUserAsync - a self-service PIN change, for instance, acts as a user that only exists
+    /// because a previous request created it. Falling back to somebody else's session for those
+    /// would present a mismatched token and produce a 403 that has nothing to do with what the
+    /// test is checking.
+    ///
+    /// The row written here is exactly what a real login writes.</summary>
+    public string? TokenFor(string userId)
+    {
+        if (_tokens.TryGetValue(userId, out var existing)) return existing;
+
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
+        if (!db.Users.Any(u => u.Id == userId)) return null;
+
+        var token = Falah.Domain.Authorization.SessionToken.Issue();
+        db.UserSessions.Add(new Falah.Infrastructure.Persistence.Entities.UserSessionEntity
+        {
+            Id = $"sess-{Guid.NewGuid():N}",
+            TokenHash = Falah.Domain.Authorization.SessionToken.Hash(token),
+            UserId = userId,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            LastSeenAtUtc = DateTimeOffset.UtcNow,
+        });
+        db.SaveChanges();
+        _tokens[userId] = token;
+        return token;
+    }
 
     private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _pins = new();
 
@@ -91,6 +120,12 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
 
     public HttpClient CreateAuthenticatedClient() =>
         CreateDefaultClient(new ActorTokenHandler(TokenFor, AnySessionToken));
+
+    /// <summary>A client for THIS host that presents sessions issued by another factory. Used by the
+    /// restart tests: a second host over the same database is a fresh process, and the point of
+    /// those tests is that a session issued before the restart still works after it.</summary>
+    public HttpClient CreateAuthenticatedClient(FalahApiFactory sessionSource) =>
+        CreateDefaultClient(new ActorTokenHandler(sessionSource.TokenFor, sessionSource.AnySessionToken));
 
     public async Task<string> SeedUserAsync(string name, string role, params string[] permissions)
     {
