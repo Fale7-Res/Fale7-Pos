@@ -552,6 +552,119 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(8000, Assert.Single(overview!.Items, i => i.Id == itemId).BalanceMilliUnits);
     }
 
+    // ---- Costing read models ----
+
+    /// <summary>The screen's whole job in one read: what the dish is made of, what each line costs,
+    /// where that cost came from, and - when a line has none - which of the three reasons it is.</summary>
+    [Fact]
+    public async Task Recipe_cost_detail_prices_every_line_and_says_where_each_price_came_from()
+    {
+        var invoiced = await CreateItemAsync("لحمة", unit: "kg");
+        await SeedPurchaseReceiptAsync(invoiced, unitCostPiastres: 30_000);
+
+        var estimated = await CreateItemAsync("بهارات", unit: "kg");
+        (await _client.PutAsJsonAsync($"/api/inventory/items/{estimated}/estimated-cost",
+            new SetEstimatedCostRequest(estimated, 5_000, _inventoryManagerId))).EnsureSuccessStatusCode();
+
+        var unpriced = await CreateItemAsync("ملح", unit: "kg");
+
+        var recipeId = $"recipe-{Guid.NewGuid():N}";
+        var productId = await _factory.SeedProductAsync(50_000, recipeId: recipeId);
+        (await _client.PostAsJsonAsync("/api/recipes", new SaveRecipeRequest(
+            $"req-{Guid.NewGuid():N}", recipeId, productId, "طبق", true,
+            new[]
+            {
+                new RecipeLineInput(invoiced, 200, "Direct", null),
+                new RecipeLineInput(estimated, 10, "Direct", null),
+                new RecipeLineInput(unpriced, 5, "Direct", null),
+            }, _inventoryManagerId, null, null))).EnsureSuccessStatusCode();
+
+        var detail = await (await _client.GetAsync($"/api/recipes/{recipeId}/cost-detail?actorUserId={_inventoryManagerId}"))
+            .Content.ReadFromJsonAsync<RecipeCostDetailDto>();
+
+        Assert.Equal(3, detail!.LineCount);
+        Assert.Equal(2, detail.KnownLineCount);
+
+        var meat = Assert.Single(detail.Lines, l => l.InventoryItemId == invoiced);
+        Assert.Equal("Purchase", meat.CostSource);
+        Assert.NotNull(meat.CostAsOfUtc);
+        Assert.Equal(6_000, meat.ExtendedCostPiastres);   // 0.2 kg at 300.00
+
+        var spice = Assert.Single(detail.Lines, l => l.InventoryItemId == estimated);
+        Assert.Equal("Estimated", spice.CostSource);
+
+        var salt = Assert.Single(detail.Lines, l => l.InventoryItemId == unpriced);
+        Assert.Equal("Unknown", salt.CostSource);
+        Assert.Null(salt.ExtendedCostPiastres);
+        Assert.False(string.IsNullOrWhiteSpace(salt.MissingReason));
+
+        // The margin is withheld while the cost has a hole in it - never computed against a partial.
+        Assert.Equal(50_000, detail.SellingPricePiastres);
+        Assert.Null(detail.FoodCostPercent);
+        Assert.Null(detail.ContributionPiastres);
+    }
+
+    /// <summary>A circular batch is named as one. "No cost for tahini" would send the cost
+    /// controller looking for a purchase invoice that is already there.</summary>
+    [Fact]
+    public async Task A_line_whose_batch_is_circular_says_so_rather_than_looking_unpriced()
+    {
+        var tahini = await CreateItemAsync("طحينة", actorId: _inventoryManagerId);
+        (await _client.PutAsJsonAsync($"/api/inventory/items/{tahini}",
+            new UpdateInventoryItemRequest(tahini, "طحينة", "خامات", "kg", 0, true, false, "Prep", null, _inventoryManagerId)))
+            .EnsureSuccessStatusCode();
+
+        // Stored directly: the server refuses to SAVE one of these now, and the point here is that
+        // a database already holding one is read honestly rather than crashing or lying.
+        await _factory.QueryAsync(async db =>
+        {
+            var prepId = $"prep-{Guid.NewGuid():N}";
+            db.PrepRecipes.Add(new PrepRecipeEntity
+            {
+                Id = prepId, Name = "طحينة", OutputInventoryItemId = tahini,
+                OutputQuantityMilliUnits = 1000, Active = true,
+                Lines = { new PrepRecipeLineEntity { PrepRecipeId = prepId, InventoryItemId = tahini, QuantityMilliUnits = 500 } },
+            });
+            await db.SaveChangesAsync();
+            return 0;
+        });
+
+        var recipeId = $"recipe-{Guid.NewGuid():N}";
+        var productId = await _factory.SeedProductAsync(20_000, recipeId: recipeId);
+        (await _client.PostAsJsonAsync("/api/recipes", new SaveRecipeRequest(
+            $"req-{Guid.NewGuid():N}", recipeId, productId, "صنف", true,
+            new[] { new RecipeLineInput(tahini, 50, "Direct", null) }, _inventoryManagerId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        var detail = await (await _client.GetAsync($"/api/recipes/{recipeId}/cost-detail?actorUserId={_inventoryManagerId}"))
+            .Content.ReadFromJsonAsync<RecipeCostDetailDto>();
+
+        var line = Assert.Single(detail!.Lines);
+        Assert.Equal("Circular", line.CostSource);
+        Assert.Contains("دائرية", line.MissingReason);
+    }
+
+    [Fact]
+    public async Task Cost_coverage_counts_what_can_and_cannot_be_trusted()
+    {
+        var priced = await CreateItemAsync("زيت");
+        await SeedPurchaseReceiptAsync(priced, unitCostPiastres: 2_000);
+
+        var completeRecipe = $"recipe-{Guid.NewGuid():N}";
+        var completeProduct = await _factory.SeedProductAsync(10_000, recipeId: completeRecipe);
+        (await _client.PostAsJsonAsync("/api/recipes", new SaveRecipeRequest(
+            $"req-{Guid.NewGuid():N}", completeRecipe, completeProduct, "مكتمل", true,
+            new[] { new RecipeLineInput(priced, 100, "Direct", null) }, _inventoryManagerId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        var coverage = await (await _client.GetAsync($"/api/recipes/cost-coverage?actorUserId={_inventoryManagerId}"))
+            .Content.ReadFromJsonAsync<RecipeCostCoverageDto>();
+
+        Assert.True(coverage!.FullyCostedCount >= 1);
+        Assert.Equal(coverage.RecipeCount,
+            coverage.FullyCostedCount + coverage.PartlyCostedCount + coverage.UncostedCount);
+    }
+
     [Fact]
     public async Task Saving_an_order_packaging_rule_persists_it()
     {

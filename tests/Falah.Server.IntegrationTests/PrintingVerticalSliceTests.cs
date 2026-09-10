@@ -95,7 +95,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task A_dine_in_table_number_reaches_the_receipt_and_the_kitchen_ticket()
     {
-        var charcoalProduct = await _factory.SeedProductAsync(20_000, preparationStation: "Charcoal");
+        var charcoalProduct = await CreateProductAsync("كباب طاولة", 20_000, "Charcoal");
 
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
@@ -151,6 +151,39 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={checkout!.OrderNumber}"))
             .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
         Assert.Null(looked!.TableNumber);
+    }
+
+    /// <summary>The screen used to list pending jobs only, so a FAILED one - the ticket that never
+    /// came out, which is an order nobody is cooking - was invisible. The overview is what a person
+    /// needs rather than what an agent polls for.</summary>
+    [Fact]
+    public async Task Printing_overview_separates_what_is_queued_from_what_failed()
+    {
+        var charcoalProduct = await CreateProductAsync("كباب اللوحة", 12_000, "Charcoal");
+        var checkout = await CheckoutAsync((charcoalProduct, 1));
+        var jobs = await CreatePrintJobsAsync(checkout.OrderId, "Receipt");
+
+        var failing = jobs!.Jobs.First(j => j.Route == "Charcoal");
+        (await _client.PostAsJsonAsync($"/api/print-jobs/{failing.Id}/report-result",
+            new ReportPrintJobResultRequest($"pra-{Guid.NewGuid():N}", failing.Id, false, "الطابعة مش راضية تطبع", _cashierId)))
+            .EnsureSuccessStatusCode();
+
+        var overview = await (await _client.GetAsync("/api/print-jobs/overview"))
+            .Content.ReadFromJsonAsync<PrintingOverviewDto>();
+
+        var charcoal = Assert.Single(overview!.Routes, r => r.Route == "Charcoal");
+        Assert.Equal(1, charcoal.FailedCount);
+
+        var receipt = Assert.Single(overview.Routes, r => r.Route == "Receipt");
+        Assert.True(receipt.PendingCount >= 1);
+
+        // The failed one is what needs a person, and it carries the reason with it.
+        var attention = Assert.Single(overview.NeedsAttention, j => j.Id == failing.Id);
+        Assert.Equal("Failed", attention.Status);
+        Assert.Contains("مش راضية", attention.LastError);
+
+        // Nothing has been queued long enough to be stuck - that is a different state from failed.
+        Assert.Equal(0, overview.TotalStuckCount);
     }
 
     private Task<CreatePrintJobsResult?> CreatePrintJobsAsync(string orderId, string? customerRoute, bool isReprint = false, string? requestId = null) =>

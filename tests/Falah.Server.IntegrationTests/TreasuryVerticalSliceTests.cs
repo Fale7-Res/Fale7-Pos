@@ -237,6 +237,29 @@ public class TreasuryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(30000, await BalanceAsync("tre-bank"));
     }
 
+    /// <summary>The five balances say what the restaurant HOLDS. This says what it is counting on
+    /// that sits in no account - a transfer nobody confirmed, and cash a driver still has. Leaving
+    /// those off the screen is how a shortfall at the end of a shift becomes a mystery.</summary>
+    [Fact]
+    public async Task Treasury_position_separates_what_is_held_from_what_is_owed()
+    {
+        await OpenBusinessDayAsync();
+        (await _client.PostAsJsonAsync("/api/treasury/deposit", new DepositRequest(
+            $"dep-{Guid.NewGuid():N}", "owner_deposit", 100_000, "tre-main", "تمويل", null, _managerId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        var position = await (await _client.GetAsync($"/api/treasury/position?actorUserId={_managerId}"))
+            .Content.ReadFromJsonAsync<TreasuryPositionDto>();
+
+        Assert.Equal(5, position!.Accounts.Count);
+        Assert.Equal(position.Accounts.Sum(a => a.BalancePiastres), position.TotalInAccountsPiastres);
+
+        // Nothing pending was created here, so both out-of-account figures are zero rather than
+        // absent - and the totals do not quietly fold them into the balances.
+        Assert.Equal(0, position.PendingElectronicPiastres);
+        Assert.Equal(0, position.UnsettledDriverCustodyPiastres);
+    }
+
     [Fact]
     public async Task A_withdrawal_decreases_the_source_balance_and_is_blocked_beyond_it()
     {
