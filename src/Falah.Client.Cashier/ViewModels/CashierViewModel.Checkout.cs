@@ -109,6 +109,9 @@ public partial class CashierViewModel
                 AmountPaidPiastres: amountPiastres,
                 SplitPayments: null,
                 WalletProvider: null,
+                // This client has no table field of its own; the WinUI till is where a dine-in
+                // order is taken. Sending nothing is the honest answer, not a made-up table.
+                TableNumber: null,
                 CustomerName: null,
                 CustomerPhone: null,
                 DeliveryAddress: null,
