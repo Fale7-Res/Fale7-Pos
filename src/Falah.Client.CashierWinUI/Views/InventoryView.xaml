@@ -40,7 +40,11 @@
         </Grid>
 
         <!-- Totals + filters -->
-        <Grid Grid.Row="1" Padding="28,0,28,12" ColumnSpacing="10">
+        <Grid Grid.Row="1" Padding="28,0,28,12" ColumnSpacing="10" RowSpacing="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -85,6 +89,15 @@
                     <Run Text="المنخفض فقط ("/><Run Text="{Binding LowStockCount}"/><Run Text=")"/>
                 </TextBlock>
             </CheckBox>
+
+            <!-- Below zero is not "low". It means receiving is not being recorded, and every
+                 figure derived from that item is standing on a number that cannot be true. -->
+            <Border Grid.Row="1" Grid.ColumnSpan="5" Background="{StaticResource WarningBackgroundBrush}"
+                    CornerRadius="10" Padding="14,10"
+                    Visibility="{Binding HasNegativeBalances, Converter={StaticResource BoolToVisibleConverter}}">
+                <TextBlock Text="{Binding NegativeBalanceWarning}" TextWrapping="Wrap"
+                           Foreground="{StaticResource WarningBrush}" FontWeight="SemiBold"/>
+            </Border>
         </Grid>
 
         <!-- ================ browse mode ================ -->

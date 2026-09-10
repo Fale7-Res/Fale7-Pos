@@ -83,6 +83,15 @@ public partial class InventoryViewModel : ObservableObject
     public bool HasStockValueCaveat => StockValueCaveat.Length > 0;
 
     public string LowStockDisplay => Overview is { } o ? o.LowStockCount.ToString() : "—";
+
+    /// <summary>Stock below zero is not "low", it is impossible - the kitchen consumed what was
+    /// never recorded as received. Said separately from the low-stock count because the action is
+    /// different: enter the missing purchases, do not go and order more.</summary>
+    public string NegativeBalanceWarning =>
+        Overview is not { NegativeBalanceCount: > 0 } o ? ""
+        : $"{o.NegativeBalanceCount} صنف رصيده بالسالب - يعني اتصرف من غير ما يتسجّل استلامه. سجّل فواتير الشراء الناقصة، وقيمة المخزون فوق مش صح من غيرها.";
+
+    public bool HasNegativeBalances => NegativeBalanceWarning.Length > 0;
     public string ItemsWithoutCostDisplay => Overview is { } o ? o.ItemsWithoutCostCount.ToString() : "—";
 
     [RelayCommand]
@@ -121,6 +130,8 @@ public partial class InventoryViewModel : ObservableObject
             OnPropertyChanged(nameof(HasStockValueCaveat));
             OnPropertyChanged(nameof(LowStockDisplay));
             OnPropertyChanged(nameof(ItemsWithoutCostDisplay));
+            OnPropertyChanged(nameof(NegativeBalanceWarning));
+            OnPropertyChanged(nameof(HasNegativeBalances));
         }
     }
 

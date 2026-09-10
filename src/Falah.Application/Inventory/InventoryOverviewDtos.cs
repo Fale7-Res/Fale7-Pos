@@ -21,7 +21,12 @@ public sealed record InventoryOverviewRowDto(
 public sealed record InventoryOverviewDto(
     IReadOnlyList<InventoryOverviewRowDto> Items,
     long KnownStockValuePiastres, int ItemCount, int LowStockCount,
-    int ItemsWithoutCostCount, int ItemsWithoutCostHoldingStockCount);
+    int ItemsWithoutCostCount, int ItemsWithoutCostHoldingStockCount,
+    /// <summary>Items whose balance has gone below zero. Not a rounding artefact and not a warning
+    /// about running low: it means the kitchen has consumed stock that was never recorded as
+    /// received, so every figure derived from that item - its value, its variance, the food cost of
+    /// every dish using it - is standing on a number that cannot be true.</summary>
+    int NegativeBalanceCount = 0);
 
 /// <summary>One movement, with the name of the item it moved. The list used to carry only the id,
 /// which made a movement history unreadable without a second lookup per row.</summary>

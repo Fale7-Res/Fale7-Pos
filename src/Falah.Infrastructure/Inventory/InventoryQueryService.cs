@@ -423,7 +423,8 @@ public sealed class InventoryQueryService
             live.Count,
             live.Count(r => r.IsLowStock),
             live.Count(r => r.UnitCostPiastres is null),
-            live.Count(r => r.UnitCostPiastres is null && r.BalanceMilliUnits > 0));
+            live.Count(r => r.UnitCostPiastres is null && r.BalanceMilliUnits > 0),
+            live.Count(r => r.BalanceMilliUnits < 0));
     }
 
     /// <summary>One item in full - the drill-down behind a row above.</summary>
