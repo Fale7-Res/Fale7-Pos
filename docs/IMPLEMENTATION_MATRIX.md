@@ -146,3 +146,111 @@ six-persona operations audit surfaced. Committed as `578d1a9` on branch
 - The Call Center client renders product photos but has no best-sellers chip, so the two clients disagree about the same menu.
 - `DemoDataSeeder` seeds neither photos nor due dates, so a demo shows category icons throughout and an aging card that is entirely "بدون تاريخ استحقاق".
 - Physical verification is unchanged from item 27's list: Arabic shaping on a real Xprinter with paper in it, the cash-drawer kick, the biometric device, a 15-inch terminal at real DPI, and two-machine LAN operation.
+
+## Acceptance audit and its remediation (2026-09-10)
+
+The system was run end to end against the live server and the real database - roughly seventy HTTP
+calls across cashier, delivery, inventory, purchasing, treasury, payroll and reporting - rather than
+reviewed on paper. The full report is in `docs/FINAL_VERIFICATION_PROGRESS.md`. Verdict at the time:
+**ready with blockers**. Everything below was then fixed and re-verified the same way.
+
+36. ~~**Blocker: orders never reached the kitchen**~~ — **DONE** (2026-09-10): no print job was created
+    at checkout by anything. `CheckoutOrderHandler` contained no reference to `PrintJob`, and in the
+    cashier client the only call site for `CreatePrintJobsAsync` was the manual reprint button in
+    Order Lookup. Worse than the absence: `AutoPrintReceipt`/`AutoPrintPreparationTicket` existed in
+    the database, defaulted to **true**, were editable in the Settings screen, and were read by no
+    code that decides to print - the screen promised something that did not happen. Proven by placing
+    order `#0150` (a Charcoal item) and reading back `print-jobs: []`.
+    `OrderAutoPrintService` now creates the tickets **server-side**, after the sale commits and
+    outside its transaction, because a kitchen ticket must not depend on the client surviving the
+    moment after payment. It never throws - a printer, a queue or a settings read must never roll
+    back money already taken - and its idempotency key is derived from the checkout's own, so a
+    retried checkout returns the same tickets instead of printing the kitchen a second copy. The
+    Call Center's own client-side print call is removed: two independent implementations of "print
+    the order" is exactly how one of them came to be missing. Verified live - one order with a
+    Charcoal item produced `Charcoal` + `Receipt`, and replaying the same checkout still produced
+    exactly two. The restaurant's four printers map onto the four existing `PrintRoute` values
+    (Receipt / CallCenter / Charcoal / Grill), one `Falah.PrintAgent` instance each, and each kitchen
+    ticket already carries only that station's own items.
+    Because a printing failure must never fail the sale, `CheckoutOrderResult` now carries
+    `PrintJobsQueued` and both stations show a warning when tickets could not be queued - otherwise
+    a ticket that never reached the kitchen looks exactly like one that did.
+
+37. ~~**Blocker: no global exception handler**~~ — **DONE** (2026-09-10): `Program.cs` had no
+    `UseExceptionHandler`, so any unhandled failure in any of 171 endpoints reached the caller as a
+    bare 500. `/api/approvals/issue` did exactly that for a missing `action` - the value travelled to
+    the database and failed on a NOT NULL constraint - on the one path that authorises comps, refunds
+    and permission overrides. Confirmed in both environments: Development leaked the table and column
+    name, Production returned 500 with an empty body. The action is now validated in the domain
+    (`AuthorizationPolicy.IssueManagerApproval`), and the handler returns an Arabic message plus a
+    reference while the detail goes to the log.
+
+38. ~~**Eight further defects from the same audit**~~ — **DONE** (2026-09-10):
+    - **Split payment legs were invisible.** Persisted in `SplitPaymentsJson` and used to attribute
+      each channel's total, but absent from `OrderDetailsDto` - so an order reading "multi" could not
+      be reconciled from any screen, receipt or report. Now exposed.
+    - **The wage ratio reported 0% with no wages posted at all** - the same "unknown is not zero"
+      defect already fixed for food cost, sitting in the same card. `ComputeOperatingMargin` now takes
+      a posting count and returns null when nothing was recorded; zero stays zero when entries exist
+      and summed to it.
+    - **An unknown treasury account answered 200 with a balance of zero** instead of 404.
+    - **A mistyped purchase unit cost silently rewrote the restaurant's margin.** This system values
+      an ingredient at its LAST purchase price, so one line becomes the cost basis immediately. Proven
+      by accident during the audit: receiving at 1,500 instead of 15,000 moved a recipe from 2,250 to
+      225 and the day's food cost from 6,750 to 675, with nothing recording that it had happened.
+      `PurchasingRules.DescribeUnitCostChange` now describes the move and `ReceivePurchaseHandler`
+      audits it with previous, new and factor, flagged `warning` at a tenfold change. Deliberately
+      **no block and no threshold policy**: prices move, pack sizes change, and what counts as a
+      reasonable cost is the restaurant's call. The dashboard surfaces the count.
+    - **Nothing said a business day had been open for seven days** - every daily figure and every
+      attendance record was attaching to a date that had ended a week earlier.
+    - **Lateness was measured from when the open shift began**, so a shift left open across days made
+      everyone days late: a normal check-in recorded 6,377 minutes and posted an automatic wage
+      deduction (capped at two penalty hours, so 100 EGP of real money). It now requires a same-day
+      baseline and records no lateness without one, rather than a number it cannot stand behind.
+    - **`DriverOperationalStatus` reached clients as a bare integer**, so a supervisor screen showed
+      "0". The label now travels with the value.
+    - **Recipe profitability required the caller to already know the selling price.** It now resolves
+      the product's own price when none is given.
+
+39. ~~**Two owner-visibility gaps the audit named**~~ — **DONE** (2026-09-10): the four payment-channel
+    figures never summed to "collected" and nothing explained the difference. A settled COD order IS
+    collected, but its money arrives through a driver settlement rather than through any sale's
+    payment leg, so it appears in none of the four. `SettledFromDriversPiastres` now carries that
+    figure and the sales-split card names it. And **payroll**, the one module the audit could not
+    judge because it had never been run end to end, was run for real - which surfaced a refusal that
+    told the operator nothing: `"إجمالي Payroll غير صالح للدفع"` is correct when there is nothing to
+    pay, but the commonest cause is silent - an employee marked Monthly whose monthly salary was never
+    entered computes a base of zero regardless of how many daily-wage entries their ledger holds, and
+    the employee record still shows a `dailyWagePiastres` that looks like a salary. The refusal now
+    names those employees and distinguishes an empty run from one zeroed by deductions.
+    Payroll itself is verified working on the live system: base 600,000 less deductions 10,000 gives
+    net 590,000; payment posts one treasury movement and one settlement; paying again replays without
+    a second movement; treasury moves 756,000 → 166,000 and the employee ledger 15,000 → −575,000,
+    both exactly −590,000. Paying more than the account holds is refused by the protected-balance
+    check. A run created before any wages exist is not a dead end - cancelling it releases the period.
+
+### What the audit confirmed was already sound
+
+Recorded because "we tested it and it held" is worth as much as a fix. All of it verified live, not
+read: checkout idempotency (same key returns the same order, a different key with identical content
+creates a new one); "collected" correctly excluding unconfirmed transfers and cash still with a
+driver; profit reported as **unknown** rather than zero at 0% cost coverage; the full delivery
+lifecycle with custody moving on delivery and closing at settlement with a zero difference; stock
+that cannot drift silently, with variance fully explained by its own movements; eight coded close
+blockers; a genuinely blind shift close; permission refusals in Arabic on every management path; and
+a real 13 MB backup that passed `RESTORE VERIFYONLY`.
+
+### Still open after this pass
+
+- Recipes and ingredients are not costed in the live database - 2 of 29 sold lines had a known cost,
+  so gross profit is honestly reported as unknown. This is data entry, not code, and it is the single
+  biggest thing standing between the owner and a profit figure.
+- The pre-restore safety backup and the restore sequence still need an isolated SQL Server instance.
+- No automated test pushes real image bytes through the product-image endpoint.
+- No integration test for the best-sellers ranking.
+- `DemoDataSeeder` seeds neither photos nor supplier due dates.
+- Physical verification is unchanged: Arabic on a real Xprinter with paper, the cash-drawer kick, the
+  biometric device, a 15-inch terminal at real DPI, and two-machine LAN operation.
+- No screenshots were taken during the audit, so nothing in it judges visual quality - only that
+  every screen constructs without error at 1920x1080 and 1366x768 under 100/125/150% scaling.
