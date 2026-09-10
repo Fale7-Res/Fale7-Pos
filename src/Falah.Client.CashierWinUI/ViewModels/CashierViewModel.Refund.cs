@@ -20,12 +20,46 @@ public partial class CashierViewModel
     public bool CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not "multi", Status: not "cancelled" } order &&
         order.TotalPiastres > order.RefundAmountPiastres;
     public bool LookupHasPendingPayment => OrderLookupResult?.ElectronicPaymentStatus == "pending";
+
+    /// <summary>How a split-paid order was actually paid. The server has recorded the breakdown all
+    /// along and no screen has ever shown it, so an order looked up later said only "multi" - and
+    /// "multi" cannot be reconciled against a drawer or answered to a customer asking which card
+    /// was charged.</summary>
+    public string LookupPaymentBreakdown
+    {
+        get
+        {
+            if (OrderLookupResult?.SplitPayments is not { Count: > 0 } splits)
+                return OrderLookupResult is { } o ? MethodLabel(o.PaymentMethod) : "";
+            return string.Join(" + ", splits.Select(s => $"{MethodLabel(s.Method)} {CashInput.Format(s.AmountPiastres)} ج"));
+        }
+    }
+
+    public bool HasLookupPaymentBreakdown => LookupPaymentBreakdown.Length > 0;
+
+    /// <summary>The table a dine-in order was served at, as it was recorded at the time.</summary>
+    public string LookupTableLine =>
+        OrderLookupResult?.TableNumber is { Length: > 0 } table ? $"طاولة {table}" : "";
+
+    public bool HasLookupTable => LookupTableLine.Length > 0;
+
+    private static string MethodLabel(string method) => method switch
+    {
+        "cash" => "كاش",
+        "card" => "فيزا",
+        "instapay" => "إنستاباي",
+        "wallet" => "محفظة",
+        "multi" => "دفع مقسّم",
+        _ => method,
+    };
     public string RefundRemainingDisplay => CashInput.Format(Math.Max(0, (OrderLookupResult?.TotalPiastres ?? 0) - (OrderLookupResult?.RefundAmountPiastres ?? 0))) + " ج";
     partial void OnIsRefundingChanged(bool value) => RefreshOperationState();
     partial void OnOrderLookupResultChanged(OrderDetailsDto? value)
     {
         OnPropertyChanged(nameof(CanRefundOrder)); OnPropertyChanged(nameof(LookupHasPendingPayment));
         OnPropertyChanged(nameof(RefundRemainingDisplay));
+        OnPropertyChanged(nameof(LookupPaymentBreakdown)); OnPropertyChanged(nameof(HasLookupPaymentBreakdown));
+        OnPropertyChanged(nameof(LookupTableLine)); OnPropertyChanged(nameof(HasLookupTable));
     }
 
     [RelayCommand] private void OpenRefund()

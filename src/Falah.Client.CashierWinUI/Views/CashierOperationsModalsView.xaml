@@ -134,6 +134,22 @@
                                     <TextBlock Grid.Column="1" Text="{Binding OrderLookupResult.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
                                                HorizontalAlignment="Left" FontWeight="Black"/>
                                 </Grid>
+                                <!--
+                                    How it was actually paid. The server has recorded the split
+                                    breakdown all along and no screen ever showed it, so an order
+                                    looked up later said only "دفع مقسّم" - which cannot be
+                                    reconciled against a drawer.
+                                -->
+                                <Grid ColumnSpacing="8" Visibility="{Binding HasLookupPaymentBreakdown, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="الدفع:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding LookupPaymentBreakdown}" HorizontalAlignment="Left" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid ColumnSpacing="8" Visibility="{Binding HasLookupTable, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="المكان:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding LookupTableLine}" HorizontalAlignment="Left"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
 
