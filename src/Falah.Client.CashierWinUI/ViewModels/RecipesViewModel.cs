@@ -35,6 +35,10 @@ public partial class RecipesViewModel : ObservableObject
     {
         public required RecipeCostSummaryDto Cost { get; init; }
 
+        /// <summary>True when the reader has no permission to see costs at all - which is not the
+        /// same as a cost being unknown, and must not be worded as if it were.</summary>
+        public bool CostsHidden { get; init; }
+
         public string Name => Cost.ProductName;
         public string RecipeName => Cost.Name;
         public string CategoryName => Cost.CategoryName ?? "";
@@ -48,7 +52,8 @@ public partial class RecipesViewModel : ObservableObject
         /// read as the whole cost; printing nothing would throw away a real floor. So it is shown,
         /// and shown as a floor.</summary>
         public string CostDisplay =>
-            IsUnknown ? "—"
+            CostsHidden ? "—"
+            : IsUnknown ? "—"
             : IsComplete ? CashInput.Format(Cost.KnownCostPiastres) + " ج"
             : "من " + CashInput.Format(Cost.KnownCostPiastres) + " ج";
 
@@ -61,7 +66,8 @@ public partial class RecipesViewModel : ObservableObject
             Cost.ContributionPiastres is { } c ? CashInput.Format(c) + " ج" : "—";
 
         public string StatusLabel =>
-            Cost.LineCount == 0 ? "وصفة بدون مكوّنات"
+            CostsHidden ? $"{Cost.LineCount} مكوّن"
+            : Cost.LineCount == 0 ? "وصفة بدون مكوّنات"
             : IsComplete ? "تكلفة مكتملة"
             : Cost.KnownLineCount == 0 ? "لا توجد تكلفة لأي مكوّن"
             : $"تكلفة غير مكتملة ({Cost.CompletenessPercent}%)";
@@ -95,7 +101,8 @@ public partial class RecipesViewModel : ObservableObject
     public bool CanEditRecipes => _session.HasPermission("menu_manage");
 
     public string CoverageHeadline =>
-        Coverage is not { } c ? ""
+        !CanViewCost ? "التكاليف مخفية - صلاحيتك تسمح بتحرير الوصفات فقط"
+        : Coverage is not { } c ? ""
         : c.RecipeCount == 0 ? "لا توجد وصفات بعد"
         : $"{c.FullyCostedCount} من {c.RecipeCount} وصفة تكلفتها مكتملة";
 
@@ -120,13 +127,18 @@ public partial class RecipesViewModel : ObservableObject
         LoadError = null;
         try
         {
+            var actor = _session.CurrentUser!.Id;
+
+            // The shell offers this screen to anyone who can manage the menu, and costs are a
+            // separate permission. Someone who may author a recipe but not read cost reports gets
+            // the recipes and their ingredients - which is the authoring half - with the money
+            // withheld and said so, rather than a screen that refuses to load at all.
             if (!CanViewCost)
             {
-                LoadError = "لا تملك صلاحية عرض التكاليف.";
+                await LoadWithoutCostsAsync();
                 return;
             }
 
-            var actor = _session.CurrentUser!.Id;
             var summaries = await _session.Api.GetRecipeCostSummariesAsync(actor);
             if (!summaries.Success || summaries.Value is null)
             {
@@ -157,6 +169,41 @@ public partial class RecipesViewModel : ObservableObject
             OnPropertyChanged(nameof(CoverageDetail));
             OnPropertyChanged(nameof(HasCoverageWarning));
         }
+    }
+
+    /// <summary>The recipe list without any costing: names, categories and ingredient counts. The
+    /// plain recipe list carries no permission gate because it is menu data, not money.</summary>
+    private async Task LoadWithoutCostsAsync()
+    {
+        var recipes = await _session.Api.GetRecipesAsync();
+        if (!recipes.Success || recipes.Value is null)
+        {
+            LoadError = recipes.Error ?? "تعذر تحميل الوصفات.";
+            return;
+        }
+
+        var menu = await _session.Api.GetMenuAsync();
+        var productNames = new Dictionary<string, (string Name, string Category)>();
+        if (menu.Success && menu.Value is not null)
+            foreach (var category in menu.Value.Categories)
+                foreach (var product in category.Products)
+                    productNames[product.Id] = (product.Name, category.Name);
+
+        _allRecipes.Clear();
+        foreach (var recipe in recipes.Value)
+        {
+            var named = productNames.GetValueOrDefault(recipe.ProductId, (Name: recipe.Name, Category: ""));
+            _allRecipes.Add(new RecipeRow
+            {
+                CostsHidden = true,
+                Cost = new RecipeCostSummaryDto(
+                    recipe.Id, recipe.Name, recipe.Active, recipe.ProductId, named.Name, named.Category,
+                    null, 0, 0, 0, 0, recipe.Lines.Count, 0, Array.Empty<string>(), null, null, null),
+            });
+        }
+
+        ApplyFilter();
+        await LoadIngredientsAsync();
     }
 
     private void ApplyFilter()
