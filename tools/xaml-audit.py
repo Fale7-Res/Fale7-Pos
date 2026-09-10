@@ -16,6 +16,8 @@ Catches resource/style failures that compile but crash at runtime, plus unsuppor
   6. An App.xaml resource entry naming a converter class that does not exist. The key resolves,
      so rule 2 sees nothing wrong, and the XAML compiler dies with the same silent exit 1 as
      rule 4 - this one cost a Call Center build.
+  7. More than one child inside a single-child container (ScrollViewer, Border, Viewbox), or a
+     file that is not well-formed XML at all. Same silent exit 1 from XamlCompiler.
   5. A collection converter applied to a bare ViewModel collection property. Filling an
      ObservableCollection raises CollectionChanged, not PropertyChanged on the property holding it,
      so the binding never re-evaluates: every empty state in this app was sitting on top of the
@@ -29,6 +31,7 @@ import io
 import os
 import re
 import sys
+import xml.etree.ElementTree as ElementTree
 
 PROJECTS = [
     "src/Falah.Client.CashierWinUI",
@@ -48,6 +51,36 @@ def load_defined(project):
         for m in re.finditer(r'x:Key="([^"]+)"', s):
             keys.add(m.group(1))
     return targets, keys
+
+
+# WinUI containers that hold exactly one child. Handing them two is a build failure with no
+# message attached to it.
+SINGLE_CHILD = {"ScrollViewer", "Border", "Viewbox"}
+
+
+def audit_structure(project):
+    """XAML is XML: parse it and walk it, rather than guessing at nesting with regexes."""
+    problems = []
+    for f in glob.glob(f"{project}/Views/*.xaml") + glob.glob(f"{project}/Controls/*.xaml") + [f"{project}/App.xaml"]:
+        if not os.path.exists(f):
+            continue
+        name = os.path.relpath(f)
+        try:
+            root = ElementTree.parse(f).getroot()
+        except ElementTree.ParseError as error:
+            problems.append(f"{name}  not well-formed XML: {error}")
+            continue
+
+        for element in root.iter():
+            tag = element.tag.rsplit("}", 1)[-1]
+            if tag not in SINGLE_CHILD:
+                continue
+            # A child whose tag carries a dot is a property element (Border.Background), not content.
+            content = [c for c in element if "." not in c.tag.rsplit("}", 1)[-1]]
+            if len(content) > 1:
+                kinds = ", ".join(c.tag.rsplit("}", 1)[-1] for c in content)
+                problems.append(f"{name}  <{tag}> holds {len(content)} children ({kinds}); it takes one")
+    return problems
 
 
 def audit_converters(project):
@@ -115,7 +148,7 @@ def main():
     found = []
     for project in PROJECTS:
         if os.path.isdir(project):
-            found += audit(project) + audit_converters(project)
+            found += audit(project) + audit_converters(project) + audit_structure(project)
 
     # Same key can be reported by both passes; report each site once.
     found = sorted(set(found))

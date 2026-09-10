@@ -55,31 +55,40 @@
                     </Grid>
                     <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Padding="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,8">
-                            <ItemsControl ItemsSource="{Binding Drivers}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="16,0,16,8" ColumnSpacing="12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}"
-                                                       FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                            <Border Grid.Column="1" CornerRadius="8" Padding="9,3" VerticalAlignment="Center"
-                                                    Background="{Binding Active, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=SuccessPillBrush|NeutralPillBrush}">
-                                                <TextBlock Style="{StaticResource StatusPillText}"
-                                                           Text="{Binding Active, Converter={StaticResource BoolToLabelConverter}, ConverterParameter=نشط|متوقف}"/>
-                                            </Border>
-                                            <Button Grid.Column="2" Content="تبديل الحالة" MinHeight="44" FontSize="12"
-                                                    Style="{StaticResource SecondaryButtonStyle}"
-                                                    IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
-                                                    Command="{Binding ElementName=Root, Path=DataContext.ToggleDriverCommand}"
-                                                    CommandParameter="{Binding}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding Drivers}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="16,0,16,8" ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}"
+                                                           FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                <Border Grid.Column="1" CornerRadius="8" Padding="9,3" VerticalAlignment="Center"
+                                                        Background="{Binding Active, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=SuccessPillBrush|NeutralPillBrush}">
+                                                    <TextBlock Style="{StaticResource StatusPillText}"
+                                                               Text="{Binding Active, Converter={StaticResource BoolToLabelConverter}, ConverterParameter=نشط|متوقف}"/>
+                                                </Border>
+                                                <Button Grid.Column="2" Content="تبديل الحالة" MinHeight="44" FontSize="12"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.ToggleDriverCommand}"
+                                                        CommandParameter="{Binding}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <StackPanel Spacing="8" Padding="20" HorizontalAlignment="Center"
+                                            Visibility="{Binding Drivers.Count, Converter={StaticResource ZeroCountToVisibleConverter}}">
+                                    <TextBlock Text="لا يوجد سائقون مسجّلون" Style="{StaticResource SectionTitleText}"
+                                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                    <TextBlock Text="أضف السائقين اللي بيشتغلوا معاك عشان تقدر تسند لهم الطلبات وتتابع عهدتهم." Style="{StaticResource MutedText}"
+                                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340"/>
+                                </StackPanel>
+                            </StackPanel>
                         </ScrollViewer>
                     </Border>
                 </Grid>
@@ -93,36 +102,45 @@
                     </Grid.ColumnDefinitions>
                     <Border Style="{StaticResource PageCardStyle}" Padding="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,8">
-                            <ItemsControl ItemsSource="{Binding Services}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                                                MinHeight="60" Margin="16,0,16,8" Padding="12,8"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
-                                                Command="{Binding ElementName=Root, Path=DataContext.SelectServiceCommand}"
-                                                CommandParameter="{Binding}">
-                                            <Grid ColumnSpacing="10">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Spacing="2">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"
-                                                               HorizontalAlignment="Right"/>
-                                                    <TextBlock Style="{StaticResource CaptionText}" HorizontalAlignment="Right"
-                                                               Text="{Binding FeePiastres, Converter={StaticResource NullablePiastresToDisplayConverter}}"/>
-                                                </StackPanel>
-                                                <Border Grid.Column="1" CornerRadius="8" Padding="9,3" VerticalAlignment="Center"
-                                                        Background="{Binding Active, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=SuccessPillBrush|NeutralPillBrush}">
-                                                    <TextBlock Style="{StaticResource StatusPillText}"
-                                                               Text="{Binding Active, Converter={StaticResource BoolToLabelConverter}, ConverterParameter=مفعّلة|متوقفة}"/>
-                                                </Border>
-                                            </Grid>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding Services}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                    MinHeight="60" Margin="16,0,16,8" Padding="12,8"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.SelectServiceCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <Grid ColumnSpacing="10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Spacing="2">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                                   HorizontalAlignment="Right"/>
+                                                        <TextBlock Style="{StaticResource CaptionText}" HorizontalAlignment="Right"
+                                                                   Text="{Binding FeePiastres, Converter={StaticResource NullablePiastresToDisplayConverter}}"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="1" CornerRadius="8" Padding="9,3" VerticalAlignment="Center"
+                                                            Background="{Binding Active, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=SuccessPillBrush|NeutralPillBrush}">
+                                                        <TextBlock Style="{StaticResource StatusPillText}"
+                                                                   Text="{Binding Active, Converter={StaticResource BoolToLabelConverter}, ConverterParameter=مفعّلة|متوقفة}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <StackPanel Spacing="8" Padding="20" HorizontalAlignment="Center"
+                                            Visibility="{Binding Services.Count, Converter={StaticResource ZeroCountToVisibleConverter}}">
+                                    <TextBlock Text="لا توجد خدمات توصيل" Style="{StaticResource SectionTitleText}"
+                                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                    <TextBlock Text="خدمة التوصيل هي المنطقة ورسمها - أضفها عشان الكاشير يقدر يختارها على الطلب." Style="{StaticResource MutedText}"
+                                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340"/>
+                                </StackPanel>
+                            </StackPanel>
                         </ScrollViewer>
                     </Border>
 
