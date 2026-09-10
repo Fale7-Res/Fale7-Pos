@@ -1,0 +1,351 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.MenuEditorView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Authoring surface over the existing menu/pricing contracts. Each kind carries its own
+         permission (menu_manage for items and sections, settings_manage for tax, offers_manage for
+         price rules), which the view model enforces - this view only reflects it. Every input is
+         disabled while a write is in flight or unresolved, so a retry can never pick up edited
+         values instead of the values that were actually submitted. -->
+    <Grid Background="#66313D35"
+          Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
+        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="1220" MaxHeight="900"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
+            <Grid RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <controls:ModalHeaderView Title="إدارة القائمة والتسعير" CloseCommand="{Binding CloseCommand}"/>
+
+                <Grid Grid.Row="1" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="الأصناف والأحجام" Style="{StaticResource SegmentButtonStyle}"
+                            HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="products"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=products|WhiteBrush|NeutralBackgroundBrush}"
+                            Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=products|BrandPrimaryBrush|TextMutedBrush}"/>
+                    <Button Grid.Column="1" Content="الأقسام" Style="{StaticResource SegmentButtonStyle}"
+                            HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="categories"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=categories|WhiteBrush|NeutralBackgroundBrush}"
+                            Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=categories|BrandPrimaryBrush|TextMutedBrush}"/>
+                    <Button Grid.Column="2" Content="قواعد الضريبة" Style="{StaticResource SegmentButtonStyle}"
+                            HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="tax"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=tax|WhiteBrush|NeutralBackgroundBrush}"
+                            Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=tax|BrandPrimaryBrush|TextMutedBrush}"/>
+                    <Button Grid.Column="3" Content="عروض الأسعار" Style="{StaticResource SegmentButtonStyle}"
+                            HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="prices"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=prices|WhiteBrush|NeutralBackgroundBrush}"
+                            Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=prices|BrandPrimaryBrush|TextMutedBrush}"/>
+                </Grid>
+
+                <Grid Grid.Row="2" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Catalogue of the selected kind -->
+                    <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid Padding="16,12" ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding KindTitle}" Style="{StaticResource SectionTitleText}"
+                                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                <Button Grid.Column="1" Content="إضافة" MinHeight="44" MinWidth="88"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanEdit}" Command="{Binding NewCommand}"/>
+                            </Grid>
+
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,0,8">
+                                <ItemsControl ItemsSource="{Binding Rows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                    MinHeight="60" Margin="12,0,12,8" Padding="12,8"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.SelectRowCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                               HorizontalAlignment="Right"/>
+                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource CaptionText}"
+                                                               TextWrapping="Wrap" HorizontalAlignment="Right"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                                <ProgressRing IsActive="True" Width="36" Height="36"/>
+                                <TextBlock Text="جاري تحميل البيانات..." Style="{StaticResource MutedText}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        MaxWidth="300" Padding="16"
+                                        Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                                <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}"
+                                           TextAlignment="Center" TextWrapping="Wrap"/>
+                                <Button Content="إعادة المحاولة" MinHeight="44" HorizontalAlignment="Center"
+                                        Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LoadCommand}"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="1" Text="لا توجد بيانات في هذا القسم بعد" Style="{StaticResource MutedText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"
+                                       Visibility="{Binding HasNoRows, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Editor form -->
+                    <Border Grid.Column="1" Style="{StaticResource PageCardStyle}"
+                            Visibility="{Binding HasEditor, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Spacing="14">
+                                <TextBlock Text="{Binding EditorTitle}" Style="{StaticResource SectionTitleText}" TextWrapping="Wrap"/>
+
+                                <TextBox Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                         Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBox Header="الأيقونة (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                         Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibleConverter}}"
+                                         Text="{Binding Icon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBox Header="ترتيب العرض" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                         Visibility="{Binding HasSortOrder, Converter={StaticResource BoolToVisibleConverter}}"
+                                         Text="{Binding SortOrderText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBox Header="السعر بالجنيه" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                         Visibility="{Binding HasPrice, Converter={StaticResource BoolToVisibleConverter}}"
+                                         Text="{Binding PriceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <ComboBox Header="القسم" MinHeight="44" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding IsProduct, Converter={StaticResource BoolToVisibleConverter}}"
+                                          ItemsSource="{Binding CategoryChoices}" DisplayMemberPath="Label"
+                                          SelectedItem="{Binding Category, Mode=TwoWay}"/>
+
+                                <ComboBox Header="محطة التجهيز" MinHeight="44" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding IsProduct, Converter={StaticResource BoolToVisibleConverter}}"
+                                          ItemsSource="{Binding Stations}" DisplayMemberPath="Label"
+                                          SelectedItem="{Binding Station, Mode=TwoWay}"/>
+
+                                <ComboBox Header="الوصفة المرتبطة" MinHeight="44" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding IsProduct, Converter={StaticResource BoolToVisibleConverter}}"
+                                          ItemsSource="{Binding RecipeChoices}" DisplayMemberPath="Label"
+                                          SelectedItem="{Binding Recipe, Mode=TwoWay}"/>
+
+                                <CheckBox Content="يُرسل إلى الشواية" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding IsProduct, Converter={StaticResource BoolToVisibleConverter}}"
+                                          IsChecked="{Binding SendToGrill, Mode=TwoWay}"/>
+
+                                <TextBox Header="نسبة الضريبة بنقاط الأساس (100 = 1%)" MinHeight="44" InputScope="Number"
+                                         IsEnabled="{Binding CanEdit}"
+                                         Visibility="{Binding IsTax, Converter={StaticResource BoolToVisibleConverter}}"
+                                         Text="{Binding TaxRateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <ComboBox Header="طريقة احتساب الضريبة" MinHeight="44" HorizontalAlignment="Stretch"
+                                          IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding IsTax, Converter={StaticResource BoolToVisibleConverter}}"
+                                          ItemsSource="{Binding TaxModes}" DisplayMemberPath="Label"
+                                          SelectedItem="{Binding TaxMode, Mode=TwoWay}"/>
+
+                                <Grid ColumnSpacing="12"
+                                      Visibility="{Binding IsPriceRule, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="من الساعة (24س، مثال 18:30)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding StartTimeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="إلى الساعة" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding EndTimeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+
+                                <CheckBox Content="مفعّلة" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding HasActive, Converter={StaticResource BoolToVisibleConverter}}"
+                                          IsChecked="{Binding Active, Mode=TwoWay}"/>
+
+                                <!-- Product photo. Sits above the sizes because it is the first thing
+                                     an operator notices missing on the POS, and because the panel is
+                                     also where they are told that missing is an acceptable state. -->
+                                <StackPanel Spacing="10"
+                                            Visibility="{Binding IsProduct, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <TextBlock Text="صورة الصنف" Style="{StaticResource SectionTitleText}"/>
+                                    <Grid ColumnSpacing="14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="132" Height="96" CornerRadius="12" Background="{StaticResource NeutralBackgroundBrush}"
+                                                BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                                            <Grid>
+                                                <TextBlock Text="بدون صورة" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <Image Source="{Binding ProductImageUri, Converter={StaticResource ImageUriToSourceConverter}}" Stretch="UniformToFill"
+                                                       Visibility="{Binding HasProductImage, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                            </Grid>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding ImageHint}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Content="اختيار صورة" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                                                        IsEnabled="{Binding CanEditImage}" Command="{Binding ChooseImageCommand}"/>
+                                                <Button Content="حذف الصورة" MinHeight="44" Style="{StaticResource GhostButtonStyle}"
+                                                        Foreground="{StaticResource DangerBrush}"
+                                                        Visibility="{Binding HasProductImage, Converter={StaticResource BoolToVisibleConverter}}"
+                                                        IsEnabled="{Binding CanEditImage}" Command="{Binding RemoveImageCommand}"/>
+                                                <ProgressRing IsActive="{Binding IsImageBusy}" Width="22" Height="22" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Text="JPEG أو PNG أو WebP، بحد أقصى 512 كيلوبايت." Style="{StaticResource CaptionText}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Product sizes -->
+                                <StackPanel Spacing="10"
+                                            Visibility="{Binding IsProduct, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="الأحجام" Style="{StaticResource SectionTitleText}" VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" Content="إضافة حجم" MinHeight="44"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanEdit}" Command="{Binding AddVariantCommand}"/>
+                                    </Grid>
+                                    <TextBlock Text="اتركها فارغة إذا كان الصنف بسعر واحد فقط." Style="{StaticResource CaptionText}"
+                                               TextWrapping="Wrap"/>
+                                    <ItemsControl ItemsSource="{Binding Variants}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{StaticResource NeutralBackgroundBrush}" CornerRadius="12"
+                                                        Padding="12" Margin="0,0,0,8">
+                                                    <Grid ColumnSpacing="10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="170"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox PlaceholderText="اسم الحجم" MinHeight="44"
+                                                                 IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                 Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                        <TextBox Grid.Column="1" PlaceholderText="السعر" MinHeight="44" InputScope="Number"
+                                                                 IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                 Text="{Binding PriceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                        <ComboBox Grid.Column="2" MinHeight="44" HorizontalAlignment="Stretch"
+                                                                  IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                  ItemsSource="{Binding ElementName=Root, Path=DataContext.RecipeChoices}"
+                                                                  DisplayMemberPath="Label" SelectedItem="{Binding Recipe, Mode=TwoWay}"/>
+                                                        <Button Grid.Column="3" Content="حذف" MinHeight="44" MinWidth="72"
+                                                                Style="{StaticResource DangerButtonStyle}"
+                                                                IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                Command="{Binding ElementName=Root, Path=DataContext.RemoveVariantCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <!-- Price rule scope -->
+                                <StackPanel Spacing="10"
+                                            Visibility="{Binding IsPriceRule, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <TextBlock Text="أيام السريان" Style="{StaticResource SectionTitleText}"/>
+                                    <TextBlock Text="اتركها كلها بدون تحديد ليسري العرض كل الأيام." Style="{StaticResource CaptionText}"
+                                               TextWrapping="Wrap"/>
+                                    <ItemsControl ItemsSource="{Binding Days}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Horizontal" ItemWidth="130" ItemHeight="48"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox MinHeight="44" MinWidth="118" Content="{Binding Name}"
+                                                          IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                          IsChecked="{Binding Selected, Mode=TwoWay}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <TextBlock Text="الأصناف المشمولة" Style="{StaticResource SectionTitleText}"/>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="12"
+                                            MaxHeight="260">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                                            <ItemsControl ItemsSource="{Binding PriceProducts}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox MinHeight="44" Content="{Binding Name}"
+                                                                  IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                  IsChecked="{Binding Selected, Mode=TwoWay}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <TextBlock Grid.Column="1" Text="اختر عنصرًا من القائمة لتعديله، أو اضغط إضافة."
+                               Style="{StaticResource MutedText}" TextWrapping="Wrap" MaxWidth="360"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                               Visibility="{Binding HasEditor, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                </Grid>
+
+                <StackPanel Grid.Row="3" Spacing="10">
+                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                            Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Border>
+                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                            Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Border>
+                    <TextBlock Text="ليس لديك صلاحية تعديل هذا القسم؛ يمكنك الاطلاع فقط."
+                               Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                               Visibility="{Binding CanManageKind, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                    <Grid ColumnSpacing="10" Visibility="{Binding HasEditor, Converter={StaticResource BoolToVisibleConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="{Binding StatusActionLabel}" MinHeight="52" MinWidth="150"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                IsEnabled="{Binding CanToggleStatus}"
+                                Visibility="{Binding CanToggleStatus, Converter={StaticResource BoolToVisibleConverter}}"
+                                Command="{Binding ToggleStatusCommand}"/>
+                        <Button Grid.Column="2" Content="{Binding SaveLabel}" MinHeight="52" MinWidth="200"
+                                Style="{StaticResource CtaButtonStyle}"
+                                IsEnabled="{Binding CanEdit}" Command="{Binding SaveCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

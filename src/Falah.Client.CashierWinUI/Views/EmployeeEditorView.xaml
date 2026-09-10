@@ -1,0 +1,213 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.EmployeeEditorView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Roster authoring. Gated on employees_manage, which is deliberately not the same permission
+         as the ledger money actions on the parent screen. All compensation fields stay visible for
+         every compensation type: the record holds them independently, and hiding one would quietly
+         drop a value the employee already has. -->
+    <Grid Background="#66313D35"
+          Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
+        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="1180" MaxHeight="900"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
+            <Grid RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <controls:ModalHeaderView Title="بيانات الموظفين" CloseCommand="{Binding CloseCommand}"/>
+
+                <Grid Grid.Row="1" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="330"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid Padding="16,12" ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الموظفون" Style="{StaticResource SectionTitleText}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="موظف جديد" MinHeight="44"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanEdit}" Command="{Binding NewCommand}"/>
+                            </Grid>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,0,8">
+                                <ItemsControl ItemsSource="{Binding Roster}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                    MinHeight="60" Margin="12,0,12,8" Padding="12,8"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.SelectCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                               HorizontalAlignment="Right"/>
+                                                    <TextBlock Style="{StaticResource CaptionText}" HorizontalAlignment="Right"
+                                                               TextWrapping="Wrap">
+                                                        <Run Text="{Binding EmployeeNumber}"/><Run Text=" • "/><Run Text="{Binding JobTitle}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource PageCardStyle}"
+                            Visibility="{Binding HasForm, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Spacing="14">
+                                <TextBlock Text="{Binding FormTitle}" Style="{StaticResource SectionTitleText}" TextWrapping="Wrap"/>
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="الرقم الوظيفي" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding EmployeeNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="المسمى الوظيفي" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="رقم الهاتف" MinHeight="44" InputScope="TelephoneNumber"
+                                             IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <DatePicker Header="تاريخ التعيين" MinHeight="44" HorizontalAlignment="Stretch"
+                                                IsEnabled="{Binding CanEdit}" Date="{Binding HireDate, Mode=TwoWay}"/>
+                                    <ComboBox Grid.Column="1" Header="نوع الأجر" MinHeight="44" HorizontalAlignment="Stretch"
+                                              IsEnabled="{Binding CanEdit}" ItemsSource="{Binding CompensationTypes}"
+                                              DisplayMemberPath="Label" SelectedItem="{Binding CompensationType, Mode=TwoWay}"/>
+                                </Grid>
+
+                                <TextBlock Text="الأجر" Style="{StaticResource SectionTitleText}"/>
+                                <TextBlock Text="السجل يحتفظ بالثلاثة معًا؛ كشف الرواتب يستخدم ما يناسب نوع أجر الموظف. اترك ما لا ينطبق فارغًا."
+                                           Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="الأجر اليومي" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding DailyWageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="قيمة الوردية" MinHeight="44" InputScope="Number"
+                                             IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding ShiftValueText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="الراتب الشهري (اختياري)" MinHeight="44" InputScope="Number"
+                                             IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding MonthlySalaryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="قيمة ساعة الإضافي (اختياري)" MinHeight="44" InputScope="Number"
+                                             IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding OvertimeRateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+
+                                <TextBlock Text="بيانات إضافية" Style="{StaticResource SectionTitleText}"/>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox Header="نظام العمل" MinHeight="44" HorizontalAlignment="Stretch"
+                                              IsEnabled="{Binding CanEdit}" ItemsSource="{Binding Arrangements}"
+                                              DisplayMemberPath="Label" SelectedItem="{Binding Arrangement, Mode=TwoWay}"/>
+                                    <ComboBox Grid.Column="1" Header="حالة الخدمة" MinHeight="44" HorizontalAlignment="Stretch"
+                                              IsEnabled="{Binding CanEdit}" ItemsSource="{Binding LifecycleStatuses}"
+                                              DisplayMemberPath="Label" SelectedItem="{Binding LifecycleStatus, Mode=TwoWay}"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="القسم (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="الدور (اختياري — يُستخدم المسمى الوظيفي إن تُرك فارغًا)"
+                                             MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Header="الرقم القومي (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding NationalId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Header="معرّف البصمة (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                             Text="{Binding FingerprintId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                                <TextBox Header="العنوان (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                         Text="{Binding Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Header="ملاحظات (اختياري)" MinHeight="88" AcceptsReturn="True" TextWrapping="Wrap"
+                                         IsEnabled="{Binding CanEdit}"
+                                         Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <CheckBox Content="يمكنه العمل كسائق توصيل" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                          IsChecked="{Binding CanDeliver, Mode=TwoWay}"/>
+                                <CheckBox Content="على رأس العمل" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                          Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibleConverter}}"
+                                          IsChecked="{Binding IsActive, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <TextBlock Grid.Column="1" Text="اختر موظفًا لتعديل بياناته، أو اضغط موظف جديد."
+                               Style="{StaticResource MutedText}" TextWrapping="Wrap" MaxWidth="360"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                               Visibility="{Binding HasForm, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                </Grid>
+
+                <StackPanel Grid.Row="2" Spacing="10">
+                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                            Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Border>
+                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                            Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Border>
+                    <Button Content="{Binding SaveLabel}" MinHeight="52" MinWidth="220" HorizontalAlignment="Left"
+                            Style="{StaticResource CtaButtonStyle}" IsEnabled="{Binding CanEdit}"
+                            Visibility="{Binding HasForm, Converter={StaticResource BoolToVisibleConverter}}"
+                            Command="{Binding SaveCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

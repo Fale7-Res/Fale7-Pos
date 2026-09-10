@@ -94,6 +94,9 @@ public sealed class UpdateProductHandler
 
     public async Task HandleAsync(UpdateProductRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var receiptId = CommandReceipt.Id("product-update", request.RequestId);
+        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.ProductId, request.ActorUserId, ct) is not null) return;
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم الصنف مطلوب.");
         if (request.BasePricePiastres <= 0) throw new DomainException("السعر الأساسي يجب أن يكون أكبر من صفر.");
         var station = MenuValidation.AssertValidStation(request.PreparationStation);
@@ -140,11 +143,12 @@ public sealed class UpdateProductHandler
         }
 
         _auditLog.Append(new AuditEvent(
-            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             $"تعديل صنف بالمنيو: {entity.Name}", "menu",
             $"السعر: {entity.BasePricePiastres} قرش، فحم: {(entity.SendToGrill ? "نعم" : "لا")}",
             "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }
 
@@ -165,20 +169,24 @@ public sealed class SetProductAvailabilityHandler
 
     public async Task HandleAsync(SetProductAvailabilityRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var receiptId = CommandReceipt.Id("product-status", request.RequestId);
+        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.ProductId, request.ActorUserId, ct) is not null) return;
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "menu_manage");
 
         var entity = await _db.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId, ct)
             ?? throw new InvalidOperationException("الصنف غير موجود.");
-        if (entity.IsAvailable == request.IsAvailable) return;
+        if (entity.IsAvailable == request.IsAvailable && request.RequestId is null) return;
 
         entity.IsAvailable = request.IsAvailable;
         _auditLog.Append(new AuditEvent(
-            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             request.IsAvailable ? $"إتاحة صنف: {entity.Name}" : $"إخفاء صنف: {entity.Name}", "menu",
             $"الصنف {entity.Id}", "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }
 

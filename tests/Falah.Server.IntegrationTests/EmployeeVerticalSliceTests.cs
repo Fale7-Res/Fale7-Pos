@@ -156,7 +156,8 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
         var request = new RecordEmployeeCashOutRequest($"req-{Guid.NewGuid():N}", employee.Id, "advance", 5000, "سلفة", _shiftId, _hrUserId, null, null);
         var tasks = Enumerable.Range(0, 6).Select(_ => _client.PostAsJsonAsync($"/api/employees/{employee.Id}/cash-out", request));
         var responses = await Task.WhenAll(tasks);
-        Assert.All(responses, r => Assert.True(r.IsSuccessStatusCode, $"unexpected status {r.StatusCode}"));
+        foreach (var response in responses)
+            Assert.True(response.IsSuccessStatusCode, $"unexpected status {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
 
         var entryCount = await _factory.QueryAsync(db => db.EmployeeLedgerEntries.CountAsync(e => e.EmployeeId == employee.Id));
         Assert.Equal(1, entryCount);
@@ -172,6 +173,36 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
         var response = await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/cash-out",
             new RecordEmployeeCashOutRequest($"req-{Guid.NewGuid():N}", employee.Id, "withdrawal", 20000, "سحب", _shiftId, _hrUserId, null, null));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("advance")]
+    [InlineData("withdrawal")]
+    public async Task Concurrent_cash_out_replays_do_not_reconsume_approval_or_recheck_spent_balances(string kind)
+    {
+        var employee = await CreateEmployeeAsync();
+        if (kind == "withdrawal")
+            (await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/ledger-entries",
+                new RecordManualLedgerEntryRequest(employee.Id, "DailyWage", 50000, true, "رصيد مستحق", _hrUserId, null, null))).EnsureSuccessStatusCode();
+        var issued = await _client.PostAsJsonAsync("/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_managerId, "employees_ledger", "اعتماد صرف"));
+        issued.EnsureSuccessStatusCode();
+        var approval = await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
+        // The first commit consumes the approval and empties the drawer (and, for a
+        // withdrawal, the employee balance). All duplicates must return that commit.
+        var request = new RecordEmployeeCashOutRequest($"req-{Guid.NewGuid():N}", employee.Id, kind,
+            50000, "اعتماد صرف", _shiftId, _cashierId, approval!.ApprovalId, _managerId);
+        var responses = await Task.WhenAll(Enumerable.Range(0, 6)
+            .Select(_ => _client.PostAsJsonAsync($"/api/employees/{employee.Id}/cash-out", request)));
+        var results = new List<EmployeeCashOutResult>();
+        foreach (var response in responses)
+        {
+            Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+            results.Add((await response.Content.ReadFromJsonAsync<EmployeeCashOutResult>())!);
+        }
+        Assert.Single(results, r => !r.WasReplayed);
+        Assert.Single(results.Select(r => r.LedgerEntryId).Distinct());
+        Assert.Equal(1, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.Id == results[0].TreasuryMovementId)));
     }
 
     [Fact]

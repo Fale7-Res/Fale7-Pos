@@ -77,6 +77,9 @@ public sealed class UpdateCategoryHandler
 
     public async Task HandleAsync(UpdateCategoryRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var receiptId = CommandReceipt.Id("category-update", request.RequestId);
+        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.CategoryId, request.ActorUserId, ct) is not null) return;
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم القسم مطلوب.");
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -90,10 +93,11 @@ public sealed class UpdateCategoryHandler
         entity.SortOrder = request.SortOrder;
 
         _auditLog.Append(new AuditEvent(
-            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             $"تعديل قسم بالمنيو: {entity.Name}", "menu", $"تعديل القسم {entity.Id}", "normal", DateTimeOffset.UtcNow,
             ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }
 
@@ -114,19 +118,23 @@ public sealed class SetCategoryActiveHandler
 
     public async Task HandleAsync(SetCategoryActiveRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var receiptId = CommandReceipt.Id("category-status", request.RequestId);
+        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.CategoryId, request.ActorUserId, ct) is not null) return;
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "menu_manage");
 
         var entity = await _db.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId, ct)
             ?? throw new InvalidOperationException("القسم غير موجود.");
-        if (entity.Active == request.Active) return;
+        if (entity.Active == request.Active && request.RequestId is null) return;
 
         entity.Active = request.Active;
         _auditLog.Append(new AuditEvent(
-            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             request.Active ? $"تفعيل قسم: {entity.Name}" : $"تعطيل قسم: {entity.Name}", "menu",
             $"القسم {entity.Id}", "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }

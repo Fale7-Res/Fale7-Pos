@@ -379,25 +379,14 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
 
     // ---- Rate limiting ----
 
-    /// <summary>Test-infrastructure fix, not a production change: this test previously raced a real
-    /// 60-second wall-clock fixed window against however long ELEVEN sequential HTTP round-trips
-    /// happen to take when the whole ~430-test suite is hammering the same shared SQL Server
-    /// instance concurrently - under that load, an individual request's latency can spike enough
-    /// that the window rolls over before the 11th request lands, so the loop exhausted its retries
-    /// without ever seeing 429 (a real, reproducible flake, not a one-off; confirmed passing every
-    /// time in isolation, only failing under full-suite load). The fix widens the window, not
-    /// narrows it - a SHORTER window makes exactly this race worse, since it gives the same slow
-    /// requests even less slack to land inside one window. RateLimit:Login:WindowSeconds/PermitLimit
-    /// are configuration-overridable specifically so this test can use a window wide enough
-    /// (5 minutes) to make a rollover during 11 quick requests essentially impossible regardless of
-    /// ambient load, while production (no override present) keeps the exact same 1-minute/10-request
-    /// default it always had - the limiter itself is untouched, only how much slack this one test
-    /// gives itself. Uses its own dedicated factory/database (not the class's shared _factory) so
-    /// the widened window can never affect any other test's login calls in this class.</summary>
+    /// <summary>A dedicated factory isolates this limiter from other login tests. The permit count
+    /// deliberately differs from the production default: this also proves the final host's
+    /// configuration reaches the limiter, instead of accidentally testing captured defaults.
+    /// The generous window prevents slow SQL/CI hosts from racing the window boundary.</summary>
     [Fact]
     public async Task Repeated_failed_logins_from_the_same_client_eventually_hit_the_rate_limit()
     {
-        const int permitLimit = 10;
+        const int permitLimit = 2;
         using var rateLimitFactory = new FalahApiFactory(configOverrides: new Dictionary<string, string?>
         {
             ["RateLimit:Login:WindowSeconds"] = "300",

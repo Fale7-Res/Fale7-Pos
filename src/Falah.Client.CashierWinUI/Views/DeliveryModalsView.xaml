@@ -1,0 +1,190 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryModalsView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Assign / record-outcome / driver-settlement dialogs, split out of DeliveryView so that file
+         keeps a single templated region per concern (same file-splitting discipline the Cashier
+         screens follow for the documented XamlCompiler crash). -->
+    <Grid>
+
+        <!-- ================= ASSIGN TO DRIVER ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsAssignOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="24" Width="440"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <controls:ModalHeaderView Title="إسناد الطلب لسائق" CloseCommand="{Binding CloseAssignCommand}"/>
+                    <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                        <Run Text="الطلب "/><Run Text="{Binding AssignTarget.OrderNumber}" FontWeight="Bold"/>
+                        <Run Text=" — للتحصيل "/><Run Text="{Binding AssignTarget.AmountToCollectPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                    </TextBlock>
+
+                    <!-- Assignment IS physical receipt in this system: handing the order to the driver
+                         and opening their cash custody happen in one server-side step. -->
+                    <TextBlock Text="اختيار السائق يعني تسليمه الطلب وفتح عهدة نقدية باسمه."
+                               Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+
+                    <ComboBox IsEnabled="{Binding CanEditAction}" Header="السائق" HorizontalAlignment="Stretch" MinHeight="44"
+                              ItemsSource="{Binding Drivers}" SelectedItem="{Binding AssignDriver, Mode=TwoWay}"
+                              DisplayMemberPath="Name"/>
+
+                    <TextBlock Text="{Binding AssignError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Visibility="{Binding AssignError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                    <Button Content="تأكيد الإسناد" MinHeight="52" HorizontalAlignment="Stretch"
+                            Style="{StaticResource CtaButtonStyle}" Command="{Binding ConfirmAssignCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ================= RECORD OUTCOME ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsOutcomeOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="24" Width="460" MaxHeight="640"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <controls:ModalHeaderView Title="تسجيل نتيجة التوصيل" CloseCommand="{Binding CloseOutcomeCommand}"/>
+                        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                            <Run Text="الطلب "/><Run Text="{Binding OutcomeTarget.OrderNumber}" FontWeight="Bold"/>
+                            <Run Text=" — مع "/><Run Text="{Binding OutcomeTarget.DriverName}"/>
+                        </TextBlock>
+
+                        <Grid ColumnSpacing="6" Background="#F0F3EF" CornerRadius="12" Padding="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="تم التسليم" Style="{StaticResource SegmentButtonStyle}" FontSize="12"
+                                    Command="{Binding SetOutcomeResultCommand}" CommandParameter="delivered"
+                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivered|WhiteBrush|TransparentBrush}"
+                                    Foreground="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivered|BrandPrimaryBrush|TextMutedBrush}"/>
+                            <Button Grid.Column="1" Content="فشل" Style="{StaticResource SegmentButtonStyle}" FontSize="12"
+                                    Command="{Binding SetOutcomeResultCommand}" CommandParameter="failed"
+                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=failed|WhiteBrush|TransparentBrush}"
+                                    Foreground="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=failed|BrandPrimaryBrush|TextMutedBrush}"/>
+                            <Button Grid.Column="2" Content="مرتجع" Style="{StaticResource SegmentButtonStyle}" FontSize="12"
+                                    Command="{Binding SetOutcomeResultCommand}" CommandParameter="returned"
+                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=returned|WhiteBrush|TransparentBrush}"
+                                    Foreground="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=returned|BrandPrimaryBrush|TextMutedBrush}"/>
+                        </Grid>
+
+                        <!-- Delivered: the amount actually collected. A variance from the expected
+                             figure requires a reason - enforced server-side by AssertCollectionAmount. -->
+                        <StackPanel Spacing="8" Visibility="{Binding IsDeliveredOutcome, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المحصّل بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                     Text="{Binding OutcomeCollectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="أي فرق عن المبلغ المتوقع يستوجب كتابة سبب." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <!-- Failed: a fixed reason code, not free text - the server rejects anything
+                             outside its own ValidFailureReasons set. -->
+                        <StackPanel Spacing="8" Visibility="{Binding IsFailedOutcome, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="سبب الفشل" Style="{StaticResource MutedText}"/>
+                            <ItemsControl ItemsSource="{Binding FailureReasons}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" MinHeight="44" Margin="0,0,0,6"
+                                                Style="{StaticResource SecondaryButtonStyle}" Content="{Binding Label}"
+                                                Command="{Binding ElementName=Root, Path=DataContext.SetFailureReasonCommand}"
+                                                CommandParameter="{Binding Code}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <TextBox IsEnabled="{Binding CanEditAction}" Header="السبب / ملاحظة" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
+                                 Text="{Binding OutcomeReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Text="{Binding OutcomeError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" TextAlignment="Center"
+                                   Visibility="{Binding OutcomeError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                        <Button Content="حفظ النتيجة" MinHeight="52" HorizontalAlignment="Stretch"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding ConfirmOutcomeCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ================= DRIVER ACCOUNT + SETTLEMENT ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsDriverAccountOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="24" Width="480" MaxHeight="700"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <controls:ModalHeaderView Title="{Binding AccountDriver.Name}" CloseCommand="{Binding CloseDriverAccountCommand}"/>
+
+                        <ProgressRing IsActive="True" Width="32" Height="32" HorizontalAlignment="Center"
+                                      Visibility="{Binding IsLoadingAccount, Converter={StaticResource BoolToVisibleConverter}}"/>
+
+                        <StackPanel Spacing="10" Visibility="{Binding DriverAccount, Converter={StaticResource NullToCollapsedConverter}}">
+                            <Border Background="#F8FAF7" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="14" Padding="16">
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="طلبات جارية" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding DriverAccount.ActiveOrderCount}" FontWeight="SemiBold"/>
+                                    </Grid>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="طلبات منتهية غير مسوّاة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding DriverAccount.CompletedUnsettledCount}" FontWeight="SemiBold"/>
+                                    </Grid>
+                                    <Border Height="1" Background="{StaticResource CardBorderBrush}"/>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="العهدة النقدية المستحقة" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}"
+                                                   Text="{Binding DriverAccount.CashCustodyPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Settlement is driver-scoped and all-or-nothing: the server refuses while
+                                 any of this driver's orders is still out for delivery, and names them. -->
+                            <StackPanel Spacing="8" Visibility="{Binding DriverAccount.BlockingOrders, Converter={StaticResource NonEmptyCollectionToVisibleConverter}}">
+                                <TextBlock Text="لا يمكن التسوية الآن - طلبات ما زالت في الطريق:" Foreground="{StaticResource WarningBrush}"
+                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                <ItemsControl ItemsSource="{Binding DriverAccount.BlockingOrders}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Style="{StaticResource CaptionText}" Margin="0,0,0,4">
+                                                <Run Text="• "/><Run Text="{Binding OrderNumber}"/>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المسلَّم فعليًا بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                     Text="{Binding SettleActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox IsEnabled="{Binding CanEditAction}" Header="سبب الفارق (إلزامي عند وجود فرق)" MinHeight="44" TextWrapping="Wrap"
+                                     Text="{Binding SettleReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <StackPanel Spacing="6" Visibility="{Binding SettlementNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                                <TextBlock Text="اعتماد فارق التسليم يحتاج صلاحية إضافية - أدخل رمز المدير المخوّل."
+                                           Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                             Password="{Binding SettleManagerPin, Mode=TwoWay}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding SettleError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" TextAlignment="Center"
+                                       Visibility="{Binding SettleError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                            <TextBlock Text="{Binding SettleNote}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" TextAlignment="Center"
+                                       Visibility="{Binding SettleNote, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                            <Button Content="تسوية العهدة" MinHeight="52" HorizontalAlignment="Stretch"
+                                    Style="{StaticResource CtaButtonStyle}" Command="{Binding SettleDriverCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

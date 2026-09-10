@@ -42,12 +42,18 @@ public sealed class PayPayrollHandler
             throw new DomainException("حساب الدفع غير صالح لصرف Payroll.");
 
         var idempotencyKey = $"payroll-payment-{request.PayrollRunId}";
-        var existingMovement = await _db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
-        if (existingMovement is not null)
+
+        async Task<PayPayrollResult?> LoadReplayAsync()
         {
-            var settledCount = await _db.PayrollLines.AsNoTracking().CountAsync(l => l.PayrollRunId == request.PayrollRunId && l.Status == "paid", ct);
-            return new PayPayrollResult(existingMovement.Id, existingMovement.AmountPiastres, settledCount, WasReplayed: true);
+            var movement = await _db.TreasuryMovements.AsNoTracking()
+                .FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
+            if (movement is null) return null;
+            var settledCount = await _db.PayrollLines.AsNoTracking()
+                .CountAsync(l => l.PayrollRunId == request.PayrollRunId && l.Status == "paid", ct);
+            return new PayPayrollResult(movement.Id, movement.AmountPiastres, settledCount, WasReplayed: true);
         }
+
+        if (await LoadReplayAsync() is { } alreadyPaid) return alreadyPaid;
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -55,6 +61,15 @@ public sealed class PayPayrollHandler
 
         var run = await _db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)
             ?? throw new InvalidOperationException("مسير الرواتب غير موجود.");
+        if (run.Status == nameof(PayrollRunStatus.Paid))
+        {
+            // A concurrent request settled this run between the idempotency lookup above and this
+            // read. A paid run is not an unapproved one: the caller must see the same result the
+            // winning request saw, not a rejection that would send an operator to pay it again.
+            // Reading Paid here proves the winner committed, and its movement commits in the same
+            // transaction, so the replay is guaranteed to be visible.
+            if (await LoadReplayAsync() is { } settledConcurrently) return settledConcurrently;
+        }
         if (run.Status != nameof(PayrollRunStatus.Approved))
             throw new DomainException("يجب اعتماد مسير الرواتب قبل الدفع.");
 
@@ -127,12 +142,7 @@ public sealed class PayPayrollHandler
         catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException)
         {
             await transaction.RollbackAsync(ct);
-            var replay = await _db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
-            if (replay is not null)
-            {
-                var settledCount = await _db.PayrollLines.AsNoTracking().CountAsync(l => l.PayrollRunId == request.PayrollRunId && l.Status == "paid", ct);
-                return new PayPayrollResult(replay.Id, replay.AmountPiastres, settledCount, WasReplayed: true);
-            }
+            if (await LoadReplayAsync() is { } replay) return replay;
             throw new TreasuryConflictException("تعذر صرف Payroll بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }

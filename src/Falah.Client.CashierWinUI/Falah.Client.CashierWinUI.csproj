@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.260224002" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
   </ItemGroup>
@@ -37,5 +37,18 @@
   <ItemGroup>
     <ProjectReference Include="..\Falah.Application\Falah.Application.csproj" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(FooterLayoutProbe)' == 'true'">
+    <DefineConstants>$(DefineConstants);FOOTER_LAYOUT_PROBE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(FooterLayoutProbe)' == 'true'">
+    <Compile Include="../../tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs" Link="Verification/NativeFooterLayoutProbe.cs" />
+  </ItemGroup>
 
+  <PropertyGroup Condition="'$(ScreenLayoutProbe)' == 'true'">
+    <DefineConstants>$(DefineConstants);SCREEN_LAYOUT_PROBE;CASHIER_LAYOUT_PROBE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(ScreenLayoutProbe)' == 'true'">
+    <Compile Include="../../tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs" Link="Verification/NativeScreenLayoutProbe.cs" />
+    <Compile Include="../../tests/Falah.Client.Tests/NativeManagementLayoutProbe.cs" Link="Verification/NativeManagementLayoutProbe.cs" />
+  </ItemGroup>
 </Project>

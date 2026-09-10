@@ -1,0 +1,15 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Controls.SparklineView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- WinUI ships no chart control, so the trend is drawn from path geometry computed in the
+         code-behind. That is deliberate rather than reluctant: a sparkline is a handful of points,
+         and taking a charting dependency for it would add far more risk than it removes. -->
+    <Grid x:Name="Surface" Background="Transparent">
+        <Path x:Name="AreaPath" Opacity="0.14"/>
+        <Path x:Name="LinePath" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+        <Ellipse x:Name="EndPoint" Width="5" Height="5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBlock x:Name="FlatLabel" Text="—" FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+    </Grid>
+</UserControl>

@@ -18,10 +18,20 @@
 
         <!-- Persistent connectivity banner - only takes space when actually offline, so it never
              steals a pixel from the workspace during normal operation. -->
-        <Border x:Name="OfflineBanner" Grid.Row="1" Background="{StaticResource DangerBrush}" Padding="8" Visibility="Collapsed">
+        <StackPanel Grid.Row="1">
+        <Border x:Name="OfflineBanner" Background="{StaticResource DangerBrush}" Padding="8" Visibility="Collapsed">
             <TextBlock Text="⚠ غير متصل بالسيرفر - تحقق من تشغيل Falah.Server" Foreground="White" FontWeight="Bold"
                        HorizontalAlignment="Center" FontFamily="{StaticResource AppFontFamily}"/>
         </Border>
+        <InfoBar x:Name="CloseNotice" IsOpen="{Binding IsCloseBlocked, Mode=TwoWay}" Severity="Warning" IsClosable="True"
+                 Title="العملية لم تُحسم بعد" Message="أكمل التحقق من العملية الحالية قبل إغلاق البرنامج."/>
+        <!-- Operations that were still in flight when the station last stopped - a power cut mid
+             payment is the case this exists for. Nothing is re-sent from here. -->
+        <InfoBar x:Name="RecoveredNotice" Severity="Warning" IsClosable="True"
+                 IsOpen="{Binding RecoveredOperationsNotice, Converter={StaticResource NullToBoolConverter}}"
+                 CloseButtonCommand="{Binding DismissRecoveredNoticeCommand}"
+                 Title="عمليات لم تُحسم من تشغيل سابق" Message="{Binding RecoveredOperationsNotice}"/>
+        </StackPanel>
 
         <ContentControl x:Name="RootContent" Grid.Row="2"
                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>

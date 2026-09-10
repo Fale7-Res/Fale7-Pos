@@ -1,3 +1,4 @@
+using Falah.Client.CashierWinUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Shifts;
@@ -13,7 +14,9 @@ public partial class CashierViewModel
     [RelayCommand]
     private async Task OpenShiftAsync()
     {
-        if (!decimal.TryParse(OpeningCashText, out var openingEgp) || openingEgp < 0)
+        if (IsOpeningShift || IsInitializing || !CanOpenShift) return;
+        if (_pendingOpenShift is not null) { IsOpeningShift = true; try { await CompleteOpenShiftAsync(_pendingOpenShift); } finally { IsOpeningShift = false; } return; }
+        if (!CashInput.TryParse(OpeningCashText, out var openingEgp) || openingEgp < 0)
         {
             OpenShiftError = "أدخل رصيدًا افتتاحيًا صحيحًا.";
             return;
@@ -23,28 +26,43 @@ public partial class CashierViewModel
         OpenShiftError = null;
         try
         {
+            if (_pendingOpenShift is not null) { await CompleteOpenShiftAsync(_pendingOpenShift); return; }
+
             var request = new OpenShiftRequest(
-                RequestId: $"open-{Guid.NewGuid():N}",
+                RequestId: _OpenShiftRequestId,
                 ShiftName: DateTime.Now.Hour < 16 ? "صباحية" : "مسائية",
                 OpenedByUserId: _session.CurrentUser!.Id,
-                OpeningCashPiastres: (long)Math.Round(openingEgp * 100m));
+                OpeningCashPiastres: openingEgp);
 
-            var result = await _session.Api.OpenShiftAsync(request);
-            if (!result.Success || result.Value is null)
-            {
-                OpenShiftError = result.Error ?? "تعذر فتح الوردية.";
-                return;
-            }
-
-            _session.ShiftId = result.Value.ShiftId;
-            _session.ShiftName = result.Value.ShiftName;
-            OnPropertyChanged(nameof(IsShiftOpen));
-            _header.Refresh();
-            await LoadMenuAsync();
+            await CompleteOpenShiftAsync(request);
         }
         finally
         {
             IsOpeningShift = false;
         }
     }
+    private OpenShiftRequest? _pendingOpenShift;
+    private string _OpenShiftRequestId = Guid.NewGuid().ToString("N");
+    private async Task CompleteOpenShiftAsync(OpenShiftRequest request)
+    {
+        var wasUnresolved = _pendingOpenShift is not null;
+        _pendingOpenShift = request;
+        RefreshOperationState();
+        var result = await _session.Api.OpenShiftAsync(request);
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingOpenShift = null;
+        if (result.Success) _OpenShiftRequestId = Guid.NewGuid().ToString("N");
+        RefreshOperationState();
+        if (!result.Success || result.Value is null)
+        {
+            OpenShiftError = result.Error ?? "تعذر فتح الوردية.";
+            return;
+        }
+
+        _session.ShiftId = result.Value.ShiftId;
+        _session.ShiftName = result.Value.ShiftName;
+        OnPropertyChanged(nameof(IsShiftOpen));
+        _header.Refresh();
+        await LoadMenuAsync();
+    }
+
 }

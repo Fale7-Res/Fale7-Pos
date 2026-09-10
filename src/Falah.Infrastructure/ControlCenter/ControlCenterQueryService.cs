@@ -14,6 +14,15 @@ public sealed class ControlCenterQueryService
     private readonly FalahDbContext _db;
     public ControlCenterQueryService(FalahDbContext db) => _db = db;
 
+    /// <summary>Closed days must remain discoverable for review/reopen after the current-day
+    /// endpoint correctly returns 404. This read does not change close snapshots or financial data.</summary>
+    public async Task<IReadOnlyList<BusinessDayDto>> ListBusinessDaysAsync(CancellationToken ct = default)
+    {
+        var days = await _db.BusinessDays.AsNoTracking().OrderByDescending(d => d.OpenedAtUtc).ToListAsync(ct);
+        return days.Select(day => new BusinessDayDto(day.Id, day.BusinessDate.ToString("yyyy-MM-dd"), day.Status,
+            day.CloseRevision, day.SnapshotId, day.ReopenReason, day.ReopenedBy, day.ReopenedAtUtc, day.ReopenApprovedBy)).ToList();
+    }
+
     public async Task<BusinessDayDto> GetBusinessDayAsync(string id, CancellationToken ct = default)
     {
         var day = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct)

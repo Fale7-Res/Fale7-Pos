@@ -9,14 +9,14 @@
         reserved for the single big checkout CTA - the reference app deliberately distinguishes them.
     -->
 
-    <Color x:Key="BrandPrimaryColor">#0F52BA</Color>
-    <Color x:Key="BrandPrimaryHoverColor">#0A3D8F</Color>
-    <Color x:Key="ActionBlueColor">#0866E8</Color>
-    <Color x:Key="ActionBlueHoverColor">#2563EB</Color>
+    <Color x:Key="BrandPrimaryColor">#156B5A</Color>
+    <Color x:Key="BrandPrimaryHoverColor">#105444</Color>
+    <Color x:Key="ActionBlueColor">#146C59</Color>
+    <Color x:Key="ActionBlueHoverColor">#105444</Color>
 
-    <Color x:Key="SurfaceColor">#F5F5F5</Color>
-    <Color x:Key="PosSurfaceColor">#F3F6FA</Color>
-    <Color x:Key="CardBorderColor">#E2E8F0</Color>
+    <Color x:Key="SurfaceColor">#F5F6F3</Color>
+    <Color x:Key="PosSurfaceColor">#F3F5F2</Color>
+    <Color x:Key="CardBorderColor">#E2E7E1</Color>
 
     <!-- Dark app header -->
     <Color x:Key="GraphiteColor">#1A1F26</Color>
@@ -24,12 +24,12 @@
     <Color x:Key="GraphiteButtonColor">#232931</Color>
 
     <!-- Dark cart/sidebar palette - POS order workspace only -->
-    <Color x:Key="CartBackgroundColor">#151C24</Color>
-    <Color x:Key="CartHeaderColor">#151B23</Color>
-    <Color x:Key="CartTabBarColor">#0A0D11</Color>
-    <Color x:Key="CartItemCardColor">#1B242E</Color>
-    <Color x:Key="CartItemBorderColor">#2C3744</Color>
-    <Color x:Key="CartFooterColor">#11171E</Color>
+    <Color x:Key="CartBackgroundColor">#FFFFFF</Color>
+    <Color x:Key="CartHeaderColor">#FFFFFF</Color>
+    <Color x:Key="CartTabBarColor">#F0F3EF</Color>
+    <Color x:Key="CartItemCardColor">#FFFFFF</Color>
+    <Color x:Key="CartItemBorderColor">#E5EAE4</Color>
+    <Color x:Key="CartFooterColor">#F9FAF7</Color>
 
     <!-- Semantic -->
     <Color x:Key="SuccessColor">#059669</Color>
@@ -42,8 +42,8 @@
     <Color x:Key="WalletColor">#C026D3</Color>
     <Color x:Key="MultiPayColor">#D97706</Color>
 
-    <Color x:Key="TextPrimaryColor">#1E293B</Color>
-    <Color x:Key="TextMutedColor">#64748B</Color>
+    <Color x:Key="TextPrimaryColor">#25342E</Color>
+    <Color x:Key="TextMutedColor">#66756C</Color>
     <Color x:Key="TextOnDarkColor">#FFFFFF</Color>
     <Color x:Key="TextOnDarkMutedColor">#94A3B8</Color>
 
@@ -81,5 +81,69 @@
          coloring) - see BoolToBrushConverter/StringEqualsToBrushConverter in Converters.cs. -->
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent"/>
     <SolidColorBrush x:Key="WhiteBrush" Color="White"/>
+
+    <!--
+        Management-shell palette - added for the NavigationView-based Reports/Delivery/Inventory/
+        etc. surfaces. Deliberately a calmer, lighter register than the POS cart's dark graphite/
+        cart colors above: those exist to keep a cashier's eye locked on the running total during a
+        fast transaction; a manager reading a table of 200 purchase-order rows needs the opposite -
+        low visual noise, high scan-ability.
+    -->
+    <Color x:Key="ShellBackgroundColor">#F7F8FA</Color>
+    <Color x:Key="ShellNavColor">#171B21</Color>
+    <Color x:Key="ShellNavHoverColor">#232931</Color>
+    <Color x:Key="ShellNavSelectedColor">#0F52BA</Color>
+    <Color x:Key="ShellDividerColor">#E5E9EF</Color>
+    <Color x:Key="TableHeaderColor">#EEF1F5</Color>
+    <Color x:Key="TableRowAltColor">#FAFBFC</Color>
+    <Color x:Key="InfoColor">#2563EB</Color>
+    <Color x:Key="InfoBackgroundColor">#EFF6FF</Color>
+    <Color x:Key="SuccessBackgroundColor">#ECFDF5</Color>
+    <Color x:Key="WarningBackgroundColor">#FFFBEB</Color>
+    <Color x:Key="NeutralBackgroundColor">#F1F5F9</Color>
+    <Color x:Key="NeutralTextColor">#475569</Color>
+
+    <SolidColorBrush x:Key="ShellBackgroundBrush" Color="{StaticResource ShellBackgroundColor}"/>
+    <SolidColorBrush x:Key="ShellNavBrush" Color="{StaticResource ShellNavColor}"/>
+    <SolidColorBrush x:Key="ShellNavHoverBrush" Color="{StaticResource ShellNavHoverColor}"/>
+    <SolidColorBrush x:Key="ShellNavSelectedBrush" Color="{StaticResource ShellNavSelectedColor}"/>
+    <SolidColorBrush x:Key="ShellDividerBrush" Color="{StaticResource ShellDividerColor}"/>
+    <SolidColorBrush x:Key="TableHeaderBrush" Color="{StaticResource TableHeaderColor}"/>
+    <SolidColorBrush x:Key="TableRowAltBrush" Color="{StaticResource TableRowAltColor}"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
+    <SolidColorBrush x:Key="InfoBackgroundBrush" Color="{StaticResource InfoBackgroundColor}"/>
+    <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="{StaticResource SuccessBackgroundColor}"/>
+    <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{StaticResource WarningBackgroundColor}"/>
+    <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="{StaticResource NeutralBackgroundColor}"/>
+    <SolidColorBrush x:Key="NeutralTextBrush" Color="{StaticResource NeutralTextColor}"/>
+
+    <!-- Status-pill brushes - StatusToPillBrushConverter's fixed vocabulary maps onto these four. -->
+    <SolidColorBrush x:Key="SuccessPillBrush" Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="DangerPillBrush" Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="WarningPillBrush" Color="{StaticResource WarningColor}"/>
+    <SolidColorBrush x:Key="NeutralPillBrush" Color="{StaticResource NeutralTextColor}"/>
+
+    <!--
+        Product-card "image band" gradients - added for the commercial-POS visual pass. There is no
+        real product photography in this system (no asset pipeline exists, and inventing fake photos
+        would violate "real data only"), so instead of a photo, every product card gets an honest,
+        deliberately-designed abstract gradient band carrying a large glyph - a genuine visual
+        treatment, not a placeholder pretending to be something it isn't. Grill items (SendToGrill)
+        get the warm charcoal gradient; everything else gets the cool slate one, so the grid still
+        reads with real variety instead of one flat color repeated 40 times.
+    -->
+    <LinearGradientBrush x:Key="ProductImageGrillGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#F59E0B" Offset="0"/>
+        <GradientStop Color="#DC2626" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="ProductImageDefaultGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1E3A5F" Offset="0"/>
+        <GradientStop Color="#0F52BA" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Category tile icon-badge - a soft tinted circle behind the category's own emoji, so the
+         strip reads as a designed chip row instead of bare emoji floating on white. -->
+    <Color x:Key="CategoryBadgeColor">#EAF2EC</Color>
+    <SolidColorBrush x:Key="CategoryBadgeBrush" Color="{StaticResource CategoryBadgeColor}"/>
 
 </ResourceDictionary>

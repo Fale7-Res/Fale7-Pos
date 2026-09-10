@@ -29,6 +29,12 @@ public sealed class SavePriceRuleHandler
 
     public async Task<PriceRuleDto> HandleAsync(SavePriceRuleRequest request, CancellationToken ct = default)
     {
+        var ruleId = request.RuleId ?? $"price-rule-{request.RequestId}";
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var receiptId = CommandReceipt.Id("price-rule-save", request.RequestId);
+        var receipt = await CommandReceipt.FindAsync(_db, receiptId, ruleId, request.ActorUserId, ct);
+        if (receipt is not null) return System.Text.Json.JsonSerializer.Deserialize<PriceRuleDto>(receipt.NewValue!)
+            ?? throw new InvalidOperationException("Stored price-rule receipt is invalid.");
         var productIds = request.ProductIds.Distinct().ToList();
         var fixedPrice = Money.FromPiastres(request.FixedPricePiastres);
         PricingRules.AssertPriceRuleInput(request.Name, productIds, fixedPrice, request.DaysOfWeek);
@@ -50,8 +56,6 @@ public sealed class SavePriceRuleHandler
         var knownProductCount = await _db.Products.AsNoTracking().CountAsync(p => productIds.Contains(p.Id), ct);
         if (knownProductCount != productIds.Count) throw new DomainException("يوجد صنف غير موجود ضمن أصناف العرض.");
 
-        var ruleId = request.RuleId ?? $"price-rule-{request.RequestId}";
-        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
 
         var entity = await _db.PriceRules.Include(r => r.Products).Include(r => r.Days).FirstOrDefaultAsync(r => r.Id == ruleId, ct);
         if (entity is null)
@@ -74,10 +78,11 @@ public sealed class SavePriceRuleHandler
             .Select(d => new PriceRuleDayEntity { PriceRuleId = ruleId, DayOfWeek = d }).ToList();
 
         _auditLog.Append(new AuditEvent(
-            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             $"حفظ عرض تسعير: {entity.Name}", "menu",
             $"السعر: {entity.FixedPricePiastres} قرش - عدد الأصناف: {productIds.Count} - مفعّل: {(entity.Active ? "نعم" : "لا")}",
-            "normal", DateTimeOffset.UtcNow, AuthorizedBy: approval?.ApproverName, ReferenceId: ruleId));
+            "normal", DateTimeOffset.UtcNow, AuthorizedBy: approval?.ApproverName, ReferenceId: ruleId,
+            OperationId: request.RequestId, NewValue: System.Text.Json.JsonSerializer.Serialize(ToDto(entity))));
 
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);

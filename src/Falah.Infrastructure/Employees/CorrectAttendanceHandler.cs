@@ -9,6 +9,8 @@ using Falah.Infrastructure.Orders;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Text.Json;
 
 /// <summary>Ported from correctAttendance in lib/store.tsx - gated on `attendance_manage`. Posts
 /// only the DELTA between what the automatic late-penalty/overtime calculation already produced
@@ -31,6 +33,25 @@ public sealed class CorrectAttendanceHandler
         if (!Enum.TryParse<AttendanceStatus>(request.Status, ignoreCase: true, out _))
             throw new DomainException("حالة الحضور غير صالحة.");
 
+        // Serialize corrections to one record, including the read that decides each
+        // financial delta. The immutable audit snapshot also confirms a retry without
+        // reapplying an old correction over a newer one (even for a zero-delta change).
+        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        var record = await _db.AttendanceRecords
+            .FromSqlRaw("SELECT * FROM AttendanceRecords WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.RecordId)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new InvalidOperationException("سجل الحضور غير موجود.");
+        var auditId = $"audit-attendance-correction-{request.RequestId}";
+        var recorded = await _db.AuditEvents.AsNoTracking().FirstOrDefaultAsync(e => e.Id == auditId, ct);
+        if (recorded is not null)
+        {
+            if (recorded.ReferenceId != request.RecordId || recorded.UserId != request.ActorUserId)
+                throw new DomainException("مفتاح التصحيح مستخدم لعملية أخرى.");
+            return JsonSerializer.Deserialize<AttendanceRecordDto>(recorded.NewValue!)
+                ?? throw new InvalidOperationException("تعذر قراءة تأكيد التصحيح السابق.");
+        }
+        var previous = EmployeeQueryService.ToAttendanceDto(record);
+
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         ManagerApproval? approval = null;
@@ -44,8 +65,6 @@ public sealed class CorrectAttendanceHandler
         var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "attendance_manage", approval, requireApproval: true);
         var verifiedApproverName = authorization.Approver?.ApproverName ?? actorUser.Name;
 
-        var record = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.Id == request.RecordId, ct)
-            ?? throw new InvalidOperationException("سجل الحضور غير موجود.");
         var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == record.EmployeeId, ct);
 
         var oldLateMinutes = record.LateMinutes;
@@ -62,6 +81,11 @@ public sealed class CorrectAttendanceHandler
 
         if (employee is not null && employee.DailyWagePiastres > 0)
         {
+            // Match employee cash-out's ledger lock so the resulting running balance
+            // cannot be computed from a simultaneous, stale drawer withdrawal.
+            await _db.EmployeeLedgerEntries
+                .FromSqlRaw("SELECT * FROM EmployeeLedgerEntries WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE EmployeeId = {0}", record.EmployeeId)
+                .Select(e => e.Id).ToListAsync(ct);
             var settings = await new SettingsQueryService(_db).GetAsync(ct);
             var dailyWage = Money.FromPiastres(employee.DailyWagePiastres);
 
@@ -94,7 +118,15 @@ public sealed class CorrectAttendanceHandler
             }
         }
 
+        var result = EmployeeQueryService.ToAttendanceDto(record);
+        new Falah.Infrastructure.Audit.EfAuditLog(_db).Append(new Falah.Domain.Audit.AuditEvent(
+            auditId, actorUser.Id, actorUser.Name, actorUser.Role, "attendance_corrected", "attendance",
+            $"تصحيح حضور {record.EmployeeName}", "warning", DateTimeOffset.UtcNow,
+            Reason: request.Reason, AuthorizedBy: verifiedApproverName,
+            PreviousValue: JsonSerializer.Serialize(previous), NewValue: JsonSerializer.Serialize(result),
+            OperationId: request.RequestId, ReferenceId: record.Id));
         await _db.SaveChangesAsync(ct);
-        return EmployeeQueryService.ToAttendanceDto(record);
+        await transaction.CommitAsync(ct);
+        return result;
     }
 }

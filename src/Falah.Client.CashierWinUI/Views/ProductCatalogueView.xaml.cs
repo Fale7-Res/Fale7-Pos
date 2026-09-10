@@ -13,7 +13,7 @@ public sealed partial class ProductCatalogueView : UserControl
     // under these) while making full use of whatever the window's actual width is - a 1366-wide POS
     // screen and a 1920-wide one should both show a dense, evenly-filled grid with no ragged gap on
     // the trailing edge, not the same fixed card width stretched into empty space or crammed tight.
-    private const double ProductTargetWidth = 190, ProductMinWidth = 160, ProductMaxWidth = 232;
+    private const double ProductTargetWidth = 212, ProductMinWidth = 180, ProductMaxWidth = 250;
 
     public ProductCatalogueView()
     {
@@ -30,8 +30,8 @@ public sealed partial class ProductCatalogueView : UserControl
         var usable = availableWidth - ProductsGridView.Padding.Left - ProductsGridView.Padding.Right;
         if (usable <= 0) return;
 
-        var columns = Math.Max(4, (int)(usable / ProductTargetWidth));
-        panel.ItemWidth = Math.Clamp(usable / columns, ProductMinWidth, ProductMaxWidth);
+        var columns = Math.Max(2, (int)(usable / ProductTargetWidth));
+        panel.ItemWidth = usable / columns;
         // ItemHeight is intentionally left unset: a fixed cell height clips any card that grows
         // taller than the common case (an offer badge stacked below the card adds ~30px). Leaving
         // it auto lets each ROW size itself to its own tallest item - offer-less rows stay compact,

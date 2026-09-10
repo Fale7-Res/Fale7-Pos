@@ -1,3 +1,4 @@
+using Falah.Client.CashierWinUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Approvals;
@@ -34,6 +35,9 @@ public partial class CashierViewModel
     [RelayCommand]
     private void OpenCloseShift()
     {
+        if (!CanCloseShift) return;
+        if (!CanEditOperation) return;
+        if (Cart.Count > 0) { CheckoutError = "أنهِ الطلب الحالي أو ألغِه قبل إغلاق الوردية."; return; }
         CloseShiftActualCashText = "0";
         CloseShiftReason = null;
         CloseShiftManagerPin = "";
@@ -43,7 +47,7 @@ public partial class CashierViewModel
     }
 
     [RelayCommand]
-    private void CancelCloseShift() => IsCloseShiftOpen = false;
+    private void CancelCloseShift() { if (IsOperationBusy) return; if (_pendingCloseShift is not null) { CloseShiftError = "لم تُحسم نتيجة العملية؛ أعد المحاولة للتحقق قبل الإغلاق."; return; } IsCloseShiftOpen = false; }
 
     /// <summary>Step 1: ask the server what it expects, given what was just counted. Blind by
     /// construction - the cashier can only see this AFTER committing to a counted figure, never
@@ -51,7 +55,8 @@ public partial class CashierViewModel
     [RelayCommand]
     private async Task PrepareCloseShiftAsync()
     {
-        if (!decimal.TryParse(CloseShiftActualCashText, out var actualEgp) || actualEgp < 0)
+        if (IsClosingShift) return;
+        if (!CashInput.TryParse(CloseShiftActualCashText, out var actualEgp) || actualEgp < 0)
         {
             CloseShiftError = "أدخل المبلغ المعدود فعليًا بشكل صحيح.";
             return;
@@ -61,7 +66,7 @@ public partial class CashierViewModel
         CloseShiftError = null;
         try
         {
-            var request = new PrepareShiftCloseRequest(_session.ShiftId!, (long)Math.Round(actualEgp * 100m));
+            var request = new PrepareShiftCloseRequest(_session.ShiftId!, actualEgp);
             var result = await _session.Api.PrepareShiftCloseAsync(request);
             if (!result.Success || result.Value is null)
             {
@@ -77,7 +82,7 @@ public partial class CashierViewModel
     }
 
     [RelayCommand]
-    private void BackToCloseShiftCount() => CloseShiftPreview = null;
+    private void BackToCloseShiftCount() { if (CanEditOperation) CloseShiftPreview = null; }
 
     /// <summary>Step 2: commit. When the difference is within the server's threshold this closes
     /// immediately; otherwise a manager PIN is resolved to a real user first (never trusted as
@@ -86,11 +91,14 @@ public partial class CashierViewModel
     [RelayCommand]
     private async Task ConfirmCloseShiftAsync()
     {
+        if (IsClosingShift) return;
         if (CloseShiftPreview is null) return;
         IsClosingShift = true;
         CloseShiftError = null;
         try
         {
+            if (_pendingCloseShift is not null) { await CompleteCloseShiftAsync(_pendingCloseShift); return; }
+
             string? approvalId = null;
             string? approverUserId = null;
 
@@ -126,25 +134,38 @@ public partial class CashierViewModel
             }
 
             var closeRequest = new CloseShiftRequest(
-                CloseRequestId: $"close-{Guid.NewGuid():N}", ShiftId: _session.ShiftId!,
+                CloseRequestId: _CloseShiftRequestId, ShiftId: _session.ShiftId!,
                 ClosedByUserId: _session.CurrentUser!.Id, ActualCashCountedPiastres: CloseShiftPreview.ActualCashPiastres,
                 Reason: CloseShiftReason, ManagerApprovalId: approvalId, ManagerApproverUserId: approverUserId);
-            var result = await _session.Api.CloseShiftAsync(closeRequest);
-            if (!result.Success || result.Value is null)
-            {
-                CloseShiftError = result.Error ?? "تعذر إغلاق الوردية.";
-                return;
-            }
-
-            _session.ShiftId = null;
-            _session.ShiftName = null;
-            OnPropertyChanged(nameof(IsShiftOpen));
-            _header.Refresh();
-            IsCloseShiftOpen = false;
+            await CompleteCloseShiftAsync(closeRequest);
         }
         finally
         {
             IsClosingShift = false;
         }
     }
+    private CloseShiftRequest? _pendingCloseShift;
+    private string _CloseShiftRequestId = Guid.NewGuid().ToString("N");
+    private async Task CompleteCloseShiftAsync(CloseShiftRequest closeRequest)
+    {
+        var wasUnresolved = _pendingCloseShift is not null;
+        _pendingCloseShift = closeRequest;
+        RefreshOperationState();
+        var result = await _session.Api.CloseShiftAsync(closeRequest);
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingCloseShift = null;
+        if (result.Success) _CloseShiftRequestId = Guid.NewGuid().ToString("N");
+        RefreshOperationState();
+        if (!result.Success || result.Value is null)
+        {
+            CloseShiftError = result.Error ?? "تعذر إغلاق الوردية.";
+            return;
+        }
+
+        _session.ShiftId = null;
+        _session.ShiftName = null;
+        OnPropertyChanged(nameof(IsShiftOpen));
+        _header.Refresh();
+        IsCloseShiftOpen = false;
+    }
+
 }

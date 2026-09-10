@@ -1,3 +1,4 @@
+using Falah.Client.CashierWinUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Approvals;
@@ -16,7 +17,7 @@ namespace Falah.Client.CashierWinUI.ViewModels;
 public partial class CashierViewModel
 {
     [ObservableProperty] private bool _isAddExpenseOpen;
-    [ObservableProperty] private string _expenseCategory = "مستلزمات";
+    [ObservableProperty] private string _expenseCategory = "مستلزمات مطبخ وخضار";
     [ObservableProperty] private string _expenseAmountText = "0";
     [ObservableProperty] private string _expenseDescription = "";
     [ObservableProperty] private string _expenseManagerPin = "";
@@ -28,7 +29,8 @@ public partial class CashierViewModel
     [RelayCommand]
     private void OpenAddExpense()
     {
-        ExpenseCategory = "مستلزمات";
+        if (!CanEditOperation) return;
+        ExpenseCategory = "مستلزمات مطبخ وخضار";
         ExpenseAmountText = "0";
         ExpenseDescription = "";
         ExpenseManagerPin = "";
@@ -41,12 +43,14 @@ public partial class CashierViewModel
     private void SetExpenseCategory(string category) => ExpenseCategory = category;
 
     [RelayCommand]
-    private void CancelAddExpense() => IsAddExpenseOpen = false;
+    private void CancelAddExpense() { if (IsOperationBusy) return; if (_pendingExpense is not null) { ExpenseError = "لم تُحسم نتيجة العملية؛ أعد المحاولة للتحقق قبل الإغلاق."; return; } IsAddExpenseOpen = false; }
 
     [RelayCommand]
     private async Task SubmitExpenseAsync()
     {
-        if (!decimal.TryParse(ExpenseAmountText, out var amountEgp) || amountEgp <= 0)
+        if (IsSubmittingExpense) return;
+        if (_pendingExpense is not null) { IsSubmittingExpense = true; try { await CompleteExpenseAsync(_pendingExpense); } finally { IsSubmittingExpense = false; } return; }
+        if (!CashInput.TryParse(ExpenseAmountText, out var amountEgp) || amountEgp <= 0)
         {
             ExpenseError = "أدخل مبلغًا صحيحًا أكبر من صفر.";
             return;
@@ -61,6 +65,8 @@ public partial class CashierViewModel
         ExpenseError = null;
         try
         {
+            if (_pendingExpense is not null) { await CompleteExpenseAsync(_pendingExpense); return; }
+
             string? approvalId = null;
             string? approverUserId = null;
 
@@ -89,22 +95,35 @@ public partial class CashierViewModel
             }
 
             var request = new AddExpenseRequest(
-                RequestId: $"exp-{Guid.NewGuid():N}", ShiftId: _session.ShiftId!, Category: ExpenseCategory,
-                AmountPiastres: (long)Math.Round(amountEgp * 100m), Description: ExpenseDescription,
+                RequestId: _ExpenseRequestId, ShiftId: _session.ShiftId!, Category: ExpenseCategory,
+                AmountPiastres: amountEgp, Description: ExpenseDescription,
                 PaymentAccountId: "tre-drawer", CreatedByUserId: _session.CurrentUser!.Id,
                 ManagerApprovalId: approvalId, ManagerApproverUserId: approverUserId);
-            var result = await _session.Api.AddExpenseAsync(request);
-            if (!result.Success || result.Value is null)
-            {
-                ExpenseError = result.Error ?? "تعذر تسجيل المصروف.";
-                return;
-            }
-
-            IsAddExpenseOpen = false;
+            await CompleteExpenseAsync(request);
         }
         finally
         {
             IsSubmittingExpense = false;
         }
     }
+    private AddExpenseRequest? _pendingExpense;
+    private string _ExpenseRequestId = Guid.NewGuid().ToString("N");
+    private async Task CompleteExpenseAsync(AddExpenseRequest request)
+    {
+        var wasUnresolved = _pendingExpense is not null;
+        _pendingExpense = request;
+        RefreshOperationState();
+        var result = await _session.Api.AddExpenseAsync(request);
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingExpense = null;
+        if (result.Success) _ExpenseRequestId = Guid.NewGuid().ToString("N");
+        RefreshOperationState();
+        if (!result.Success || result.Value is null)
+        {
+            ExpenseError = result.Error ?? "تعذر تسجيل المصروف.";
+            return;
+        }
+
+        IsAddExpenseOpen = false;
+    }
+
 }

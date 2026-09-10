@@ -11,6 +11,6 @@ public sealed record CreateTaxRuleRequest(string RequestId, string Name, int Rat
 
 public sealed record CreateTaxRuleResult(string TaxRuleId, bool WasReplayed);
 
-public sealed record UpdateTaxRuleRequest(string TaxRuleId, string Name, int RateBasisPoints, string Mode, bool Enabled, string ActorUserId);
+public sealed record UpdateTaxRuleRequest(string TaxRuleId, string Name, int RateBasisPoints, string Mode, bool Enabled, string ActorUserId, string? RequestId = null);
 
 public sealed record TaxRuleDto(string Id, string Name, int RateBasisPoints, string Mode, bool Enabled);

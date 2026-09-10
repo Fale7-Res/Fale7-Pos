@@ -133,7 +133,8 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
 
         var activity = await (await _client.GetAsync($"/api/reports/refunds?actorUserId={_managerId}&shiftId={_shiftId}"))
             .Content.ReadFromJsonAsync<List<RefundActivityDto>>();
-        Assert.Single(activity!);
+        Assert.NotNull(activity);
+        Assert.Single(activity);
         Assert.Equal(order.OrderId, activity!.Single().OrderId);
         Assert.Equal(5000, activity.Single().AmountPiastres);
     }

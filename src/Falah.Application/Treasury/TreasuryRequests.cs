@@ -40,6 +40,19 @@ public sealed record SafeDropRequest(
 
 public sealed record SafeDropResult(string MovementId, long AmountPiastres, bool WasReplayed);
 
+/// <summary>One posted movement in the treasury ledger. Read-only projection of the same
+/// TreasuryMovement rows every financial command already writes - there is no second "treasury
+/// reporting" table, so the ledger a manager reads and the ledger the balances are derived from can
+/// never disagree.</summary>
+public sealed record TreasuryMovementDto(
+    string Id, string Type, string? SourceAccountId, string? DestinationAccountId, long AmountPiastres,
+    string ReferenceType, string ReferenceId, string? ShiftId, string Reason, string CreatedBy,
+    string? ApprovedBy, DateTimeOffset CreatedAtUtc);
+
+/// <summary>Balances for every fixed account in one read, so a treasury screen shows one consistent
+/// picture rather than five separately-timed reads that can disagree mid-refresh.</summary>
+public sealed record TreasuryAccountBalanceDto(string AccountId, long BalancePiastres);
+
 public sealed class TreasuryConflictException : Exception
 {
     public TreasuryConflictException(string message) : base(message) { }

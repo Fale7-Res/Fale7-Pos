@@ -8,3 +8,8 @@ obj/
 *.db-wal
 .vs/
 *.log
+# Every artifacts/ subdirectory is generated verification output - native construction probes,
+# layout captures, screenshot runs. Hundreds of megabytes, reproducible by re-running the probe,
+# and none of it is source. Ignored wholesale rather than one subdirectory at a time, which is how
+# the last three probe runs each leaked a new untracked directory into git status.
+/artifacts/

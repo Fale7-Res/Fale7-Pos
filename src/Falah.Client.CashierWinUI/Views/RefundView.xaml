@@ -1,0 +1,18 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.RefundView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" FlowDirection="RightToLeft">
+ <Grid Background="#66313D35" Visibility="{Binding IsRefundOpen, Converter={StaticResource BoolToVisibleConverter}}">
+  <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="460" Margin="24" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+   <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Spacing="14">
+    <TextBlock Text="استرداد مبلغ من الطلب" Style="{StaticResource TitleText}"/>
+    <TextBlock Text="{Binding OrderLookupResult.OrderNumber}" Foreground="{StaticResource TextMutedBrush}"/>
+    <TextBlock><Run Text="المتاح للاسترداد: "/><Run Text="{Binding RefundRemainingDisplay}" FontWeight="Bold"/></TextBlock>
+    <TextBox Header="المبلغ بالجنيه" Text="{Binding RefundAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditOperation}" FontSize="24"/>
+    <TextBox Header="سبب الاسترداد" Text="{Binding RefundReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditOperation}"/>
+    <PasswordBox Header="رمز المدير" Password="{Binding RefundManagerPin, Mode=TwoWay}" IsEnabled="{Binding CanEditOperation}" Visibility="{Binding RefundNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
+    <TextBlock Text="{Binding RefundError}" TextWrapping="Wrap" Foreground="{StaticResource DangerBrush}"/>
+    <Button Content="تأكيد الاسترداد" Command="{Binding SubmitRefundCommand}" Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Stretch"/>
+    <Button Content="رجوع للطلب" Command="{Binding CancelRefundCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"/>
+   </StackPanel></ScrollViewer>
+  </Border>
+ </Grid>
+</UserControl>

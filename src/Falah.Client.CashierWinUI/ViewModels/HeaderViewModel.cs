@@ -13,19 +13,23 @@ namespace Falah.Client.CashierWinUI.ViewModels;
 /// </summary>
 public partial class HeaderViewModel : ObservableObject
 {
+    public void Stop() => _clockTimer.Stop();
     private readonly AppSession _session;
     private readonly DispatcherTimer _clockTimer;
 
     public HeaderViewModel(AppSession session)
     {
         _session = session;
+        _session.OperationStateChanged += Refresh;
         UpdateClock();
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
         _clockTimer.Tick += (_, _) => UpdateClock();
         _clockTimer.Start();
     }
 
-    public string RestaurantName => "فالح أبو العنبة";
+    private string _restaurantName = "فلاح";
+    public string RestaurantName => _restaurantName;
+    public void SetIdentity(string name) { _restaurantName = name; OnPropertyChanged(nameof(RestaurantName)); }
     public string LogoLetter => "ف";
 
     [ObservableProperty] private string _timeText = "";
@@ -50,11 +54,13 @@ public partial class HeaderViewModel : ObservableObject
         _ => _session.CurrentUser?.Role ?? "",
     };
 
+    public bool CanLock => !_session.HasUnresolvedOperation;
     public bool IsShiftOpen => _session.ShiftId is not null;
     public string ShiftLabel => _session.ShiftId is not null ? (_session.ShiftName ?? "وردية مفتوحة") : "مغلق";
 
     public void Refresh()
     {
+        OnPropertyChanged(nameof(CanLock));
         OnPropertyChanged(nameof(IsShiftOpen));
         OnPropertyChanged(nameof(ShiftLabel));
         OnPropertyChanged(nameof(UserName));

@@ -23,7 +23,16 @@ public sealed record PurchaseLineRequest(string InventoryItemId, long QuantityMi
 public sealed record ReceivePurchaseRequest(
     string RequestId, string SupplierId, string? InvoiceNumber, IReadOnlyList<PurchaseLineRequest> Lines,
     long PaidPiastres, string PaymentMethod, string ActorUserId, string? Notes,
-    string? ManagerApprovalId, string? ManagerApproverUserId);
+    string? ManagerApprovalId, string? ManagerApproverUserId,
+    /// <summary>When the invoice is due. Optional, and left null when no term was agreed - the
+    /// system never invents one, because an invented due date would produce invented overdue.</summary>
+    DateOnly? DueDate = null);
+
+/// <summary>Sets or clears the due date on an invoice already on the books - terms are often agreed
+/// after the goods arrive. Deliberately its own small command: it touches no money, so it carries
+/// none of the treasury machinery receiving and paying do.</summary>
+public sealed record SetPurchaseDueDateRequest(
+    string RequestId, string PurchaseId, DateOnly? DueDate, string ActorUserId);
 
 /// <summary>Ported from payPurchase (PurchasePaymentCommandInput) - a later settlement against a
 /// purchase already on the books. PaymentMethod excludes "credit": a real payment always moves real
@@ -41,7 +50,30 @@ public sealed record PurchaseDto(
     string Id, string SupplierId, string? InvoiceNumber, IReadOnlyList<PurchaseLineDto> Lines,
     long SubtotalPiastres, long TotalPiastres, long PaidPiastres, long RemainingAmountPiastres,
     string PaymentMethod, string? PaymentAccountId, string Status, string PaymentStatus,
-    string ReceivedBy, DateTimeOffset CreatedAtUtc, IReadOnlyList<PurchasePaymentDto> Payments, bool WasReplayed = false);
+    string ReceivedBy, DateTimeOffset CreatedAtUtc, IReadOnlyList<PurchasePaymentDto> Payments, bool WasReplayed = false,
+    string? DueDate = null);
+
+/// <summary>One unpaid invoice, placed in an aging bucket.</summary>
+/// <param name="DaysOverdue">Null when the invoice has no due date - not zero. Zero means due but
+/// not yet late.</param>
+public sealed record PayableDto(
+    string PurchaseId, string SupplierId, string SupplierName, string? InvoiceNumber,
+    long RemainingPiastres, string ReceivedOnBusinessDate, string? DueDate,
+    int AgeInDays, int? DaysOverdue, string Bucket, string BucketLabel);
+
+public sealed record PayablesBucketDto(string Bucket, string Label, int InvoiceCount, long TotalPiastres);
+
+/// <param name="OverduePiastres">Only invoices with an agreed due date that has passed. Invoices
+/// without a due date are counted in UnscheduledPiastres instead, never silently as overdue.</param>
+public sealed record PayablesAgingDto(
+    string AsOfBusinessDate,
+    long TotalOutstandingPiastres,
+    long OverduePiastres,
+    int OverdueInvoiceCount,
+    long UnscheduledPiastres,
+    int UnscheduledInvoiceCount,
+    IReadOnlyList<PayablesBucketDto> Buckets,
+    IReadOnlyList<PayableDto> Invoices);
 
 public sealed record SupplierLedgerEntryDto(
     string Id, string SupplierId, string Type, long DebitPiastres, long CreditPiastres,

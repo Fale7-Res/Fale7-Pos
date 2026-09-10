@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject></PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="NativeFooterLayoutProbe.cs" />
+    <Compile Remove="NativeScreenLayoutProbe.cs" />
+    <Compile Remove="NativeManagementLayoutProbe.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <Using Include="Xunit" />
+    <ProjectReference Include="../../src/Falah.Application/Falah.Application.csproj" />
+    <Compile Include="../../src/Falah.Client.CashierWinUI/Services/*.cs" Link="Client/Services/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CashierWinUI/Models/*.cs" Link="Client/Models/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CashierWinUI/ViewModels/*.cs" Exclude="../../src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs;../../src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs" Link="Client/ViewModels/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/Services/*.cs" Link="CallCenter/Services/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/Models/*.cs" Link="CallCenter/Models/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel*.cs" Link="CallCenter/ViewModels/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs" Link="CallCenter/ViewModels/MainViewModel.cs" />
+    <Compile Include="../../src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs" Link="Client/ViewModels/MainViewModel.cs" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs" Link="CallCenter/ViewModels/LoginViewModel.cs" />
+  </ItemGroup>
+</Project>

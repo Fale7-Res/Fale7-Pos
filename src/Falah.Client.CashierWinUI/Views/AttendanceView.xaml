@@ -1,0 +1,183 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.AttendanceView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Read of the real attendance records. Check-in/out are driven by the biometric device, not by
+         this screen - see AttendanceViewModel's own doc comment for why manufacturing attendance
+         from a desktop button would post real wage money for a shift nobody worked. -->
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="الحضور والانصراف" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="سجلات البصمة ليوم محدد" Style="{StaticResource PageSubtitleText}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button MinHeight="44" MinWidth="44" Style="{StaticResource SecondaryButtonStyle}"
+                        IsEnabled="{Binding CanBrowse}" AutomationProperties.Name="اليوم السابق" Command="{Binding PreviousDayCommand}">
+                    <FontIcon Glyph="&#xE76C;" FontSize="12"/>
+                </Button>
+                <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                        CornerRadius="10" Padding="16,0" MinHeight="44" MinWidth="150">
+                    <TextBlock Text="{Binding DateLabel}" FontSize="14" FontWeight="SemiBold"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+                <Button MinHeight="44" MinWidth="44" Style="{StaticResource SecondaryButtonStyle}"
+                        IsEnabled="{Binding CanBrowse}" AutomationProperties.Name="اليوم التالي" Command="{Binding NextDayCommand}">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="120"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="الموظف" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="1" Text="الحضور" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="2" Text="الانصراف" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="3" Text="ساعات" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="4" Text="تأخير (د)" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="5" Text="الحالة" Style="{StaticResource TableHeaderText}"/>
+                    </Grid>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              Visibility="{Binding HasRecords, Converter={StaticResource BoolToVisibleConverter}}">
+                    <ItemsControl ItemsSource="{Binding Records}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="120"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding EmployeeName}" Style="{StaticResource TableCellText}"
+                                                       FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="تصحيح يدوي" Style="{StaticResource CaptionText}"
+                                                       Foreground="{StaticResource WarningBrush}"
+                                                       Visibility="{Binding IsManualCorrection, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding CheckIn}" Style="{StaticResource TableCellText}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding CheckOut}" Style="{StaticResource TableCellText}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding WorkHours}" Style="{StaticResource TableCellText}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding LateMinutes}" Style="{StaticResource TableCellText}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="5" Spacing="6" VerticalAlignment="Center">
+                                        <Border CornerRadius="8" Padding="8,3" HorizontalAlignment="Right"
+                                                Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource AttendanceStatusLabelConverter}}" Style="{StaticResource StatusPillText}"/>
+                                        </Border>
+                                        <Button Content="تصحيح" MinHeight="44" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                                Command="{Binding ElementName=Root, Path=DataContext.OpenCorrectionCommand}" CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                    <ProgressRing IsActive="True" Width="36" Height="36"/>
+                    <TextBlock Text="جاري تحميل سجل الحضور..." Style="{StaticResource MutedText}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                            Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                    <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                    <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding HasNoRecords, Converter={StaticResource BoolToVisibleConverter}}">
+                    <TextBlock Text="لا توجد سجلات حضور في هذا اليوم" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="تُسجَّل الحركات تلقائيًا من جهاز البصمة" Style="{StaticResource MutedText}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="24"
+                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding ActionNote}" Foreground="White" TextWrapping="Wrap" MaxWidth="540"/>
+        </Border>
+
+        <Grid Grid.RowSpan="2" Background="#66313D35"
+              Visibility="{Binding IsCorrectionOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border x:Name="AttendanceCorrectionCard" Background="White" CornerRadius="20" Padding="24" MaxWidth="640" MaxHeight="730"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
+                <Grid RowSpacing="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <controls:ModalHeaderView Title="تصحيح سجل الحضور" CloseCommand="{Binding CloseCorrectionCommand}"/>
+                    <ScrollViewer x:Name="AttendanceCorrectionScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="14">
+                            <TextBlock Text="{Binding CorrectionRecord.EmployeeName}" Style="{StaticResource SectionTitleText}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding CorrectionRecord.Date}" Style="{StaticResource MutedText}"/>
+                            <TextBlock Text="يُسجّل السبب والاعتماد، وتُرحّل فروق التأخير والإضافي إلى كشف الموظف وفق إعدادات النظام."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <ComboBox Header="حالة الحضور" MinHeight="44" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditCorrection}"
+                                      ItemsSource="{Binding Statuses}" DisplayMemberPath="Label" SelectedItem="{Binding CorrectionStatus, Mode=TwoWay}"/>
+                            <Grid ColumnSpacing="16" RowSpacing="14">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <TextBox Header="ساعات العمل" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEditCorrection}"
+                                         Text="{Binding WorkHoursText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Grid.Column="1" Header="ساعات إضافية" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEditCorrection}"
+                                         Text="{Binding OvertimeHoursText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Grid.Row="1" Header="دقائق التأخير" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEditCorrection}"
+                                         Text="{Binding LateMinutesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Header="عدد التطبيقات" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEditCorrection}"
+                                         Text="{Binding TatbiqCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                            <TextBox Header="سبب التصحيح (إلزامي)" MinHeight="80" TextWrapping="Wrap" AcceptsReturn="True"
+                                     IsEnabled="{Binding CanEditCorrection}" Text="{Binding CorrectionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <StackPanel x:Name="AttendanceCorrectionFooter" Grid.Row="2" Spacing="12">
+                        <TextBlock Text="{Binding CorrectionError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                   Visibility="{Binding CorrectionError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <Button Content="{Binding SaveCorrectionLabel}" MinHeight="52" HorizontalAlignment="Stretch"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding SaveCorrectionCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

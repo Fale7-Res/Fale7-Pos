@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Falah.Client.CallCenterWinUI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <UseWinUI>true</UseWinUI>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Genuinely unpackaged, matching Falah.Client.CashierWinUI's own deployment shape exactly -
+         see that project's csproj comment for why each of these flags is required. -->
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
+
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.260224002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Falah.Application\Falah.Application.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(ScreenLayoutProbe)' == 'true'">
+    <DefineConstants>$(DefineConstants);SCREEN_LAYOUT_PROBE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(ScreenLayoutProbe)' == 'true'">
+    <Compile Include="../../tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs" Link="Verification/NativeScreenLayoutProbe.cs" />
+  </ItemGroup>
+</Project>

@@ -237,4 +237,93 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     }
 
     private sealed record BalanceResponse(string employeeId, long balancePiastres);
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    public async Task Retrying_an_older_correction_cannot_overwrite_a_later_correction(double firstOvertime)
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
+            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+        var first = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
+            8 + firstOvertime, firstOvertime, 0, "المراجعة الأولى", _hrUserId, null, null);
+        var later = first with { RequestId = $"req-{Guid.NewGuid():N}", WorkHours = 12, OvertimeHours = 4, Reason = "مراجعة لاحقة" };
+        (await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", first)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", later)).EnsureSuccessStatusCode();
+        var before = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        var replay = await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", first);
+        replay.EnsureSuccessStatusCode();
+        Assert.Equal(first.WorkHours, (await replay.Content.ReadFromJsonAsync<AttendanceRecordDto>())!.WorkHours);
+        var records = await _client.GetFromJsonAsync<List<AttendanceRecordDto>>($"/api/attendance?employeeId={employee.Id}");
+        var current = Assert.Single(records!);
+        Assert.Equal(later.WorkHours, current.WorkHours);
+        Assert.Equal(later.OvertimeHours, current.OvertimeHours);
+        Assert.Equal(later.Reason, current.CorrectionReason);
+        var after = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Equal(before!.OrderBy(e => e.Id), after!.OrderBy(e => e.Id));
+    }
+
+    [Fact]
+    public async Task Combined_penalty_and_overtime_correction_records_a_consistent_running_balance()
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
+            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+        var request = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Late", 120,
+            10, 2, 0, "مراجعة التأخير والإضافي", _hrUserId, null, null);
+        (await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", request)).EnsureSuccessStatusCode();
+        var entries = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Equal(2, entries!.Count(e => e.Type == "Adjustment"));
+        long balance = 0;
+        foreach (var entry in entries!.OrderBy(e => e.CreatedAtUtc))
+        {
+            balance += entry.CreditPiastres - entry.DebitPiastres;
+            Assert.Equal(balance, entry.BalanceAfterPiastres);
+        }
+    }
+
+    [Fact]
+    public async Task A_correction_receipt_survives_server_restart_and_a_consumed_manager_approval()
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
+            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_hrUserId, "attendance_manage", "مراجعة")))
+            .Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
+        var request = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
+            10, 2, 0, "مراجعة", _cashierId, approval!.ApprovalId, _hrUserId);
+        var first = await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", request);
+        first.EnsureSuccessStatusCode();
+        using var restarted = new FalahApiFactory(_factory.DatabaseName);
+        using var client = restarted.CreateClient();
+        var replay = await client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", request);
+        replay.EnsureSuccessStatusCode();
+        Assert.Equal(await first.Content.ReadFromJsonAsync<AttendanceRecordDto>(), await replay.Content.ReadFromJsonAsync<AttendanceRecordDto>());
+        var entries = await client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Single(entries!, e => e.Type == "Adjustment");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Concurrent_corrections_serialize_record_and_financial_deltas(bool sameRequest)
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
+            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+        var first = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
+            10, 2, 0, "مراجعة", _hrUserId, null, null);
+        var second = sameRequest ? first : first with { RequestId = $"req-{Guid.NewGuid():N}", OvertimeHours = 4, WorkHours = 12 };
+        var responses = await Task.WhenAll(_client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", first),
+            _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", second));
+        foreach (var response in responses) response.EnsureSuccessStatusCode();
+        var entries = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Equal(sameRequest ? 1 : 2, entries!.Count(e => e.Type == "Adjustment"));
+        var reset = first with { RequestId = $"req-{Guid.NewGuid():N}", OvertimeHours = 0, WorkHours = 8 };
+        (await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", reset)).EnsureSuccessStatusCode();
+        var balance = await _client.GetFromJsonAsync<BalanceResponse>($"/api/employees/{employee.Id}/balance");
+        Assert.Equal(20000, balance!.balancePiastres);
+    }
 }

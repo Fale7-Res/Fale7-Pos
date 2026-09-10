@@ -19,6 +19,9 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <!-- Each test class creates/migrates real SQL databases. Bound suite pressure; the explicit
+         Task.WhenAll concurrency races inside individual tests retain their full concurrency. -->
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +29,7 @@
     <ProjectReference Include="..\..\src\Falah.Infrastructure\Falah.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Falah.Application\Falah.Application.csproj" />
     <ProjectReference Include="..\..\src\Falah.Domain\Falah.Domain.csproj" />
+    <ProjectReference Include="../../src/Falah.PrintAgent/Falah.PrintAgent.csproj" />
   </ItemGroup>
 
 </Project>

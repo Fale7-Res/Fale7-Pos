@@ -1,0 +1,198 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:Falah.Client.CashierWinUI.Views"
+             FlowDirection="RightToLeft">
+    <!--
+        Dispatch board (right, main) + driver roster (left, secondary). Management density, not POS
+        density: a dispatcher scans many rows at once on a desktop monitor, so rows are compact and
+        text-led rather than large touch cards. Every row's available actions are driven by the
+        delivery's real server-side status, so the screen can never offer a transition the state
+        machine would reject.
+    -->
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="التوصيل والسائقون" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="لوحة الطلبات الجارية وعهدة السائقين" Style="{StaticResource PageSubtitleText}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <Button Content="السائقون وخدمات التوصيل" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                        Visibility="{Binding CanOpenDirectory, Converter={StaticResource BoolToVisibleConverter}}"
+                        Command="{Binding OpenDirectoryCommand}"/>
+                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE72C;" FontSize="13"/>
+                        <TextBlock Text="تحديث" FontSize="13"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Padding="28,0,28,24" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="320"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== BOARD ===== -->
+            <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10" ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="رقم الطلب" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="1" Text="الحالة" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="2" Text="السائق" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="3" Text="للتحصيل" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="4" Text="إجراء" Style="{StaticResource TableHeaderText}"/>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Board}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}"
+                                                       FontWeight="SemiBold" VerticalAlignment="Center"/>
+
+                                            <Border Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                    CornerRadius="8" Padding="8,3"
+                                                    Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
+                                                <TextBlock Text="{Binding Status, Converter={StaticResource DeliveryStatusLabelConverter}}"
+                                                           Style="{StaticResource StatusPillText}"/>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="2" Text="{Binding DriverName}" Style="{StaticResource TableCellText}"
+                                                       VerticalAlignment="Center" TextWrapping="Wrap"
+                                                       Foreground="{StaticResource TextMutedBrush}"/>
+
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Style="{StaticResource TableCellText}"
+                                                       FontWeight="SemiBold"
+                                                       Text="{Binding AmountToCollectPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+
+                                            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                <Button Content="تجهيز" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Visibility="{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=New}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.MarkReadyCommand}" CommandParameter="{Binding}"/>
+                                                <Button Content="إسناد لسائق" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Visibility="{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=Ready}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenAssignCommand}" CommandParameter="{Binding}"/>
+                                                <Button Content="تسجيل النتيجة" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Visibility="{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=OutForDelivery}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenOutcomeCommand}" CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ProgressRing IsActive="True" Width="36" Height="36"/>
+                        <TextBlock Text="جاري تحميل لوحة التوصيل..." Style="{StaticResource MutedText}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360"
+                                Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                                HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding HasNoDeliveries, Converter={StaticResource BoolToVisibleConverter}}">
+                        <Border Width="64" Height="64" CornerRadius="22" Background="#F0F4EE" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7B7;" FontSize="26" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                        </Border>
+                        <TextBlock Text="لا توجد طلبات توصيل جارية" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="ستظهر هنا فور تسجيل أول طلب توصيل" Style="{StaticResource MutedText}"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ===== DRIVERS ===== -->
+            <Border Grid.Column="1" Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                        <TextBlock Text="السائقون" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Drivers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="52"
+                                            Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{StaticResource CardBorderBrush}"
+                                            CornerRadius="0" Padding="16,12"
+                                            Command="{Binding ElementName=Root, Path=DataContext.OpenDriverAccountCommand}" CommandParameter="{Binding}">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                            <FontIcon Grid.Column="1" Glyph="&#xE76C;" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Action feedback -->
+        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,28"
+                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold"/>
+        </Border>
+        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,28"
+                Background="{StaticResource DangerBrush}" CornerRadius="12" Padding="18,12"
+                Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding ActionError}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="420"/>
+        </Border>
+
+        <views:DeliveryModalsView Grid.Row="0" Grid.RowSpan="2"/>
+
+        <!-- Declared last so the directory layers above the board and its dispatch modals. -->
+        <views:DeliveryDirectoryView Grid.Row="0" Grid.RowSpan="2" DataContext="{Binding Directory}"/>
+    </Grid>
+</UserControl>

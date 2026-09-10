@@ -1,0 +1,161 @@
+<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:Falah.Client.CallCenterWinUI.Views"
+             xmlns:controls="using:Falah.Client.CallCenterWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Deliberately a thin shell, same reasoning as CashierView.xaml: the order-intake panel and
+         the product catalogue each live in their own UserControl so no single file combines a
+         GridView DataTemplate with another templated content region (see CashierView.xaml.cs's
+         documented WinUI 3 XamlCompiler crash). -->
+    <Grid Background="{StaticResource PosSurfaceBrush}">
+
+        <!-- ================= NO SHIFT OPEN: this station has none of its own to open ================= -->
+        <Grid Background="{StaticResource SurfaceBrush}"
+              Visibility="{Binding IsShiftOpen, Converter={StaticResource InverseBoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="440" Padding="32"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="لا توجد وردية مفتوحة" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding ShiftError}" Style="{StaticResource MutedText}"
+                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                    <Button Content="إعادة المحاولة" Style="{StaticResource CtaButtonStyle}"
+                            Command="{Binding RefreshShiftCommand}" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ================= MAIN WORKSPACE ================= -->
+        <Grid Visibility="{Binding IsShiftOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="420"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <views:CallCenterOrderPanelView Grid.Column="0"/>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,8,12,0">
+                    <Button AutomationProperties.AutomationId="OrderLookupButton" Style="{StaticResource GhostButtonStyle}"
+                            Command="{Binding OpenOrderLookupCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE721;" FontSize="14"/>
+                            <TextBlock Text="بحث عن طلب / إعادة طباعة" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <views:CategoryStripView Grid.Row="1"/>
+                <views:ProductCatalogueView Grid.Row="2"/>
+            </Grid>
+        </Grid>
+
+        <!-- ================= CALLER / DELIVERY EDITOR ================= -->
+        <views:CallCenterDeliveryEditorView/>
+
+        <!-- ================= VARIANT PICKER MODAL ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsVariantPickerOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="20" Width="420" MaxHeight="500"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="12">
+                    <controls:ModalHeaderView Title="{Binding VariantPickerProduct.Name}"
+                                              CloseCommand="{Binding CloseVariantPickerCommand}"/>
+                    <Border Background="#ECFDF5" BorderBrush="#6EE7B7" BorderThickness="1" CornerRadius="10" Padding="10,8"
+                            Visibility="{Binding HasPendingOffer, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="{Binding PendingOfferBanner}" FontSize="12" FontWeight="Bold" Foreground="#065F46"
+                                   TextWrapping="Wrap" TextAlignment="Right"/>
+                    </Border>
+                    <ItemsControl ItemsSource="{Binding VariantPickerProduct.Variants}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                        Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8"
+                                        Command="{Binding ElementName=Root, Path=DataContext.SelectVariantCommand}" CommandParameter="{Binding}">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Right"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding PricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                   FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ================= ORDER SUCCESS CONFIRMATION ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding HasCheckoutResult, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="28" Width="380"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="10" HorizontalAlignment="Center">
+                    <TextBlock Text="✅" FontSize="34" HorizontalAlignment="Center"/>
+                    <TextBlock Text="تم تسجيل الطلب" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}">
+                        <Run Text="{Binding LastCheckoutResult.OrderNumber}"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource MutedText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                               Text="السائق يحصّل المبلغ عند التسليم إذا كان الدفع نقدًا."/>
+                    <TextBlock Text="{Binding ReprintNote}" Style="{StaticResource MutedText}"
+                               TextWrapping="Wrap" TextAlignment="Center"/>
+                    <Button Content="إعادة محاولة طلب الطباعة" Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding RetryPrintCommand}" HorizontalAlignment="Stretch"
+                            Visibility="{Binding HasPendingPrint, Converter={StaticResource BoolToVisibleConverter}}"/>
+                    <Button Content="طلب جديد" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding CanEditOperation}"
+                            Command="{Binding StartNewOrderCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ================= ORDER LOOKUP / REPRINT MODAL ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="20" Width="420" MaxHeight="560"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="12">
+                    <controls:ModalHeaderView Title="بحث عن طلب" CloseCommand="{Binding CloseOrderLookupCommand}"/>
+
+                    <TextBox PlaceholderText="رقم الطلب (مثال: #0134)"
+                             Text="{Binding LookupOrderNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Content="بحث" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"
+                            Command="{Binding LookupOrderCommand}"/>
+
+                    <TextBlock Text="{Binding LookupError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
+                               Visibility="{Binding LookupError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                    <StackPanel Spacing="6" Visibility="{Binding LookedUpOrder, Converter={StaticResource NullToCollapsedConverter}}">
+                        <Border Height="1" Background="{StaticResource CardBorderBrush}" Margin="0,4"/>
+                        <TextBlock FontWeight="Black" FontSize="16">
+                            <Run Text="{Binding LookedUpOrder.OrderNumber}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}">
+                            <Run Text="الحالة: "/><Run Text="{Binding LookedUpOrder.Status}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}">
+                            <Run Text="العميل: "/><Run Text="{Binding LookedUpOrder.CustomerName}"/><Run Text=" - "/><Run Text="{Binding LookedUpOrder.CustomerPhone}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap">
+                            <Run Text="العنوان: "/><Run Text="{Binding LookedUpOrder.DeliveryArea}"/><Run Text=" - "/><Run Text="{Binding LookedUpOrder.DeliveryStreet}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="14" FontWeight="Bold">
+                            <Run Text="الإجمالي: "/><Run Text="{Binding LookedUpOrder.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        </TextBlock>
+                        <Button Content="إعادة طباعة إيصال مركز الاتصال" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"
+                                Command="{Binding ReprintLookedUpOrderCommand}"/>
+                        <TextBlock Text="{Binding ReprintNote}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                                   Visibility="{Binding ReprintNote, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

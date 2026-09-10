@@ -97,11 +97,25 @@
     <!-- Order-type / payment-method segmented option - compact, used inside a small fixed-column
          Grid. Selected state is applied per-instance in the view (it depends on a view-specific bound
          value), this is just the unselected base look. -->
+    <!-- One entry in the shell's dark top bar. Background and foreground are assigned per state in
+         ShellView.xaml.cs rather than through visual states, so the selected group is marked without
+         re-templating a control - the same avoidance that removed the previous NavigationView. -->
+    <Style x:Key="ShellNavButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextOnDarkMutedBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="13,0"/>
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
     <Style x:Key="SegmentButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-        <Setter Property="Background" Value="#232931"/>
+        <Setter Property="Background" Value="#F0F3EF"/>
         <Setter Property="Foreground" Value="#94A3B8"/>
-        <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Height" Value="34"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Height" Value="48"/>
         <Setter Property="Padding" Value="4"/>
         <Setter Property="CornerRadius" Value="8"/>
     </Style>
@@ -124,13 +138,32 @@
     </Style>
 
     <!-- Numeric keypad key (checkout amount entry, PIN pad). -->
+    <!-- Stretched, not centred at its minimum size: these keys are hit with a thumb hundreds of
+         times a shift, so each one should own its whole grid cell rather than leaving dead gaps
+         between narrow 52px pills. -->
     <Style x:Key="KeypadButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-        <Setter Property="Background" Value="#1E293B"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="#F0F3EF"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="22"/>
-        <Setter Property="MinHeight" Value="64"/>
-        <Setter Property="MinWidth" Value="64"/>
-        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="MinHeight" Value="60"/>
+        <Setter Property="MinWidth" Value="52"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="CornerRadius" Value="10"/>
+    </Style>
+
+    <!-- Modal dismiss ("✕"). A real 44x44 target: these were previously declared inline with
+         MinWidth/MinHeight="0" and 4px padding, giving roughly a 20px tap area on a touch terminal -
+         the smallest control in the product sitting in the corner of every dialog, where a missed tap
+         means the operator jabs at a modal that will not close. -->
+    <Style x:Key="ModalCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="MinHeight" Value="44"/>
+        <Setter Property="MinWidth" Value="44"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
     </Style>
 
     <!-- Card container: white rounded panel with a light border. -->
@@ -195,8 +228,8 @@
 
     <!-- Cart line quantity +/- : small, touch-sized without dominating the row. -->
     <Style x:Key="QuantityButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-        <Setter Property="Width" Value="30"/>
-        <Setter Property="Height" Value="30"/>
+        <Setter Property="Background" Value="#EDF3EE"/><Setter Property="Foreground" Value="{StaticResource BrandPrimaryBrush}"/><Setter Property="Width" Value="44"/>
+        <Setter Property="Height" Value="44"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="CornerRadius" Value="8"/>
@@ -204,12 +237,12 @@
 
     <!-- Quick-note chip inside a cart line ("بدون بصل" etc.) - a tiny pill, not a full button. -->
     <Style x:Key="NoteChipButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-        <Setter Property="Background" Value="{StaticResource GraphiteBorderBrush}"/>
-        <Setter Property="Foreground" Value="#CBD5E1"/>
-        <Setter Property="FontSize" Value="9"/>
+        <Setter Property="Background" Value="#F2F5F0"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Padding" Value="6,3"/>
-        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="MinHeight" Value="44"/>
         <Setter Property="CornerRadius" Value="4"/>
     </Style>
 
@@ -226,6 +259,11 @@
         <Setter Property="Padding" Value="8,5"/>
     </Style>
 
+    <Style TargetType="MenuFlyoutItem">
+        <Setter Property="MinHeight" Value="48"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+    </Style>
     <Style TargetType="TextBox">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
         <Setter Property="FlowDirection" Value="RightToLeft"/>
@@ -234,7 +272,218 @@
         <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <Style TargetType="PasswordBox">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <Style TargetType="CalendarDatePicker">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <!--
+        ============================================================================================
+        MANAGEMENT-SHELL SYSTEM - added for the Step 1 "final design system" pass covering Reports,
+        Delivery, Inventory, Purchasing, Employees, Users/Audit, Settings, Backup/Restore, Control
+        Center. The POS-specific styles above stay untouched (measured against the reference app and
+        proven in the live Cashier screen); everything below is new vocabulary for the desktop-density
+        management surfaces, built on the same VisualStateManager pattern (no ControlTemplate.Triggers
+        - see the file-level comment above on why that crashes WinUI 3).
+        ============================================================================================
+    -->
+
+    <!-- Search box: a plain TextBox styled as a pill with room reserved (via caller-supplied
+         PlaceholderText, e.g. "بحث عن عميل بالاسم أو رقم الهاتف...") - every module needs one and
+         they must look identical so a user doesn't relearn the affordance per screen. -->
+    <Style x:Key="SearchBoxStyle" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="Padding" Value="16,10"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ShellDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="MinHeight" Value="42"/>
+    </Style>
+
+    <!-- Numeric entry (quantities, piastre amounts, counts) - right-aligned digits read naturally
+         even inside an RTL layout, matching how the reference app right-aligned every numeric field. -->
+    <Style x:Key="NumericBoxStyle" TargetType="NumberBox">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="SpinButtonPlacementMode" Value="Compact"/>
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <!-- Icon-only button (row action: edit/delete/reassign/print). 40x40 - large enough for touch,
+         compact enough for a dense table row. -->
+    <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+    <Style x:Key="IconButtonDangerStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+    </Style>
+
+    <!-- Text-only "ghost" action - table toolbars, dialog secondary actions - never draws a colored
+         box for something that isn't the primary action on screen. -->
+    <Style x:Key="GhostButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource BrandPrimaryBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="MinHeight" Value="36"/>
+    </Style>
+
+    <!-- A management-page primary action (New Purchase, New Employee...) - same brand blue as the
+         POS's PrimaryButtonStyle, sized for a desktop toolbar rather than a touch terminal. -->
+    <Style x:Key="ToolbarPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style x:Key="ToolbarSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <!-- Flat white page card - the base container for every management screen's content block
+         (a filter bar, a table, a form section). Deliberately no shadow: WinUI 3's ThemeShadow needs
+         a Translation/Z-depth setup per element that adds real complexity for a purely-cosmetic
+         effect at this density, so elevation here is communicated with a 1px border instead, matching
+         the flat-card language the reference app itself used outside the POS screen. -->
+    <Style x:Key="PageCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ShellDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="20"/>
+    </Style>
+
+    <!-- KPI summary card (top-of-page metric row: "orders today", "cash in drawer"...). -->
+    <Style x:Key="SummaryCardStyle" TargetType="Border" BasedOn="{StaticResource PageCardStyle}">
+        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="MinWidth" Value="180"/>
+    </Style>
+
+    <!-- Table header row background - paired with TableHeaderText for the label. -->
+    <Style x:Key="TableHeaderRowStyle" TargetType="Grid">
+        <Setter Property="Background" Value="{StaticResource TableHeaderBrush}"/>
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <!-- Plain data row - alternating background is applied per-item in the view via
+         StringEqualsToBrushConverter/index parity, this just fixes the shared geometry. -->
+    <Style x:Key="TableRowStyle" TargetType="Grid">
+        <Setter Property="MinHeight" Value="48"/>
+    </Style>
+
+    <Style x:Key="TableRowBorderStyle" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource ShellDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    </Style>
+
+    <!-- Status pill chrome - pair with StatusPillText (Foreground=White) and
+         Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}". -->
+    <Style x:Key="StatusPillBorderStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Padding" Value="10,4"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+    <!-- Inline banner (info/success/warning/danger) - a full-width colored strip used for permission-
+         denied notices, offline warnings, destructive-action confirmations. Background/BorderBrush
+         are set per-instance from the four *BackgroundBrush / *Brush semantic pairs. -->
+    <Style x:Key="AlertBannerStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
+
+    <!-- Left-hand NavigationView item chrome for the app shell - dark background per the
+         Shell*/palette, brand-blue left accent bar on selection (applied per-instance since WinUI's
+         NavigationViewItem does not expose a simple selected-brush property to style directly).
+         PaneBackground is deliberately NOT set here via a Style Setter - doing so reliably crashes
+         WinUI 3's XamlCompiler.exe at build time on WindowsAppSDK 1.5.240311000 (confirmed by
+         bisection: a Style targeting NavigationView with only that one Setter fails the build with
+         no diagnostic emitted; removing it is the only thing that fixed the build). The pane's dark
+         background is instead applied per-instance directly on the NavigationView element in the
+         Shell view's own XAML (a plain element property assignment does not go through the same
+         compiler path a Style Setter does), not through this shared style. -->
+    <Style x:Key="ShellNavViewStyle" TargetType="NavigationView">
+        <Setter Property="OpenPaneLength" Value="248"/>
+        <Setter Property="CompactPaneLength" Value="56"/>
+    </Style>
+
+    <!-- ContentDialog chrome for confirmation/destructive-action prompts (Backup restore, void
+         payment, deactivate user...). Title/Content styling only - buttons keep ContentDialog's own
+         Primary/Secondary/Close semantics, but the DESTRUCTIVE primary action should set
+         PrimaryButtonStyle="{StaticResource DialogDestructiveButtonStyle}" per the "make destructive
+         actions visually unmistakable" requirement. -->
+    <Style x:Key="DialogTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style x:Key="DialogDestructiveButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <!-- Key caps for the POS shortcut strip. A key is drawn as a key so the eye separates it from
+         the label beside it without needing a colour of its own. -->
+    <Style x:Key="KeyCapBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource NeutralBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="Padding" Value="7,2"/>
+        <Setter Property="MinWidth" Value="30"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="KeyCapText" TargetType="TextBlock" BasedOn="{StaticResource TextBase}">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
     </Style>
 
 </ResourceDictionary>

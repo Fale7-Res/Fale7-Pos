@@ -108,6 +108,23 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     // ---- Close blockers ----
 
     [Fact]
+    public async Task Closed_days_remain_discoverable_for_review_and_reopen_after_current_day_returns_not_found()
+    {
+        var dayId = await CleanCloseableDayAsync();
+        (await CloseBusinessDayAsync(dayId)).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("/api/business-day/current")).StatusCode);
+        var days = await _client.GetFromJsonAsync<List<BusinessDayDto>>("/api/business-days");
+        var closed = Assert.Single(days!);
+        Assert.Equal(dayId, closed.Id);
+        Assert.Equal("Closed", closed.Status);
+        Assert.NotNull(closed.SnapshotId);
+        (await ReopenBusinessDayAsync(closed.Id, "مراجعة اليوم المغلق")).EnsureSuccessStatusCode();
+        var reopened = Assert.Single((await _client.GetFromJsonAsync<List<BusinessDayDto>>("/api/business-days"))!);
+        Assert.Equal(dayId, reopened.Id);
+        Assert.Equal("Reopened", reopened.Status);
+    }
+
+    [Fact]
     public async Task An_open_shift_blocks_business_day_close()
     {
         var dayId = await OpenBusinessDayAsync();
@@ -359,7 +376,8 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         (await CompleteChecklistAsync(dayId, "close-drawer")).EnsureSuccessStatusCode();
 
         var checklist = await (await _client.GetAsync($"/api/business-day/{dayId}/checklist")).Content.ReadFromJsonAsync<List<ChecklistItemStatusDto>>();
-        Assert.True(checklist!.Single(c => c.Id == "close-drawer").Completed);
+        Assert.NotNull(checklist);
+        Assert.True(checklist.Single(c => c.Id == "close-drawer").Completed);
         Assert.False(checklist.Single(c => c.Id == "close-shifts").Completed);
     }
 
@@ -389,6 +407,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
             CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        Assert.NotNull(order);
 
         // A large refund (>= 50,000 piastres) is a control exception, ported verbatim from
         // CONTROL_THRESHOLDS.largeRefundPiastres.

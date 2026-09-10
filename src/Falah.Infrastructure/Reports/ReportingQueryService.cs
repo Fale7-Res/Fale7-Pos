@@ -31,25 +31,59 @@ public sealed class ReportingQueryService
     private readonly FalahDbContext _db;
     public ReportingQueryService(FalahDbContext db) => _db = db;
 
-    private async Task<List<OrderEntity>> LoadSalesOrdersAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct)
+    private async Task<List<OrderEntity>> LoadSalesOrdersAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct)
     {
         var query = _db.Orders.AsNoTracking().Include(o => o.Items)
             .Where(o => o.Status != nameof(OrderStatus.Cancelled));
-        if (businessDate is { } date)
+        if (range is { } period)
         {
-            var (start, end) = BusinessClock.UtcRangeForBusinessDate(date);
+            // Cairo midnight boundaries, so a month's total is exactly the sum of the days inside it.
+            var (start, end) = period.ToUtcRange();
             query = query.Where(o => o.CreatedAtUtc >= start && o.CreatedAtUtc < end);
         }
         if (shiftId is not null) query = query.Where(o => o.ShiftId == shiftId);
         return await query.ToListAsync(ct);
     }
 
-    /// <summary>Ported from selectSalesReport in lib/reporting-domain.mjs.</summary>
-    public async Task<SalesReportDto> GetSalesReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default)
+    /// <summary>
+    /// Which of these orders is cash-on-delivery money the restaurant does not hold yet. An order
+    /// qualifies when CheckoutRules itself classified it as cash-on-delivery (delivery + cash + a
+    /// positive payable total - reused rather than re-expressed here, so this can never drift from
+    /// what checkout actually decided) and no SETTLED driver-custody row exists for it.
+    ///
+    /// Settlement is the moment the money becomes the restaurant's: SettleDriverCustodyHandler posts
+    /// the driver_settlement movement into tre-main. Before that the cash is with the customer
+    /// (undelivered) or the driver (delivered, unsettled). A settlement shortage is deliberately not
+    /// deducted again here - it is already reported as its own figure by the delivery outcomes
+    /// report, and double-counting it would understate collected sales twice.
+    /// </summary>
+    private async Task<IReadOnlySet<string>> LoadOrderIdsWithCashOutsideRestaurantAsync(
+        IReadOnlyList<Order> orders, CancellationToken ct)
     {
-        var entities = await LoadSalesOrdersAsync(businessDate, shiftId, ct);
+        var codOrderIds = orders
+            .Where(o => CheckoutRules.IsCashOnDelivery(o.OrderType, o.PaymentMethod, o.Total))
+            .Select(o => o.Id)
+            .ToHashSet();
+        if (codOrderIds.Count == 0) return codOrderIds;
+
+        var settled = await _db.DriverCustodies.AsNoTracking()
+            .Where(c => codOrderIds.Contains(c.OrderId) && c.Status == nameof(CustodyStatus.Settled))
+            .Select(c => c.OrderId)
+            .ToListAsync(ct);
+
+        codOrderIds.ExceptWith(settled);
+        return codOrderIds;
+    }
+
+    /// <summary>Ported from selectSalesReport in lib/reporting-domain.mjs.</summary>
+    public Task<SalesReportDto> GetSalesReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default) =>
+        GetSalesReportAsync(businessDate is { } d ? BusinessDateRange.SingleDay(d) : null, shiftId, ct);
+
+    public async Task<SalesReportDto> GetSalesReportAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct = default)
+    {
+        var entities = await LoadSalesOrdersAsync(range, shiftId, ct);
         var orders = entities.Select(OrderMapper.ToDomain).ToList();
-        var report = SalesRules.ComputeSalesReport(orders);
+        var report = SalesRules.ComputeSalesReport(orders, await LoadOrderIdsWithCashOutsideRestaurantAsync(orders, ct));
         return ToDto(report);
     }
 
@@ -57,9 +91,12 @@ public sealed class ReportingQueryService
     /// TaxableBase (see SalesRules.ComputeTaxReport's own doc comment for why this must never
     /// recompute from today's live tax rule). A real gap found during the legacy-parity audit: no
     /// C# endpoint existed for this at all.</summary>
-    public async Task<TaxReportDto> GetTaxReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default)
+    public Task<TaxReportDto> GetTaxReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default) =>
+        GetTaxReportAsync(businessDate is { } d ? BusinessDateRange.SingleDay(d) : null, shiftId, ct);
+
+    public async Task<TaxReportDto> GetTaxReportAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct = default)
     {
-        var entities = await LoadSalesOrdersAsync(businessDate, shiftId, ct);
+        var entities = await LoadSalesOrdersAsync(range, shiftId, ct);
         var orders = entities.Select(OrderMapper.ToDomain).ToList();
         var report = SalesRules.ComputeTaxReport(orders);
         return new TaxReportDto(report.Gross.Piastres, report.Taxable.Piastres, report.Tax.Piastres,
@@ -69,16 +106,21 @@ public sealed class ReportingQueryService
     private static SalesReportDto ToDto(SalesRules.SalesReport r) => new(
         r.OrderCount, r.GrossSales.Piastres, r.Refunds.Piastres, r.NetSales.Piastres, r.ListSales.Piastres,
         r.OffersValue.Piastres, r.CompsValue.Piastres, r.ManualDiscounts.Piastres, r.PendingElectronicSales.Piastres,
-        r.CollectedSales.Piastres, r.AverageOrderValue.Piastres, r.Cash.Piastres, r.Card.Piastres, r.InstaPay.Piastres,
+        r.CashWithDrivers.Piastres, r.CollectedSales.Piastres, r.AverageOrderValue.Piastres, r.Cash.Piastres, r.Card.Piastres, r.InstaPay.Piastres,
         r.Wallet.Piastres, r.DineIn.Piastres, r.Takeaway.Piastres, r.Delivery.Piastres);
 
     /// <summary>Ported from selectExpensesReport - a plain total + list, no cashier/manager
     /// visibility split (that rule belongs to ExpenseQueryService for the operational drawer view;
     /// this is the management-report total across everyone, gated on reports_view at the endpoint).</summary>
-    public async Task<ExpenseReportDto> GetExpenseReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default)
+    public Task<ExpenseReportDto> GetExpenseReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default) =>
+        GetExpenseReportAsync(businessDate is { } d ? BusinessDateRange.SingleDay(d) : null, shiftId, ct);
+
+    public async Task<ExpenseReportDto> GetExpenseReportAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct = default)
     {
         var query = _db.Expenses.AsNoTracking().AsQueryable();
-        if (businessDate is { } date) query = query.Where(e => e.BusinessDate == date);
+        // Expenses carry their own business date, so they are filtered on it directly rather than
+        // through the UTC instant range the timestamped tables need.
+        if (range is { } period) query = query.Where(e => e.BusinessDate >= period.From && e.BusinessDate <= period.To);
         if (shiftId is not null) query = query.Where(e => e.ShiftId == shiftId);
 
         var rows = await query.OrderByDescending(e => e.CreatedAtUtc).ToListAsync(ct);
@@ -90,10 +132,13 @@ public sealed class ReportingQueryService
     /// <summary>Ported from selectRefundActivity - every refund across every order, with the
     /// original sale's own shift alongside the shift that actually processed the refund (a closed
     /// shift's refund is processed under the CURRENT shift, per RefundOrderHandler).</summary>
-    public async Task<List<RefundActivityDto>> GetRefundActivityAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default)
+    public Task<List<RefundActivityDto>> GetRefundActivityAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default) =>
+        GetRefundActivityAsync(businessDate is { } d ? BusinessDateRange.SingleDay(d) : null, shiftId, ct);
+
+    public async Task<List<RefundActivityDto>> GetRefundActivityAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct = default)
     {
         DateTimeOffset? start = null, end = null;
-        if (businessDate is { } date) (start, end) = BusinessClock.UtcRangeForBusinessDate(date);
+        if (range is { } period) (start, end) = period.ToUtcRange();
 
         var query = _db.OrderRefunds.AsNoTracking()
             .Where(r => (shiftId == null || r.OperationalShiftId == shiftId)
@@ -117,7 +162,9 @@ public sealed class ReportingQueryService
 
         var orderEntities = await _db.Orders.AsNoTracking().Include(o => o.Items)
             .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.BusinessDayId == businessDayId).ToListAsync(ct);
-        var sales = SalesRules.ComputeSalesReport(orderEntities.Select(OrderMapper.ToDomain).ToList());
+        var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
+        var sales = SalesRules.ComputeSalesReport(
+            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct));
 
         var expensesTotal = await _db.Expenses.AsNoTracking().Where(e => e.BusinessDayId == businessDayId).SumAsync(e => (long?)e.AmountPiastres, ct) ?? 0;
 
@@ -231,9 +278,19 @@ public sealed class ReportingQueryService
         int knownLines = 0, totalLines = 0;
         foreach (var line in soldLines)
         {
-            var recipeId = (line.VariantId is not null && variantRecipeIds.TryGetValue(line.VariantId, out var vr) && vr is not null) ? vr : productRecipeIds.GetValueOrDefault(line.ProductId);
-            if (recipeId is null || !recipes.TryGetValue(recipeId, out var recipe)) continue;
+            // Every sold line counts, priced or not. Skipping the unpriced ones before this made a
+            // restaurant that had costed nothing report zero sold lines - which reads as complete
+            // coverage of an empty menu, and therefore as a hundred percent margin. An item with no
+            // recipe is not absent from the report; its cost is unknown, exactly like an item whose
+            // recipe has an unpriced ingredient below.
             totalLines++;
+
+            var recipeId = (line.VariantId is not null && variantRecipeIds.TryGetValue(line.VariantId, out var vr) && vr is not null) ? vr : productRecipeIds.GetValueOrDefault(line.ProductId);
+            if (recipeId is null || !recipes.TryGetValue(recipeId, out var recipe))
+            {
+                missing.Add(line.ProductName);
+                continue;
+            }
 
             var recipeLines = recipe.Items.Select(i => new RecipeLine(i.InventoryItemId, i.QuantityMilliUnits, Enum.Parse<RecipeLineKind>(i.Kind), i.YieldUnitsPerBaseUnit)).ToList();
             var cost = CostingRules.ComputeRecipeCost(recipeLines, costingCtx);
@@ -289,7 +346,9 @@ public sealed class ReportingQueryService
         var shift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == shiftId, ct)
             ?? throw new InvalidOperationException("الوردية غير موجودة.");
         var orderEntities = await LoadSalesOrdersAsync(null, shiftId, ct);
-        var sales = SalesRules.ComputeSalesReport(orderEntities.Select(OrderMapper.ToDomain).ToList());
+        var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
+        var sales = SalesRules.ComputeSalesReport(
+            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct));
         var expensesTotal = await _db.Expenses.AsNoTracking().Where(e => e.ShiftId == shiftId).SumAsync(e => (long?)e.AmountPiastres, ct) ?? 0;
 
         return new ShiftSummaryDto(shift.Id, shift.ShiftName, shift.OpenedByUserId, shift.Status, shift.OpeningCashPiastres,

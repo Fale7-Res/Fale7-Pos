@@ -32,6 +32,22 @@ public sealed class DeliveryQueryService
     public Task<List<DeliveryDto>> ListReadyForDispatchAsync(CancellationToken ct = default) =>
         ListByStatusAsync(nameof(DeliveryStatus.Ready), ct);
 
+    /// <summary>Every delivery still in play, whatever its stage - the read a dispatch board needs.
+    /// ListReadyForDispatchAsync alone cannot drive that screen: a delivery is created as `New` at
+    /// checkout and only becomes `Ready` when someone marks it so, which nobody could do while the
+    /// only list available excluded `New` entirely. Terminal states (Delivered/Failed/Returned/
+    /// Settled/Cancelled) are excluded - they belong to reporting and settlement, not to the live
+    /// board. Read-only: composes exactly the same DeliveryDto the sibling queries already return,
+    /// adds no new business rule and writes nothing.</summary>
+    public Task<List<DeliveryDto>> ListDispatchBoardAsync(CancellationToken ct = default) =>
+        QueryToDtos(_db.Deliveries.AsNoTracking().Where(d =>
+            d.Status == nameof(DeliveryStatus.New) ||
+            d.Status == nameof(DeliveryStatus.Preparing) ||
+            d.Status == nameof(DeliveryStatus.Ready) ||
+            d.Status == nameof(DeliveryStatus.Assigned) ||
+            d.Status == nameof(DeliveryStatus.HandedToDriver) ||
+            d.Status == nameof(DeliveryStatus.OutForDelivery)), ct);
+
     public Task<List<DeliveryDto>> ListActiveForDriverAsync(string driverId, CancellationToken ct = default) =>
         QueryToDtos(_db.Deliveries.AsNoTracking().Where(d => d.DriverId == driverId
             && (d.Status == nameof(DeliveryStatus.Assigned) || d.Status == nameof(DeliveryStatus.HandedToDriver) || d.Status == nameof(DeliveryStatus.OutForDelivery))), ct);

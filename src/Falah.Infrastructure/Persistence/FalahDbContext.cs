@@ -22,6 +22,7 @@ public class FalahDbContext : DbContext
     public DbSet<CategoryEntity> Categories => Set<CategoryEntity>();
     public DbSet<ProductEntity> Products => Set<ProductEntity>();
     public DbSet<ProductVariantEntity> ProductVariants => Set<ProductVariantEntity>();
+    public DbSet<ProductImageEntity> ProductImages => Set<ProductImageEntity>();
     public DbSet<PriceRuleEntity> PriceRules => Set<PriceRuleEntity>();
     public DbSet<PriceRuleProductEntity> PriceRuleProducts => Set<PriceRuleProductEntity>();
     public DbSet<PriceRuleDayEntity> PriceRuleDays => Set<PriceRuleDayEntity>();
@@ -187,6 +188,16 @@ public class FalahDbContext : DbContext
             // recipe is the real relation); this column only feeds resolution at checkout time.
         });
         modelBuilder.Entity<ProductVariantEntity>(b => b.HasKey(v => v.Id));
+
+        modelBuilder.Entity<ProductImageEntity>(b =>
+        {
+            b.HasKey(i => i.ProductId);
+            b.Property(i => i.ContentType).HasMaxLength(80);
+            b.Property(i => i.Version).HasMaxLength(40);
+            // Cascade, unlike the rest of the menu graph: an image is not a record of anything that
+            // happened, so a deleted product should not leave its photo behind.
+            b.HasOne<ProductEntity>().WithMany().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<PriceRuleEntity>(b =>
         {

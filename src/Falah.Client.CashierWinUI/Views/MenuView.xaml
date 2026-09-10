@@ -1,0 +1,205 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.MenuView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:Falah.Client.CashierWinUI.Views"
+             FlowDirection="RightToLeft">
+    <!-- The live menu, the tax rule and the price rules that decide what customers pay. Availability
+         is the one write here - a price change has a different authorization path and rewrites what
+         every future order is charged, so it does not belong behind the same tap. -->
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="القائمة والتسعير" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="الأصناف وتوفرها، والضريبة والعروض السارية" Style="{StaticResource PageSubtitleText}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <Button Content="إدارة القائمة والتسعير" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                        Visibility="{Binding CanOpenEditor, Converter={StaticResource BoolToVisibleConverter}}"
+                        Command="{Binding OpenEditorCommand}"/>
+                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                    <FontIcon Glyph="&#xE72C;" FontSize="13"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Padding="28,0,28,12">
+            <TextBox Style="{StaticResource SearchBoxStyle}" MinHeight="44" PlaceholderText="ابحث بالصنف أو التصنيف..."
+                     MaxWidth="420" HorizontalAlignment="Right"
+                     Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <Grid Grid.Row="2" Padding="28,0,28,24" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="330"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Products -->
+            <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="الصنف" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="1" Text="التصنيف" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="2" Text="السعر" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="3" Text="المحطة" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="4" Text="التوفر" Style="{StaticResource TableHeaderText}"/>
+                        </Grid>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Products}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Product.Name}" Style="{StaticResource TableCellText}"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="7" Padding="7,2"
+                                                        VerticalAlignment="Center"
+                                                        Visibility="{Binding IsAvailable, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                                                    <TextBlock Text="غير متاح" FontSize="11" FontWeight="SemiBold"
+                                                               Foreground="{StaticResource DangerBrush}"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding CategoryName}" Style="{StaticResource TableCellText}"
+                                                       Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding PriceDisplay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding StationLabel}" Style="{StaticResource TableCellText}"
+                                                       Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="4" Content="تبديل التوفر" MinHeight="44" FontSize="12"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.ToggleAvailabilityCommand}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ProgressRing IsActive="True" Width="36" Height="36"/>
+                        <TextBlock Text="جاري تحميل القائمة..." Style="{StaticResource MutedText}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                                Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                                HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding HasNoProducts, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="لا توجد أصناف مطابقة" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Tax + offers -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16">
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="الضريبة" Style="{StaticResource SectionTitleText}"/>
+                            <ItemsControl ItemsSource="{Binding TaxRules}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Spacing="2" Margin="0,0,0,8">
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <Border Grid.Column="1" CornerRadius="7" Padding="7,2" VerticalAlignment="Center"
+                                                        Background="{StaticResource NeutralPillBrush}"
+                                                        Visibility="{Binding Enabled, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                                                    <TextBlock Text="معطّلة" Style="{StaticResource StatusPillText}"/>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Style="{StaticResource CaptionText}">
+                                                <Run Text="{Binding RateBasisPoints}"/><Run Text=" نقطة أساس — "/><Run Text="{Binding Mode}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="لا توجد قاعدة ضريبة مُعرّفة." Style="{StaticResource MutedText}"
+                                       Visibility="{Binding TaxRules, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="العروض وقواعد التسعير" Style="{StaticResource SectionTitleText}"/>
+                            <ItemsControl ItemsSource="{Binding PriceRules}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Spacing="2" Margin="0,0,0,8">
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}"
+                                                       FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Style="{StaticResource CaptionText}">
+                                                <Run Text="سعر ثابت "/>
+                                                <Run Text="{Binding FixedPricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="لا توجد عروض مُعرّفة." Style="{StaticResource MutedText}"
+                                       Visibility="{Binding PriceRules, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <Border Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
+                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
+        </Border>
+        <Border Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
+                Background="{StaticResource DangerBrush}" CornerRadius="12" Padding="18,12"
+                Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding ActionError}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
+        </Border>
+
+        <!-- Declared last so the authoring modal layers above the page and its toasts. -->
+        <views:MenuEditorView Grid.RowSpan="3" DataContext="{Binding Editor}"/>
+    </Grid>
+</UserControl>

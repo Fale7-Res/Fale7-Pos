@@ -10,46 +10,59 @@
          cramming - see ProductCatalogueView.xaml.cs. -->
     <Grid Background="{StaticResource PosSurfaceBrush}">
         <GridView x:Name="ProductsGridView" ItemsSource="{Binding VisibleProducts}"
-                  IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnProductClicked" Padding="12,8,12,12"
+                  IsEnabled="{Binding CanEditOperation}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnProductClicked" Padding="18,8,8,12"
                   Visibility="{Binding IsLoadingMenu, Converter={StaticResource InverseBoolToVisibleConverter}}">
+            <GridView.ItemContainerStyle><Style TargetType="GridViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/></Style></GridView.ItemContainerStyle>
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Spacing="4">
-                        <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
-                                CornerRadius="12" Padding="12,10">
+                    <StackPanel Spacing="0" Margin="0,0,10,10">
+                        <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" MinHeight="160">
+                            <Border.Shadow><ThemeShadow/></Border.Shadow>
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,4">
-                                    <Border Background="#FFFBEB" CornerRadius="4" Padding="5,2"
-                                            Visibility="{Binding Product.SendToGrill, Converter={StaticResource BoolToVisibleConverter}}">
-                                        <TextBlock Text="🔥 فحم" FontSize="10" FontWeight="Bold" Foreground="#B45309"/>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <!-- The photo, or the category's icon where there is no photo. Both
+                                     occupy the same fixed band, so a menu that is half photographed
+                                     still lays out as one even grid instead of two card heights. -->
+                                <Border Grid.Row="0" Height="104" CornerRadius="16,16,0,0" Background="{StaticResource NeutralBackgroundBrush}">
+                                    <Grid>
+                                        <TextBlock Text="{Binding FallbackIcon}" FontSize="38" Opacity="0.55"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Image Source="{Binding ImageUri, Converter={StaticResource ImageUriToSourceConverter}}" Stretch="UniformToFill"
+                                               Visibility="{Binding HasImage, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                        <!-- Earned, not assigned: this is on the card because the
+                                             item actually sold, so it is worth the corner it takes. -->
+                                        <Border Background="#F2FFFFFF" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                                                CornerRadius="8" Padding="8,3" Margin="8" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                Visibility="{Binding IsBestSeller, Converter={StaticResource BoolToVisibleConverter}}">
+                                            <TextBlock Text="🔥 الأكثر مبيعًا" FontSize="10" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            <Grid Grid.Row="1" RowSpacing="10" Padding="14">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <!-- The badge carries REAL routing information (which kitchen station this
+                                     item is actually sent to, the same PreparationStation that drives its
+                                     print job) instead of a decorative icon. Items with no kitchen routing
+                                     show no badge, so the row stays quiet rather than uniformly noisy. -->
+                                <Grid>
+                                    <Border Background="#EDF3EE" CornerRadius="8" Padding="8,3" HorizontalAlignment="Right"
+                                            Visibility="{Binding StationLabel, Converter={StaticResource NullToCollapsedConverter}}">
+                                        <TextBlock Text="{Binding StationLabel}" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource BrandPrimaryBrush}"/>
                                     </Border>
-                                    <Border Background="#F1F5F9" CornerRadius="4" Padding="5,2"
-                                            Visibility="{Binding Product.Variants, Converter={StaticResource CountGreaterThanOneToVisibleConverter}}">
-                                        <TextBlock Text="خيارات" FontSize="10" FontWeight="Bold" Foreground="#475569"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="1" Text="{Binding Product.Name}" Style="{StaticResource ProductNameText}"
-                                           FontSize="16" TextWrapping="Wrap" MaxLines="2" VerticalAlignment="Top"/>
-
-                                <Grid Grid.Row="2" Margin="0,8,0,0" ColumnSpacing="4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Grid.ColumnSpan="2" Height="1" Background="{StaticResource CardBorderBrush}" VerticalAlignment="Top" Margin="0,0,0,8"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Product.BasePricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
-                                               Style="{StaticResource PriceText}" FontSize="17" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-                                    <TextBlock Grid.Column="0" Text="يبدأ من" FontSize="10" Foreground="{StaticResource TextMutedBrush}"
-                                               HorizontalAlignment="Right" Margin="0,7,0,0"
-                                               Visibility="{Binding Product.Variants, Converter={StaticResource CountGreaterThanOneToVisibleConverter}}"/>
+                                    <TextBlock Text="اختيار الحجم" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                                        Visibility="{Binding Product.Variants, Converter={StaticResource CountGreaterThanOneToVisibleConverter}}"/>
                                 </Grid>
+                                <TextBlock Grid.Row="1" Text="{Binding Product.Name}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"
+                                    TextWrapping="Wrap" MaxLines="3" MinHeight="48"/>
+                                <Grid Grid.Row="2" ColumnSpacing="6"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding StartingPriceDisplay}" FontSize="21" FontWeight="Bold" Foreground="{StaticResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Background="#F0F4EE" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                    </Border>
+                                </Grid>
+                            </Grid>
                             </Grid>
                         </Border>
                         <ItemsControl ItemsSource="{Binding Offers}">
@@ -75,7 +88,7 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Offer.Name}" FontSize="10" FontWeight="Bold" Foreground="#065F46"
+                                            <TextBlock Grid.Column="0" Text="{Binding Offer.Name}" FontSize="12" FontWeight="SemiBold" Foreground="#065F46"
                                                        TextWrapping="Wrap" TextAlignment="Right" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Offer.FixedPricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
                                                        FontSize="12" FontWeight="Black" Foreground="#065F46" VerticalAlignment="Center"/>

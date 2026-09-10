@@ -1,0 +1,128 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.SettingsView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="الإعدادات" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="هوية المطعم وإعدادات التشغيل والطباعة" Style="{StaticResource PageSubtitleText}"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="حفظ التغييرات" MinHeight="44" VerticalAlignment="Center"
+                    Style="{StaticResource CtaButtonStyle}" IsEnabled="{Binding CanEdit}" Command="{Binding SaveCommand}"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28,0,28,24">
+            <StackPanel Spacing="16" Visibility="{Binding HasData, Converter={StaticResource BoolToVisibleConverter}}">
+
+                <Border Style="{StaticResource AlertBannerStyle}"
+                        Visibility="{Binding CanEdit, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                    <TextBlock Text="لديك صلاحية العرض فقط - تعديل الإعدادات يحتاج صلاحية settings_manage."
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="هوية المطعم" Style="{StaticResource SectionTitleText}"/>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="اسم المطعم" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding RestaurantName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="1" Header="الاسم الفرعي" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding SubName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                        <TextBox Header="العنوان" MinHeight="44" IsEnabled="{Binding CanEdit}" TextWrapping="Wrap"
+                                 Text="{Binding Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="هاتف 1" MinHeight="44" InputScope="TelephoneNumber" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding Phone1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="1" Header="هاتف 2" MinHeight="44" InputScope="TelephoneNumber" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding Phone2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" Header="أرضي" MinHeight="44" InputScope="TelephoneNumber" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding PhoneLandline, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                        <TextBox Header="هاتف الشكاوى" MinHeight="44" InputScope="TelephoneNumber" IsEnabled="{Binding CanEdit}"
+                                 Text="{Binding ComplaintsPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="تذييل الإيصال" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True" IsEnabled="{Binding CanEdit}"
+                                 Text="{Binding ReceiptFooter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="إعدادات مالية وتشغيلية" Style="{StaticResource SectionTitleText}"/>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="رسوم التوصيل الافتراضية (ج)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding DeliveryFeeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="1" Header="حد فرق الدرج المسموح (ج)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding CashDiscrepancyThresholdText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" Header="أجر الساعة الإضافية (ج)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                     Text="{Binding OvertimeHourlyRateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                        <TextBlock Text="حد فرق الدرج هو ما يقرّر متى يحتاج إغلاق الوردية اعتماد مدير - يطبّقه السيرفر وحده."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <TextBox Header="قفل الشاشة تلقائيًا بعد (دقيقة)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                 Text="{Binding AutoLockMinutesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="الطباعة" Style="{StaticResource SectionTitleText}"/>
+                        <TextBox Header="عدد نسخ الإيصال" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                 Text="{Binding NumberOfReceiptCopiesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <CheckBox MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding AutoPrintReceipt, Mode=TwoWay}">
+                            <TextBlock Text="طباعة الإيصال تلقائيًا بعد الدفع" FontSize="13"/>
+                        </CheckBox>
+                        <CheckBox MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding AutoPrintPreparationTicket, Mode=TwoWay}">
+                            <TextBlock Text="طباعة تذكرة التحضير تلقائيًا" FontSize="13"/>
+                        </CheckBox>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="{Binding SaveError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           Visibility="{Binding SaveError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                <TextBlock Text="{Binding SavedNote}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           Visibility="{Binding SavedNote, Converter={StaticResource NullToCollapsedConverter}}"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+            <ProgressRing IsActive="True" Width="36" Height="36"/>
+            <TextBlock Text="جاري تحميل الإعدادات..." Style="{StaticResource MutedText}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                    Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+            <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,22 @@
+<UserControl x:Class="Falah.Client.CallCenterWinUI.Controls.PermissionDeniedStateView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <!--
+        Shown when a role-filtered nav item is somehow reached without the backing permission (a
+        stale nav state after a permission was revoked mid-session) - the shell hides menu items the
+        user can't reach, but every screen still defends itself independently rather than trusting the
+        nav filter alone.
+    -->
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Padding="40" MaxWidth="360">
+        <FontIcon Glyph="&#xE72E;" FontSize="32" Foreground="{StaticResource WarningBrush}"
+                  HorizontalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBlock Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"
+                   TextAlignment="Center" Text="لا تملك صلاحية الوصول"/>
+        <TextBlock x:Name="MessageBlock" Style="{StaticResource MutedText}" HorizontalAlignment="Center"
+                   TextAlignment="Center" TextWrapping="Wrap"
+                   Text="تواصل مع مدير النظام إذا كنت تحتاج صلاحية للوصول إلى هذه الشاشة."/>
+    </StackPanel>
+</UserControl>

@@ -1,7 +1,6 @@
 namespace Falah.Server.IntegrationTests;
 
 using Falah.Domain.Printing;
-using Falah.Infrastructure.Printing;
 using Xunit;
 
 /// <summary>

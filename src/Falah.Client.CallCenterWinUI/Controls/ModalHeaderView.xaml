@@ -1,0 +1,27 @@
+<UserControl x:Class="Falah.Client.CallCenterWinUI.Controls.ModalHeaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!--
+        One modal header for every dialog in the product. Every hand-written header before this put
+        the title and the close button in the SAME Grid cell with no ColumnDefinitions: the title had
+        no width bound, so any title long enough - and Arabic titles are routinely long - ran straight
+        underneath the close button. Two real columns fix it structurally: the title can only ever
+        occupy the space the button does not, and wraps instead of colliding.
+
+        Column order is deliberate under RTL: column 0 is the trailing (right) edge, so the title sits
+        right and the 44x44 close target sits left, matching every other dialog in the app.
+    -->
+    <Grid ColumnSpacing="12" Padding="0,0,0,4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="TitleBlock" Style="{StaticResource TitleText}" FontSize="18"
+                   HorizontalAlignment="Right" TextAlignment="Right" VerticalAlignment="Center"
+                   TextWrapping="Wrap" MaxLines="2"/>
+        <Button x:Name="CloseButton" Grid.Column="1" Content="&#xE711;" FontFamily="Segoe MDL2 Assets"
+                Style="{StaticResource ModalCloseButtonStyle}" VerticalAlignment="Top"
+                AutomationProperties.Name="إغلاق"/>
+    </Grid>
+</UserControl>

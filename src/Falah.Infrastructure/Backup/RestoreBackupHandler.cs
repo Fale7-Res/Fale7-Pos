@@ -36,12 +36,14 @@ public sealed class RestoreBackupHandler
     private readonly FalahDbContext _db;
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly IAuditLog _auditLog;
+    private readonly CreateBackupHandler _createBackup;
 
-    public RestoreBackupHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
+    public RestoreBackupHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog, CreateBackupHandler createBackup)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
         _auditLog = auditLog;
+        _createBackup = createBackup;
     }
 
     public async Task<BackupRecordDto> HandleAsync(RestoreBackupRequest request, CancellationToken ct = default)
@@ -97,6 +99,39 @@ public sealed class RestoreBackupHandler
             throw;
         }
 
+        // ---- Safety backup of what is about to be discarded ----
+        //
+        // A restore throws away every transaction committed since the chosen backup was taken. If
+        // the operator picked the wrong file, or the backup turns out to be older than they thought,
+        // this file is the only way back - so it is taken unconditionally, after every gate has
+        // passed and before anything is destroyed, and a failure to take it BLOCKS the restore.
+        // Refusing here costs the operator a retry; not refusing can cost the restaurant its books.
+        //
+        // Only the file survives the restore. This BackupRecords row does not - it is written to
+        // the very database that is about to be overwritten - which is why the safety file's path
+        // is recorded in the audit entry for the restore itself as well.
+        string safetyBackupPath;
+        try
+        {
+            var safety = await _createBackup.HandleAsync(new CreateBackupRequest(request.ActorUserId), ct);
+            if (safety.Status != nameof(BackupRecordStatus.Succeeded))
+                throw new DomainException(safety.ErrorMessage ?? "تعذّر إنشاء نسخة أمان قبل الاستعادة.");
+            safetyBackupPath = safety.FilePath;
+        }
+        catch (Exception ex)
+        {
+            restoreRecord.Status = nameof(BackupRecordStatus.Blocked);
+            restoreRecord.ErrorMessage = "لم تُنشأ نسخة أمان للحالة الحالية، فأُوقفت الاستعادة: " + ex.Message;
+            restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
+            _db.BackupRecords.Add(restoreRecord);
+            _auditLog.Append(new AuditEvent(
+                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                "محاولة استعادة نسخة احتياطية - مرفوضة", "backup", restoreRecord.ErrorMessage,
+                "critical", restoreRecord.CompletedAtUtc.Value, Reason: request.Reason, ReferenceId: restoreRecord.Id));
+            await _db.SaveChangesAsync(ct);
+            throw new DomainException(restoreRecord.ErrorMessage);
+        }
+
         _db.BackupRecords.Add(restoreRecord);
         await _db.SaveChangesAsync(ct);
 
@@ -132,7 +167,8 @@ public sealed class RestoreBackupHandler
             restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "استعادة نسخة احتياطية", "backup", $"تمت الاستعادة من {backup.FilePath}", "critical",
+                "استعادة نسخة احتياطية", "backup",
+                $"تمت الاستعادة من {backup.FilePath} - نسخة الأمان للحالة السابقة: {safetyBackupPath}", "critical",
                 restoreRecord.CompletedAtUtc.Value, Reason: request.Reason, AuthorizedBy: restoreRecord.ApprovedBy, ReferenceId: restoreRecord.Id));
         }
         catch (Exception ex)
@@ -142,7 +178,8 @@ public sealed class RestoreBackupHandler
             restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "فشل استعادة نسخة احتياطية", "backup", $"{backup.FilePath} - الخطأ: {ex.Message}", "critical",
+                "فشل استعادة نسخة احتياطية", "backup",
+                $"{backup.FilePath} - الخطأ: {ex.Message} - نسخة الأمان للحالة السابقة: {safetyBackupPath}", "critical",
                 restoreRecord.CompletedAtUtc.Value, Reason: request.Reason, ReferenceId: restoreRecord.Id));
         }
 

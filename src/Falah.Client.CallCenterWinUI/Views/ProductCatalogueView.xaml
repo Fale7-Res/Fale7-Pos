@@ -1,0 +1,121 @@
+<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.ProductCatalogueView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!-- Just the product grid + its loading/error/empty overlays. The search bar and category grid
+         live in the sibling CategoryStripView - see CashierView.xaml.cs for why they can't share a
+         file with this one. Item width is computed in code-behind from ActualWidth so the same
+         layout works from a 1366-wide POS screen up to a 1920+ one without wasting space or
+         cramming - see ProductCatalogueView.xaml.cs. -->
+    <Grid Background="{StaticResource PosSurfaceBrush}">
+        <GridView x:Name="ProductsGridView" ItemsSource="{Binding VisibleProducts}"
+                  IsEnabled="{Binding CanEditOperation}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnProductClicked" Padding="18,8,8,12"
+                  Visibility="{Binding IsLoadingMenu, Converter={StaticResource InverseBoolToVisibleConverter}}">
+            <GridView.ItemContainerStyle><Style TargetType="GridViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/></Style></GridView.ItemContainerStyle>
+            <GridView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Spacing="0" Margin="0,0,10,10">
+                        <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" MinHeight="160">
+                            <Border.Shadow><ThemeShadow/></Border.Shadow>
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <!-- The photo, or the category's icon where there is no photo. Both
+                                     occupy the same fixed band, so a menu that is half photographed
+                                     still lays out as one even grid instead of two card heights. -->
+                                <Border Grid.Row="0" Height="104" CornerRadius="16,16,0,0" Background="{StaticResource NeutralBackgroundBrush}">
+                                    <Grid>
+                                        <TextBlock Text="{Binding FallbackIcon}" FontSize="38" Opacity="0.55"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Image Source="{Binding ImageUri, Converter={StaticResource ImageUriToSourceConverter}}" Stretch="UniformToFill"
+                                               Visibility="{Binding HasImage, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                    </Grid>
+                                </Border>
+                            <Grid Grid.Row="1" RowSpacing="10" Padding="14">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <!-- The badge carries REAL routing information (which kitchen station this
+                                     item is actually sent to, the same PreparationStation that drives its
+                                     print job) instead of a decorative icon. Items with no kitchen routing
+                                     show no badge, so the row stays quiet rather than uniformly noisy. -->
+                                <Grid>
+                                    <Border Background="#EDF3EE" CornerRadius="8" Padding="8,3" HorizontalAlignment="Right"
+                                            Visibility="{Binding StationLabel, Converter={StaticResource NullToCollapsedConverter}}">
+                                        <TextBlock Text="{Binding StationLabel}" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                    </Border>
+                                    <TextBlock Text="اختيار الحجم" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                                        Visibility="{Binding Product.Variants, Converter={StaticResource CountGreaterThanOneToVisibleConverter}}"/>
+                                </Grid>
+                                <TextBlock Grid.Row="1" Text="{Binding Product.Name}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"
+                                    TextWrapping="Wrap" MaxLines="3" MinHeight="48"/>
+                                <Grid Grid.Row="2" ColumnSpacing="6"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding StartingPriceDisplay}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Background="#F0F4EE" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                            </Grid>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding Offers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- This Button sits inside the same GridViewItem as the product card, and the
+                                         GridView's own IsItemClickEnabled tap recognition wins the race against a
+                                         plain Command binding here - tapping this pill was silently firing the
+                                         GridView's ItemClick (selecting the BASE product) instead of this button's
+                                         Command, so the offer discount was never actually applied. Handling Tapped
+                                         directly and marking it e.Handled=true stops the event from ever reaching
+                                         the GridViewItem. See ProductCatalogueView.xaml.cs: OnOfferTapped. -->
+                                    <Button HorizontalAlignment="Stretch" Background="#ECFDF5" BorderBrush="#6EE7B7" BorderThickness="1"
+                                            CornerRadius="8" Padding="8,5" Margin="0,4,0,0"
+                                            Tapped="OnOfferTapped">
+                                        <!-- Two real columns, not two overlapping HorizontalAlignment TextBlocks - on a
+                                             narrow card an offer name long enough (e.g. "عرض الكفتة") collided with the
+                                             price and rendered as garbled overlapping text. The Star column gives the
+                                             name the actual remaining width to wrap into instead of just floating over
+                                             whatever the price didn't cover. -->
+                                        <Grid ColumnSpacing="6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Offer.Name}" FontSize="12" FontWeight="SemiBold" Foreground="#065F46"
+                                                       TextWrapping="Wrap" TextAlignment="Right" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Offer.FixedPricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                       FontSize="12" FontWeight="Black" Foreground="#065F46" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+
+        <!-- Loading -->
+        <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding IsLoadingMenu, Converter={StaticResource BoolToVisibleConverter}}">
+            <ProgressRing IsActive="True" Width="40" Height="40"/>
+            <TextBlock Text="جاري تحميل القائمة..." Style="{StaticResource MutedText}"/>
+        </StackPanel>
+
+        <!-- Menu load error - only reachable when the server is unreachable at login/shift-open
+             time, since a healthy load never sets this; retry re-runs the same request. -->
+        <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360"
+                    Visibility="{Binding MenuError, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="⚠️" FontSize="32" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding MenuError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+            <Button Content="إعادة المحاولة" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Center"
+                    Command="{Binding RetryLoadMenuCommand}"/>
+        </StackPanel>
+
+        <!-- No results for the current search/category. -->
+        <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding HasNoResults, Converter={StaticResource BoolToVisibleConverter}}">
+            <TextBlock Text="🔍" FontSize="32" HorizontalAlignment="Center"/>
+            <TextBlock Text="لا توجد أصناف مطابقة" Style="{StaticResource BodyText}" Foreground="{StaticResource TextMutedBrush}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

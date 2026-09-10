@@ -9,9 +9,9 @@ public sealed record CreateCategoryRequest(string RequestId, string Name, string
 
 public sealed record CreateCategoryResult(string CategoryId, bool WasReplayed);
 
-public sealed record UpdateCategoryRequest(string CategoryId, string Name, string? Icon, int SortOrder, string ActorUserId);
+public sealed record UpdateCategoryRequest(string CategoryId, string Name, string? Icon, int SortOrder, string ActorUserId, string? RequestId = null);
 
-public sealed record SetCategoryActiveRequest(string CategoryId, bool Active, string ActorUserId);
+public sealed record SetCategoryActiveRequest(string CategoryId, bool Active, string ActorUserId, string? RequestId = null);
 
 public sealed record CategoryDetailsDto(string Id, string Name, string? Icon, int SortOrder, bool Active);
 
@@ -31,12 +31,15 @@ public sealed record CreateProductResult(string ProductId, bool WasReplayed);
 
 public sealed record UpdateProductRequest(
     string ProductId, string CategoryId, string Name, long BasePricePiastres, bool SendToGrill,
-    string? PreparationStation, int SortOrder, string? RecipeId, IReadOnlyList<ProductVariantInput> Variants, string ActorUserId);
+    string? PreparationStation, int SortOrder, string? RecipeId, IReadOnlyList<ProductVariantInput> Variants, string ActorUserId, string? RequestId = null);
 
-public sealed record SetProductAvailabilityRequest(string ProductId, bool IsAvailable, string ActorUserId);
+public sealed record SetProductAvailabilityRequest(string ProductId, bool IsAvailable, string ActorUserId, string? RequestId = null);
 
 public sealed record ProductVariantDetailsDto(string Id, string Name, long PricePiastres, string? RecipeId);
 
 public sealed record ProductDetailsDto(
     string Id, string CategoryId, string Name, long BasePricePiastres, bool SendToGrill, string? PreparationStation,
-    bool IsAvailable, int SortOrder, string? RecipeId, IReadOnlyList<ProductVariantDetailsDto> Variants);
+    bool IsAvailable, int SortOrder, string? RecipeId, IReadOnlyList<ProductVariantDetailsDto> Variants,
+    /// <summary>Stamp of the product's current photo, or null when it has none - the management
+    /// list carries the stamp for the same reason the POS menu does, never the bytes.</summary>
+    string? ImageVersion = null);

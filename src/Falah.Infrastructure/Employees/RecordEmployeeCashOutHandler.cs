@@ -56,28 +56,39 @@ public sealed class RecordEmployeeCashOutHandler
         var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)
             ?? throw new InvalidOperationException("الموظف غير موجود.");
 
-        var shift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
-            ?? throw new InvalidOperationException("الوردية غير موجودة.");
-        if (shift.Status != nameof(ShiftStatus.Open))
-            throw new DomainException(request.Kind == "advance" ? "يجب فتح وردية قبل صرف سلفة." : "يجب فتح وردية قبل سحب مبلغ من رصيد موظف.");
-
-        ManagerApproval? approval = null;
-        if (!string.IsNullOrEmpty(request.ManagerApprovalId))
-        {
-            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
-                ?? throw new DomainException("المعتمد غير موجود.");
-            approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
-                approverUser.Role, DateTimeOffset.UtcNow, "employees_ledger", request.Reason);
-        }
-        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "employees_ledger", approval, requireApproval: true);
-
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-        var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, TreasuryAccounts.Drawer, ct);
-        FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, amount);
-
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            // An empty ledger has no stable row to serialize on. Concurrent first
+            // advances can deadlock while converting its index-range locks. Lock the
+            // existing employee row first, then inspect the ledger and replay receipt.
+            await _db.Employees
+                .FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.EmployeeId)
+                .Select(e => e.Id).SingleAsync(ct);
+            var completed = await _db.EmployeeLedgerEntries.AsNoTracking()
+                .FirstOrDefaultAsync(e => e.IdempotencyKey == idempotencyKey, ct);
+            if (completed is not null)
+                return new EmployeeCashOutResult(completed.Id, completed.BalanceAfterPiastres, completed.TreasuryMovementId, WasReplayed: true);
+
+            var shift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
+                ?? throw new InvalidOperationException("الوردية غير موجودة.");
+            if (shift.Status != nameof(ShiftStatus.Open))
+                throw new DomainException(request.Kind == "advance" ? "يجب فتح وردية قبل صرف سلفة." : "يجب فتح وردية قبل سحب مبلغ من رصيد موظف.");
+
+            ManagerApproval? approval = null;
+            if (!string.IsNullOrEmpty(request.ManagerApprovalId))
+            {
+                var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
+                    ?? throw new DomainException("المعتمد غير موجود.");
+                approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
+                    approverUser.Role, DateTimeOffset.UtcNow, "employees_ledger", request.Reason);
+            }
+            var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "employees_ledger", approval, requireApproval: true);
+
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, TreasuryAccounts.Drawer, ct);
+            FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, amount);
+
             // Two concurrent cash-outs for the SAME employee (different RequestIds, so the
             // idempotency-key check above cannot catch this) must not both read the same stale
             // balance and both pass AssertWithdrawalWithinBalance. UPDLOCK on this employee's own

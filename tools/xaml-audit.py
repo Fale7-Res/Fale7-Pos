@@ -1,0 +1,91 @@
+"""
+Static XAML safety audit for the WinUI clients.
+
+Catches resource/style failures that compile but crash at runtime, plus unsupported panel properties:
+
+  1. A Style applied to an element whose type is not the Style's TargetType. WinUI throws
+     0xc000027b in Microsoft.ui.xaml.dll the moment the view is realised - it took down the whole
+     Cashier app once, on three separate management screens.
+  2. A StaticResource key that no merged dictionary defines ("Cannot find a Resource with the
+     Name/Key ..."), same symptom.
+  3. IsEnabled on a layout element rather than a Control. WinUI's XAML compiler can exit with
+     an opaque MSB3073 error here; disable the individual input controls instead.
+
+Run from the repo root:  python tools/xaml-audit.py
+Exits non-zero when anything is found, so it can gate a build.
+"""
+import glob
+import io
+import os
+import re
+import sys
+
+PROJECTS = [
+    "src/Falah.Client.CashierWinUI",
+    "src/Falah.Client.CallCenterWinUI",
+]
+
+
+def load_defined(project):
+    """Style key -> TargetType, plus every x:Key defined anywhere in the project's resources."""
+    targets, keys = {}, set()
+    for f in glob.glob(f"{project}/Styles/*.xaml") + [f"{project}/App.xaml"]:
+        if not os.path.exists(f):
+            continue
+        s = io.open(f, encoding="utf-8").read()
+        for m in re.finditer(r'<Style x:Key="([^"]+)" TargetType="([^"]+)"', s):
+            targets[m.group(1)] = m.group(2)
+        for m in re.finditer(r'x:Key="([^"]+)"', s):
+            keys.add(m.group(1))
+    return targets, keys
+
+
+def audit(project):
+    targets, defined = load_defined(project)
+    problems = []
+    files = glob.glob(f"{project}/Views/*.xaml") + glob.glob(f"{project}/Controls/*.xaml")
+    for f in files:
+        s = io.open(f, encoding="utf-8").read()
+        name = os.path.relpath(f)
+
+        for m in re.finditer(r'<(Grid|StackPanel|Border|TextBlock|Canvas)\b[^>]*?\bIsEnabled\s*=', s, re.S):
+            line = s[: m.start()].count("\n") + 1
+            problems.append(f"{name}:{line}  <{m.group(1)}> has no IsEnabled property; use the input Control")
+
+        for m in re.finditer(r'<([A-Za-z][\w.]*)\b[^>]*?Style="\{StaticResource ([A-Za-z0-9_]+)\}"', s, re.S):
+            elem, key = m.group(1), m.group(2)
+            line = s[: m.start()].count("\n") + 1
+            if key not in defined:
+                problems.append(f"{name}:{line}  undefined style key '{key}'")
+            elif key in targets and targets[key] != elem:
+                problems.append(
+                    f"{name}:{line}  <{elem}> uses '{key}' whose TargetType is {targets[key]} -> runtime crash"
+                )
+
+        for m in re.finditer(r'\{StaticResource ([A-Za-z0-9_]+)\}', s):
+            key = m.group(1)
+            if key not in defined:
+                line = s[: m.start()].count("\n") + 1
+                problems.append(f"{name}:{line}  undefined resource key '{key}'")
+
+    return problems
+
+
+def main():
+    found = []
+    for project in PROJECTS:
+        if os.path.isdir(project):
+            found += audit(project)
+
+    # Same key can be reported by both passes; report each site once.
+    found = sorted(set(found))
+    if found:
+        print("\n".join(found))
+        print(f"\n{len(found)} XAML issue(s)")
+        return 1
+    print("XAML audit clean")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

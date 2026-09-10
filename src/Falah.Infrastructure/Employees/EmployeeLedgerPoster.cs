@@ -16,7 +16,13 @@ internal static class EmployeeLedgerPoster
     {
         var entries = await db.EmployeeLedgerEntries.AsNoTracking().Where(e => e.EmployeeId == employeeId)
             .Select(e => new { e.CreditPiastres, e.DebitPiastres }).ToListAsync(ct);
-        return Money.FromPiastres(entries.Sum(e => e.CreditPiastres - e.DebitPiastres));
+        // A single command can append more than one movement before SaveChanges (for
+        // example, a late penalty followed by overtime). Include its earlier pending
+        // appends, otherwise the second row's displayed running balance omits the first.
+        var pendingDelta = db.ChangeTracker.Entries<EmployeeLedgerEntryEntity>()
+            .Where(e => e.State == EntityState.Added && e.Entity.EmployeeId == employeeId)
+            .Sum(e => e.Entity.CreditPiastres - e.Entity.DebitPiastres);
+        return Money.FromPiastres(entries.Sum(e => e.CreditPiastres - e.DebitPiastres) + pendingDelta);
     }
 
     /// <summary>Returns null (posts nothing) if an entry with this exact Id already exists - the
@@ -27,7 +33,8 @@ internal static class EmployeeLedgerPoster
         string recordedBy, string? authorizedBy, string? shiftId, string? referenceId, double? hours,
         long? rateSnapshotPiastres, long? valueSnapshotPiastres, CancellationToken ct)
     {
-        if (await db.EmployeeLedgerEntries.AsNoTracking().AnyAsync(e => e.Id == id, ct)) return null;
+        if (db.EmployeeLedgerEntries.Local.Any(e => e.Id == id)
+            || await db.EmployeeLedgerEntries.AsNoTracking().AnyAsync(e => e.Id == id, ct)) return null;
 
         var currentBalance = await GetCurrentBalanceAsync(db, employeeId, ct);
         var newBalance = currentBalance + credit - debit;

@@ -34,6 +34,29 @@ public class ProductEntity
     public List<ProductVariantEntity> Variants { get; set; } = new();
 }
 
+/// <summary>
+/// A product photo, kept in its own table rather than as a column on ProductEntity. Every read of
+/// the menu loads products; almost none of them want the bytes, and an image column would drag
+/// tens of kilobytes per row into every one of those reads.
+///
+/// The bytes live in the database, not on a file share, so a restore of the database restores a
+/// menu that still has its pictures - a directory of files beside it would be a second thing to
+/// back up and a second thing to forget.
+/// </summary>
+public class ProductImageEntity
+{
+    /// <summary>The product this belongs to. One image per product, so the product's own id is the
+    /// key - there is no separate image identity to manage or leak.</summary>
+    public string ProductId { get; set; } = default!;
+    public string ContentType { get; set; } = default!;
+    public byte[] Bytes { get; set; } = default!;
+    /// <summary>Changes on every upload. The clients put it in the image URL so a replaced photo
+    /// actually appears instead of being served from an image cache keyed on the product id.</summary>
+    public string Version { get; set; } = default!;
+    public DateTimeOffset UpdatedAtUtc { get; set; }
+    public string UpdatedByUserId { get; set; } = default!;
+}
+
 public class ProductVariantEntity
 {
     public string Id { get; set; } = default!;

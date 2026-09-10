@@ -49,6 +49,12 @@ public class PurchaseEntity
     public string? TreasuryMovementId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
 
+    /// <summary>When this invoice is due, as a business date. Null means no term was agreed - which
+    /// is a real and common state, not a missing value to guess at: an invoice with no due date is
+    /// never reported as overdue, it is reported as having no due date. Aging still ages it, by the
+    /// date it was received, because "how long have we been carrying this" is answerable either way.</summary>
+    public DateOnly? DueDate { get; set; }
+
     public List<PurchaseLineEntity> Lines { get; set; } = new();
     public List<PurchasePaymentEntity> Payments { get; set; } = new();
 }

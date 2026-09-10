@@ -4,10 +4,14 @@ namespace Falah.Application.Reports;
 /// at query time from Orders/Shifts/Expenses/TreasuryMovements/Deliveries/StockMovements - nothing
 /// is stored as a separately-maintained running total, and no report invents a number that is not
 /// traceable back to one of those tables (see ReportingQueryService's own doc comment).</summary>
+/// <summary>CashWithDriversPiastres is cash-on-delivery money the restaurant does not hold yet -
+/// still with the customer, or in a driver's custody after delivery but before settlement. It is
+/// excluded from CollectedSalesPiastres for the same reason PendingElectronicSalesPiastres is, and
+/// reported separately so it is visible rather than silently missing.</summary>
 public sealed record SalesReportDto(
     int OrderCount, long GrossSalesPiastres, long RefundsPiastres, long NetSalesPiastres, long ListSalesPiastres,
     long OffersValuePiastres, long CompsValuePiastres, long ManualDiscountsPiastres, long PendingElectronicSalesPiastres,
-    long CollectedSalesPiastres, long AverageOrderValuePiastres,
+    long CashWithDriversPiastres, long CollectedSalesPiastres, long AverageOrderValuePiastres,
     long CashPiastres, long CardPiastres, long InstaPayPiastres, long WalletPiastres,
     long DineInPiastres, long TakeawayPiastres, long DeliveryPiastres);
 

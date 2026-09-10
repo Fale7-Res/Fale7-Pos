@@ -8,12 +8,16 @@ namespace Falah.Client.CashierWinUI;
 
 public partial class MainWindow : Window
 {
-    private readonly MainViewModel _viewModel = new();
+    private readonly MainViewModel _viewModel;
 
     public MainWindow()
     {
         InitializeComponent();
-        MaximizeOnTargetDisplay();
+        _viewModel = new MainViewModel();
+        CloseNotice.DataContext = _viewModel;
+        RecoveredNotice.DataContext = _viewModel;
+        AppWindow.Closing += (_, args) => args.Cancel = !_viewModel.TryClose();
+        Closed += (_, _) => { _viewModel.PropertyChanged -= OnViewModelPropertyChanged; _viewModel.Stop(); };
 
         HeaderHost.DataContext = _viewModel.Header;
         HeaderHost.LockRequested += (_, _) => _viewModel.LockCommand.Execute(null);
@@ -22,6 +26,9 @@ public partial class MainWindow : Window
         ApplyIsLoggedIn();
         ApplyIsOnline();
         ApplyCurrentView();
+        // Maximize can show the native window and initiate layout. Attach its content and
+        // bindings first; do not expose a partially initialized root to activation/layout.
+        MaximizeOnTargetDisplay();
     }
 
     /// <summary>This is real dedicated POS hardware (a ~15" touch terminal), not a resizable desktop
@@ -66,6 +73,7 @@ public partial class MainWindow : Window
         {
             LoginViewModel vm => new LoginView { DataContext = vm },
             CashierViewModel vm => new CashierView { DataContext = vm },
+            ShellViewModel vm => new ShellView { DataContext = vm },
             _ => null,
         };
     }

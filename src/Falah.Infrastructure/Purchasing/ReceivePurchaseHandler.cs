@@ -70,6 +70,8 @@ public sealed class ReceivePurchaseHandler
         var paid = Money.FromPiastres(request.PaidPiastres);
         PurchasingRules.AssertPurchasePayment(paid, total);
 
+        Falah.Domain.Purchasing.PayablesAging.AssertValidDueDate(request.DueDate, Falah.Domain.Common.BusinessClock.Today());
+
         var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod);
         if (paid.IsPositive && accountId is null) throw new DomainException("يجب تحديد حساب دفع فعلي للمبلغ المدفوع.");
         if (accountId is not null)
@@ -110,7 +112,7 @@ public sealed class ReceivePurchaseHandler
                 RemainingAmountPiastres = total.Piastres - paid.Piastres, PaymentMethod = request.PaymentMethod,
                 PaymentAccountId = accountId, Status = status, PaymentStatus = paymentStatus, ReceivedBy = actorUser.Name,
                 Notes = request.Notes, CreatedBy = actorUser.Name, OperationId = operationId,
-                TreasuryMovementId = paymentMovement?.Id, CreatedAtUtc = now,
+                TreasuryMovementId = paymentMovement?.Id, CreatedAtUtc = now, DueDate = request.DueDate,
                 Lines = lines.Select(l => new PurchaseLineEntity
                 {
                     PurchaseId = purchaseId, InventoryItemId = l.InventoryItemId,
@@ -189,5 +191,5 @@ public sealed class ReceivePurchaseHandler
         p.SubtotalPiastres, p.TotalPiastres, p.PaidPiastres, p.RemainingAmountPiastres, p.PaymentMethod, p.PaymentAccountId,
         p.Status, p.PaymentStatus, p.ReceivedBy, p.CreatedAtUtc,
         p.Payments.Select(pp => new PurchasePaymentDto(pp.Id, pp.AmountPiastres, pp.PaymentAccountId, pp.ApprovedBy, pp.CreatedAtUtc)).ToList(),
-        wasReplayed);
+        wasReplayed, p.DueDate?.ToString("yyyy-MM-dd"));
 }

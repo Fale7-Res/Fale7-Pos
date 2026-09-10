@@ -18,11 +18,21 @@ public static class SalesRules
     public readonly record struct SalesReport(
         int OrderCount, Money GrossSales, Money Refunds, Money NetSales, Money ListSales,
         Money OffersValue, Money CompsValue, Money ManualDiscounts, Money PendingElectronicSales,
-        Money CollectedSales, Money AverageOrderValue,
+        Money CashWithDrivers, Money CollectedSales, Money AverageOrderValue,
         Money Cash, Money Card, Money InstaPay, Money Wallet,
         Money DineIn, Money Takeaway, Money Delivery);
 
-    public static SalesReport ComputeSalesReport(IReadOnlyList<Order> sales)
+    /// <summary>
+    /// Cash-basis: an order's money counts as COLLECTED only once the restaurant actually holds it.
+    /// </summary>
+    /// <param name="orderIdsWithCashOutsideRestaurant">
+    /// Orders whose cash-on-delivery money has not yet been transferred into the restaurant's own
+    /// custody by a driver settlement. The caller supplies this because settlement lives in the
+    /// Delivery aggregate, not on Order - Order.IsPaid is frozen at checkout time and is never
+    /// flipped by the delivery lifecycle, so it cannot answer this question on its own.
+    /// </param>
+    public static SalesReport ComputeSalesReport(
+        IReadOnlyList<Order> sales, IReadOnlySet<string> orderIdsWithCashOutsideRestaurant)
     {
         var grossSales = SumMoney(sales, o => o.Total);
         var refunds = SumMoney(sales, o => o.RefundAmount);
@@ -44,7 +54,18 @@ public static class SalesRules
         // have and would disagree with the drawer and the Business Day close.
         var pendingElectronicSales = Money.FromPiastres(sales.Sum(o =>
             o.ElectronicPayment is { Status: ElectronicPaymentStatus.Pending } ? o.Total.Piastres : 0));
-        var collectedSales = netSales - pendingElectronicSales;
+
+        // The same principle applied to cash-on-delivery, which the original formula missed: until a
+        // driver settlement moves it into the restaurant's own treasury, COD money is either still
+        // with the customer (not yet delivered) or in the driver's custody (delivered, unsettled).
+        // Either way the restaurant does not hold it, so counting it as collected would claim cash
+        // that is not there - exactly what excluding pending electronic sales already guards against.
+        // Net of refunds, so a refunded COD order cannot subtract more than the sale contributed.
+        var cashWithDrivers = Money.FromPiastres(sales
+            .Where(o => orderIdsWithCashOutsideRestaurant.Contains(o.Id))
+            .Sum(o => o.Total.Piastres - o.RefundAmount.Piastres));
+
+        var collectedSales = netSales - pendingElectronicSales - cashWithDrivers;
 
         // Same channel attribution as the Shifts drawer reconciliation and the Business Day close
         // snapshot - a split payment's cash/card leg posts immediately, its InstaPay/wallet leg
@@ -58,7 +79,7 @@ public static class SalesRules
 
         return new SalesReport(
             sales.Count, grossSales, refunds, netSales, listSales, offersValue, compsValue, manualDiscounts,
-            pendingElectronicSales, collectedSales, averageOrderValue,
+            pendingElectronicSales, cashWithDrivers, collectedSales, averageOrderValue,
             payments[PaymentMethod.Cash], payments[PaymentMethod.Card], payments[PaymentMethod.InstaPay], payments[PaymentMethod.Wallet],
             OrderTypeNet(OrderType.DineIn), OrderTypeNet(OrderType.Takeaway), OrderTypeNet(OrderType.Delivery));
     }

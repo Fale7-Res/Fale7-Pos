@@ -1,54 +1,33 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.CategoryStripView"
-             x:Name="Root"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FlowDirection="RightToLeft">
-    <!-- Search bar + category grid, split out into its own UserControl so ProductCatalogueView
-         doesn't end up with two top-level templated GridViews in one file - see
-         CashierView.xaml.cs for why that specific combination crashes the WinUI 3 XAML compiler. -->
-    <Grid Background="{StaticResource PosSurfaceBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- Search bar. The cashier's own name/role already lives permanently in the header above -
-             repeating it here would just be noise for a screen read hundreds of times a shift. -->
-        <Grid Grid.Row="0" Background="White" Padding="16,10" ColumnSpacing="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" PlaceholderText="🔍  ابحث عن صنف بالاسم..."
-                     Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxWidth="520" HorizontalAlignment="Right"
-                     FontSize="14" Height="44"/>
-            <Border Grid.Column="1" Background="#EFF6FF" CornerRadius="10" Padding="12,8" VerticalAlignment="Center"
-                    Visibility="{Binding SearchQuery, Converter={StaticResource NullToCollapsedConverter}}">
-                <TextBlock FontSize="12" Foreground="{StaticResource BrandPrimaryBrush}" FontWeight="Bold">
-                    <Run Text="{Binding VisibleProducts.Count}"/><Run Text=" نتيجة"/>
-                </TextBlock>
-            </Border>
-        </Grid>
-
-        <!-- Category grid: wraps across rows automatically (ItemsWrapGrid), capped at roughly two
-             rows before it scrolls, so all-but-extreme category counts need zero scrolling. -->
-        <GridView Grid.Row="1" x:Name="CategoriesGridView" ItemsSource="{Binding CategoryTiles}"
-                  IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnCategoryClicked"
-                  Padding="16,10,16,4" MaxHeight="184"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
-            <GridView.ItemTemplate>
-                <DataTemplate>
-                    <Border CornerRadius="12" BorderThickness="1" Margin="0,0,8,8"
-                            Background="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=ActionBlueBrush|WhiteBrush}"
-                            BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=ActionBlueBrush|CardBorderBrush}">
-                        <StackPanel Spacing="4" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Category.Icon}" FontSize="24" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding Category.Name}" Style="{StaticResource CategoryLabelText}" TextWrapping="Wrap" MaxLines="2"
-                                       Foreground="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WhiteBrush|TextPrimaryBrush}"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-        </GridView>
-    </Grid>
-</UserControl>
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.CategoryStripView" x:Name="Root"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ FlowDirection="RightToLeft">
+<Grid Padding="18,16,18,0" RowSpacing="12">
+ <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <Grid ColumnSpacing="16">
+  <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+  <StackPanel VerticalAlignment="Center"><TextBlock Text="قائمة الطعام" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+   <TextBlock Text="اختر الصنف لإضافته إلى الطلب" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/></StackPanel>
+  <TextBox x:Name="ProductSearchBox" Grid.Column="1" AutomationProperties.Name="البحث عن صنف" Style="{StaticResource SearchBoxStyle}" MinHeight="48" CornerRadius="12"
+   PlaceholderText="ابحث عن صنف…" Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+ </Grid>
+ <GridView Grid.Row="1" x:Name="CategoriesGridView" ItemsSource="{Binding CategoryTiles}" IsItemClickEnabled="True" SelectionMode="None"
+  ItemClick="OnCategoryClicked" Height="66" ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+  ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+  <GridView.ItemsPanel><ItemsPanelTemplate><ItemsStackPanel Orientation="Horizontal"/></ItemsPanelTemplate></GridView.ItemsPanel>
+  <GridView.ItemContainerStyle><Style TargetType="GridViewItem"><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,8,0"/></Style></GridView.ItemContainerStyle>
+  <GridView.ItemTemplate><DataTemplate>
+   <Border MinWidth="116" Height="48" Padding="16,0" CornerRadius="12" BorderThickness="1"
+    Background="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=BrandPrimaryBrush|WhiteBrush}"
+    BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=BrandPrimaryBrush|CardBorderBrush}">
+    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+     <TextBlock Text="{Binding Category.Icon}" FontSize="19"/>
+     <!-- Fixed-height chip: wrapping would clip, so a pathologically long category name truncates
+          with an ellipsis instead of growing a chip wider than the screen. -->
+     <TextBlock Text="{Binding Category.Name}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+      MaxWidth="220" TextTrimming="CharacterEllipsis"
+      Foreground="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WhiteBrush|TextPrimaryBrush}"/>
+    </StackPanel>
+   </Border>
+  </DataTemplate></GridView.ItemTemplate>
+ </GridView>
+</Grid></UserControl>

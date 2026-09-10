@@ -37,16 +37,15 @@ builder.Services.AddSwaggerGen();
 // business wants failed logins handled). A fixed window keyed by client IP; a real attacker
 // spraying PINs from one machine hits this fast, while a single cashier mistyping their own PIN a
 // few times in a row never will.
-// Window/PermitLimit are configuration-overridable (production behavior is UNCHANGED: with no
-// config section present, both defaults below - 1 minute / 10 requests - are exactly what was
-// hardcoded before). This exists so integration tests can shrink the window to a couple of
-// seconds and get a deterministic, fast result instead of racing a real 60-second wall-clock
-// window against however long the rest of a large parallel test suite takes to run - a real
-// test-flakiness gap found during final verification, fixed without touching the production limit.
-var loginRateLimitWindow = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimit:Login:WindowSeconds", 60));
-var loginRateLimitPermits = builder.Configuration.GetValue("RateLimit:Login:PermitLimit", 10);
-builder.Services.AddRateLimiter(options =>
+// Resolve overrides from the final host configuration, like the database connection below.
+// Capturing these values during top-level startup ignored WebApplicationFactory's configuration
+// and silently used the 60-second window in tests configured for 300 seconds.
+// The production defaults remain one minute / ten requests.
+builder.Services.AddRateLimiter(_ => { });
+builder.Services.AddOptions<RateLimiterOptions>().Configure<IConfiguration>((options, configuration) =>
 {
+    var loginRateLimitWindow = TimeSpan.FromSeconds(configuration.GetValue("RateLimit:Login:WindowSeconds", 60));
+    var loginRateLimitPermits = configuration.GetValue("RateLimit:Login:PermitLimit", 10);
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -127,6 +126,7 @@ builder.Services.AddScoped<InventoryQueryService>();
 builder.Services.AddScoped<UpsertCustomerHandler>();
 builder.Services.AddScoped<CustomerQueryService>();
 builder.Services.AddScoped<ReportingQueryService>();
+builder.Services.AddScoped<OwnerDashboardQueryService>();
 builder.Services.AddScoped<CreatePrintJobsHandler>();
 builder.Services.AddScoped<ReportPrintJobResultHandler>();
 builder.Services.AddScoped<SetProductStationHandler>();
@@ -134,6 +134,7 @@ builder.Services.AddScoped<PrintJobQueryService>();
 builder.Services.AddScoped<AddSupplierHandler>();
 builder.Services.AddScoped<ReceivePurchaseHandler>();
 builder.Services.AddScoped<PayPurchaseHandler>();
+builder.Services.AddScoped<SetPurchaseDueDateHandler>();
 builder.Services.AddScoped<PurchasingQueryService>();
 builder.Services.AddScoped<CloseBusinessDayHandler>();
 builder.Services.AddScoped<ReopenBusinessDayHandler>();
@@ -154,6 +155,8 @@ builder.Services.AddScoped<CreateCategoryHandler>();
 builder.Services.AddScoped<UpdateCategoryHandler>();
 builder.Services.AddScoped<SetCategoryActiveHandler>();
 builder.Services.AddScoped<CreateProductHandler>();
+builder.Services.AddScoped<SetProductImageHandler>();
+builder.Services.AddScoped<RemoveProductImageHandler>();
 builder.Services.AddScoped<UpdateProductHandler>();
 builder.Services.AddScoped<SetProductAvailabilityHandler>();
 builder.Services.AddScoped<CreateTaxRuleHandler>();
@@ -275,6 +278,22 @@ app.MapPost("/api/business-day/open", async (Falah.Application.BusinessDay.OpenB
         return Results.UnprocessableEntity(new { error = ex.Message });
     }
 });
+
+// The business day currently in play (Open/Closing/Reopened), or 404 when none is open. A Control
+// Center screen cannot ask for blockers, checklist or exceptions without first knowing WHICH day it
+// is looking at, and every other route here is keyed by id. Read-only; resolves the day the same way
+// BusinessDayGate.TryGetActiveAsync already does for checkout, so the screen and the command path
+// can never disagree about which day is active.
+app.MapGet("/api/business-day/current", async (FalahDbContext db, ControlCenterQueryService query, CancellationToken ct) =>
+{
+    var id = await Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(db, ct);
+    return id is null
+        ? Results.NotFound(new { error = "لا يوجد يوم عمل مفتوح حاليًا." })
+        : Results.Ok(await query.GetBusinessDayAsync(id, ct));
+});
+
+app.MapGet("/api/business-days", async (ControlCenterQueryService query, CancellationToken ct) =>
+    Results.Ok(await query.ListBusinessDaysAsync(ct)));
 
 app.MapGet("/api/business-day/{id}", async (string id, ControlCenterQueryService query, CancellationToken ct) =>
 {
@@ -1137,6 +1156,11 @@ app.MapPost("/api/delivery/drivers/{driverId}/settle", async (string driverId, F
     }
 });
 
+// The live dispatch board: every delivery not yet in a terminal state, including the `New` ones a
+// checkout just created. Read-only sibling of /api/delivery/ready - see ListDispatchBoardAsync.
+app.MapGet("/api/delivery/board", async (DeliveryQueryService query, CancellationToken ct) =>
+    Results.Ok(await query.ListDispatchBoardAsync(ct)));
+
 app.MapGet("/api/delivery/ready", async (DeliveryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListReadyForDispatchAsync(ct)));
 
@@ -1301,6 +1325,37 @@ app.MapGet("/api/orders/lookup", async (string orderNumber, FalahDbContext db, C
 });
 
 app.MapGet("/api/menu", async (MenuQueryService menu, CancellationToken ct) => Results.Ok(await menu.GetMenuAsync(ct)));
+
+// ---- Product photos ----
+// The bytes are served on their own endpoint rather than inside the menu, so a till fetches each
+// image once and never re-downloads the whole catalogue's pictures to refresh a price. The version
+// segment in the path is what makes that safe: a replaced photo is a different URL.
+app.MapGet("/api/products/{id}/image", async (string id, FalahDbContext db, CancellationToken ct) =>
+{
+    var image = await db.ProductImages.AsNoTracking().FirstOrDefaultAsync(i => i.ProductId == id, ct);
+    return image is null ? Results.NotFound() : Results.File(image.Bytes, image.ContentType);
+});
+
+app.MapPut("/api/products/{id}/image", async (string id, Falah.Application.Menu.SetProductImageRequest body, SetProductImageHandler handler, CancellationToken ct) =>
+{
+    try
+    {
+        return Results.Ok(await handler.HandleAsync(body with { ProductId = id }, ct));
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+app.MapDelete("/api/products/{id}/image", async (string id, string actorUserId, RemoveProductImageHandler handler, CancellationToken ct) =>
+{
+    try
+    {
+        await handler.HandleAsync(new Falah.Application.Menu.RemoveProductImageRequest(actorUserId, id), ct);
+        return Results.Ok();
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
 
 // Narrowly-scoped write, kept alongside the full menu management CRUD below rather than folded
 // into it: assigns/clears one product's preparation station only, without needing to know or
@@ -1488,6 +1543,47 @@ app.MapGet("/api/treasury/balance", async (string accountId, FalahDbContext db, 
     return Results.Ok(new { accountId, balancePiastres = balance.Piastres });
 });
 
+// Balances for all five fixed accounts in one read - a treasury screen showing five separately-timed
+// reads can render a picture that never actually existed. Derived from the movement log by the same
+// FinancialRules the individual balance endpoint uses; no stored running total anywhere.
+app.MapGet("/api/treasury/balances", async (string actorUserId, FalahDbContext db, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+
+    var accounts = new[]
+    {
+        Falah.Domain.Financial.TreasuryAccounts.Main, Falah.Domain.Financial.TreasuryAccounts.Drawer,
+        Falah.Domain.Financial.TreasuryAccounts.Bank, Falah.Domain.Financial.TreasuryAccounts.InstaPay,
+        Falah.Domain.Financial.TreasuryAccounts.Wallet,
+    };
+    var balances = new List<Falah.Application.Treasury.TreasuryAccountBalanceDto>(accounts.Length);
+    foreach (var accountId in accounts)
+    {
+        var movements = await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(db, accountId, ct);
+        var balance = Falah.Domain.Financial.FinancialRules.TreasuryBalanceFromMovements(movements, accountId);
+        balances.Add(new(accountId, balance.Piastres));
+    }
+    return Results.Ok(balances);
+});
+
+// The treasury ledger itself - the posted movements behind those balances. Read-only over the same
+// rows every financial command writes, so the ledger and the balances can never disagree.
+app.MapGet("/api/treasury/movements", async (string actorUserId, string? accountId, int? limit, FalahDbContext db, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+
+    var query = db.TreasuryMovements.AsNoTracking().AsQueryable();
+    if (!string.IsNullOrWhiteSpace(accountId))
+        query = query.Where(m => m.SourceAccountId == accountId || m.DestinationAccountId == accountId);
+
+    var rows = await query.OrderByDescending(m => m.CreatedAtUtc).Take(limit is > 0 and <= 500 ? limit.Value : 100).ToListAsync(ct);
+    return Results.Ok(rows.Select(m => new Falah.Application.Treasury.TreasuryMovementDto(
+        m.Id, m.Type, m.SourceAccountId, m.DestinationAccountId, m.AmountPiastres, m.ReferenceType,
+        m.ReferenceId, m.ShiftId, m.Reason, m.CreatedBy, m.ApprovedBy, m.CreatedAtUtc)).ToList());
+});
+
 app.MapGet("/api/treasury/handovers", async (int limit, FalahDbContext db, CancellationToken ct) =>
 {
     var rows = await db.CashHandovers.AsNoTracking().OrderByDescending(h => h.CreatedAtUtc).Take(limit <= 0 ? 50 : limit).ToListAsync(ct);
@@ -1618,17 +1714,35 @@ app.MapPost("/api/users/{id}/permissions", async (string id, Falah.Application.U
 
 // ---- Reports (all gated on reports_view - see RequireReportsAccessAsync's own doc comment) ----
 
-app.MapGet("/api/reports/sales", async (string actorUserId, DateOnly? businessDate, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
-    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetSalesReportAsync(businessDate, shiftId, ct)));
+// businessDate stays supported so existing callers are untouched; from/to widen the same report to
+// a week, a month or any span without stitching single days together client-side.
+// One read that answers "how is the restaurant doing" - composed from the same queries the
+// individual screens use, never a second computation of the same figures. Gated on reports_view
+// like every other report.
+app.MapGet("/api/reports/owner-dashboard", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, FalahDbContext db, OwnerDashboardQueryService dashboard, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    var range = Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate)
+        ?? Falah.Domain.Common.BusinessDateRange.SingleDay(Falah.Domain.Common.BusinessClock.Today());
+    return Results.Ok(await dashboard.GetAsync(range, ct));
+});
 
-app.MapGet("/api/reports/tax", async (string actorUserId, DateOnly? businessDate, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
-    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetTaxReportAsync(businessDate, shiftId, ct)));
+app.MapGet("/api/reports/sales", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetSalesReportAsync(
+        Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate), shiftId, ct)));
 
-app.MapGet("/api/reports/expenses", async (string actorUserId, DateOnly? businessDate, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
-    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetExpenseReportAsync(businessDate, shiftId, ct)));
+app.MapGet("/api/reports/tax", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetTaxReportAsync(
+        Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate), shiftId, ct)));
 
-app.MapGet("/api/reports/refunds", async (string actorUserId, DateOnly? businessDate, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
-    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetRefundActivityAsync(businessDate, shiftId, ct)));
+app.MapGet("/api/reports/expenses", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetExpenseReportAsync(
+        Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate), shiftId, ct)));
+
+app.MapGet("/api/reports/refunds", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetRefundActivityAsync(
+        Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate), shiftId, ct)));
 
 app.MapGet("/api/reports/business-day/{id}", async (string id, string actorUserId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
 {
@@ -1776,10 +1890,24 @@ app.MapPost("/api/purchases", async (Falah.Application.Purchasing.ReceivePurchas
 app.MapGet("/api/purchases", async (PurchasingQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListPurchasesAsync(ct)));
 
+// Registered before /api/purchases/{id} so the literal segment is not swallowed by the id route.
+app.MapGet("/api/purchases/payables-aging", async (PurchasingQueryService query, CancellationToken ct) =>
+    Results.Ok(await query.GetPayablesAgingAsync(ct)));
+
 app.MapGet("/api/purchases/{id}", async (string id, PurchasingQueryService query, CancellationToken ct) =>
 {
     var purchase = await query.GetPurchaseAsync(id, ct);
     return purchase is null ? Results.NotFound() : Results.Ok(purchase);
+});
+
+app.MapPut("/api/purchases/{id}/due-date", async (string id, Falah.Application.Purchasing.SetPurchaseDueDateRequest body, SetPurchaseDueDateHandler handler, CancellationToken ct) =>
+{
+    try
+    {
+        return Results.Ok(await handler.HandleAsync(body with { PurchaseId = id }, ct));
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
 app.MapPost("/api/purchases/{id}/payments", async (string id, Falah.Application.Purchasing.PayPurchaseRequest body, PayPurchaseHandler handler, CancellationToken ct) =>

@@ -39,4 +39,45 @@ public static class BusinessClock
         var end = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight.AddDays(1), DateTimeKind.Unspecified), CairoTimeZone);
         return (new DateTimeOffset(start, TimeSpan.Zero), new DateTimeOffset(end, TimeSpan.Zero));
     }
+
+    /// <summary>The same range across several consecutive business dates, so a report can cover a
+    /// week or a month without the caller stitching thirty single-day reports together. The
+    /// boundaries stay Cairo midnights, which is what makes a monthly total add up to exactly the
+    /// daily totals inside it rather than drifting by a few hours at each end.</summary>
+    public static (DateTimeOffset Start, DateTimeOffset End) UtcRangeForBusinessDates(DateOnly from, DateOnly to)
+    {
+        if (to < from) (from, to) = (to, from);
+        var (start, _) = UtcRangeForBusinessDate(from);
+        var (_, end) = UtcRangeForBusinessDate(to);
+        return (start, end);
+    }
+}
+
+/// <summary>An inclusive span of Cairo business dates. A single day is a range whose ends are equal,
+/// so every report takes one shape instead of two, and "today" never needs its own code path.</summary>
+public readonly record struct BusinessDateRange(DateOnly From, DateOnly To)
+{
+    public static BusinessDateRange SingleDay(DateOnly date) => new(date, date);
+
+    /// <summary>Builds the range a request actually asked for. `from` alone means that one day
+    /// onward is NOT assumed - an open-ended report would silently change meaning as days pass, so
+    /// a missing `to` means the same day.</summary>
+    public static BusinessDateRange? Resolve(DateOnly? from, DateOnly? to, DateOnly? singleDate)
+    {
+        if (from is { } start) return new BusinessDateRange(start, to ?? start);
+        if (to is { } end) return new BusinessDateRange(end, end);
+        if (singleDate is { } day) return SingleDay(day);
+        return null;
+    }
+
+    public int DayCount => To.DayNumber - From.DayNumber + 1;
+    public bool IsSingleDay => From == To;
+
+    public (DateTimeOffset Start, DateTimeOffset End) ToUtcRange() =>
+        BusinessClock.UtcRangeForBusinessDates(From, To);
+
+    public IEnumerable<DateOnly> Days()
+    {
+        for (var day = From; day <= To; day = day.AddDays(1)) yield return day;
+    }
 }

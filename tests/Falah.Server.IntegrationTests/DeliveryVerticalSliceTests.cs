@@ -776,4 +776,109 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, afterSettle.AllTimeSettledOrderCount);
         Assert.Equal(10000, afterSettle.AllTimeSettledCashPiastres);
     }
+
+    /// <summary>
+    /// Cash basis, end to end: New -> Ready -> OutForDelivery -> Delivered -> driver settlement.
+    /// A cash-on-delivery sale must never be reported as money the restaurant holds until the
+    /// settlement actually moves it into the restaurant's treasury. Before that it is with the
+    /// customer (undelivered) or in the driver's custody (delivered, unsettled) - so the report has
+    /// to show it as CashWithDrivers and keep it out of CollectedSales at every step.
+    /// </summary>
+    [Fact]
+    public async Task Cash_on_delivery_is_not_reported_as_collected_until_the_driver_settles()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 20000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+
+        async Task<Falah.Application.Reports.SalesReportDto> SalesAsync() =>
+            (await (await _client.GetAsync($"/api/reports/sales?actorUserId={_managerId}")).Content
+                .ReadFromJsonAsync<Falah.Application.Reports.SalesReportDto>())!;
+
+        // New - the customer still has the cash.
+        var atNew = await SalesAsync();
+        Assert.Equal(20000, atNew.NetSalesPiastres);
+        Assert.Equal(20000, atNew.CashWithDriversPiastres);
+        Assert.Equal(0, atNew.CollectedSalesPiastres);
+
+        await MarkReadyAsync(deliveryId);
+        Assert.Equal(0, (await SalesAsync()).CollectedSalesPiastres);
+
+        var driverId = await CreateDriverAsync();
+        await AssignAsync(deliveryId, driverId);
+        Assert.Equal(0, (await SalesAsync()).CollectedSalesPiastres);
+
+        // Delivered but unsettled: the driver holds it, not the restaurant.
+        await RecordResultAsync(deliveryId, "Delivered");
+        var afterDelivery = await SalesAsync();
+        Assert.Equal(20000, afterDelivery.CashWithDriversPiastres);
+        Assert.Equal(0, afterDelivery.CollectedSalesPiastres);
+
+        // Settlement moves it into the restaurant's own treasury - only now is it collected.
+        (await SettleAsync(driverId, 20000)).EnsureSuccessStatusCode();
+        var afterSettlement = await SalesAsync();
+        Assert.Equal(0, afterSettlement.CashWithDriversPiastres);
+        Assert.Equal(20000, afterSettlement.CollectedSalesPiastres);
+        Assert.Equal(20000, afterSettlement.NetSalesPiastres);
+    }
+
+    /// <summary>A delivery order paid electronically up front is not cash-on-delivery, so it must be
+    /// governed by the pending-transfer rule alone and never double-excluded by the new one.</summary>
+    [Fact]
+    public async Task A_prepaid_delivery_order_is_not_treated_as_cash_with_drivers()
+    {
+        var shiftId = await OpenShiftAsync();
+        await CheckoutDeliveryOrderAsync(shiftId, 15000, paymentMethod: "instapay");
+
+        var sales = (await (await _client.GetAsync($"/api/reports/sales?actorUserId={_managerId}")).Content
+            .ReadFromJsonAsync<Falah.Application.Reports.SalesReportDto>())!;
+
+        Assert.Equal(0, sales.CashWithDriversPiastres);
+        Assert.Equal(15000, sales.PendingElectronicSalesPiastres);
+        Assert.Equal(0, sales.CollectedSalesPiastres);
+    }
+
+    /// <summary>The dispatch board must show a delivery from the moment checkout creates it - while
+    /// it is still `New` and before anyone has marked it ready. /api/delivery/ready deliberately
+    /// cannot do this (it filters to Ready only), which left a dispatcher unable to see the very
+    /// orders they were supposed to act on.</summary>
+    [Fact]
+    public async Task The_dispatch_board_lists_a_delivery_while_it_is_still_new()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 12500);
+
+        var board = await (await _client.GetAsync("/api/delivery/board")).Content.ReadFromJsonAsync<List<DeliveryDto>>();
+        var ready = await (await _client.GetAsync("/api/delivery/ready")).Content.ReadFromJsonAsync<List<DeliveryDto>>();
+
+        var onBoard = Assert.Single(board!);
+        Assert.Equal(order.OrderId, onBoard.OrderId);
+        Assert.Equal("New", onBoard.Status);
+        Assert.Empty(ready!);
+    }
+
+    /// <summary>The board tracks the delivery across the whole live lifecycle and then drops it once
+    /// it reaches a terminal state - the board is the LIVE view, not a history.</summary>
+    [Fact]
+    public async Task The_dispatch_board_follows_the_lifecycle_and_excludes_terminal_deliveries()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 8000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+
+        await MarkReadyAsync(deliveryId);
+        var afterReady = await (await _client.GetAsync("/api/delivery/board")).Content.ReadFromJsonAsync<List<DeliveryDto>>();
+        Assert.Equal("Ready", Assert.Single(afterReady!).Status);
+
+        var driverId = await CreateDriverAsync();
+        await AssignAsync(deliveryId, driverId);
+        var afterAssign = await (await _client.GetAsync("/api/delivery/board")).Content.ReadFromJsonAsync<List<DeliveryDto>>();
+        var assigned = Assert.Single(afterAssign!);
+        Assert.Equal("OutForDelivery", assigned.Status);
+        Assert.Equal(driverId, assigned.DriverId);
+
+        await RecordResultAsync(deliveryId, "Delivered");
+        var afterDelivered = await (await _client.GetAsync("/api/delivery/board")).Content.ReadFromJsonAsync<List<DeliveryDto>>();
+        Assert.Empty(afterDelivered!);
+    }
 }

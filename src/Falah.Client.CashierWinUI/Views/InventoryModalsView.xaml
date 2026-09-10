@@ -1,0 +1,117 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.InventoryModalsView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <Grid>
+
+        <!-- ================= PHYSICAL COUNT ADJUSTMENT ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsCountOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="24" Width="440" MaxHeight="640"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <controls:ModalHeaderView Title="تسوية جرد فعلي" CloseCommand="{Binding CloseCountCommand}"/>
+
+                        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                            <Run Text="{Binding CountTarget.Name}" FontWeight="Bold"/>
+                            <Run Text=" — رصيد النظام "/>
+                            <Run Text="{Binding CountTarget.BalanceMilliUnits, Converter={StaticResource MilliUnitsToDisplayConverter}}"/>
+                            <Run Text=" "/><Run Text="{Binding CountTarget.Unit}"/>
+                        </TextBlock>
+
+                        <!-- The human's observed count is authoritative here: the server records the
+                             difference exactly as asserted, because it cannot re-count a shelf the
+                             way it can recompute cash. -->
+                        <TextBox IsEnabled="{Binding CanEditAction}" Header="الكمية المعدودة فعليًا" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                 Text="{Binding CountActualText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="{Binding CountDifferenceLabel}" Style="{StaticResource CaptionText}"
+                                   Foreground="{StaticResource BrandPrimaryBrush}" TextAlignment="Center"/>
+
+                        <TextBox IsEnabled="{Binding CanEditAction}" Header="سبب التسوية (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                 Text="{Binding CountReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <StackPanel Spacing="6" Visibility="{Binding CountNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="صلاحيتك لا تسمح بتسوية الجرد - أدخل رمز المدير المخوّل."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                         Password="{Binding CountManagerPin, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding CountError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" TextAlignment="Center"
+                                   Visibility="{Binding CountError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                        <Button Content="تسجيل التسوية" MinHeight="52" HorizontalAlignment="Stretch"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitCountCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ================= WASTE / SPOILAGE / BREAKAGE ================= -->
+        <Grid Background="#66313D35" Visibility="{Binding IsWasteOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="24" Width="440" MaxHeight="660"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <controls:ModalHeaderView Title="تسجيل فاقد" CloseCommand="{Binding CloseWasteCommand}"/>
+
+                        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                            <Run Text="{Binding WasteTarget.Name}" FontWeight="Bold"/>
+                            <Run Text=" — الرصيد "/>
+                            <Run Text="{Binding WasteTarget.BalanceMilliUnits, Converter={StaticResource MilliUnitsToDisplayConverter}}"/>
+                            <Run Text=" "/><Run Text="{Binding WasteTarget.Unit}"/>
+                        </TextBlock>
+
+                        <!-- Three distinct types, never merged: each implies a different corrective
+                             action (prep error / storage-expiry / handling accident). -->
+                        <TextBlock Text="نوع الفاقد" Style="{StaticResource MutedText}"/>
+                        <Grid ColumnSpacing="6" Background="#F0F3EF" CornerRadius="12" Padding="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="هدر تحضير" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
+                                    Command="{Binding SetWasteTypeCommand}" CommandParameter="Waste"
+                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Waste|WhiteBrush|TransparentBrush}"
+                                    Foreground="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Waste|BrandPrimaryBrush|TextMutedBrush}"/>
+                            <Button Grid.Column="1" Content="تلف/انتهاء" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
+                                    Command="{Binding SetWasteTypeCommand}" CommandParameter="Spoilage"
+                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Spoilage|WhiteBrush|TransparentBrush}"
+                                    Foreground="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Spoilage|BrandPrimaryBrush|TextMutedBrush}"/>
+                            <Button Grid.Column="2" Content="كسر" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
+                                    Command="{Binding SetWasteTypeCommand}" CommandParameter="Breakage"
+                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Breakage|WhiteBrush|TransparentBrush}"
+                                    Foreground="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Breakage|BrandPrimaryBrush|TextMutedBrush}"/>
+                        </Grid>
+
+                        <TextBox IsEnabled="{Binding CanEditAction}" Header="الكمية التالفة" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                 Text="{Binding WasteQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox IsEnabled="{Binding CanEditAction}" Header="السبب (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                 Text="{Binding WasteReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Text="تُقيَّم قيمة الفاقد بآخر تكلفة شراء فعلية، وتُجمَّد وقت التسجيل."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+
+                        <StackPanel Spacing="6" Visibility="{Binding WasteNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="صلاحيتك لا تسمح بتسجيل الفاقد - أدخل رمز المدير المخوّل."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                         Password="{Binding WasteManagerPin, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding WasteError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" TextAlignment="Center"
+                                   Visibility="{Binding WasteError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                        <Button Content="تسجيل الفاقد" MinHeight="52" HorizontalAlignment="Stretch"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitWasteCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,209 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.TreasuryView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Balances (derived from the movement log server-side) over the ledger that produced them. -->
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="الخزينة" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="أرصدة الحسابات وسجل الحركات المالية" Style="{StaticResource PageSubtitleText}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button Content="إيداع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding OpenTreasuryActionCommand}" CommandParameter="deposit"/>
+                <Button Content="سحب" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding OpenTreasuryActionCommand}" CommandParameter="withdraw"/>
+                <Button Content="تحويل" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding OpenTreasuryActionCommand}" CommandParameter="transfer"/>
+                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                    <FontIcon Glyph="&#xE72C;" FontSize="13"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Balances -->
+        <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Margin="28,0,28,12">
+            <ItemsControl ItemsSource="{Binding Balances}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal" ItemWidth="180" ItemHeight="80"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Spacing="2" MinWidth="150">
+                            <TextBlock Style="{StaticResource CardTitleText}"
+                                       Text="{Binding AccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
+                            <TextBlock Style="{StaticResource MetricValueText}" FontSize="22"
+                                       Text="{Binding BalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <!-- Ledger -->
+        <Border Grid.Row="2" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="النوع" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="1" Text="من" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="2" Text="إلى" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="3" Text="المبلغ" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="4" Text="السبب" Style="{StaticResource TableHeaderText}"/>
+                    </Grid>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Movements}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Type, Converter={StaticResource TreasuryMovementTypeLabelConverter}}" Style="{StaticResource TableCellText}"
+                                                   FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Style="{StaticResource TableCellText}" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"
+                                                   Text="{Binding SourceAccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
+                                        <TextBlock Grid.Column="2" Style="{StaticResource TableCellText}" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"
+                                                   Text="{Binding DestinationAccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
+                                        <TextBlock Grid.Column="3" FontWeight="SemiBold" VerticalAlignment="Center"
+                                                   Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding Reason}" Style="{StaticResource TableCellText}"
+                                                   Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                    <ProgressRing IsActive="True" Width="36" Height="36"/>
+                    <TextBlock Text="جاري تحميل الخزينة..." Style="{StaticResource MutedText}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                            Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                    <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                    <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding Movements, Converter={StaticResource EmptyCollectionToVisibleConverter}}">
+                    <TextBlock Text="لا توجد حركات مالية مسجّلة" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="ستظهر هنا كل حركة تمس أي حساب من حسابات الخزينة" Style="{StaticResource MutedText}"
+                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
+                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold"/>
+        </Border>
+
+        <!-- ================= DEPOSIT / WITHDRAW / TRANSFER ================= -->
+        <Grid Grid.Row="0" Grid.RowSpan="3" Background="#66313D35"
+              Visibility="{Binding IsActionOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="White" CornerRadius="20" Padding="24" Width="460" MaxHeight="680"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <controls:ModalHeaderView Title="{Binding ActionTitle}" CloseCommand="{Binding CloseTreasuryActionCommand}"/>
+
+                        <!-- Deposit: destination is restricted to the accounts the server accepts;
+                             the drawer and wallet are never valid external-funding destinations. -->
+                        <StackPanel Spacing="8" Visibility="{Binding IsDeposit, Converter={StaticResource BoolToVisibleConverter}}">
+                            <ComboBox Header="نوع الإيداع" HorizontalAlignment="Stretch" MinHeight="44"
+                                      IsEnabled="{Binding CanEditAction}"
+                                      ItemsSource="{Binding DepositTypes}" DisplayMemberPath="Label" SelectedValuePath="Code"
+                                      SelectedValue="{Binding DepositType, Mode=TwoWay}"/>
+                            <ComboBox Header="إلى حساب" HorizontalAlignment="Stretch" MinHeight="44"
+                                      IsEnabled="{Binding CanEditAction}"
+                                      ItemsSource="{Binding FundingAccounts}" SelectedItem="{Binding DestinationAccount, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" Visibility="{Binding IsWithdraw, Converter={StaticResource BoolToVisibleConverter}}">
+                            <ComboBox Header="من حساب" HorizontalAlignment="Stretch" MinHeight="44"
+                                      IsEnabled="{Binding CanEditAction}"
+                                      ItemsSource="{Binding FundingAccounts}" SelectedItem="{Binding SourceAccount, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" Visibility="{Binding IsTransfer, Converter={StaticResource BoolToVisibleConverter}}">
+                            <ComboBox Header="من حساب" HorizontalAlignment="Stretch" MinHeight="44"
+                                      IsEnabled="{Binding CanEditAction}"
+                                      ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding SourceAccount, Mode=TwoWay}"/>
+                            <ComboBox Header="إلى حساب" HorizontalAlignment="Stretch" MinHeight="44"
+                                      IsEnabled="{Binding CanEditAction}"
+                                      ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding DestinationAccount, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <TextBox Header="المبلغ بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                 IsEnabled="{Binding CanEditAction}"
+                                 Text="{Binding AmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="السبب (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                 IsEnabled="{Binding CanEditAction}"
+                                 Text="{Binding Reason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="مرجع (اختياري)" MinHeight="44"
+                                 IsEnabled="{Binding CanEditAction}"
+                                 Visibility="{Binding IsTransfer, Converter={StaticResource InverseBoolToVisibleConverter}}"
+                                 Text="{Binding Reference, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <StackPanel Spacing="6" Visibility="{Binding NeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="صلاحيتك لا تسمح بإدارة الخزينة - أدخل رمز المدير المخوّل."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                         IsEnabled="{Binding CanEditAction}"
+                                         Password="{Binding ManagerPin, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" TextAlignment="Center"
+                                   Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                        <Button Content="تنفيذ العملية" MinHeight="52" HorizontalAlignment="Stretch"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitTreasuryActionCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

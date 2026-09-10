@@ -1,0 +1,376 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.ReportsView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!--
+        Management density, deliberately text-led: figures are set in a compact numeric scale with
+        muted labels rather than one decorative card per number. Where the server keeps two figures
+        distinct because conflating them would mislead (collected vs. pending electronic; offers vs.
+        comps vs. manual discount), this screen shows them separately too.
+    -->
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header + business-date selector -->
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="التقارير" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="ملخص يوم العمل من الحركات الفعلية المسجلة" Style="{StaticResource PageSubtitleText}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button MinHeight="44" MinWidth="44" Style="{StaticResource SecondaryButtonStyle}"
+                        AutomationProperties.Name="اليوم السابق" Command="{Binding PreviousDayCommand}">
+                    <FontIcon Glyph="&#xE76C;" FontSize="12"/>
+                </Button>
+                <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                        CornerRadius="10" Padding="16,0" MinHeight="44" MinWidth="150">
+                    <TextBlock Text="{Binding BusinessDateLabel}" FontSize="14" FontWeight="SemiBold"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+                <Button MinHeight="44" MinWidth="44" Style="{StaticResource SecondaryButtonStyle}"
+                        AutomationProperties.Name="اليوم التالي" Command="{Binding NextDayCommand}">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12"/>
+                </Button>
+                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE72C;" FontSize="13"/>
+                        <TextBlock Text="تحديث" FontSize="13"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28,0,28,24">
+            <StackPanel Spacing="16" Visibility="{Binding HasData, Converter={StaticResource BoolToVisibleConverter}}">
+
+                <!-- Headline figures -->
+                <Border Style="{StaticResource PageCardStyle}">
+                    <Grid ColumnSpacing="28" RowSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="صافي المبيعات" Style="{StaticResource CardTitleText}"/>
+                            <TextBlock Style="{StaticResource MetricValueText}"
+                                       Text="{Binding Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="المحصّل فعليًا" Style="{StaticResource CardTitleText}"/>
+                            <TextBlock Style="{StaticResource MetricValueText}" Foreground="{StaticResource BrandPrimaryBrush}"
+                                       Text="{Binding Sales.CollectedSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="2">
+                            <TextBlock Text="عدد الطلبات" Style="{StaticResource CardTitleText}"/>
+                            <TextBlock Text="{Binding Sales.OrderCount}" Style="{StaticResource MetricValueText}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Spacing="2">
+                            <TextBlock Text="متوسط قيمة الطلب" Style="{StaticResource CardTitleText}"/>
+                            <TextBlock Style="{StaticResource MetricValueText}"
+                                       Text="{Binding Sales.AverageOrderValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Money the restaurant does NOT hold, kept visible rather than silently missing
+                     from the collected figure. Both are excluded from "المحصّل فعليًا" above for the
+                     same cash-basis reason: an unconfirmed transfer is a claim, and cash-on-delivery
+                     is with the customer or in a driver's custody until settlement. -->
+                <Border Style="{StaticResource AlertBannerStyle}"
+                        Visibility="{Binding Sales.PendingElectronicSalesPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}">
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="تحويلات إلكترونية معلّقة لم تُحصّل بعد: "/>
+                        <Run Text="{Binding Sales.PendingElectronicSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                    </TextBlock>
+                </Border>
+
+                <Border Style="{StaticResource AlertBannerStyle}"
+                        Visibility="{Binding Sales.CashWithDriversPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}">
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="نقدية دفع عند الاستلام لم تصل الخزينة بعد (مع العميل أو في عهدة السائق): "/>
+                        <Run Text="{Binding Sales.CashWithDriversPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                        <Run Text=" — تُحتسب محصّلة بعد تسوية عهدة السائق."/>
+                    </TextBlock>
+                </Border>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Payment methods: four separate totals, never merged -->
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="طرق الدفع" Style="{StaticResource SectionTitleText}"/>
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="نقدًا" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="1" Text="بطاقة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CardPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="2" Text="إنستاباي" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.InstaPayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="3" Text="محفظة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.WalletPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Giveaways: three buckets the server keeps distinct -->
+                    <Border Grid.Column="1" Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="أنواع الطلبات والخصومات" Style="{StaticResource SectionTitleText}"/>
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="صالة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.DineInPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="1" Text="تيك أواي" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.TakeawayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="2" Text="توصيل" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.DeliveryPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="3" Text="قيمة العروض" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.OffersValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="4" Text="الضيافة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CompsValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="5" Text="خصم يدوي" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.ManualDiscountsPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Top items -->
+                <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                    <StackPanel>
+                        <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="90"/><ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الأكثر مبيعًا" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="1" Text="الكمية" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="2" Text="الإجمالي" Style="{StaticResource TableHeaderText}"/>
+                            </Grid>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding TopItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="90"/><ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding ProductName}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Quantity}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="2" FontWeight="SemiBold"
+                                                       Text="{Binding TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="لا توجد مبيعات في هذا اليوم" Style="{StaticResource MutedText}" Margin="16,14"
+                                   Visibility="{Binding TopItems, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Expenses + delivery outcomes -->
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="المصروفات" Style="{StaticResource SectionTitleText}"/>
+                            <TextBlock Style="{StaticResource MetricValueText}"
+                                       Text="{Binding ExpensesTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="التوصيل" Style="{StaticResource SectionTitleText}"/>
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <TextBlock Text="تم التسليم" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Delivery.DeliveredCount}"/>
+                                <TextBlock Grid.Row="1" Text="فشل / مرتجع" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Delivery.FailedCount}"/>
+                                <TextBlock Grid.Row="2" Text="عهدة غير مسوّاة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Delivery.UnsettledCustodyExpectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Tax and food cost. Neither figure is derived here; both come from the server. -->
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="الضريبة" Style="{StaticResource SectionTitleText}"/>
+                            <Grid ColumnSpacing="12" RowSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="الوعاء الخاضع" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Tax.TaxablePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="1" Text="الضريبة المحصّلة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Tax.TaxPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="2" Text="أثر المرتجعات" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Tax.RefundTaxImpactPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="3" Text="الصافي" Style="{StaticResource TableCellText}" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="Bold"
+                                           Text="{Binding Tax.NetTaxPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="تكلفة الطعام" Style="{StaticResource SectionTitleText}"/>
+                            <TextBlock Style="{StaticResource MetricValueText}" TextWrapping="Wrap"
+                                       Text="{Binding FoodCost.TotalFoodCostPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            <TextBlock Text="{Binding FoodCostCoverageLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
+                                    Visibility="{Binding HasIncompleteFoodCost, Converter={StaticResource BoolToVisibleConverter}}">
+                                <TextBlock Text="بعض الأصناف المباعة ليس لها تكلفة معروفة، فالرقم أعلاه أقل من التكلفة الحقيقية. أضف وصفة أو تكلفة لهذه الأصناف."
+                                           Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Refunds -->
+                <Border Style="{StaticResource PageCardStyle}" Padding="0"
+                        Visibility="{Binding HasRefunds, Converter={StaticResource BoolToVisibleConverter}}">
+                    <StackPanel>
+                        <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/><ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الطلب" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="1" Text="المبلغ" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="2" Text="السبب" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="3" Text="الاعتماد" Style="{StaticResource TableHeaderText}"/>
+                            </Grid>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Refunds}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="140"/><ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}"
+                                                       FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontWeight="SemiBold"
+                                                       Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Reason}" Style="{StaticResource TableCellText}"
+                                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding AuthorizedBy}" Style="{StaticResource TableCellText}"
+                                                       Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Manager-authorised and otherwise noteworthy actions -->
+                <Border Style="{StaticResource PageCardStyle}" Padding="0"
+                        Visibility="{Binding HasSignificantActions, Converter={StaticResource BoolToVisibleConverter}}">
+                    <StackPanel>
+                        <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/><ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الإجراء" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="1" Text="المبلغ" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="2" Text="السبب" Style="{StaticResource TableHeaderText}"/>
+                                <TextBlock Grid.Column="3" Text="المعتمد" Style="{StaticResource TableHeaderText}"/>
+                            </Grid>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding SignificantActions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="150"/><ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                                <TextBlock Text="{Binding Type}" Style="{StaticResource TableCellText}"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Actor}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontWeight="SemiBold"
+                                                       Text="{Binding AmountPiastres, Converter={StaticResource NullablePiastresToDisplayConverter}}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Reason}" Style="{StaticResource TableCellText}"
+                                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Approver}" Style="{StaticResource TableCellText}"
+                                                       Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+            <ProgressRing IsActive="True" Width="36" Height="36"/>
+            <TextBlock Text="جاري تحميل التقارير..." Style="{StaticResource MutedText}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                    Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+            <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

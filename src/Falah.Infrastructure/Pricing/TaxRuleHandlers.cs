@@ -80,6 +80,9 @@ public sealed class UpdateTaxRuleHandler
 
     public async Task HandleAsync(UpdateTaxRuleRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var receiptId = CommandReceipt.Id("tax-update", request.RequestId);
+        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.TaxRuleId, request.ActorUserId, ct) is not null) return;
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم قاعدة الضريبة مطلوب.");
         if (request.RateBasisPoints < 0) throw new DomainException("نسبة الضريبة يجب أن تكون صفرًا أو أكبر.");
         if (!Enum.TryParse<TaxMode>(request.Mode, out _)) throw new DomainException("نوع الضريبة يجب أن يكون Inclusive أو Exclusive.");
@@ -96,11 +99,12 @@ public sealed class UpdateTaxRuleHandler
         entity.Enabled = request.Enabled;
 
         _auditLog.Append(new AuditEvent(
-            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             $"تعديل قاعدة ضريبة: {entity.Name}", "menu",
             $"النسبة: {entity.RateBasisPoints / 100.0}% - {entity.Mode} - مفعّلة: {(entity.Enabled ? "نعم" : "لا")}",
             "warning", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }
 

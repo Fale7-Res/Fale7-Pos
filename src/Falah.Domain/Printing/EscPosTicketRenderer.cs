@@ -1,7 +1,6 @@
-namespace Falah.Infrastructure.Printing;
+namespace Falah.Domain.Printing;
 
 using System.Text;
-using Falah.Domain.Printing;
 
 /// <summary>
 /// Reference ESC/POS byte encoder for an 80mm thermal printer (the Xprinter XP-D200N class of

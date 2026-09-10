@@ -9,8 +9,17 @@ public sealed record MenuVariantDto(string Id, string Name, long PricePiastres);
 
 public sealed record MenuProductDto(
     string Id, string Name, long BasePricePiastres, bool SendToGrill, bool IsAvailable,
-    IReadOnlyList<MenuVariantDto> Variants, IReadOnlyList<MenuOfferDto> ApplicableOffers, string? PreparationStation);
+    IReadOnlyList<MenuVariantDto> Variants, IReadOnlyList<MenuOfferDto> ApplicableOffers, string? PreparationStation,
+    /// <summary>Stamp of the product's current photo, or null when it has none. The client builds
+    /// the image URL from it; the menu response never carries the bytes themselves.</summary>
+    string? ImageVersion = null);
 
 public sealed record MenuCategoryDto(string Id, string Name, string? Icon, IReadOnlyList<MenuProductDto> Products);
 
-public sealed record MenuResponse(IReadOnlyList<MenuCategoryDto> Categories);
+public sealed record MenuResponse(
+    IReadOnlyList<MenuCategoryDto> Categories,
+    /// <summary>Product ids ordered by how much of each was actually sold over the recent window,
+    /// most sold first. Computed from orders - there is no "favourite" flag anyone sets by hand,
+    /// because a flag someone set once stops being true and nobody notices. Empty for a restaurant
+    /// with no sales history yet, and the client shows nothing rather than an empty shortcut.</summary>
+    IReadOnlyList<string> BestSellerProductIds);

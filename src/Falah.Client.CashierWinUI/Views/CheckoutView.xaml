@@ -1,0 +1,109 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.CheckoutView" x:Name="Root"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" FlowDirection="RightToLeft">
+ <Grid Background="#66313D35" Visibility="{Binding IsCheckoutOpen, Converter={StaticResource BoolToVisibleConverter}}">
+  <Border Background="White" CornerRadius="22" MaxWidth="940" MaxHeight="720" Margin="24" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+   <Border.Shadow><ThemeShadow/></Border.Shadow>
+   <Grid>
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <Grid Padding="24,18" ColumnSpacing="16">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel Spacing="3"><TextBlock Text="إتمام الطلب" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+      <TextBlock Text="اختر طريقة الدفع وراجع المبلغ قبل التأكيد" FontSize="13" Foreground="{StaticResource TextMutedBrush}"/></StackPanel>
+     <Button Grid.Column="1" Content="رجوع للطلب" Command="{Binding CloseCheckoutCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
+    </Grid>
+    <Grid Grid.Row="1" ColumnSpacing="24" Padding="24,0,24,8" IsHitTestVisible="{Binding CanEditOperation}">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Spacing="16" Padding="0,0,0,8">
+      <TextBlock Text="طريقة الدفع" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+      <Grid ColumnSpacing="8" RowSpacing="8">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+       <Button Content="نقدي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="cash" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|WhiteBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|WhiteBrush|TextPrimaryBrush}"/>
+       <Button Grid.Column="1" Content="بطاقة" Command="{Binding SetPaymentMethodCommand}" CommandParameter="card" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|BrandPrimaryBrush|WhiteBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|WhiteBrush|TextPrimaryBrush}"/>
+       <Button Grid.Row="1" Content="إنستاباي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="instapay" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|BrandPrimaryBrush|WhiteBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|WhiteBrush|TextPrimaryBrush}"/>
+       <Button Grid.Row="1" Grid.Column="1" Content="محفظة" Command="{Binding SetPaymentMethodCommand}" CommandParameter="wallet" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|BrandPrimaryBrush|WhiteBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|WhiteBrush|TextPrimaryBrush}"/>
+      </Grid>
+      <TextBlock Text="يظل التحويل الإلكتروني معلقاً حتى تأكيد وصول المبلغ." TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource TextMutedBrush}"/>
+      <TextBox IsEnabled="{Binding CanEditOperation}" Header="اسم مزود المحفظة" Text="{Binding WalletProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+       Visibility="{Binding UsesWallet, Converter={StaticResource BoolToVisibleConverter}}"/>
+      <Expander Header="تقسيم المبلغ" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+       <StackPanel Spacing="10"><ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="الدفع بطريقتين" IsOn="{Binding IsSplitPaymentEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
+        <StackPanel Spacing="10" Visibility="{Binding IsSplitPaymentEnabled, Converter={StaticResource BoolToVisibleConverter}}">
+         <ComboBox IsEnabled="{Binding CanEditOperation}" Header="الطريقة الأولى" HorizontalAlignment="Stretch" SelectedValue="{Binding SplitMethod1, Mode=TwoWay}" SelectedValuePath="Tag">
+          <ComboBoxItem Content="نقدي" Tag="cash"/><ComboBoxItem Content="بطاقة" Tag="card"/><ComboBoxItem Content="إنستاباي" Tag="instapay"/><ComboBoxItem Content="محفظة" Tag="wallet"/>
+         </ComboBox>
+         <TextBox IsEnabled="{Binding CanEditOperation}" Header="المبلغ الأول بالجنيه" Text="{Binding SplitAmount1Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+         <ComboBox IsEnabled="{Binding CanEditOperation}" Header="الطريقة الثانية" HorizontalAlignment="Stretch" SelectedValue="{Binding SplitMethod2, Mode=TwoWay}" SelectedValuePath="Tag">
+          <ComboBoxItem Content="نقدي" Tag="cash"/><ComboBoxItem Content="بطاقة" Tag="card"/><ComboBoxItem Content="إنستاباي" Tag="instapay"/><ComboBoxItem Content="محفظة" Tag="wallet"/>
+         </ComboBox>
+         <TextBox IsEnabled="{Binding CanEditOperation}" Header="المبلغ الثاني بالجنيه" Text="{Binding SplitAmount2Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+       </StackPanel>
+      </Expander>
+      <Expander Header="الخصم والضيافة" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+       <StackPanel Spacing="12">
+        <StackPanel Spacing="8" Visibility="{Binding CanDiscount, Converter={StaticResource BoolToVisibleConverter}}">
+         <ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="خصم يدوي" IsOn="{Binding IsDiscountEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
+         <TextBox IsEnabled="{Binding CanEditOperation}" Header="الخصم بالجنيه" Text="{Binding DiscountAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsDiscountEnabled, Converter={StaticResource BoolToVisibleConverter}}"/>
+        </StackPanel>
+        <ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="ضيافة" IsOn="{Binding IsCompEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
+        <StackPanel Spacing="8" Visibility="{Binding IsCompEnabled, Converter={StaticResource BoolToVisibleConverter}}">
+         <TextBox IsEnabled="{Binding CanEditOperation}" Header="قيمة الضيافة بالجنيه" Text="{Binding CompAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+         <ComboBox IsEnabled="{Binding CanEditOperation}" Header="نوع الضيافة" HorizontalAlignment="Stretch" ItemsSource="{Binding CompReasonCodes}" DisplayMemberPath="Label" SelectedValuePath="Code" SelectedValue="{Binding CompReasonCode, Mode=TwoWay}"/>
+         <TextBox IsEnabled="{Binding CanEditOperation}" Header="السبب" Text="{Binding CompReasonText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+         <PasswordBox IsEnabled="{Binding CanEditOperation}" Header="رمز المدير" Password="{Binding CompManagerPin, Mode=TwoWay}" Visibility="{Binding CompNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
+        </StackPanel>
+       </StackPanel>
+      </Expander>
+     </StackPanel></ScrollViewer>
+     <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"><StackPanel Spacing="12" Padding="0,0,0,8">
+      <Border Background="#F0F5EF" CornerRadius="16" Padding="20">
+       <StackPanel Spacing="6"><TextBlock Text="الإجمالي التقديري" Foreground="{StaticResource TextMutedBrush}" FontSize="14"/>
+        <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="38" FontWeight="SemiBold" Foreground="{StaticResource BrandPrimaryBrush}"/>
+       </StackPanel>
+      </Border>
+      <TextBlock Text="تحصيل عند التوصيل — لا يُضاف المبلغ للدرج الآن" TextWrapping="Wrap" Foreground="{StaticResource BrandPrimaryBrush}" Visibility="{Binding IsCashOnDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
+      <TextBox IsEnabled="{Binding CanEnterTender}" Header="{Binding TenderLabel}" AutomationProperties.AutomationId="Checkout_Amount" FontSize="26" FlowDirection="LeftToRight"
+       Text="{Binding AmountPaidText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"/>
+      <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Button Content="بالضبط" Command="{Binding QuickCashCommand}" CommandParameter="exact" Style="{StaticResource SecondaryButtonStyle}"/>
+       <Button Grid.Column="1" Content="100" Command="{Binding QuickCashCommand}" CommandParameter="100" Style="{StaticResource SecondaryButtonStyle}"/>
+       <Button Grid.Column="2" Content="200" Command="{Binding QuickCashCommand}" CommandParameter="200" Style="{StaticResource SecondaryButtonStyle}"/>
+      </Grid>
+      <Grid ColumnSpacing="8" RowSpacing="8" FlowDirection="LeftToRight">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+       <Button Content="1" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="1"/>
+       <Button Grid.Column="1" Content="2" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="2"/>
+       <Button Grid.Column="2" Content="3" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="3"/>
+       <Button Grid.Row="1" Content="4" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="4"/>
+       <Button Grid.Row="1" Grid.Column="1" Content="5" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="5"/>
+       <Button Grid.Row="1" Grid.Column="2" Content="6" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="6"/>
+       <Button Grid.Row="2" Content="7" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="7"/>
+       <Button Grid.Row="2" Grid.Column="1" Content="8" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="8"/>
+       <Button Grid.Row="2" Grid.Column="2" Content="9" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="9"/>
+       <Button Grid.Row="3" Content="." Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="."/>
+       <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="0"/>
+       <Button Grid.Row="3" Grid.Column="2" Content="⌫" AutomationProperties.Name="حذف آخر رقم" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="back"/>
+      </Grid>
+      <Grid><TextBlock Text="الباقي للعميل" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}"/><TextBlock Text="{Binding ChangeDuePiastres, Converter={StaticResource PiastresToDisplayConverter}}" HorizontalAlignment="Left" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrandPrimaryBrush}"/></Grid>
+     </StackPanel></ScrollViewer>
+    </Grid>
+    <Border Grid.Row="2" Padding="24,14" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0">
+     <StackPanel Spacing="10">
+      <TextBlock Text="{Binding CheckoutError}" TextWrapping="Wrap" FontSize="14" Foreground="{StaticResource DangerBrush}" Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+      <Button AutomationProperties.AutomationId="Checkout_Submit" Content="تأكيد وتسجيل الطلب" Style="{StaticResource CtaButtonStyle}" Height="56" HorizontalAlignment="Stretch" Command="{Binding SubmitPaymentCommand}"/>
+     </StackPanel>
+    </Border>
+   </Grid>
+  </Border>
+ </Grid>
+</UserControl>
