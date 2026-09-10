@@ -380,8 +380,16 @@ public class FinalVerificationTests
     }
 
     [Fact]
-    public async Task Call_center_print_failure_preserves_checkout_success_without_resubmitting_the_order()
+    public async Task Call_center_no_longer_requests_its_own_tickets_after_checkout()
     {
+        // This used to assert the opposite: the app fired its own print request after checkout and,
+        // if the confirmation was lost, held the operator in an unresolved state until they retried.
+        // The tickets are now created by the server inside the checkout call itself
+        // (OrderAutoPrintService), keyed off the same CheckoutRequestId - so there is no second
+        // request to lose, and no window in which a station can die between the sale and the print.
+        //
+        // What still has to hold: exactly one checkout, no print call of its own, and the operator
+        // is not left blocked behind a print that never happened.
         var checkouts = 0;
         var prints = new List<string>();
         var session = new CC.Services.AppSession(new CC.Services.ApiClient(Http(async r => {
@@ -389,14 +397,13 @@ public class FinalVerificationTests
             if (path.EndsWith("print-jobs"))
             {
                 prints.Add(await r.Content!.ReadAsStringAsync());
-                if (prints.Count == 1) throw new HttpRequestException("print confirmation lost");
-                return Json("{\"jobs\":[],\"wasReplayed\":true}");
+                return Json("{\"jobs\":[],\"wasReplayed\":false}");
             }
             if (r.Method == HttpMethod.Get) return Json("{\"shiftId\":\"shift\",\"shiftName\":\"وردية\"}");
             if (path.Contains("checkout"))
             {
                 checkouts++;
-                return Json("{\"orderId\":\"order\",\"orderNumber\":\"#1\",\"totalPiastres\":11000}");
+                return Json("{\"orderId\":\"order\",\"orderNumber\":\"#1\",\"totalPiastres\":11000,\"printJobsQueued\":true}");
             }
             return Json("{}");
         }))) { CurrentUser = new("actor", "اختبار", "cashier", new[] { "pos" }) };
@@ -407,24 +414,49 @@ public class FinalVerificationTests
             """{"id":"service","name":"خدمة","feePiastres":1000,"active":true}""",
             new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         vm.Cart.Add(new CC.Models.CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 10000 });
+
         await vm.SubmitOrderCommand.ExecuteAsync(null);
-        Assert.True(vm.HasCheckoutResult);
-        Assert.False(vm.HasPendingCheckout);
-        Assert.True(vm.HasPendingPrint);
-        Assert.False(vm.CanEditOperation);
-        Assert.Empty(vm.Cart);
-        vm.StartNewOrderCommand.Execute(null);
-        Assert.True(vm.HasCheckoutResult);
-        await vm.SubmitOrderCommand.ExecuteAsync(null);
+
         Assert.Equal(1, checkouts);
-        await vm.RetryPrintCommand.ExecuteAsync(null);
-        Assert.Equal(prints[0], prints[1]);
-        Assert.False(vm.HasPendingPrint);
-        Assert.True(vm.CanEditOperation);
+        Assert.Empty(prints);              // the station asks for nothing; the server already did it
         Assert.True(vm.HasCheckoutResult);
+        Assert.False(vm.HasPendingPrint);  // nothing outstanding to block the next order
+        Assert.False(vm.HasPrintWarning);  // the server said the tickets were queued
+        Assert.True(vm.CanEditOperation);
+        Assert.Empty(vm.Cart);
+
         vm.StartNewOrderCommand.Execute(null);
         Assert.False(vm.HasCheckoutResult);
         Assert.True(vm.SubmitOrderCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task Call_center_says_so_when_the_server_could_not_queue_the_tickets()
+    {
+        // A printing problem must never fail the sale - which means the operator would otherwise
+        // have no way to tell an order whose confirmation copy printed from one whose ticket was
+        // never created at all.
+        var session = new CC.Services.AppSession(new CC.Services.ApiClient(Http(r => Task.FromResult(
+            r.Method == HttpMethod.Get
+                ? Json("{\"shiftId\":\"shift\",\"shiftName\":\"وردية\"}")
+                : r.RequestUri!.AbsolutePath.Contains("checkout")
+                    ? Json("{\"orderId\":\"order\",\"orderNumber\":\"#2\",\"totalPiastres\":11000,\"printJobsQueued\":false}")
+                    : Json("{}")))))
+        { CurrentUser = new("actor", "اختبار", "cashier", new[] { "pos" }) };
+        var vm = session.GetOrderDesk(new());
+        vm.CustomerPhone = "01000000000"; vm.CustomerName = "اختبار";
+        vm.DeliveryArea = "منطقة"; vm.DeliveryStreet = "شارع";
+        vm.SelectedDeliveryService = System.Text.Json.JsonSerializer.Deserialize<Falah.Application.Delivery.DeliveryServiceDto>(
+            """{"id":"service","name":"خدمة","feePiastres":1000,"active":true}""",
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        vm.Cart.Add(new CC.Models.CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 10000 });
+
+        await vm.SubmitOrderCommand.ExecuteAsync(null);
+
+        // The order still succeeded - that is the whole point of not failing it.
+        Assert.True(vm.HasCheckoutResult);
+        Assert.True(vm.HasPrintWarning);
+        Assert.Contains("أعد الطباعة", vm.PrintWarningText);
     }
 
     [Theory]

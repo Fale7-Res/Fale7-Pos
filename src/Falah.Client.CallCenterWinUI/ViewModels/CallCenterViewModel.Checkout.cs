@@ -23,9 +23,18 @@ public partial class CallCenterViewModel
     [ObservableProperty] private CheckoutOrderResult? _lastCheckoutResult;
 
     public bool HasCheckoutResult => LastCheckoutResult is not null;
+
+    /// <summary>Shown only when the order was recorded but its tickets could not be queued. The
+    /// order is never failed for a printing problem, so without this the operator cannot tell a
+    /// confirmation copy that printed from one that was never created.</summary>
+    public bool HasPrintWarning => LastCheckoutResult is { PrintJobsQueued: false };
+
+    public string PrintWarningText => "تم تسجيل الطلب لكن لم تُنشأ تذاكر الطباعة. أعد الطباعة من «البحث عن طلب».";
+
     partial void OnLastCheckoutResultChanged(CheckoutOrderResult? value)
     {
         OnPropertyChanged(nameof(HasCheckoutResult));
+        OnPropertyChanged(nameof(HasPrintWarning));
         SubmitOrderCommand.NotifyCanExecuteChanged();
     }
 
@@ -153,7 +162,9 @@ public partial class CallCenterViewModel
                 DeliveryNotes: NullIfEmpty(DeliveryNotes),
                 DeliveryServiceId: SelectedDeliveryService.Id,
                 DeliveryServiceName: SelectedDeliveryService.Name,
-                CompReasonCode: null);
+                CompReasonCode: null,
+                // This station's customer copy is the phoned-in confirmation, not a till receipt.
+                CustomerPrintRoute: "CallCenter");
 
             await SendCheckoutAsync(request);
         }
@@ -207,15 +218,19 @@ public partial class CallCenterViewModel
             request.DeliveryBuilding, request.DeliveryFloor, request.DeliveryApartment, request.DeliveryLandmark,
             request.DeliveryServiceId, request.DeliveryServiceName));
 
-        // The CallCenter print route is a distinct customer-facing ticket from the cashier's own
-        // Receipt route (see PrintRoute.CallCenter / PrintRules.CustomerRoutes) - this is the
-        // confirmation copy for what was just phoned in, not a kitchen ticket.
+        // The tickets are no longer requested from here. The server creates them as part of the
+        // checkout call itself (OrderAutoPrintService), keyed off this same CheckoutRequestId, so a
+        // confirmation copy cannot be lost by this app dying between the sale and the print - and
+        // so there is exactly ONE place that decides what an order prints. The CallCenter route is
+        // still a distinct customer-facing ticket from the till's Receipt route; the checkout
+        // request says so via CustomerPrintRoute.
+        //
+        // The retained-print machinery below stays: it still backs the manual reprint path, which
+        // is a genuinely client-initiated action.
         Cart.Clear();
         RecomputeCartTotals();
         ResetCustomerAndDelivery();
         CurrentCheckoutRequestId = null;
-        await SendPrintAsync(new CreatePrintJobsRequest($"pj-{Guid.NewGuid():N}",
-            result.Value.OrderId, "CallCenter", false, request.CashierId));
     }
 
     [RelayCommand]

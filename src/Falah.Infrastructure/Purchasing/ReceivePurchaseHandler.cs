@@ -77,6 +77,21 @@ public sealed class ReceivePurchaseHandler
             var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, accountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
         }
+        // Read each ingredient's current cost basis BEFORE this receipt is written, so the change
+        // this invoice causes can be recorded. See PurchasingRules.DescribeUnitCostChange for why
+        // this matters more here than it looks: one line rewrites every recipe using that item.
+        var previousUnitCosts = new Dictionary<string, Money?>();
+        foreach (var itemId in itemIds)
+        {
+            var lastCost = await _db.StockMovements.AsNoTracking()
+                .Where(m => m.InventoryItemId == itemId
+                    && m.Type == nameof(StockMovementType.PurchaseReceipt) && m.UnitCostPiastres != null)
+                .OrderByDescending(m => m.CreatedAtUtc)
+                .Select(m => m.UnitCostPiastres)
+                .FirstOrDefaultAsync(ct);
+            previousUnitCosts[itemId] = lastCost is { } c ? Money.FromPiastres(c) : null;
+        }
+
         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
@@ -164,6 +179,29 @@ public sealed class ReceivePurchaseHandler
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
                 "استلام فاتورة مشتريات", "cash", $"من المورد {supplier.Id} - الإجمالي {total.Piastres} قرش - المدفوع {paid.Piastres} قرش",
                 "normal", now, AuthorizedBy: authorization.Approver?.ApproverName, OperationId: operationId, ReferenceId: purchaseId));
+
+            // One audit line per ingredient whose cost basis this invoice actually moved. Recording
+            // it is the whole point: before this, a mistyped unit cost changed every recipe's cost,
+            // the food-cost percentage and the gross margin with nothing anywhere saying it had.
+            // A tenfold move is marked 'warning' as a data-entry signal - not a verdict on the price.
+            foreach (var line in lines)
+            {
+                var change = PurchasingRules.DescribeUnitCostChange(
+                    previousUnitCosts.GetValueOrDefault(line.InventoryItemId),
+                    Money.FromPiastres(line.UnitCostPiastres));
+                if (!change.HasChanged) continue;
+
+                _auditLog.Append(new AuditEvent(
+                    $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                    "تغيّر أساس تكلفة خامة", "inventory_cost",
+                    $"الخامة {line.InventoryItemId}: من {change.PreviousUnitCost!.Value.Piastres} إلى {change.NewUnitCost.Piastres} قرش للوحدة"
+                        + $" (×{change.Factor}) - الفاتورة {request.InvoiceNumber ?? purchaseId}"
+                        + (change.IsOrderOfMagnitude ? " - فرق بعشرة أضعاف أو أكثر، راجع إدخال السعر" : ""),
+                    change.IsOrderOfMagnitude ? "warning" : "normal", now,
+                    OperationId: operationId, ReferenceId: line.InventoryItemId,
+                    PreviousValue: change.PreviousUnitCost!.Value.Piastres.ToString(),
+                    NewValue: change.NewUnitCost.Piastres.ToString()));
+            }
 
             journal.Complete(idempotencyKey);
             await _db.SaveChangesAsync(ct);

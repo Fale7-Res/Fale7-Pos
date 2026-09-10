@@ -128,6 +128,7 @@ builder.Services.AddScoped<CustomerQueryService>();
 builder.Services.AddScoped<ReportingQueryService>();
 builder.Services.AddScoped<OwnerDashboardQueryService>();
 builder.Services.AddScoped<CreatePrintJobsHandler>();
+builder.Services.AddScoped<OrderAutoPrintService>();
 builder.Services.AddScoped<ReportPrintJobResultHandler>();
 builder.Services.AddScoped<SetProductStationHandler>();
 builder.Services.AddScoped<PrintJobQueryService>();
@@ -196,6 +197,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Last line of defence. Every handler below already translates the failures it EXPECTS into a 422
+// or a 404 with an Arabic message; this catches the ones nobody expected.
+//
+// It exists because an unhandled exception used to reach the caller as a bare 500 with an empty
+// body in Production - a till showing "the operation failed" with nothing to act on and nothing
+// written down. A missing required field on /api/approvals/issue reached the database and failed
+// on a NOT NULL constraint exactly that way, on the one path that authorises comps and refunds.
+//
+// The response is deliberately generic: the operator gets a sentence they can act on and a
+// reference to quote, while the detail goes to the log rather than over the wire.
+app.UseExceptionHandler(branch => branch.Run(async context =>
+{
+    var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    var reference = context.TraceIdentifier;
+    app.Logger.LogError(feature?.Error,
+        "Unhandled exception on {Method} {Path} (reference {Reference})",
+        context.Request.Method, context.Request.Path, reference);
+
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+    context.Response.ContentType = "application/json; charset=utf-8";
+    await context.Response.WriteAsJsonAsync(new
+    {
+        error = "حدث خطأ غير متوقع ولم تكتمل العملية. أعد المحاولة، وإن تكرر أبلغ الدعم بالرقم المرجعي.",
+        reference,
+    });
+}));
 
 app.MapPost("/api/shifts/open", async (Falah.Application.Shifts.OpenShiftRequest request, OpenShiftHandler handler, CancellationToken ct) =>
 {
@@ -910,7 +938,9 @@ app.MapGet("/api/recipes/{id}/cost", async (string id, string actorUserId, Falah
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapGet("/api/recipes/{id}/profitability", async (string id, long sellingPricePiastres, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
+// sellingPricePiastres is optional: omit it and the system reads the product's own price rather
+// than making the caller already know the answer to half the question.
+app.MapGet("/api/recipes/{id}/profitability", async (string id, long? sellingPricePiastres, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
 {
     var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
     if (denied is not null) return denied;
@@ -1188,12 +1218,16 @@ app.MapGet("/api/delivery/{id}", async (string id, DeliveryQueryService query, C
 app.MapGet("/api/delivery/{id}/timeline", async (string id, DeliveryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.GetTimelineAsync(id, ct)));
 
-app.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, CancellationToken ct) =>
+app.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
 {
     try
     {
         var result = await handler.HandleAsync(request, ct);
-        return Results.Ok(result);
+        // After the sale is committed, never inside it. TryPrintAsync cannot throw - see its own
+        // doc comment for why a printing problem must not be able to undo a paid order. It reports
+        // what happened so the station can say so rather than leaving a missing ticket silent.
+        var printed = await autoPrint.TryPrintAsync(request, result, ct);
+        return Results.Ok(result with { PrintJobsQueued = printed });
     }
     catch (Falah.Application.Orders.ShiftNotOpenException ex)
     {
@@ -1538,6 +1572,12 @@ app.MapPost("/api/price-rules", async (Falah.Application.Pricing.SavePriceRuleRe
 // movements, never from a separately-maintained running total that could drift.
 app.MapGet("/api/treasury/balance", async (string accountId, FalahDbContext db, CancellationToken ct) =>
 {
+    // A name that is not an account gets a 404, never a balance of zero. Zero is an answer about
+    // money; "no such account" is an answer about the question, and a caller that mistypes an
+    // account id deserves to be told rather than shown an empty till.
+    if (!Falah.Domain.Financial.TreasuryAccounts.All.Contains(accountId))
+        return Results.NotFound(new { error = "لا يوجد حساب خزنة بهذا المعرّف." });
+
     var movements = await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(db, accountId, ct);
     var balance = Falah.Domain.Financial.FinancialRules.TreasuryBalanceFromMovements(movements, accountId);
     return Results.Ok(new { accountId, balancePiastres = balance.Piastres });

@@ -31,7 +31,10 @@ public static class OrderMapper
         order.CustomerName, order.CustomerPhone, order.DeliveryArea, order.DeliveryAddress,
         order.DeliveryStreet, order.DeliveryBuilding, order.DeliveryFloor, order.DeliveryApartment,
         order.DeliveryLandmark, order.DeliveryNotes, order.DeliveryServiceId, order.DeliveryServiceName,
-        order.DeliveryFeePiastres, order.DiscountPiastres, order.ShiftId);
+        order.DeliveryFeePiastres, order.DiscountPiastres, order.ShiftId,
+        order.SplitPaymentsJson is null ? null
+            : System.Text.Json.JsonSerializer.Deserialize<List<WireSplit>>(order.SplitPaymentsJson)!
+                .Select(s => new OrderSplitPaymentDto(s.method, s.amountPiastres)).ToList());
 
     public static Order ToDomain(OrderEntity entity)
     {

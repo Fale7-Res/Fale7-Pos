@@ -189,6 +189,7 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(IsElectronicPaymentPending));
         OnPropertyChanged(nameof(CanConfirmPendingPayment));
         OnPropertyChanged(nameof(CanCancelPendingPayment));
+        OnPropertyChanged(nameof(HasPrintWarning));
         NotifyCheckoutAvailability();
     }
 
@@ -367,7 +368,10 @@ public partial class CashierViewModel
                 DeliveryNotes: isDelivery ? NullIfEmpty(DeliveryNotes) : null,
                 DeliveryServiceId: isDelivery ? SelectedDeliveryService?.Id : null,
                 DeliveryServiceName: isDelivery ? SelectedDeliveryService?.Name : null,
-                CompReasonCode: CompAmountPiastres > 0 ? CompReasonCode : null);
+                CompReasonCode: CompAmountPiastres > 0 ? CompReasonCode : null,
+                // The server creates this order's tickets as part of the checkout call itself, so a
+                // ticket cannot be lost by this app dying between the sale and the print.
+                CustomerPrintRoute: "Receipt");
 
             await CompleteCheckoutAsync(request);
         }

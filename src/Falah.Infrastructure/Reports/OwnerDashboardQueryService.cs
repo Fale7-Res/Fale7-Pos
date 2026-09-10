@@ -55,7 +55,7 @@ public sealed class OwnerDashboardQueryService
 
         var leakage = await LoadLeakageAsync(range, sales, expenses.TotalPiastres, refunds.Count, start, end, ct);
         var wages = await LoadWagesPostedAsync(start, end, ct);
-        var profitability = BuildProfitability(sales, foodCost, expenses.TotalPiastres, wages);
+        var profitability = BuildProfitability(sales, foodCost, expenses.TotalPiastres, wages.Total, wages.Count);
 
         return new OwnerDashboardDto(
             range.From.ToString("yyyy-MM-dd"), range.To.ToString("yyyy-MM-dd"), range.DayCount,
@@ -63,7 +63,7 @@ public sealed class OwnerDashboardQueryService
             await LoadAttentionAsync(range, ct),
             await LoadStockAsync(ct),
             await LoadObligationsAsync(start, end, ct),
-            await LoadPeopleAsync(range, wages, ct),
+            await LoadPeopleAsync(range, wages.Total, ct),
             await LoadHealthAsync(ct),
             significantActions.Count,
             await LoadTrendAsync(range, sales, expenses.TotalPiastres, ct));
@@ -185,7 +185,9 @@ public sealed class OwnerDashboardQueryService
     /// <summary>Wages actually posted to employee ledgers in the period - daily wages, salaries,
     /// overtime and extra shifts. Advances and withdrawals are excluded: they move money the
     /// employee had already earned, so counting them as wage cost would double-count it.</summary>
-    private async Task<long> LoadWagesPostedAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
+    /// <summary>The total AND how many entries produced it. The count is what lets the wage ratio
+    /// say "unknown" instead of "0%" for a period where nobody posted any labour at all.</summary>
+    private async Task<(long Total, int Count)> LoadWagesPostedAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
     {
         var wageTypes = new[]
         {
@@ -193,13 +195,14 @@ public sealed class OwnerDashboardQueryService
             nameof(LedgerEntryType.Overtime), nameof(LedgerEntryType.ExtraShift),
             nameof(LedgerEntryType.Bonus), nameof(LedgerEntryType.OtherEarning),
         };
-        return await _db.EmployeeLedgerEntries.AsNoTracking()
+        var rows = await _db.EmployeeLedgerEntries.AsNoTracking()
             .Where(e => wageTypes.Contains(e.Type) && e.CreatedAtUtc >= start && e.CreatedAtUtc < end)
-            .SumAsync(e => (long?)e.CreditPiastres, ct) ?? 0;
+            .Select(e => e.CreditPiastres).ToListAsync(ct);
+        return (rows.Sum(), rows.Count);
     }
 
     private static ProfitabilityDto BuildProfitability(
-        SalesReportDto sales, FoodCostReportDto foodCost, long expenses, long wages)
+        SalesReportDto sales, FoodCostReportDto foodCost, long expenses, long wages, int wagePostingCount)
     {
         var netSales = Money.FromPiastres(sales.NetSalesPiastres);
         var knownFoodCost = Money.FromPiastres(foodCost.TotalFoodCostPiastres);
@@ -208,7 +211,7 @@ public sealed class OwnerDashboardQueryService
             netSales, knownFoodCost, foodCost.SoldLineCount, foodCost.KnownLineCount);
         var operating = ProfitabilityRules.ComputeOperatingMargin(
             netSales, knownFoodCost, Money.FromPiastres(expenses), Money.FromPiastres(wages),
-            foodCost.SoldLineCount, foodCost.KnownLineCount);
+            foodCost.SoldLineCount, foodCost.KnownLineCount, wagePostingCount);
 
         return new ProfitabilityDto(
             gross.NetSales.Piastres, gross.KnownFoodCost?.Piastres, gross.GrossProfit?.Piastres,
@@ -221,6 +224,18 @@ public sealed class OwnerDashboardQueryService
 
     private async Task<AttentionDto> LoadAttentionAsync(BusinessDateRange range, CancellationToken ct)
     {
+        var openDay = await _db.BusinessDays.AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Status == nameof(Falah.Domain.BusinessDay.BusinessDayStatus.Open), ct);
+        // Measured against the real business date now, not against the reporting range - a day left
+        // open is stale relative to today no matter which period the owner happens to be reading.
+        int? openDayAge = openDay is null ? null
+            : Math.Max(0, BusinessClock.Today().DayNumber - openDay.BusinessDate.DayNumber);
+
+        var (costStart, costEnd) = range.ToUtcRange();
+        var unusualCostChanges = await _db.AuditEvents.AsNoTracking()
+            .CountAsync(e => e.Category == "inventory_cost" && e.Severity == "warning"
+                && e.TimestampUtc >= costStart && e.TimestampUtc < costEnd, ct);
+
         var threshold = await Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(_db, ct);
 
         var shifts = await _db.Shifts.AsNoTracking()
@@ -264,7 +279,9 @@ public sealed class OwnerDashboardQueryService
             PendingElectronicOrderCount: pendingElectronic,
             OpenExceptionCount: openExceptions,
             CloseBlockerCount: blockerCount,
-            HasOpenBusinessDay: day is not null);
+            HasOpenBusinessDay: day is not null,
+            OpenBusinessDayAgeDays: openDayAge,
+            UnusualCostChangeCount: unusualCostChanges);
     }
 
     private async Task<StockPositionDto> LoadStockAsync(CancellationToken ct)

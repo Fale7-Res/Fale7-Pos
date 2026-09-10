@@ -88,6 +88,19 @@ public partial class CallCenterViewModel : ObservableObject
 
     partial void OnSearchQueryChanged(string value) => RefreshVisibleProducts();
 
+    /// <summary>The synthetic "best sellers" category, or null when there is no sales history to
+    /// rank by - in which case no chip appears at all, rather than an empty one.</summary>
+    private MenuCategoryDto? _bestSellers;
+
+    private MenuCategoryDto? BuildBestSellers(IReadOnlyList<string> productIds)
+    {
+        if (productIds.Count == 0) return null;
+        var byId = Categories.SelectMany(c => c.Products).GroupBy(p => p.Id).ToDictionary(g => g.Key, g => g.First());
+        // The server's ranking order is the point; the menu's own order would defeat it.
+        var products = productIds.Where(byId.ContainsKey).Select(id => byId[id]).ToList();
+        return products.Count == 0 ? null : new MenuCategoryDto("__best_sellers", "الأكثر مبيعًا", "🔥", products);
+    }
+
     private void RefreshVisibleProducts()
     {
         VisibleProducts.Clear();
@@ -139,11 +152,18 @@ public partial class CallCenterViewModel : ObservableObject
             Categories.Clear();
             CategoryTiles.Clear();
             foreach (var c in result.Value.Categories)
-            {
                 Categories.Add(c);
-                CategoryTiles.Add(new CategoryTile(c));
-            }
-            SelectedCategory = Categories.FirstOrDefault();
+
+            // Same shortcut the till shows, from the same server-computed ranking - the two stations
+            // sell the same menu, and a chip that appeared on one and not the other read as a fault.
+            // Deliberately NOT added to Categories: its products already belong to real categories,
+            // so putting it there would make each of them appear twice in a search.
+            var bestSellerIds = result.Value.BestSellerProductIds ?? Array.Empty<string>();
+            _bestSellers = BuildBestSellers(bestSellerIds);
+            if (_bestSellers is not null) CategoryTiles.Add(new CategoryTile(_bestSellers));
+            foreach (var c in Categories) CategoryTiles.Add(new CategoryTile(c));
+
+            SelectedCategory = _bestSellers ?? Categories.FirstOrDefault();
         }
         finally
         {

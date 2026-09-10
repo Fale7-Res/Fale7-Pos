@@ -290,6 +290,16 @@ public partial class OwnerDashboardViewModel : ObservableObject
             Attention.Add(new AttentionItem("warn",
                 $"حضور يحتاج مراجعة: {d.People.AbsentCount} غياب و{d.People.MissingFingerprintCount} بصمة ناقصة", "attendance"));
 
+        // A day left open keeps stamping today's work onto an old date. The number of days is the
+        // finding - "يوم مفتوح" alone lets a week slide past unnoticed.
+        if (a.OpenBusinessDayAgeDays is { } dayAge && dayAge >= 1)
+            Attention.Add(new AttentionItem(dayAge >= 2 ? "bad" : "warn",
+                $"يوم العمل المفتوح تاريخه متأخر {dayAge} يوم عن اليوم الحالي", "controlcenter"));
+
+        if (a.UnusualCostChangeCount > 0)
+            Attention.Add(new AttentionItem("warn",
+                $"{a.UnusualCostChangeCount} خامة تغيّرت تكلفتها بعشرة أضعاف أو أكثر - راجع أسعار الفواتير", "purchasing"));
+
         var backedUpRoutes = d.Health.PrintRoutes
             .Where(r => r.PendingCount > 0 && r.OldestPendingAgeMinutes >= StalePrintMinutes).ToList();
         if (backedUpRoutes.Count > 0)

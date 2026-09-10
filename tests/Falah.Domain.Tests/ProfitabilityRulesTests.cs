@@ -69,7 +69,7 @@ public class ProfitabilityRulesTests
     {
         var result = ProfitabilityRules.ComputeOperatingMargin(
             netSales: P(200_000), knownFoodCost: P(60_000), expenses: P(25_000), wages: P(40_000),
-            soldLineCount: 20, knownLineCount: 20);
+            soldLineCount: 20, knownLineCount: 20, wagePostingCount: 4);
 
         Assert.Equal(75_000, result.OperatingResult!.Value.Piastres);
         Assert.Equal(30d, result.FoodCostPercent);
@@ -84,7 +84,7 @@ public class ProfitabilityRulesTests
     {
         var result = ProfitabilityRules.ComputeOperatingMargin(
             netSales: P(200_000), knownFoodCost: P(60_000), expenses: P(25_000), wages: P(40_000),
-            soldLineCount: 20, knownLineCount: 19);
+            soldLineCount: 20, knownLineCount: 19, wagePostingCount: 4);
 
         Assert.False(result.IsComplete);
     }
@@ -93,7 +93,7 @@ public class ProfitabilityRulesTests
     public void Operating_margin_can_be_negative()
     {
         var result = ProfitabilityRules.ComputeOperatingMargin(
-            netSales: P(50_000), knownFoodCost: P(20_000), expenses: P(20_000), wages: P(30_000), 5, 5);
+            netSales: P(50_000), knownFoodCost: P(20_000), expenses: P(20_000), wages: P(30_000), 5, 5, 3);
 
         Assert.Equal(-20_000, result.OperatingResult!.Value.Piastres);
         Assert.Equal(-40d, result.OperatingPercent);
@@ -130,7 +130,7 @@ public class ProfitabilityRulesTests
     {
         var result = ProfitabilityRules.ComputeOperatingMargin(
             netSales: P(100_000), knownFoodCost: Money.Zero, expenses: P(9_500), wages: P(20_000),
-            soldLineCount: 4, knownLineCount: 0);
+            soldLineCount: 4, knownLineCount: 0, wagePostingCount: 2);
 
         Assert.Null(result.OperatingResult);
         Assert.Null(result.OperatingPercent);
@@ -140,5 +140,32 @@ public class ProfitabilityRulesTests
         Assert.Equal(20_000, result.Wages.Piastres);
         Assert.Equal(20d, result.WagePercent);
         Assert.Equal(9.5d, result.ExpensePercent);
+    }
+
+    [Fact]
+    public void A_period_with_no_wage_postings_reports_an_unknown_wage_ratio_not_zero_percent()
+    {
+        // The owner dashboard showed "نسبة الأجور 0%" for a day nobody had posted any labour on.
+        // Arithmetically 0/75000 is zero; as an answer to "what is our labour ratio" it is a claim
+        // that labour cost nothing, which is a different statement from nobody having recorded any.
+        var result = ProfitabilityRules.ComputeOperatingMargin(
+            netSales: P(75_000), knownFoodCost: P(20_000), expenses: Money.Zero, wages: Money.Zero,
+            soldLineCount: 10, knownLineCount: 10, wagePostingCount: 0);
+
+        Assert.Null(result.WagePercent);
+        // Everything else it does know stays reported.
+        Assert.Equal(0, result.Wages.Piastres);
+        Assert.Equal(55_000, result.OperatingResult!.Value.Piastres);
+    }
+
+    [Fact]
+    public void Wages_that_were_posted_and_summed_to_zero_still_report_a_ratio()
+    {
+        // The distinction is whether anything was RECORDED, not whether it added up to zero.
+        var result = ProfitabilityRules.ComputeOperatingMargin(
+            netSales: P(75_000), knownFoodCost: P(20_000), expenses: Money.Zero, wages: Money.Zero,
+            soldLineCount: 10, knownLineCount: 10, wagePostingCount: 3);
+
+        Assert.Equal(0d, result.WagePercent);
     }
 }

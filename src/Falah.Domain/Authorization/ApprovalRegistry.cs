@@ -40,6 +40,13 @@ public static class AuthorizationPolicy
     public static ManagerApproval IssueManagerApproval(
         IApprovalRegistry registry, Actor approver, string action, string? reason, DateTimeOffset nowUtc)
     {
+        // An approval with no action approves nothing. Before this check the empty value travelled
+        // all the way to the database and failed there on a NOT NULL constraint, which surfaced to
+        // the till as an unexplained failure on the one path that authorises comps, refunds and
+        // permission overrides.
+        if (string.IsNullOrWhiteSpace(action))
+            throw new DomainException("يجب تحديد العملية المطلوب اعتمادها.");
+
         var allowedRole = approver.Role is "owner" or "manager"
             || (approver.Role == "supervisor" && HasPermission(approver, action));
         if (!allowedRole || !approver.Active)

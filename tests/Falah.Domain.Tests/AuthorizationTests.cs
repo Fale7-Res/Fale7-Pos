@@ -145,4 +145,21 @@ public class AuthorizationTests
         var approval = AuthorizationPolicy.IssueManagerApproval(registry, manager, "purchasing_manage", null, Now);
         Assert.Throws<DomainException>(() => AuthorizationPolicy.AuthorizeAddSupplier(registry, cashier, approval));
     }
+
+    [Fact]
+    public void An_approval_with_no_action_approves_nothing_and_is_refused()
+    {
+        // Before this guard the empty value travelled to the database and failed there on a NOT
+        // NULL constraint - surfacing to the till as a bare 500 with no message, on the one path
+        // that authorises comps, refunds and permission overrides.
+        var registry = new InMemoryApprovalRegistry();
+        var manager = MakeActor("manager", true, "all");
+
+        foreach (var action in new[] { null, "", "   " })
+        {
+            var ex = Assert.Throws<DomainException>(() =>
+                AuthorizationPolicy.IssueManagerApproval(registry, manager, action!, "سبب", DateTimeOffset.UtcNow));
+            Assert.Contains("العملية", ex.Message);
+        }
+    }
 }

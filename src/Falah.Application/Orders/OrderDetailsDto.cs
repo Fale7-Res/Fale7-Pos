@@ -15,4 +15,11 @@ public sealed record OrderDetailsDto(
     string? CustomerName, string? CustomerPhone, string? DeliveryArea, string? DeliveryAddress,
     string? DeliveryStreet, string? DeliveryBuilding, string? DeliveryFloor, string? DeliveryApartment,
     string? DeliveryLandmark, string? DeliveryNotes, string? DeliveryServiceId, string? DeliveryServiceName,
-    long DeliveryFeePiastres, long DiscountPiastres, string ShiftId);
+    long DeliveryFeePiastres, long DiscountPiastres, string ShiftId,
+    /// <summary>How a multi-method payment was actually split. Null for an ordinary single-method
+    /// order. The legs were always persisted and always used to attribute each channel's total, but
+    /// were not exposed here - so an order that read "multi" could not be reconciled from any
+    /// screen, receipt or report. An accountant needs to see which part came from where.</summary>
+    IReadOnlyList<OrderSplitPaymentDto>? SplitPayments = null);
+
+public sealed record OrderSplitPaymentDto(string Method, long AmountPiastres);

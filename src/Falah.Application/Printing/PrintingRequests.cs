@@ -9,7 +9,12 @@ namespace Falah.Application.Printing;
 /// they are always and only derived from the order's own items (see PrintRules.DetermineKitchenRoutes).
 /// Creating jobs NEVER touches the order/payment/inventory it describes - the critical invariant
 /// this whole feature exists to preserve.</summary>
-public sealed record CreatePrintJobsRequest(string RequestId, string OrderId, string? CustomerRoute, bool IsReprint, string ActorUserId);
+/// <param name="IncludeKitchenRoutes">False suppresses the preparation tickets and prints only the
+/// customer copy. Exists because the restaurant can turn preparation tickets off in Settings; a
+/// caller that wants the ordinary behaviour leaves it alone.</param>
+public sealed record CreatePrintJobsRequest(
+    string RequestId, string OrderId, string? CustomerRoute, bool IsReprint, string ActorUserId,
+    bool IncludeKitchenRoutes = true);
 
 public sealed record PrintJobDto(
     string Id, string OrderId, string OrderNumber, string Route, string Status, int AttemptCount,

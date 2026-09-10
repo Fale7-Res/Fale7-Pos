@@ -134,7 +134,7 @@ public sealed class DeliveryQueryService
             .Where(s => s.DriverId == driverId).OrderByDescending(s => s.CreatedAtUtc).ToListAsync(ct);
 
         return new DriverAccountDto(
-            driverId, operationalStatus,
+            driverId, operationalStatus, DescribeOperationalStatus(operationalStatus),
             scope.ActiveDeliveries.Count, scope.ResolvedDeliveries.Count, failedOrReturnedUnsettled,
             scope.GrossOrderValue.Piastres, scope.PrepaidValue.Piastres, cashCustodyPiastres,
             CanSettle: scope.ActiveDeliveries.Count == 0 && scope.ResolvedDeliveries.Count > 0,
@@ -143,4 +143,17 @@ public sealed class DeliveryQueryService
             AllTimeSettledCashPiastres: driverSettlements.Sum(s => s.ActualPiastres),
             LastSettlementAtUtc: driverSettlements.Count == 0 ? null : driverSettlements[0].CreatedAtUtc);
     }
+
+    /// <summary>The status in words. DriverOperationalStatus serialises as a bare integer, so a
+    /// screen binding straight to it showed "0" to a supervisor. Written once here rather than
+    /// re-derived in every client that displays a driver.</summary>
+    private static string DescribeOperationalStatus(Falah.Application.Delivery.DriverOperationalStatus status) => status switch
+    {
+        Falah.Application.Delivery.DriverOperationalStatus.Available => "متاح",
+        Falah.Application.Delivery.DriverOperationalStatus.Out => "بالخارج",
+        Falah.Application.Delivery.DriverOperationalStatus.Returning => "في طريق العودة",
+        Falah.Application.Delivery.DriverOperationalStatus.Assigned => "مُسند إليه طلب",
+        Falah.Application.Delivery.DriverOperationalStatus.SettlementPending => "بانتظار التسوية",
+        _ => status.ToString(),
+    };
 }

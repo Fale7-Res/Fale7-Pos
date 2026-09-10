@@ -91,6 +91,8 @@ public sealed record ProfitabilityDto(
     double? FoodCostPercent,
     double? GrossProfitPercent,
     long WagesPiastres,
+    /// <summary>Null when no wage entry was posted for the period at all. Zero would claim labour
+    /// cost nothing, which is a different statement from nobody having recorded any.</summary>
     double? WagePercent,
     long? OperatingResultPiastres,
     double? OperatingPercent,
@@ -112,7 +114,17 @@ public sealed record AttentionDto(
     int PendingElectronicOrderCount,
     int OpenExceptionCount,
     int CloseBlockerCount,
-    bool HasOpenBusinessDay);
+    bool HasOpenBusinessDay,
+    /// <summary>How many business days the currently open one is behind today. Zero when it is
+    /// today's, null when none is open. A day left open silently keeps stamping new work onto an
+    /// old date - every daily figure, every attendance record and every close blocker attaches to
+    /// a day that ended long ago, and nothing previously said so.</summary>
+    int? OpenBusinessDayAgeDays = null,
+    /// <summary>Ingredients whose cost basis moved by an order of magnitude or more on a received
+    /// invoice during the period. Far more often a misplaced decimal than a real price move, and
+    /// it silently rewrites every recipe cost and the gross margin - see
+    /// PurchasingRules.DescribeUnitCostChange.</summary>
+    int UnusualCostChangeCount = 0);
 
 public sealed record StockPositionDto(
     int TrackedItemCount,

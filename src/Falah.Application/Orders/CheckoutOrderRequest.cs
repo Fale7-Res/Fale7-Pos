@@ -55,7 +55,11 @@ public sealed record CheckoutOrderRequest(
     /// reference app's own compReasonCode/compReasonLabel taxonomy (types.ts) so "how much was
     /// given away, by reason" reporting is possible. CompReason above remains the separate free-text
     /// note.</summary>
-    string? CompReasonCode = null);
+    string? CompReasonCode = null,
+    /// <summary>Which customer-facing ticket this station prints - "Receipt" for a till, "CallCenter"
+    /// for a phoned-in confirmation copy. Null means Receipt. The station is the only thing that
+    /// knows which of the two it is, so it is the only thing that can say.</summary>
+    string? CustomerPrintRoute = null);
 
 public sealed record CheckoutOrderResult(
     string OrderId,
@@ -67,7 +71,11 @@ public sealed record CheckoutOrderResult(
     string Status,
     bool IsPaid,
     string? ElectronicPaymentStatus,
-    bool WasReplayed);
+    bool WasReplayed,
+    /// <summary>False when the sale succeeded but its tickets could not be queued. The sale is
+    /// never failed for a printing problem - but the operator must still be told, or a ticket that
+    /// never reached the kitchen looks exactly like one that did. Reprint from Order Lookup.</summary>
+    bool PrintJobsQueued = true);
 
 /// <summary>Thrown when a write hits a genuine, unresolvable idempotency-key collision at the
 /// database's own constraint level that is NOT a legitimate replay (no matching Order exists to

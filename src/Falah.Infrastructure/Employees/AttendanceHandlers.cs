@@ -34,8 +34,15 @@ public sealed class BiometricCheckInHandler
         var settings = await new SettingsQueryService(_db).GetAsync(ct);
 
         var activeShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == nameof(ShiftStatus.Open), ct);
+
+        // Lateness is measured from when the open shift began - which is only a meaningful baseline
+        // while that shift belongs to TODAY'S business date. A shift left open across days is not a
+        // schedule anyone was late for: it produced "متأخر 6377 دقيقة" for someone clocking in
+        // normally, and an automatic wage deduction followed it. With no usable baseline the system
+        // records no lateness rather than a number it cannot stand behind - the same reason an
+        // unknown cost is never reported as zero.
         var lateMinutes = 0;
-        if (activeShift is not null)
+        if (activeShift is not null && activeShift.BusinessDate == date)
             lateMinutes = Math.Max(0, (int)Math.Round((now - activeShift.OpenedAtUtc).TotalMinutes));
         var status = lateMinutes > settings.LateGraceMinutes ? AttendanceStatus.Late : AttendanceStatus.Present;
 

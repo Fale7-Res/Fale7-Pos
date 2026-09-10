@@ -91,11 +91,34 @@ public sealed class InventoryQueryService
         return new PrepRecipeCostDto(result.UnitCost?.Piastres, result.KnownCost.Piastres, result.Completeness, result.Missing, result.LineCount, result.KnownLineCount);
     }
 
-    public async Task<MenuItemProfitabilityDto> GetMenuItemProfitabilityAsync(string recipeId, long sellingPricePiastres, CancellationToken ct = default)
+    /// <param name="sellingPricePiastres">Null asks the system to resolve the price itself from the
+    /// product this recipe belongs to. It used to be required, which meant "is this item profitable"
+    /// could only be answered by a caller that already knew the price - and any caller that passed a
+    /// stale or wrong one got a confident answer about a price the restaurant does not charge.</param>
+    public async Task<MenuItemProfitabilityDto> GetMenuItemProfitabilityAsync(string recipeId, long? sellingPricePiastres, CancellationToken ct = default)
     {
+        sellingPricePiastres ??= await ResolveSellingPriceAsync(recipeId, ct);
         var recipeCost = await GetRecipeCostAsync(recipeId, ct);
-        var result = CostingRules.MenuItemProfitability(Money.FromPiastres(sellingPricePiastres), Money.FromPiastres(recipeCost.KnownCostPiastres));
+        var result = CostingRules.MenuItemProfitability(Money.FromPiastres(sellingPricePiastres.Value), Money.FromPiastres(recipeCost.KnownCostPiastres));
         return new MenuItemProfitabilityDto(result.FoodCostPercent, result.Contribution?.Piastres, result.ContributionPercent);
+    }
+
+    /// <summary>The price the restaurant actually charges for the product this recipe makes. A
+    /// product priced only through its variants has no single price, so the cheapest is used - the
+    /// same "من ..." figure the menu card itself shows. Zero when nothing links back to a product,
+    /// which CostingRules already treats as an unanswerable margin rather than a free item.</summary>
+    private async Task<long> ResolveSellingPriceAsync(string recipeId, CancellationToken ct)
+    {
+        var direct = await _db.Products.AsNoTracking()
+            .Where(p => p.RecipeId == recipeId)
+            .Select(p => (long?)p.BasePricePiastres).FirstOrDefaultAsync(ct);
+        if (direct is { } basePrice and > 0) return basePrice;
+
+        var variantPrice = await _db.ProductVariants.AsNoTracking()
+            .Where(v => v.RecipeId == recipeId && v.PricePiastres > 0)
+            .OrderBy(v => v.PricePiastres)
+            .Select(v => (long?)v.PricePiastres).FirstOrDefaultAsync(ct);
+        return variantPrice ?? 0;
     }
 
     /// <summary>Theoretical usage (sales x CURRENT recipe - recipes are not versioned per sale, a

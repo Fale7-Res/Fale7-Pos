@@ -48,7 +48,9 @@ public sealed class CreatePrintJobsHandler
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
 
-        var kitchenRoutes = PrintRules.DetermineKitchenRoutes(order.Items.Select(i => i.PreparationStation));
+        IReadOnlyCollection<PrintRoute> kitchenRoutes = request.IncludeKitchenRoutes
+            ? PrintRules.DetermineKitchenRoutes(order.Items.Select(i => i.PreparationStation))
+            : Array.Empty<PrintRoute>();
 
         var routes = new List<PrintRoute>(kitchenRoutes);
         if (customerRoute is { } cr) routes.Insert(0, cr);

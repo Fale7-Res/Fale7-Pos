@@ -17,4 +17,9 @@ public static class TreasuryAccounts
     /// assertProtectedSourceBalance in lib/financial-domain.mjs - note tre-wallet is deliberately
     /// NOT in this set there, matching the original list exactly.</summary>
     public static readonly IReadOnlySet<string> Protected = new HashSet<string> { Main, Drawer, Bank, InstaPay };
+
+    /// <summary>Every account this system posts to. Used to tell "this account holds nothing" apart
+    /// from "there is no such account" - a balance query for a name that does not exist must not
+    /// answer zero, for the same reason an unknown cost is not reported as zero anywhere else here.</summary>
+    public static readonly IReadOnlySet<string> All = new HashSet<string> { Main, Drawer, Bank, InstaPay, Wallet };
 }

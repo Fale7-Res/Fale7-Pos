@@ -107,6 +107,14 @@
                                Text="السائق يحصّل المبلغ عند التسليم إذا كان الدفع نقدًا."/>
                     <TextBlock Text="{Binding ReprintNote}" Style="{StaticResource MutedText}"
                                TextWrapping="Wrap" TextAlignment="Center"/>
+                    <!-- The order is never failed for a printing problem, so this is the only thing
+                         that distinguishes a confirmation copy that printed from one that was never
+                         created. Absent whenever printing worked. -->
+                    <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                            Visibility="{Binding HasPrintWarning, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="{Binding PrintWarningText}" TextWrapping="Wrap" TextAlignment="Center"
+                                   FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource WarningBrush}"/>
+                    </Border>
                     <Button Content="إعادة محاولة طلب الطباعة" Style="{StaticResource SecondaryButtonStyle}"
                             Command="{Binding RetryPrintCommand}" HorizontalAlignment="Stretch"
                             Visibility="{Binding HasPendingPrint, Converter={StaticResource BoolToVisibleConverter}}"/>

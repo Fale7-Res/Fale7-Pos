@@ -84,6 +84,10 @@ public sealed record BlockingOrderDto(string DeliveryId, string OrderId, string 
 /// UI slice to add if actually needed.</summary>
 public sealed record DriverAccountDto(
     string DriverId, DriverOperationalStatus OperationalStatus,
+    /// <summary>The same status in words. The enum serialises as a bare integer, so a supervisor
+    /// screen binding straight to it showed "0" - a number that means nothing to the person reading
+    /// it. The label travels with the value rather than being re-derived in each client.</summary>
+    string OperationalStatusLabel,
     int ActiveOrderCount, int CompletedUnsettledCount, int FailedOrReturnedUnsettledCount,
     long GrossWorkValuePiastres, long PrepaidCompletedPiastres, long CashCustodyPiastres, bool CanSettle,
     IReadOnlyList<BlockingOrderDto> BlockingOrders,

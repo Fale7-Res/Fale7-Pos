@@ -51,6 +51,13 @@ public partial class CashierViewModel
         Falah.Domain.Common.Money.FromPiastres(Math.Max(0, CartSubtotalPiastres - DiscountAmountPiastres)), _taxRule).Tax.Piastres) + " ج";
     public string CheckoutTitle => IsElectronicPaymentPending ? "بانتظار تأكيد التحويل" : "تم تسجيل الطلب";
     public string CheckoutSubtitle => IsElectronicPaymentPending ? "الطلب مسجل؛ المبلغ لم يُحصّل بعد" : "راجع رقم الطلب والمبلغ المسجل";
+
+    /// <summary>Shown only when the sale succeeded but its tickets could not be queued. The sale is
+    /// never failed for a printing problem, so without this line a ticket that never reached the
+    /// kitchen would look exactly like one that did.</summary>
+    public bool HasPrintWarning => LastCheckoutResult is { PrintJobsQueued: false };
+
+    public string PrintWarningText => "تم تسجيل الطلب لكن لم تُنشأ تذاكر الطباعة. أعد الطباعة من «البحث عن طلب».";
     public string CatalogueTitle => string.IsNullOrWhiteSpace(SearchQuery) ? SelectedCategory?.Name ?? "قائمة الطعام" : "نتائج البحث";
     [ObservableProperty] private bool _isInitializing;
     [ObservableProperty] private string? _sessionError;

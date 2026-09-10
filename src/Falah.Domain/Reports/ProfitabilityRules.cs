@@ -77,9 +77,13 @@ public static class ProfitabilityRules
     /// expenses, and wages posted for the period. It is deliberately NOT called net profit - rent,
     /// depreciation, financing and anything else the restaurant does not enter here are absent, and
     /// naming it profit would invite an owner to treat it as the bottom line.</summary>
+    /// <param name="wagePostingCount">How many wage entries were actually posted for the period.
+    /// Zero means nobody recorded any labour, which is not the same statement as "labour cost
+    /// nothing" - and a dashboard that answers 0% to "what is our labour ratio" is making the
+    /// second claim while only the first is true. Same rule the food cost above already follows.</param>
     public static OperatingMarginResult ComputeOperatingMargin(
         Money netSales, Money knownFoodCost, Money expenses, Money wages,
-        int soldLineCount, int knownLineCount)
+        int soldLineCount, int knownLineCount, int wagePostingCount)
     {
         var isComplete = soldLineCount == 0 || knownLineCount >= soldLineCount;
 
@@ -87,15 +91,17 @@ public static class ProfitabilityRules
             ? Math.Round((double)value.Piastres / netSales.Piastres * 100, 2)
             : null;
 
+        double? WagePercent() => wagePostingCount == 0 ? null : Percent(wages);
+
         // Food cost entirely unknown makes the operating result unknowable too - it would otherwise
         // be reported as if the food had cost nothing. Expenses and wages stay visible on their own,
         // because those ARE known and the owner should still see them.
         if (soldLineCount > 0 && knownLineCount == 0)
             return new OperatingMarginResult(netSales, null, expenses, wages, null,
-                null, Percent(wages), Percent(expenses), null, false);
+                null, WagePercent(), Percent(expenses), null, false);
 
         var result = netSales - knownFoodCost - expenses - wages;
         return new OperatingMarginResult(netSales, knownFoodCost, expenses, wages, result,
-            Percent(knownFoodCost), Percent(wages), Percent(expenses), Percent(result), isComplete);
+            Percent(knownFoodCost), WagePercent(), Percent(expenses), Percent(result), isComplete);
     }
 }
