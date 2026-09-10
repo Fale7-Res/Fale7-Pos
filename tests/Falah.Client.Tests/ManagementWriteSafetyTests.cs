@@ -65,7 +65,11 @@ public class ManagementWriteSafetyTests
             return new(() => vm.PayRunCommand.ExecuteAsync(null), () => vm.PaymentAccount = vm.PaymentAccounts[1],
                 () => vm.ClosePayCommand.Execute(null), () => vm.IsPayOpen, () => vm.CanEditAction);
         }
-        var item = Dto<InventoryItemDto>("""{"id":"item","name":"صنف","unit":"kg","balanceMilliUnits":1000}""");
+        const string itemJson = """{"id":"item","name":"صنف","unit":"kg","balanceMilliUnits":1000}""";
+        // The stock screen now works from the overview row, which carries the item's value and last
+        // movement alongside what the plain item DTO used to hold; purchasing still picks the item.
+        var item = Dto<InventoryItemDto>(itemJson);
+        var stockRow = Dto<InventoryOverviewRowDto>(itemJson);
         if (kind == "employee")
         {
             var vm = new EmployeesViewModel(session);
@@ -81,11 +85,11 @@ public class ManagementWriteSafetyTests
             var vm = new InventoryViewModel(session);
             if (kind == "count")
             {
-                vm.OpenCountCommand.Execute(item); vm.CountActualText = "2"; vm.CountReason = "اختبار";
+                vm.OpenCountCommand.Execute(stockRow); vm.CountActualText = "2"; vm.CountReason = "اختبار";
                 return new(() => vm.SubmitCountCommand.ExecuteAsync(null), () => vm.CountActualText = "invalid",
                     () => vm.CloseCountCommand.Execute(null), () => vm.IsCountOpen, () => vm.CanEditAction);
             }
-            vm.OpenWasteCommand.Execute(item); vm.WasteQuantityText = "1"; vm.WasteReason = "اختبار";
+            vm.OpenWasteCommand.Execute(stockRow); vm.WasteQuantityText = "1"; vm.WasteReason = "اختبار";
             return new(() => vm.SubmitWasteCommand.ExecuteAsync(null), () => vm.WasteQuantityText = "invalid",
                 () => vm.CloseWasteCommand.Execute(null), () => vm.IsWasteOpen, () => vm.CanEditAction);
         }

@@ -31,6 +31,8 @@ public class FinalVerificationTests
         "/api/reports/delivery-outcomes" => "{}",
         "/api/reports/tax" => "{}",
         "/api/reports/food-cost" => "{}",
+        "/api/treasury/position" => """{"accounts":[],"totalInAccountsPiastres":0,"pendingElectronicPiastres":0,"pendingElectronicOrderCount":0,"unsettledDriverCustodyPiastres":0,"unsettledDriverCount":0}""",
+        "/api/inventory/overview" => """{"items":[],"knownStockValuePiastres":0,"itemCount":0,"lowStockCount":0,"itemsWithoutCostCount":0,"itemsWithoutCostHoldingStockCount":0}""",
         "/api/recipes/cost-coverage" => """{"recipeCount":0,"fullyCostedCount":0,"partlyCostedCount":0,"uncostedCount":0,"productsWithoutRecipeCount":0,"ingredientsWithoutCostCount":0}""",
         _ => "[]"
     };

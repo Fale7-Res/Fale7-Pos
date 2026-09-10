@@ -34,53 +34,118 @@
             </StackPanel>
         </Grid>
 
-        <!-- Balances -->
-        <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Margin="28,0,28,12">
-            <ItemsControl ItemsSource="{Binding Balances}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal" ItemWidth="180" ItemHeight="80"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Spacing="2" MinWidth="150">
-                            <TextBlock Style="{StaticResource CardTitleText}"
-                                       Text="{Binding AccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
-                            <TextBlock Style="{StaticResource MetricValueText}" FontSize="22"
-                                       Text="{Binding BalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+        <!-- Position: what is held, and what is owed but has not arrived -->
+        <Grid Grid.Row="1" Margin="28,0,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource PageCardStyle}" Padding="16,14">
+                <ItemsControl ItemsSource="{Binding Balances}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" ItemWidth="176" ItemHeight="78"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button MinWidth="160" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right"
+                                    Style="{StaticResource GhostButtonStyle}"
+                                    ToolTipService.ToolTip="اعرض حركات هذا الحساب فقط"
+                                    Command="{Binding ElementName=Root, Path=DataContext.FilterByAccountCommand}"
+                                    CommandParameter="{Binding AccountId}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Style="{StaticResource CardTitleText}"
+                                               Text="{Binding AccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
+                                    <TextBlock Style="{StaticResource MetricValueText}" FontSize="21"
+                                               Text="{Binding BalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <!--
+                Money the restaurant is counting on that sits in no account. Leaving it off the
+                screen is how a shortfall at the end of a shift becomes a mystery.
+            -->
+            <Border Grid.Column="1" Style="{StaticResource PageCardStyle}" Padding="16,14" MinWidth="300"
+                    Visibility="{Binding HasMoneyOutside, Converter={StaticResource BoolToVisibleConverter}}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="خارج الحسابات" Style="{StaticResource CardTitleText}"/>
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="تحويلات لم تُؤكَّد" Style="{StaticResource CaptionText}"
+                                       Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding PendingElectronicDisplay}" Style="{StaticResource MetricValueText}"
+                                       FontSize="19" Foreground="{StaticResource WarningBrush}"/>
+                            <TextBlock Text="{Binding PendingElectronicNote}" Style="{StaticResource CaptionText}"
+                                       Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="نقدية مع السائقين" Style="{StaticResource CaptionText}"
+                                       Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding DriverCustodyDisplay}" Style="{StaticResource MetricValueText}"
+                                       FontSize="19" Foreground="{StaticResource WarningBrush}"/>
+                            <TextBlock Text="{Binding DriverCustodyNote}" Style="{StaticResource CaptionText}"
+                                       Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- Ledger -->
         <Border Grid.Row="2" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                <Grid Padding="16,12,16,10" ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="سجل الحركات" Style="{StaticResource CardTitleText}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" MinHeight="40" Content="كل الحسابات" FontSize="12"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding FilterByAccountCommand}" CommandParameter=""
+                            Visibility="{Binding HasAccountFilter, Converter={StaticResource BoolToVisibleConverter}}"/>
+                    <TextBox Grid.Column="2" Style="{StaticResource SearchBoxStyle}" MinHeight="40" Width="240"
+                             PlaceholderText="ابحث بالنوع أو السبب أو المرجع"
+                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+
+                <Grid Style="{StaticResource TableHeaderRowStyle}" Grid.Row="1" Padding="16,10">
                     <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="النوع" Style="{StaticResource TableHeaderText}"/>
                         <TextBlock Grid.Column="1" Text="من" Style="{StaticResource TableHeaderText}"/>
                         <TextBlock Grid.Column="2" Text="إلى" Style="{StaticResource TableHeaderText}"/>
                         <TextBlock Grid.Column="3" Text="المبلغ" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="4" Text="السبب" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="4" Text="التاريخ" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="5" Text="التفاصيل" Style="{StaticResource TableHeaderText}"/>
                     </Grid>
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding Movements}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -88,23 +153,37 @@
                                     <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
-                                            <ColumnDefinition Width="130"/>
-                                            <ColumnDefinition Width="130"/>
-                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="140"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Type, Converter={StaticResource TreasuryMovementTypeLabelConverter}}" Style="{StaticResource TableCellText}"
+
+                                        <TextBlock Text="{Binding TypeLabel}" Style="{StaticResource TableCellText}"
                                                    FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+
                                         <TextBlock Grid.Column="1" Style="{StaticResource TableCellText}" VerticalAlignment="Center"
                                                    Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"
                                                    Text="{Binding SourceAccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
+
                                         <TextBlock Grid.Column="2" Style="{StaticResource TableCellText}" VerticalAlignment="Center"
                                                    Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"
                                                    Text="{Binding DestinationAccountId, Converter={StaticResource TreasuryAccountLabelConverter}}"/>
-                                        <TextBlock Grid.Column="3" FontWeight="SemiBold" VerticalAlignment="Center"
-                                                   Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                        <TextBlock Grid.Column="4" Text="{Binding Reason}" Style="{StaticResource TableCellText}"
-                                                   Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+
+                                        <TextBlock Grid.Column="3" Text="{Binding AmountDisplay}" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Style="{StaticResource TableCellText}"/>
+
+                                        <TextBlock Grid.Column="4" Text="{Binding WhenDisplay}" Style="{StaticResource CaptionText}"
+                                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+
+                                        <StackPanel Grid.Column="5" Spacing="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Reason}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                            <TextBlock Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"
+                                                       TextWrapping="Wrap">
+                                                <Run Text="{Binding ActorDisplay}"/><Run Text=" · "/><Run Text="{Binding ReferenceDisplay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -112,23 +191,31 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
                     <ProgressRing IsActive="True" Width="36" Height="36"/>
                     <TextBlock Text="جاري تحميل الخزينة..." Style="{StaticResource MutedText}"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                <StackPanel Grid.Row="2" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
                             Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
                     <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
                     <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
                             HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding Movements, Converter={StaticResource EmptyCollectionToVisibleConverter}}">
+                <StackPanel Grid.Row="2" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360" Padding="16"
+                            Visibility="{Binding HasNoMovements, Converter={StaticResource BoolToVisibleConverter}}">
                     <TextBlock Text="لا توجد حركات مالية مسجّلة" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="ستظهر هنا كل حركة تمس أي حساب من حسابات الخزينة" Style="{StaticResource MutedText}"
+                    <TextBlock Text="ستظهر هنا كل حركة تمس أي حساب من حسابات الخزينة، بمن سجّلها ومتى ولأي مستند"
+                               Style="{StaticResource MutedText}" HorizontalAlignment="Center"
+                               TextAlignment="Center" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="320" Padding="16"
+                            Visibility="{Binding HasNoMatchingMovements, Converter={StaticResource BoolToVisibleConverter}}">
+                    <TextBlock Text="لا توجد حركات مطابقة" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="غيّر الحساب أو امسح البحث" Style="{StaticResource MutedText}"
                                HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>

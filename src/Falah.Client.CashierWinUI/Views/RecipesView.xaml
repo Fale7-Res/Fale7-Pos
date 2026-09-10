@@ -316,7 +316,7 @@
                                     </ItemsControl>
 
                                     <StackPanel Spacing="8" Padding="24" HorizontalAlignment="Center"
-                                                Visibility="{Binding DetailLines, Converter={StaticResource EmptyCollectionToVisibleConverter}}">
+                                                Visibility="{Binding DetailLines.Count, Converter={StaticResource ZeroCountToVisibleConverter}}">
                                         <TextBlock Text="هذه الوصفة بدون مكوّنات" Style="{StaticResource SectionTitleText}"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="وصفة بلا مكوّنات لا تعني تكلفة صفر، تعني تكلفة غير معروفة - ولن يظهر لها هامش ربح."
@@ -393,7 +393,7 @@
                                     </ItemsControl>
 
                                     <StackPanel Spacing="8" Padding="24" HorizontalAlignment="Center"
-                                                Visibility="{Binding EditorLines, Converter={StaticResource EmptyCollectionToVisibleConverter}}">
+                                                Visibility="{Binding EditorLines.Count, Converter={StaticResource ZeroCountToVisibleConverter}}">
                                         <TextBlock Text="أضف أول مكوّن للوصفة" Style="{StaticResource SectionTitleText}"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="اختر الخامة من القائمة فوق، ثم اكتب الكمية بوحدتها"

@@ -13,6 +13,10 @@ Catches resource/style failures that compile but crash at runtime, plus unsuppor
   4. "--" inside an XML comment. XML forbids it outright, and XamlCompiler.exe reacts by exiting
      with code 1 and printing nothing at all - no file, no line, no message - so a divider rule
      drawn with hyphens costs an afternoon of bisecting. Draw dividers with "=" instead.
+  5. A collection converter applied to a bare ViewModel collection property. Filling an
+     ObservableCollection raises CollectionChanged, not PropertyChanged on the property holding it,
+     so the binding never re-evaluates: every empty state in this app was sitting on top of the
+     rows it said were not there. Bind the collection's own Count instead.
 
 Run from the repo root:  python tools/xaml-audit.py
 Exits non-zero when anything is found, so it can gate a build.
@@ -50,6 +54,14 @@ def audit(project):
     for f in files:
         s = io.open(f, encoding="utf-8").read()
         name = os.path.relpath(f)
+
+        for m in re.finditer(r'\{Binding ([A-Za-z_][A-Za-z0-9_]*), Converter=\{StaticResource '
+                             r'(Empty|NonEmpty)CollectionToVisibleConverter\}\}', s):
+            line = s[: m.start()].count("\n") + 1
+            problems.append(
+                f"{name}:{line}  '{m.group(1)}' never re-evaluates when rows arrive; "
+                f"bind {m.group(1)}.Count with ZeroCountToVisibleConverter/CountToVisibleConverter"
+            )
 
         for m in re.finditer(r'<!--(.*?)-->', s, re.S):
             if "--" in m.group(1):

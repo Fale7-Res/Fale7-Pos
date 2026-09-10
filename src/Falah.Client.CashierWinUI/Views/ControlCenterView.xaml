@@ -150,7 +150,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <TextBlock Text="لا توجد استثناءات." Style="{StaticResource MutedText}"
-                                   Visibility="{Binding Exceptions, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                                   Visibility="{Binding Exceptions.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
                     </StackPanel>
                 </Border>
                 <Button Content="إعادة فتح اليوم المحدد" MinHeight="48" HorizontalAlignment="Left"

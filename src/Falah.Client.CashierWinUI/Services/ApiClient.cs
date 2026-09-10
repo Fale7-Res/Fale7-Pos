@@ -419,6 +419,10 @@ public sealed partial class ApiClient
 
     // ---------------- Treasury (balances, ledger, owner-level money movement) ----------------
 
+    public Task<ApiResult<TreasuryPositionDto>> GetTreasuryPositionAsync(string actorUserId, CancellationToken ct = default) =>
+        SendAsync<TreasuryPositionDto>(() => _http.GetAsync(
+            $"/api/treasury/position?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
     public Task<ApiResult<IReadOnlyList<TreasuryAccountBalanceDto>>> GetTreasuryBalancesAsync(string actorUserId, CancellationToken ct = default) =>
         SendAsync<IReadOnlyList<TreasuryAccountBalanceDto>>(() => _http.GetAsync(
             $"/api/treasury/balances?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
@@ -446,6 +450,14 @@ public sealed partial class ApiClient
 
     public Task<ApiResult<bool>> UpdateInventoryItemAsync(Falah.Application.Inventory.UpdateInventoryItemRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PutAsJsonAsync($"/api/inventory/items/{Uri.EscapeDataString(request.Id)}", request, ct), ct);
+
+    public Task<ApiResult<Falah.Application.Inventory.InventoryOverviewDto>> GetInventoryOverviewAsync(string actorUserId, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Inventory.InventoryOverviewDto>(() => _http.GetAsync(
+            $"/api/inventory/overview?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    public Task<ApiResult<Falah.Application.Inventory.InventoryItemDetailDto>> GetInventoryItemDetailAsync(string inventoryItemId, string actorUserId, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Inventory.InventoryItemDetailDto>(() => _http.GetAsync(
+            $"/api/inventory/items/{Uri.EscapeDataString(inventoryItemId)}/detail?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.RecordCountAdjustmentResult>> RecordCountAdjustmentAsync(Falah.Application.Inventory.RecordCountAdjustmentRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Inventory.RecordCountAdjustmentResult>(() => _http.PostAsJsonAsync("/api/inventory/count-adjustments", request, ct), ct);

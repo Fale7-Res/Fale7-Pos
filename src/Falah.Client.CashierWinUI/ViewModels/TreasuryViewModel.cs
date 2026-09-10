@@ -24,7 +24,115 @@ public partial class TreasuryViewModel : ObservableObject
     public TreasuryViewModel(AppSession session) => _session = session;
 
     public ObservableCollection<TreasuryAccountBalanceDto> Balances { get; } = new();
-    public ObservableCollection<TreasuryMovementDto> Movements { get; } = new();
+    public ObservableCollection<MovementRow> Movements { get; } = new();
+
+    /// <summary>One posted movement, said in full. The ledger used to show type, from, to, amount
+    /// and reason - and never WHEN it happened, WHO posted it, who approved it, or which sale or
+    /// invoice it belongs to. Four of the five columns a reconciliation actually needs were absent.</summary>
+    public sealed class MovementRow
+    {
+        public required TreasuryMovementDto Movement { get; init; }
+
+        public string TypeLabel => Movement.Type switch
+        {
+            "sale" => "مبيعات",
+            "refund" => "مرتجع",
+            "expense" => "مصروف",
+            "owner_deposit" => "إيداع من المالك",
+            "capital_injection" => "ضخ رأس مال",
+            "other_external_inflow" => "تدفق خارجي",
+            "owner_withdrawal" => "سحب المالك",
+            "transfer" => "تحويل داخلي",
+            "safe_drop" => "توريد للخزنة",
+            "driver_settlement" => "توريد سائق",
+            "supplier_payment" => "سداد مورد",
+            "payroll_payment" => "صرف رواتب",
+            _ => Movement.Type,
+        };
+
+        public string AmountDisplay => CashInput.Format(Movement.AmountPiastres) + " ج";
+        public string WhenDisplay => Movement.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
+
+        public string ActorDisplay => Movement.ApprovedBy is { Length: > 0 } approver
+            ? $"{Movement.CreatedBy} · اعتماد {approver}"
+            : Movement.CreatedBy;
+
+        /// <summary>The document behind the money, so a line can be traced to the thing that caused
+        /// it rather than taken on trust.</summary>
+        public string ReferenceDisplay => Movement.ReferenceType switch
+        {
+            "order" => "طلب " + Movement.ReferenceId,
+            "purchase" => "فاتورة " + Movement.ReferenceId,
+            "expense" => "مصروف " + Movement.ReferenceId,
+            "payroll" => "مسيّر " + Movement.ReferenceId,
+            _ => string.IsNullOrWhiteSpace(Movement.ReferenceId) ? "" : Movement.ReferenceType + " " + Movement.ReferenceId,
+        };
+
+        public string Reason => Movement.Reason;
+        public string? SourceAccountId => Movement.SourceAccountId;
+        public string? DestinationAccountId => Movement.DestinationAccountId;
+    }
+
+    [ObservableProperty] private TreasuryPositionDto? _position;
+
+    /// <summary>Money the restaurant is counting on that is in no account: an electronic transfer
+    /// nobody has confirmed, and cash a driver is still carrying.</summary>
+    public string PendingElectronicDisplay =>
+        Position is { } p ? CashInput.Format(p.PendingElectronicPiastres) + " ج" : "—";
+
+    public string PendingElectronicNote =>
+        Position is { PendingElectronicOrderCount: > 0 } p ? $"{p.PendingElectronicOrderCount} طلب بانتظار التأكيد" : "";
+
+    public string DriverCustodyDisplay =>
+        Position is { } p ? CashInput.Format(p.UnsettledDriverCustodyPiastres) + " ج" : "—";
+
+    public string DriverCustodyNote =>
+        Position is { UnsettledDriverCount: > 0 } p ? $"مع {p.UnsettledDriverCount} سائق" : "";
+
+    public string TotalInAccountsDisplay =>
+        Position is { } p ? CashInput.Format(p.TotalInAccountsPiastres) + " ج" : "—";
+
+    public bool HasMoneyOutside =>
+        Position is { } p && (p.PendingElectronicPiastres > 0 || p.UnsettledDriverCustodyPiastres > 0);
+
+    // Ledger filters: a reconciliation looks at one account, or one kind of movement, not at
+    // everything at once.
+    [ObservableProperty] private string _accountFilter = "";
+    [ObservableProperty] private string _searchText = "";
+
+    public bool HasAccountFilter => AccountFilter.Length > 0;
+
+    partial void OnAccountFilterChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasAccountFilter));
+        ApplyMovementFilter();
+    }
+    partial void OnSearchTextChanged(string value) => ApplyMovementFilter();
+
+    private readonly List<MovementRow> _allMovements = new();
+
+    public bool HasNoMovements => !IsLoading && LoadError is null && _allMovements.Count == 0;
+    public bool HasNoMatchingMovements => !IsLoading && LoadError is null && _allMovements.Count > 0 && Movements.Count == 0;
+
+    private void ApplyMovementFilter()
+    {
+        var term = SearchText.Trim();
+        var rows = _allMovements.Where(m =>
+            (AccountFilter.Length == 0 || m.SourceAccountId == AccountFilter || m.DestinationAccountId == AccountFilter)
+            && (term.Length == 0
+                || m.TypeLabel.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || m.Reason.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || m.ReferenceDisplay.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || m.ActorDisplay.Contains(term, StringComparison.OrdinalIgnoreCase)));
+
+        Movements.Clear();
+        foreach (var row in rows) Movements.Add(row);
+        OnPropertyChanged(nameof(HasNoMovements));
+        OnPropertyChanged(nameof(HasNoMatchingMovements));
+    }
+
+    [RelayCommand]
+    private void FilterByAccount(string accountId) => AccountFilter = AccountFilter == accountId ? "" : accountId;
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string? _loadError;
@@ -68,13 +176,29 @@ public partial class TreasuryViewModel : ObservableObject
             Balances.Clear();
             foreach (var b in balances.Value) Balances.Add(b);
 
-            var movements = await _session.Api.GetTreasuryMovementsAsync(actor, limit: 100);
+            var position = await _session.Api.GetTreasuryPositionAsync(actor);
+            if (!position.Success || position.Value is null)
+                LoadError = position.Error ?? "تعذر تحميل المبالغ خارج الحسابات.";
+            Position = position.Value;
+
+            var movements = await _session.Api.GetTreasuryMovementsAsync(actor, limit: 200);
             if (!movements.Success || movements.Value is null) { LoadError = movements.Error ?? "تعذر تحميل حركة الخزينة."; return; }
-            Movements.Clear();
-            if (movements.Success && movements.Value is not null)
-                foreach (var m in movements.Value) Movements.Add(m);
+            _allMovements.Clear();
+            foreach (var m in movements.Value) _allMovements.Add(new MovementRow { Movement = m });
+            ApplyMovementFilter();
         }
-        finally { IsLoading = false; }
+        finally
+        {
+            IsLoading = false;
+            OnPropertyChanged(nameof(HasNoMovements));
+            OnPropertyChanged(nameof(HasNoMatchingMovements));
+            OnPropertyChanged(nameof(PendingElectronicDisplay));
+            OnPropertyChanged(nameof(PendingElectronicNote));
+            OnPropertyChanged(nameof(DriverCustodyDisplay));
+            OnPropertyChanged(nameof(DriverCustodyNote));
+            OnPropertyChanged(nameof(TotalInAccountsDisplay));
+            OnPropertyChanged(nameof(HasMoneyOutside));
+        }
     }
 
     // ---------------- Deposit / withdraw / transfer ----------------

@@ -159,7 +159,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <TextBlock Text="لا توجد قاعدة ضريبة مُعرّفة." Style="{StaticResource MutedText}"
-                                       Visibility="{Binding TaxRules, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                                       Visibility="{Binding TaxRules.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
                         </StackPanel>
                     </Border>
 
@@ -181,7 +181,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <TextBlock Text="لا توجد عروض مُعرّفة." Style="{StaticResource MutedText}"
-                                       Visibility="{Binding PriceRules, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                                       Visibility="{Binding PriceRules.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

@@ -456,6 +456,102 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
+    // ---- Overview and item detail ----
+
+    /// <summary>The storeroom total must never quietly include a zero for something nobody has
+    /// priced: that understates the total while looking exact. The unpriced item is counted
+    /// separately instead, so the screen can say what the figure leaves out.</summary>
+    [Fact]
+    public async Task Stock_value_covers_only_what_has_a_cost_and_says_what_it_leaves_out()
+    {
+        var priced = await CreateItemAsync("طماطم");
+        await SeedPurchaseReceiptAsync(priced, unitCostPiastres: 1000, quantityMilliUnits: 5000);
+
+        var unpriced = await CreateItemAsync("بصل");
+        await _factory.QueryAsync(async db =>
+        {
+            db.StockMovements.Add(new StockMovementEntity
+            {
+                IdempotencyKey = $"seed-{Guid.NewGuid():N}", InventoryItemId = unpriced,
+                Type = "ManualReceipt", Direction = "In", QuantityMilliUnits = 4000,
+                ReferenceType = "seed", ReferenceId = "seed", Reason = "seed", CreatedBy = "seed",
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+            return 0;
+        });
+
+        var overview = await (await _client.GetAsync($"/api/inventory/overview?actorUserId={_inventoryManagerId}"))
+            .Content.ReadFromJsonAsync<InventoryOverviewDto>();
+
+        var pricedRow = Assert.Single(overview!.Items, i => i.Id == priced);
+        Assert.Equal(5000, pricedRow.BalanceMilliUnits);
+        Assert.Equal(1000, pricedRow.UnitCostPiastres);
+        Assert.Equal(5000, pricedRow.StockValuePiastres);   // 5 units at 10.00
+
+        var unpricedRow = Assert.Single(overview.Items, i => i.Id == unpriced);
+        Assert.Equal(4000, unpricedRow.BalanceMilliUnits);
+        Assert.Null(unpricedRow.UnitCostPiastres);
+        Assert.Null(unpricedRow.StockValuePiastres);        // not zero
+
+        Assert.Equal(5000, overview.KnownStockValuePiastres);
+        Assert.True(overview.ItemsWithoutCostHoldingStockCount >= 1);
+    }
+
+    [Fact]
+    public async Task Item_detail_carries_the_cost_basis_its_movements_and_who_made_them()
+    {
+        var itemId = await CreateItemAsync("زيت", unit: "لتر");
+        await SeedPurchaseReceiptAsync(itemId, unitCostPiastres: 2500, quantityMilliUnits: 8000);
+
+        (await _client.PostAsJsonAsync("/api/inventory/waste", new RecordWasteRequest(
+            $"req-{Guid.NewGuid():N}", itemId, 1000, "Spoilage", "انسكاب", _inventoryManagerId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        var detail = await (await _client.GetAsync($"/api/inventory/items/{itemId}/detail?actorUserId={_inventoryManagerId}"))
+            .Content.ReadFromJsonAsync<InventoryItemDetailDto>();
+
+        Assert.Equal(7000, detail!.BalanceMilliUnits);
+        Assert.Equal(2500, detail.UnitCostPiastres);
+        Assert.Equal("Purchase", detail.CostSource);
+        Assert.NotNull(detail.CostAsOfUtc);
+        Assert.Equal(17500, detail.StockValuePiastres);
+        Assert.Equal(8000, detail.Totals.PurchasedMilliUnits);
+        Assert.Equal(1000, detail.Totals.WasteMilliUnits);
+
+        // A movement history is unreadable without the name of what moved.
+        var spoilage = Assert.Single(detail.Movements, m => m.Type == "Spoilage");
+        Assert.Equal("زيت", spoilage.ItemName);
+        Assert.Equal("لتر", spoilage.Unit);
+        Assert.Equal("انسكاب", spoilage.Reason);
+        Assert.False(string.IsNullOrWhiteSpace(spoilage.CreatedBy));
+    }
+
+    /// <summary>A count sheet posts one adjustment per line, each keyed by the sheet and the item,
+    /// so resubmitting after a partial failure replays rather than double-adjusting the shelf.</summary>
+    [Fact]
+    public async Task Replaying_a_count_sheet_line_does_not_adjust_the_shelf_twice()
+    {
+        var itemId = await CreateItemAsync("سكر");
+        await SeedPurchaseReceiptAsync(itemId, unitCostPiastres: 500, quantityMilliUnits: 10000);
+
+        var sheetLineId = $"sheet-{Guid.NewGuid():N}-{itemId}";
+        var request = new RecordCountAdjustmentRequest(
+            sheetLineId, itemId, 2000, "Out", "جرد الرف", _inventoryManagerId, null, null);
+
+        var first = await (await _client.PostAsJsonAsync("/api/inventory/count-adjustments", request))
+            .Content.ReadFromJsonAsync<RecordCountAdjustmentResult>();
+        Assert.False(first!.WasReplayed);
+
+        var second = await (await _client.PostAsJsonAsync("/api/inventory/count-adjustments", request))
+            .Content.ReadFromJsonAsync<RecordCountAdjustmentResult>();
+        Assert.True(second!.WasReplayed);
+
+        var overview = await (await _client.GetAsync($"/api/inventory/overview?actorUserId={_inventoryManagerId}"))
+            .Content.ReadFromJsonAsync<InventoryOverviewDto>();
+        Assert.Equal(8000, Assert.Single(overview!.Items, i => i.Id == itemId).BalanceMilliUnits);
+    }
+
     [Fact]
     public async Task Saving_an_order_packaging_rule_persists_it()
     {

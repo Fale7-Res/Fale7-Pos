@@ -576,3 +576,16 @@ public sealed class NullToTextConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
 }
+
+/// <summary>An empty-state panel's visibility, driven by the collection's own Count so it updates
+/// when rows arrive. Binding the collection property itself never re-evaluates - filling an
+/// ObservableCollection raises CollectionChanged, not PropertyChanged on the property holding it -
+/// which left every empty state in this app sitting on top of the rows it said were not there.</summary>
+public sealed class ZeroCountToVisibleConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is int and 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}

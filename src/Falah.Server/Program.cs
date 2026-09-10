@@ -865,6 +865,23 @@ app.MapGet("/api/inventory/items/{id}/cost", async (string id, string actorUserI
 app.MapGet("/api/inventory/movements", async (string? inventoryItemId, int? limit, InventoryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListStockMovementsAsync(inventoryItemId, limit ?? 50, ct)));
 
+// The stock screen could say what was on the shelf and nothing else - not what it was worth, not
+// when it last moved, not why. These two answer the screen instead of making it ask per item.
+app.MapGet("/api/inventory/overview", async (string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await query.GetInventoryOverviewAsync(ct));
+});
+
+app.MapGet("/api/inventory/items/{id}/detail", async (string id, DateTimeOffset? from, DateTimeOffset? to, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    try { return Results.Ok(await query.GetInventoryItemDetailAsync(id, from, to, ct: ct)); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
 app.MapGet("/api/inventory/loss-summary", async (DateOnly businessDate, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await query.GetLossSummaryAsync(businessDate, ct)));
 
@@ -1648,6 +1665,46 @@ app.MapGet("/api/treasury/balances", async (string actorUserId, FalahDbContext d
         balances.Add(new(accountId, balance.Piastres));
     }
     return Results.Ok(balances);
+});
+
+// The balances above say what the restaurant HOLDS. This says what is out there and not in any
+// account yet: an electronic transfer nobody has confirmed, and cash a driver is still carrying.
+app.MapGet("/api/treasury/position", async (string actorUserId, FalahDbContext db, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+
+    var accounts = new[]
+    {
+        Falah.Domain.Financial.TreasuryAccounts.Main, Falah.Domain.Financial.TreasuryAccounts.Drawer,
+        Falah.Domain.Financial.TreasuryAccounts.Bank, Falah.Domain.Financial.TreasuryAccounts.InstaPay,
+        Falah.Domain.Financial.TreasuryAccounts.Wallet,
+    };
+    var balances = new List<Falah.Application.Treasury.TreasuryAccountBalanceDto>(accounts.Length);
+    foreach (var accountId in accounts)
+    {
+        var movements = await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(db, accountId, ct);
+        var balance = Falah.Domain.Financial.FinancialRules.TreasuryBalanceFromMovements(movements, accountId);
+        balances.Add(new(accountId, balance.Piastres));
+    }
+
+    var pending = await db.Orders.AsNoTracking()
+        .Where(o => o.ElectronicPaymentStatus == "Pending" && o.ElectronicPaymentAmountPiastres != null)
+        .Select(o => o.ElectronicPaymentAmountPiastres!.Value)
+        .ToListAsync(ct);
+
+    // Expected, not collected: what the driver is meant to bring back is what the restaurant is
+    // owed, and a custody row that is open has not been reconciled against anything yet.
+    var custody = await db.DriverCustodies.AsNoTracking()
+        .Where(c => c.Status != nameof(Falah.Domain.Delivery.CustodyStatus.Settled))
+        .Select(c => new { c.DriverId, c.ExpectedPiastres })
+        .ToListAsync(ct);
+
+    return Results.Ok(new Falah.Application.Treasury.TreasuryPositionDto(
+        balances,
+        balances.Sum(b => b.BalancePiastres),
+        pending.Sum(), pending.Count,
+        custody.Sum(c => c.ExpectedPiastres), custody.Select(c => c.DriverId).Distinct().Count()));
 });
 
 // The treasury ledger itself - the posted movements behind those balances. Read-only over the same

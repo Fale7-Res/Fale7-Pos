@@ -53,6 +53,19 @@ public sealed record TreasuryMovementDto(
 /// picture rather than five separately-timed reads that can disagree mid-refresh.</summary>
 public sealed record TreasuryAccountBalanceDto(string AccountId, long BalancePiastres);
 
+/// <summary>Where every pound is right now.
+///
+/// The five account balances answer "what do we hold". They do not answer "what is out there": an
+/// InstaPay transfer a customer says they sent but nobody has confirmed, and cash a driver is
+/// carrying that has not been settled into the safe, are both money the restaurant is counting on
+/// and neither is in any account. Showing the balances alone invites the two to be forgotten -
+/// which is exactly how a shortfall at the end of a shift becomes a mystery.</summary>
+public sealed record TreasuryPositionDto(
+    IReadOnlyList<TreasuryAccountBalanceDto> Accounts,
+    long TotalInAccountsPiastres,
+    long PendingElectronicPiastres, int PendingElectronicOrderCount,
+    long UnsettledDriverCustodyPiastres, int UnsettledDriverCount);
+
 public sealed class TreasuryConflictException : Exception
 {
     public TreasuryConflictException(string message) : base(message) { }

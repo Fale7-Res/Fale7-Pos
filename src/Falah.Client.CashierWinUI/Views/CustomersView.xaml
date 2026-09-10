@@ -82,7 +82,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <TextBlock Text="لا توجد عناوين محفوظة لهذا العميل بعد." Style="{StaticResource MutedText}" Margin="16,14"
-                                   Visibility="{Binding Addresses, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                                   Visibility="{Binding Addresses.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
                     </StackPanel>
                 </Border>
 

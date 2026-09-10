@@ -378,6 +378,105 @@ public sealed class InventoryQueryService
         return variantPrice is { } price ? (price, "variant") : (null, "none");
     }
 
+    // ===========================================================================================
+    // Inventory read models - see InventoryOverviewDtos.cs for why these exist.
+    // ===========================================================================================
+
+    /// <summary>The whole storeroom: balance, value, and when each item last moved.</summary>
+    public async Task<InventoryOverviewDto> GetInventoryOverviewAsync(CancellationToken ct = default)
+    {
+        var items = await _db.InventoryItems.AsNoTracking().ToListAsync(ct);
+        var movements = await _db.StockMovements.AsNoTracking()
+            .Select(m => new { m.InventoryItemId, m.Direction, m.QuantityMilliUnits, m.Type, m.CreatedAtUtc })
+            .ToListAsync(ct);
+
+        var byItem = movements.GroupBy(m => m.InventoryItemId).ToDictionary(g => g.Key, g => g.ToList());
+        var ctx = await LoadCostingContextAsync(ct);
+
+        var rows = new List<InventoryOverviewRowDto>(items.Count);
+        foreach (var item in items)
+        {
+            var itemMovements = byItem.GetValueOrDefault(item.Id) ?? new();
+            var balance = itemMovements.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits);
+            var last = itemMovements.OrderByDescending(m => m.CreatedAtUtc).FirstOrDefault();
+
+            var (unitCost, source) = CostingRules.IngredientUnitCost(
+                ctx.InventoryItems.FirstOrDefault(i => i.Id == item.Id), ctx);
+
+            // Value follows cost: an item nobody has priced has an UNKNOWN value, and adding a zero
+            // for it into the storeroom total would understate the total while looking precise.
+            long? value = unitCost is { } cost ? PurchasingRules.PurchaseLineTotal(balance, cost).Piastres : null;
+
+            rows.Add(new InventoryOverviewRowDto(
+                item.Id, item.Name, item.Category, item.Unit, item.IsPackaging, item.Active,
+                balance, item.MinimumMilliUnits, balance <= item.MinimumMilliUnits,
+                unitCost?.Piastres, source.ToString(), value,
+                last?.CreatedAtUtc, last?.Type));
+        }
+
+        rows = rows.OrderBy(r => r.Category).ThenBy(r => r.Name).ToList();
+        var live = rows.Where(r => r.Active).ToList();
+
+        return new InventoryOverviewDto(
+            rows,
+            live.Sum(r => r.StockValuePiastres ?? 0),
+            live.Count,
+            live.Count(r => r.IsLowStock),
+            live.Count(r => r.UnitCostPiastres is null),
+            live.Count(r => r.UnitCostPiastres is null && r.BalanceMilliUnits > 0));
+    }
+
+    /// <summary>One item in full - the drill-down behind a row above.</summary>
+    public async Task<InventoryItemDetailDto> GetInventoryItemDetailAsync(
+        string inventoryItemId, DateTimeOffset? from, DateTimeOffset? to, int movementLimit = 60, CancellationToken ct = default)
+    {
+        var item = await _db.InventoryItems.AsNoTracking().FirstOrDefaultAsync(i => i.Id == inventoryItemId, ct)
+            ?? throw new InvalidOperationException("الخامة غير موجودة.");
+
+        var ctx = await LoadCostingContextAsync(ct);
+        var domainItem = ctx.InventoryItems.FirstOrDefault(i => i.Id == inventoryItemId);
+        var (unitCost, source) = CostingRules.IngredientUnitCost(domainItem, ctx);
+
+        var facts = await LoadFactsAsync(inventoryItemId, ct);
+        var balance = InventoryRules.StockBalanceMilliUnits(facts, inventoryItemId);
+        var totals = InventoryRules.ActualMovementTotals(facts, inventoryItemId, from, to);
+        var variance = await GetVarianceAsync(inventoryItemId, from, to, ct);
+
+        var movements = await ListStockMovementRowsAsync(inventoryItemId, movementLimit, ct);
+
+        return new InventoryItemDetailDto(
+            item.Id, item.Name, item.Category, item.Unit, item.IsPackaging, item.Active,
+            balance, item.MinimumMilliUnits, balance <= item.MinimumMilliUnits,
+            unitCost?.Piastres, source.ToString(),
+            source == CostResultSource.Purchase ? PurchasingRules.LastPurchaseAt(ctx.StockMovements, inventoryItemId) : null,
+            unitCost is { } cost ? PurchasingRules.PurchaseLineTotal(balance, cost).Piastres : null,
+            item.EstimatedUnitCostPiastres,
+            new MovementTotalsDto(totals.PurchasedMilliUnits, totals.UsageMilliUnits, totals.WasteMilliUnits, totals.CountAdjustmentNetMilliUnits),
+            variance,
+            movements);
+    }
+
+    /// <summary>Movements carrying the name and unit of what moved, so a history is readable
+    /// without a lookup per row.</summary>
+    public async Task<List<StockMovementRowDto>> ListStockMovementRowsAsync(string? inventoryItemId, int limit = 60, CancellationToken ct = default)
+    {
+        var query = _db.StockMovements.AsNoTracking().AsQueryable();
+        if (inventoryItemId is not null) query = query.Where(m => m.InventoryItemId == inventoryItemId);
+        var rows = await query.OrderByDescending(m => m.CreatedAtUtc).Take(limit).ToListAsync(ct);
+
+        var names = await _db.InventoryItems.AsNoTracking()
+            .Select(i => new { i.Id, i.Name, i.Unit }).ToDictionaryAsync(i => i.Id, i => i, ct);
+
+        return rows.Select(m =>
+        {
+            names.TryGetValue(m.InventoryItemId, out var named);
+            return new StockMovementRowDto(
+                m.InventoryItemId, named?.Name ?? m.InventoryItemId, named?.Unit ?? "",
+                m.Type, m.Direction, m.QuantityMilliUnits, m.UnitCostPiastres, m.LossValuePiastres,
+                m.ReferenceType, m.ReferenceId, m.Reason, m.CreatedBy, m.ApprovedBy, m.CreatedAtUtc);
+        }).ToList();
+    }
+
     private async Task<CostingContext> LoadCostingContextAsync(CancellationToken ct)
     {
         var items = await _db.InventoryItems.AsNoTracking()

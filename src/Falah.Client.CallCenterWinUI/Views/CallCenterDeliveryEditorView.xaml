@@ -47,7 +47,7 @@
 
                         <ComboBox Header="عنوان محفوظ" HorizontalAlignment="Stretch" MinHeight="44"
                                   ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}"
-                                  Visibility="{Binding SavedAddresses, Converter={StaticResource NonEmptyCollectionToVisibleConverter}}">
+                                  Visibility="{Binding SavedAddresses.Count, Converter={StaticResource CountToVisibleConverter}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock>

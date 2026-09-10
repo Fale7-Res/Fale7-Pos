@@ -189,7 +189,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <TextBlock Text="لا توجد مبيعات في هذا اليوم" Style="{StaticResource MutedText}" Margin="16,14"
-                                   Visibility="{Binding TopItems, Converter={StaticResource EmptyCollectionToVisibleConverter}}"/>
+                                   Visibility="{Binding TopItems.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
                     </StackPanel>
                 </Border>
 
