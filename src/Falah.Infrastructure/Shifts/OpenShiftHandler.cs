@@ -86,7 +86,8 @@ public sealed class OpenShiftHandler
             await transaction.CommitAsync(ct);
             return ToResult(entity, wasReplayed: false);
         }
-        catch (DbUpdateException)
+        catch (Exception ex) when (ex is DbUpdateException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.OpenRequestId == request.RequestId, ct);

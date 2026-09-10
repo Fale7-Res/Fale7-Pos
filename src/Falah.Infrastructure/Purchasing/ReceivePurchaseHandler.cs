@@ -208,11 +208,22 @@ public sealed class ReceivePurchaseHandler
             await transaction.CommitAsync(ct);
             return ToDto(purchase, wasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or PurchasingConflictException)
+        catch (Exception ex) when (ex is DbUpdateException or PurchasingConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await FindPurchaseAsync(purchaseId, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await FindPurchaseAsync(purchaseId, ct), ct);
             if (replay is not null) return ToDto(replay, wasReplayed: true);
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new PurchasingConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
             throw new PurchasingConflictException("تعذر استلام فاتورة المشتريات بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }

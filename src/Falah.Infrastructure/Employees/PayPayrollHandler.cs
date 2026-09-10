@@ -162,10 +162,21 @@ public sealed class PayPayrollHandler
             await transaction.CommitAsync(ct);
             return new PayPayrollResult(movementEntity.Id, totalMoney.Piastres, settlementCount, WasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException)
+        catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             if (await LoadReplayAsync() is { } replay) return replay;
+            // The loser of a balance-lock race carries the same request id as the sibling that won
+            // it, and that sibling may not have committed yet at this instant.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex)
+                && await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await LoadReplayAsync(), ct) is { } sibling)
+                return sibling;
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new TreasuryConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
             throw new TreasuryConflictException("تعذر صرف Payroll بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }

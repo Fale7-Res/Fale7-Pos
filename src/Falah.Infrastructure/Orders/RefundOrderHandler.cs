@@ -134,10 +134,17 @@ public sealed class RefundOrderHandler
             // different id formats for what is logically the same refund.
             return ToResult(refundEntity, orderEntity, wasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or DbUpdateConcurrencyException)
+        catch (Exception ex) when (ex is DbUpdateException or DbUpdateConcurrencyException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await FindExistingAsync(refundKey, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await FindExistingAsync(refundKey, ct), ct);
             if (replay is not null) return await ToResultAsync(replay, wasReplayed: true, ct);
             throw new RefundConflictException(
                 "تعذر إتمام عملية الاسترجاع بسبب تعارض في مفتاح منع التكرار، ولا يوجد مرتجع سابق لإعادته - يحتاج مراجعة يدوية.");

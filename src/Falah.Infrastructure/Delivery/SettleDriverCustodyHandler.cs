@@ -173,11 +173,22 @@ public sealed class SettleDriverCustodyHandler
             await transaction.CommitAsync(ct);
             return ToResult(settlementEntity, wasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or DeliveryConflictException)
+        catch (Exception ex) when (ex is DbUpdateException or DeliveryConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await _db.DriverSettlements.AsNoTracking().FirstOrDefaultAsync(s => s.IdempotencyKey == idempotencyKey, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await _db.DriverSettlements.AsNoTracking().FirstOrDefaultAsync(s => s.IdempotencyKey == idempotencyKey, ct), ct);
             if (replay is not null) return ToResult(replay, wasReplayed: true);
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new DeliveryConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
             throw new DeliveryConflictException("تعذر تسوية عهدة السائق بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }

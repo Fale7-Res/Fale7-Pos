@@ -123,16 +123,27 @@ public sealed class PayPurchaseHandler
             await transaction.CommitAsync(ct);
             return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or PurchasingConflictException)
+        catch (Exception ex) when (ex is DbUpdateException or PurchasingConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct), ct);
             if (replay is not null)
             {
                 var refreshed = await _db.Purchases.AsNoTracking().Include(p => p.Lines).Include(p => p.Payments)
                     .FirstAsync(p => p.Id == purchase.Id, ct);
                 return ReceivePurchaseHandler.ToDto(refreshed, wasReplayed: true);
             }
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new PurchasingConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
             throw new PurchasingConflictException("تعذر تسجيل سداد المورد بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }

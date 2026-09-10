@@ -140,11 +140,22 @@ public sealed class RecordEmployeeCashOutHandler
             await transaction.CommitAsync(ct);
             return new EmployeeCashOutResult(ledgerEntity.Id, ledgerEntity.BalanceAfterPiastres, movementEntity.Id, WasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException)
+        catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await _db.EmployeeLedgerEntries.AsNoTracking().FirstOrDefaultAsync(e => e.IdempotencyKey == idempotencyKey, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await _db.EmployeeLedgerEntries.AsNoTracking().FirstOrDefaultAsync(e => e.IdempotencyKey == idempotencyKey, ct), ct);
             if (replay is not null) return new EmployeeCashOutResult(replay.Id, replay.BalanceAfterPiastres, replay.TreasuryMovementId, WasReplayed: true);
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new TreasuryConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
             throw new TreasuryConflictException("تعذر تسجيل حركة الموظف بسبب تعارض في مفتاح منع التكرار، ولا توجد حركة سابقة لإعادتها - يحتاج مراجعة يدوية.");
         }
     }

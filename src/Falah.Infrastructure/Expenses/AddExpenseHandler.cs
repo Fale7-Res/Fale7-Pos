@@ -124,11 +124,22 @@ public sealed class AddExpenseHandler
             await transaction.CommitAsync(ct);
             return ToResult(expenseEntity, wasReplayed: false);
         }
-        catch (Exception ex) when (ex is DbUpdateException or ExpenseConflictException)
+        catch (Exception ex) when (ex is DbUpdateException or ExpenseConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
         {
             await transaction.RollbackAsync(ct);
             var replay = await _db.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == expenseId, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await _db.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == expenseId, ct), ct);
             if (replay is not null) return ToResult(replay, wasReplayed: true);
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new ExpenseConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
             throw new ExpenseConflictException("تعذر تسجيل المصروف بسبب تعارض في مفتاح منع التكرار، ولا يوجد مصروف سابق لإعادته - يحتاج مراجعة يدوية.");
         }
     }

@@ -85,7 +85,17 @@ public partial class MenuEditorViewModel : ObservableObject
     public bool CanManageKind => _session.HasPermission(IsTax ? "settings_manage" : IsPriceRule ? "offers_manage" : "menu_manage");
     public bool CanBrowse => !IsBusy && !IsLoading && !_write.HasPending;
     public bool CanEdit => CanBrowse && IsReady && CanManageKind;
-    public bool HasNoRows => IsReady && !IsLoading && Rows.Count == 0;
+    public bool HasNoRows => IsReady && !IsLoading && Rows.Count == 0 && SearchText.Trim().Length == 0;
+
+    /// <summary>What the right-hand half says when nothing is selected. It used to say nothing at
+    /// all - half the dialog was blank, which is the "giant empty dialog" this screen was known for.</summary>
+    public string EmptySelectionHint => Kind switch
+    {
+        "categories" => "اختر قسمًا من القائمة لتعديل اسمه أو ترتيبه أو إيقافه، أو اضغط إضافة لقسم جديد.",
+        "tax" => "اختر قاعدة ضريبة لتعديل نسبتها وطريقة احتسابها، أو اضغط إضافة لقاعدة جديدة.",
+        "prices" => "اختر عرض سعر لتعديل سعره ومواعيده، أو اضغط إضافة لعرض جديد.",
+        _ => "اختر صنفًا من القائمة لتعديل سعره وقسمه ومحطة تجهيزه وصورته وأحجامه ووصفته، أو اضغط إضافة لصنف جديد.",
+    };
     public bool CanToggleStatus => CanEdit && _editing is CategoryDetailsDto or ProductDetailsDto;
     public string StatusActionLabel => _editing switch { CategoryDetailsDto c => c.Active ? "إيقاف القسم" : "تفعيل القسم", ProductDetailsDto p => p.IsAvailable ? "إيقاف الصنف" : "إتاحة الصنف", _ => "" };
     public string EditorTitle => _editing is null ? "إضافة جديدة" : "تعديل البيانات";
@@ -144,9 +154,17 @@ public partial class MenuEditorViewModel : ObservableObject
     {
         if (!CanBrowse || kind is not ("products" or "categories" or "tax" or "prices")) return;
         Kind = kind; HasEditor = false; _editing = null; ActionError = ActionNote = null; ProductImageUri = null;
-        foreach (var name in new[] { nameof(IsProduct), nameof(IsCategory), nameof(IsTax), nameof(IsPriceRule), nameof(HasSortOrder), nameof(HasPrice), nameof(HasActive), nameof(CanManageKind), nameof(KindTitle) }) OnPropertyChanged(name);
+        foreach (var name in new[] { nameof(IsProduct), nameof(IsCategory), nameof(IsTax), nameof(IsPriceRule), nameof(HasSortOrder), nameof(HasPrice), nameof(HasActive), nameof(CanManageKind), nameof(KindTitle), nameof(EmptySelectionHint) }) OnPropertyChanged(name);
         RefreshRows(); NotifyState();
     }
+    /// <summary>A hundred-odd products in a scroll-only list is a scroll-only list. Filtering by
+    /// name is how anyone actually finds the one they came to edit.</summary>
+    [ObservableProperty] private string _searchText = "";
+
+    partial void OnSearchTextChanged(string value) => RefreshRows();
+
+    public bool HasNoMatches => IsReady && !IsLoading && Rows.Count == 0 && SearchText.Trim().Length > 0;
+
     private void RefreshRows()
     {
         Rows.Clear();
@@ -157,8 +175,14 @@ public partial class MenuEditorViewModel : ObservableObject
             "prices" => _prices.Select(p => new CatalogRow(p.Name, CashInput.Format(p.FixedPricePiastres) + " ج • " + (p.Active ? "نشط" : "متوقف"), p)),
             _ => _products.OrderBy(p => p.SortOrder).Select(p => new CatalogRow(p.Name, CashInput.Format(p.BasePricePiastres) + " ج • " + (p.IsAvailable ? "متاح" : "متوقف"), p))
         };
+        var term = SearchText.Trim();
+        if (term.Length > 0)
+            rows = rows.Where(r => r.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase)
+                                || r.Detail.Contains(term, StringComparison.CurrentCultureIgnoreCase));
+
         foreach (var row in rows) Rows.Add(row);
         OnPropertyChanged(nameof(HasNoRows));
+        OnPropertyChanged(nameof(HasNoMatches));
     }
     [RelayCommand] private void New()
     {
