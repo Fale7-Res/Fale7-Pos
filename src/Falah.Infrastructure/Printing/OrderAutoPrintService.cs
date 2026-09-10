@@ -55,9 +55,24 @@ public sealed class OrderAutoPrintService
                 ? string.IsNullOrWhiteSpace(request.CustomerPrintRoute) ? "Receipt" : request.CustomerPrintRoute
                 : null;
 
+            // An electronic transfer the customer says they sent, that nobody has confirmed. Whether
+            // the kitchen starts on it is a decision about how this restaurant runs - plenty start
+            // immediately and plenty do not - so it is a setting, and it defaults to what this
+            // system has always done. The customer's receipt prints either way; they are standing
+            // there. When the transfer is confirmed the ticket can be sent from Order Lookup.
+            var awaitingPayment = result.ElectronicPaymentStatus == "pending"
+                                  || result.ElectronicPaymentStatus == "Pending";
+            var kitchenRoutes = settings.AutoPrintPreparationTicket
+                                && !(awaitingPayment && settings.HoldPreparationUntilPaymentConfirmed);
+
+            if (awaitingPayment && settings.HoldPreparationUntilPaymentConfirmed && settings.AutoPrintPreparationTicket)
+                _log.LogInformation(
+                    "Preparation ticket for order {OrderId} held until the electronic transfer is confirmed.",
+                    result.OrderId);
+
             // Both switches off means the restaurant has deliberately turned automatic printing off.
             // Calling the handler with nothing to print would be an error, so this is where it stops.
-            if (customerRoute is null && !settings.AutoPrintPreparationTicket) return true;
+            if (customerRoute is null && !kitchenRoutes) return true;
 
             await _createJobs.HandleAsync(new CreatePrintJobsRequest(
                 RequestId: $"auto-{request.CheckoutRequestId}",
@@ -65,7 +80,7 @@ public sealed class OrderAutoPrintService
                 CustomerRoute: customerRoute,
                 IsReprint: false,
                 ActorUserId: request.CashierId,
-                IncludeKitchenRoutes: settings.AutoPrintPreparationTicket), ct);
+                IncludeKitchenRoutes: kitchenRoutes), ct);
             return true;
         }
         catch (Exception ex)

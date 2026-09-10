@@ -320,3 +320,14 @@ public sealed class ZeroCountToVisibleConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
 }
+
+/// <summary>Visible once the collection actually has rows - the counterpart of
+/// ZeroCountToVisibleConverter, and bound to Count for the same reason.</summary>
+public sealed class CountToVisibleConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is int count && count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}

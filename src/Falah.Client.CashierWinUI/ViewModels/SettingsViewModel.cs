@@ -50,6 +50,10 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _autoPrintReceipt;
     [ObservableProperty] private bool _autoPrintPreparationTicket;
 
+    /// <summary>Whether the kitchen waits for an unconfirmed electronic transfer. Off by default,
+    /// which is what this system has always done - the owner decides, not the software.</summary>
+    [ObservableProperty] private bool _holdPreparationUntilPaymentConfirmed;
+
     public bool CanEdit => _session.HasPermission("settings_manage");
     public bool HasData => _loaded is not null;
 
@@ -85,6 +89,7 @@ public partial class SettingsViewModel : ObservableObject
             NumberOfReceiptCopiesText = s.NumberOfReceiptCopies.ToString();
             AutoPrintReceipt = s.AutoPrintReceipt;
             AutoPrintPreparationTicket = s.AutoPrintPreparationTicket;
+            HoldPreparationUntilPaymentConfirmed = s.HoldPreparationUntilPaymentConfirmed;
 
             OnPropertyChanged(nameof(HasData));
             OnPropertyChanged(nameof(CanEdit));
@@ -132,7 +137,8 @@ public partial class SettingsViewModel : ObservableObject
                 AutoLockMinutes: autoLock,
                 NumberOfReceiptCopies: copies,
                 AutoPrintReceipt: AutoPrintReceipt,
-                AutoPrintPreparationTicket: AutoPrintPreparationTicket));
+                AutoPrintPreparationTicket: AutoPrintPreparationTicket,
+                HoldPreparationUntilPaymentConfirmed: HoldPreparationUntilPaymentConfirmed));
 
             if (!result.Success || result.Value is null)
             {

@@ -100,6 +100,12 @@
                         <CheckBox MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding AutoPrintPreparationTicket, Mode=TwoWay}">
                             <TextBlock Text="طباعة تذكرة التحضير تلقائيًا" FontSize="13"/>
                         </CheckBox>
+                        <CheckBox MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                  IsChecked="{Binding HoldPreparationUntilPaymentConfirmed, Mode=TwoWay}">
+                            <TextBlock Text="استنى تأكيد التحويل الإلكتروني قبل ما تذكرة التحضير تطلع" FontSize="13" TextWrapping="Wrap"/>
+                        </CheckBox>
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"
+                                   Text="لو مقفولة، المطبخ بيبدأ الطلب فورًا حتى لو التحويل لسه متأكدش - وده اللي بيحصل دلوقتي. إيصال العميل بيطبع في الحالتين."/>
                     </StackPanel>
                 </Border>
 

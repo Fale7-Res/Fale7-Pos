@@ -59,10 +59,21 @@ public sealed record SettleDriverCustodyResult(
     string SettlementId, string DriverId, long ExpectedPiastres, long ActualPiastres, long DifferencePiastres,
     int OrderCount, string? TreasuryMovementId, bool WasReplayed);
 
+/// <summary>One row of the dispatch board.
+///
+/// The board used to carry the delivery's own state and the money, and nothing about where the food
+/// was going: no customer, no area, no address, no phone. A dispatcher assigning a driver had to
+/// open each order separately to find out which side of town it was on.
+///
+/// <paramref name="ElectronicPaymentStatus"/> is "Pending" while a transfer the customer says they
+/// sent has not been confirmed. That order's money is not settled and not cash-on-delivery either -
+/// the board has to say so before somebody hands it to a driver.</summary>
 public sealed record DeliveryDto(
     string DeliveryId, string OrderId, string? OrderNumber, string Status, string? DriverId, string? DriverName,
     long AmountToCollectPiastres, long OrderTotalPiastres, string PaymentMethod, bool PaymentAlreadySettled,
-    string? ShiftId, DateTimeOffset CreatedAtUtc);
+    string? ShiftId, DateTimeOffset CreatedAtUtc,
+    string? CustomerName = null, string? CustomerPhone = null, string? DeliveryArea = null,
+    string? DeliveryAddress = null, string? ElectronicPaymentStatus = null);
 
 public sealed record DeliveryEventDto(
     string Type, string? Reason, long? AmountPiastres, string Actor, string? Approver, DateTimeOffset CreatedAtUtc);

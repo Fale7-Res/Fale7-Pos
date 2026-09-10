@@ -43,8 +43,83 @@ public partial class DeliveryViewModel : ObservableObject
     [RelayCommand]
     private Task OpenDirectoryAsync() => Directory.OpenAsync();
 
-    public ObservableCollection<DeliveryDto> Board { get; } = new();
+    /// <summary>One row of the board. It used to be the raw DTO, which carried the delivery's own
+    /// state and the money and nothing about where the food was going - a dispatcher assigning a
+    /// driver had to open each order separately to find out which side of town it was on.</summary>
+    public sealed class BoardRow
+    {
+        public required DeliveryDto Delivery { get; init; }
+
+        public string DeliveryId => Delivery.DeliveryId;
+        public string? OrderNumber => Delivery.OrderNumber;
+        public string Status => Delivery.Status;
+        public string? DriverName => Delivery.DriverName;
+
+        public string CustomerDisplay => Delivery.CustomerName is { Length: > 0 } name ? name : "عميل غير مسجّل";
+        public string PhoneDisplay => Delivery.CustomerPhone ?? "";
+
+        public string AddressDisplay => string.Join(" · ", new[] { Delivery.DeliveryArea, Delivery.DeliveryAddress }
+            .Where(part => !string.IsNullOrWhiteSpace(part)));
+
+        public bool HasAddress => AddressDisplay.Length > 0;
+
+        public string AmountToCollectDisplay =>
+            Delivery.AmountToCollectPiastres > 0 ? CashInput.Format(Delivery.AmountToCollectPiastres) + " ج" : "—";
+
+        /// <summary>Three states, not two. "Paid" and "collect on delivery" are both settled
+        /// questions; a transfer nobody has confirmed is neither, and handing that order to a driver
+        /// without saying so is how an order goes out with nothing to collect and nothing collected.</summary>
+        public string PaymentStateLabel =>
+            Delivery.ElectronicPaymentStatus == "Pending" ? "تحويل لم يُؤكَّد"
+            : Delivery.PaymentAlreadySettled ? "مدفوع"
+            : "تحصيل عند التسليم";
+
+        public bool IsPaymentUnconfirmed => Delivery.ElectronicPaymentStatus == "Pending";
+
+        /// <summary>How long this order has been on the board. The single most useful number on a
+        /// dispatch screen and the one it did not have.</summary>
+        public string ElapsedDisplay
+        {
+            get
+            {
+                var elapsed = DateTimeOffset.UtcNow - Delivery.CreatedAtUtc;
+                if (elapsed < TimeSpan.Zero) return "";
+                var minutes = (int)elapsed.TotalMinutes;
+                return minutes < 60 ? $"{minutes} د" : $"{minutes / 60} س {minutes % 60} د";
+            }
+        }
+
+        public bool IsSlow => DateTimeOffset.UtcNow - Delivery.CreatedAtUtc > TimeSpan.FromMinutes(45)
+            && Delivery.Status is "New" or "Ready" or "OutForDelivery";
+    }
+
+    public ObservableCollection<BoardRow> Board { get; } = new();
     public ObservableCollection<DriverDto> Drivers { get; } = new();
+
+    /// <summary>What the supervisor needs before reading a single row: how many are waiting to be
+    /// prepared, ready to go, and already out.</summary>
+    public string BoardSummary
+    {
+        get
+        {
+            if (Board.Count == 0) return "";
+            var parts = new List<string>();
+            var counts = new (string Status, string Label)[]
+            {
+                ("New", "جديد"), ("Ready", "جاهز"), ("OutForDelivery", "بالطريق"),
+            };
+            foreach (var (status, label) in counts)
+            {
+                var n = Board.Count(r => r.Status == status);
+                if (n > 0) parts.Add($"{n} {label}");
+            }
+            var slow = Board.Count(r => r.IsSlow);
+            if (slow > 0) parts.Add($"{slow} متأخر");
+            return string.Join(" · ", parts);
+        }
+    }
+
+    public bool HasBoardSummary => BoardSummary.Length > 0;
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string? _loadError;
@@ -74,7 +149,9 @@ public partial class DeliveryViewModel : ObservableObject
                 return;
             }
             Board.Clear();
-            foreach (var d in board.Value) Board.Add(d);
+            foreach (var d in board.Value) Board.Add(new BoardRow { Delivery = d });
+            OnPropertyChanged(nameof(BoardSummary));
+            OnPropertyChanged(nameof(HasBoardSummary));
 
             var drivers = await _session.Api.GetActiveDriversAsync();
             if (!drivers.Success || drivers.Value is null) { LoadError = drivers.Error ?? "تعذر تحميل السائقين."; return; }

@@ -69,7 +69,8 @@ public sealed class DeliveryQueryService
             var facts = DeliveryFactsComposer.Compose(d, order);
             var driverName = d.DriverId is not null && drivers.TryGetValue(d.DriverId, out var driver) ? driver.Name : d.DriverNameAtHandover;
             return new DeliveryDto(d.Id, order.Id, order.OrderNumber, d.Status, d.DriverId, driverName,
-                facts.AmountToCollect.Piastres, facts.OrderTotal.Piastres, order.PaymentMethod, order.IsPaid, d.ShiftId, d.CreatedAtUtc);
+                facts.AmountToCollect.Piastres, facts.OrderTotal.Piastres, order.PaymentMethod, order.IsPaid, d.ShiftId, d.CreatedAtUtc,
+                order.CustomerName, order.CustomerPhone, order.DeliveryArea, order.DeliveryAddress, order.ElectronicPaymentStatus);
         }).ToList();
     }
 
@@ -86,7 +87,8 @@ public sealed class DeliveryQueryService
             driverName = driver?.Name ?? delivery.DriverNameAtHandover;
         }
         return new DeliveryDto(delivery.Id, order.Id, order.OrderNumber, delivery.Status, delivery.DriverId, driverName,
-            facts.AmountToCollect.Piastres, facts.OrderTotal.Piastres, order.PaymentMethod, order.IsPaid, delivery.ShiftId, delivery.CreatedAtUtc);
+            facts.AmountToCollect.Piastres, facts.OrderTotal.Piastres, order.PaymentMethod, order.IsPaid, delivery.ShiftId, delivery.CreatedAtUtc,
+            order.CustomerName, order.CustomerPhone, order.DeliveryArea, order.DeliveryAddress, order.ElectronicPaymentStatus);
     }
 
     public async Task<List<DeliveryEventDto>> GetTimelineAsync(string deliveryId, CancellationToken ct = default) =>

@@ -32,6 +32,16 @@ public class SettingsEntity
     public string PrinterWidth { get; set; } = default!;
     public bool AutoPrintReceipt { get; set; }
     public bool AutoPrintPreparationTicket { get; set; }
+
+    /// <summary>Whether preparation tickets wait for an electronic transfer to be confirmed.
+    ///
+    /// False - the default, and what this system has always done - sends the order to the kitchen
+    /// the moment it is taken, the same as cash-on-delivery. True holds the kitchen ticket until
+    /// somebody confirms the transfer arrived; the customer's receipt prints either way.
+    ///
+    /// Which of those is correct is a decision about how this restaurant runs, not something the
+    /// software can infer, so it is asked rather than assumed.</summary>
+    public bool HoldPreparationUntilPaymentConfirmed { get; set; }
     public int NumberOfReceiptCopies { get; set; }
     public bool GrillScreenSoundAlert { get; set; }
     public int StandardWorkdayHours { get; set; }

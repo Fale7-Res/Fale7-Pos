@@ -22,7 +22,10 @@ public sealed class SettingsQueryService
         CashDiscrepancyThresholdPiastres: 5000, AutoLockMinutes: 10, ActiveShiftName: "وردية صباحية",
         PrinterWidth: "80mm", AutoPrintReceipt: true, AutoPrintPreparationTicket: true, NumberOfReceiptCopies: 1,
         GrillScreenSoundAlert: true, StandardWorkdayHours: 10, LateGraceMinutes: 15, MaxLatePenaltyHours: 2,
-        LatePenaltyMultiplier: 2.0, OvertimeMultiplier: 1.5);
+        LatePenaltyMultiplier: 2.0, OvertimeMultiplier: 1.5,
+        // What this system has always done. Changing the default would change how every restaurant
+        // running it behaves, without anyone asking for it.
+        HoldPreparationUntilPaymentConfirmed: false);
 
     public async Task<SettingsDto> GetAsync(CancellationToken ct = default)
     {
@@ -35,5 +38,5 @@ public sealed class SettingsQueryService
         e.OvertimeHourlyRatePiastres, e.DeliveryFeePiastres, e.Currency, e.CashDiscrepancyThresholdPiastres,
         e.AutoLockMinutes, e.ActiveShiftName, e.PrinterWidth, e.AutoPrintReceipt, e.AutoPrintPreparationTicket,
         e.NumberOfReceiptCopies, e.GrillScreenSoundAlert, e.StandardWorkdayHours, e.LateGraceMinutes,
-        e.MaxLatePenaltyHours, e.LatePenaltyMultiplier, e.OvertimeMultiplier);
+        e.MaxLatePenaltyHours, e.LatePenaltyMultiplier, e.OvertimeMultiplier, e.HoldPreparationUntilPaymentConfirmed);
 }

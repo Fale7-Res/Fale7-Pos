@@ -37,7 +37,8 @@ public sealed class UpdateSettingsHandler
             && request.AutoLockMinutes is null && request.ActiveShiftName is null && request.PrinterWidth is null
             && request.AutoPrintReceipt is null && request.AutoPrintPreparationTicket is null && request.NumberOfReceiptCopies is null
             && request.StandardWorkdayHours is null && request.LateGraceMinutes is null && request.MaxLatePenaltyHours is null
-            && request.LatePenaltyMultiplier is null && request.OvertimeMultiplier is null;
+            && request.LatePenaltyMultiplier is null && request.OvertimeMultiplier is null
+            && request.HoldPreparationUntilPaymentConfirmed is null;
         if (!onlyGrillSound)
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "settings_manage");
 
@@ -57,6 +58,7 @@ public sealed class UpdateSettingsHandler
                 GrillScreenSoundAlert = d.GrillScreenSoundAlert, StandardWorkdayHours = d.StandardWorkdayHours,
                 LateGraceMinutes = d.LateGraceMinutes, MaxLatePenaltyHours = d.MaxLatePenaltyHours,
                 LatePenaltyMultiplier = d.LatePenaltyMultiplier, OvertimeMultiplier = d.OvertimeMultiplier,
+                HoldPreparationUntilPaymentConfirmed = d.HoldPreparationUntilPaymentConfirmed,
             };
             _db.Settings.Add(entity);
         }
@@ -85,6 +87,8 @@ public sealed class UpdateSettingsHandler
         if (request.MaxLatePenaltyHours is not null) entity.MaxLatePenaltyHours = request.MaxLatePenaltyHours.Value;
         if (request.LatePenaltyMultiplier is not null) entity.LatePenaltyMultiplier = request.LatePenaltyMultiplier.Value;
         if (request.OvertimeMultiplier is not null) entity.OvertimeMultiplier = request.OvertimeMultiplier.Value;
+        if (request.HoldPreparationUntilPaymentConfirmed is not null)
+            entity.HoldPreparationUntilPaymentConfirmed = request.HoldPreparationUntilPaymentConfirmed.Value;
 
         _auditLog.Append(new AuditEvent(
             $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,

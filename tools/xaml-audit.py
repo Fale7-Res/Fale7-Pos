@@ -13,6 +13,9 @@ Catches resource/style failures that compile but crash at runtime, plus unsuppor
   4. "--" inside an XML comment. XML forbids it outright, and XamlCompiler.exe reacts by exiting
      with code 1 and printing nothing at all - no file, no line, no message - so a divider rule
      drawn with hyphens costs an afternoon of bisecting. Draw dividers with "=" instead.
+  6. An App.xaml resource entry naming a converter class that does not exist. The key resolves,
+     so rule 2 sees nothing wrong, and the XAML compiler dies with the same silent exit 1 as
+     rule 4 - this one cost a Call Center build.
   5. A collection converter applied to a bare ViewModel collection property. Filling an
      ObservableCollection raises CollectionChanged, not PropertyChanged on the property holding it,
      so the binding never re-evaluates: every empty state in this app was sitting on top of the
@@ -45,6 +48,23 @@ def load_defined(project):
         for m in re.finditer(r'x:Key="([^"]+)"', s):
             keys.add(m.group(1))
     return targets, keys
+
+
+def audit_converters(project):
+    """Every <conv:X x:Key="X"/> in App.xaml has to be a class that exists."""
+    app = f"{project}/App.xaml"
+    converters = f"{project}/Converters/Converters.cs"
+    if not (os.path.exists(app) and os.path.exists(converters)):
+        return []
+
+    declared = set(re.findall(r"public sealed class (\w+)\s*:\s*IValueConverter", io.open(converters, encoding="utf-8").read()))
+    s = io.open(app, encoding="utf-8").read()
+    problems = []
+    for m in re.finditer(r"<conv:(\w+)\s", s):
+        if m.group(1) not in declared:
+            line = s[: m.start()].count("\n") + 1
+            problems.append(f"{os.path.relpath(app)}:{line}  '{m.group(1)}' is registered but no such converter class exists")
+    return problems
 
 
 def audit(project):
@@ -95,7 +115,7 @@ def main():
     found = []
     for project in PROJECTS:
         if os.path.isdir(project):
-            found += audit(project)
+            found += audit(project) + audit_converters(project)
 
     # Same key can be reported by both passes; report each site once.
     found = sorted(set(found))

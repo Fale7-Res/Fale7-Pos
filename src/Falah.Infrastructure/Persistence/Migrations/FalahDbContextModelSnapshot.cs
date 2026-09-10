@@ -2418,6 +2418,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<bool>("GrillScreenSoundAlert")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("HoldPreparationUntilPaymentConfirmed")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LateGraceMinutes")
                         .HasColumnType("int");
 

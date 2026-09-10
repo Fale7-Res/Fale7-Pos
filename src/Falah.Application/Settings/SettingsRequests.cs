@@ -10,7 +10,11 @@ public sealed record SettingsDto(
     string Currency, long CashDiscrepancyThresholdPiastres, int AutoLockMinutes, string ActiveShiftName,
     string PrinterWidth, bool AutoPrintReceipt, bool AutoPrintPreparationTicket, int NumberOfReceiptCopies,
     bool GrillScreenSoundAlert, int StandardWorkdayHours, int LateGraceMinutes, int MaxLatePenaltyHours,
-    double LatePenaltyMultiplier, double OvertimeMultiplier);
+    double LatePenaltyMultiplier, double OvertimeMultiplier,
+    /// <summary>False (the default) sends an order to the kitchen the moment it is taken, even when
+    /// it was paid by an electronic transfer nobody has confirmed yet. True holds the preparation
+    /// ticket until the transfer is confirmed. The customer's receipt prints either way.</summary>
+    bool HoldPreparationUntilPaymentConfirmed = false);
 
 /// <summary>Ported from updateSettings in lib/store.tsx: a partial update (every field optional,
 /// null = "leave unchanged") gated on `settings_manage` - EXCEPT when the only field being changed
@@ -26,4 +30,4 @@ public sealed record UpdateSettingsRequest(
     string? PrinterWidth = null, bool? AutoPrintReceipt = null, bool? AutoPrintPreparationTicket = null,
     int? NumberOfReceiptCopies = null, bool? GrillScreenSoundAlert = null, int? StandardWorkdayHours = null,
     int? LateGraceMinutes = null, int? MaxLatePenaltyHours = null, double? LatePenaltyMultiplier = null,
-    double? OvertimeMultiplier = null);
+    double? OvertimeMultiplier = null, bool? HoldPreparationUntilPaymentConfirmed = null);
