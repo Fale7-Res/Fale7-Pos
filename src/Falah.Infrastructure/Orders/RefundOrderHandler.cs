@@ -89,7 +89,7 @@ public sealed class RefundOrderHandler
             // this same guard; RefundOrderHandler alone skipped it, so a refund could silently drive
             // an account negative.
             var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(order.PaymentMethod);
-            var refundSourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, refundSourceAccount, ct);
+            var refundSourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, refundSourceAccount, ct);
             FinancialRules.AssertProtectedSourceBalance(refundSourceMovements, refundSourceAccount, safeAmount);
 
             var originalShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == order.ShiftId, ct)

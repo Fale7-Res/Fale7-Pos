@@ -49,7 +49,7 @@ public sealed class OpenShiftHandler
         if (openingCash.IsPositive)
         {
             businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-            var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, TreasuryAccounts.Main, ct);
+            var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Main, ct);
             FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);
         }
 

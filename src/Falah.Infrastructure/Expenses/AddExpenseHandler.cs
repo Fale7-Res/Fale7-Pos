@@ -67,12 +67,16 @@ public sealed class AddExpenseHandler
         var authorization = AuthorizationPolicy.AuthorizeExpense(_approvalRegistry, actor, paidFromDrawer, approval);
 
         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-        var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, request.PaymentAccountId, ct);
-        FinancialRules.AssertProtectedSourceBalance(accountMovements, request.PaymentAccountId, Money.FromPiastres(request.AmountPiastres));
-
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            // Read under a lock, inside the transaction, immediately before spending.
+            // Outside it, concurrent commands each read the same balance, each decide it covers
+            // them, and each write - which is how an account holding 30 paid out three separate
+            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
+            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, request.PaymentAccountId, ct);
+            FinancialRules.AssertProtectedSourceBalance(accountMovements, request.PaymentAccountId, Money.FromPiastres(request.AmountPiastres));
+
             var idempotencyKey = $"expense-{expenseId}";
             var journal = new EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, "expense"))

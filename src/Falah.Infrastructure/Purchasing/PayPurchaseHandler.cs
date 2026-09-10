@@ -68,13 +68,18 @@ public sealed class PayPurchaseHandler
 
         var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)
             ?? throw new DomainException("يجب تحديد حساب دفع فعلي.");
-        var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, accountId, ct);
-        FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, amount);
         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            // Read under a lock, inside the transaction, immediately before spending.
+            // Outside it, concurrent commands each read the same balance, each decide it covers
+            // them, and each write - which is how an account holding 30 paid out three separate
+            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
+            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
+            FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, amount);
+
             var journal = new Falah.Infrastructure.Persistence.EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, "purchase_payment"))
                 throw new PurchasingConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");

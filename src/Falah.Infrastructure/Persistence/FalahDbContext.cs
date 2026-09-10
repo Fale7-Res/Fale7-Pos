@@ -23,6 +23,7 @@ public class FalahDbContext : DbContext
     public DbSet<ProductEntity> Products => Set<ProductEntity>();
     public DbSet<ProductVariantEntity> ProductVariants => Set<ProductVariantEntity>();
     public DbSet<ProductImageEntity> ProductImages => Set<ProductImageEntity>();
+    public DbSet<UserSessionEntity> UserSessions => Set<UserSessionEntity>();
     public DbSet<PriceRuleEntity> PriceRules => Set<PriceRuleEntity>();
     public DbSet<PriceRuleProductEntity> PriceRuleProducts => Set<PriceRuleProductEntity>();
     public DbSet<PriceRuleDayEntity> PriceRuleDays => Set<PriceRuleDayEntity>();
@@ -175,6 +176,15 @@ public class FalahDbContext : DbContext
         });
 
         modelBuilder.Entity<ManagerApprovalEntity>(b => b.HasKey(a => a.ApprovalId));
+
+        modelBuilder.Entity<UserSessionEntity>(b =>
+        {
+            b.HasKey(x => x.Id);
+            // Every authenticated request looks a session up by this hash, so it is the one index
+            // that has to exist; unique because two sessions cannot share a token.
+            b.HasIndex(x => x.TokenHash).IsUnique();
+            b.Property(x => x.TokenHash).HasMaxLength(64);
+        });
 
         modelBuilder.Entity<CategoryEntity>(b => b.HasKey(c => c.Id));
 

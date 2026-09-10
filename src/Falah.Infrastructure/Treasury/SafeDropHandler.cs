@@ -56,12 +56,16 @@ public sealed class SafeDropHandler
         var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "safe_drop", approval, requireApproval: true);
 
         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-        var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, TreasuryAccounts.Drawer, ct);
-        FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, Money.FromPiastres(request.AmountPiastres));
-
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            // Read under a lock, inside the transaction, immediately before spending.
+            // Outside it, concurrent commands each read the same balance, each decide it covers
+            // them, and each write - which is how an account holding 30 paid out three separate
+            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
+            var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
+            FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, Money.FromPiastres(request.AmountPiastres));
+
             var journal = new EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, "safe_drop"))
                 throw new TreasuryConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");
@@ -69,7 +73,12 @@ public sealed class SafeDropHandler
             var now = DateTimeOffset.UtcNow;
             var movement = TreasuryMovementFactory.BuildCashLifecycleMovement(
                 $"tm-{Guid.NewGuid():N}", idempotencyKey, $"op-{Guid.NewGuid():N}", "safe_drop",
-                TreasuryAccounts.Drawer, destinationAccountId: null, Money.FromPiastres(request.AmountPiastres),
+                // The destination is the whole point of a safe drop: cash leaves the till and goes
+                // INTO the main treasury. Passing null here meant the drawer fell and nothing rose -
+                // the money left the books entirely - while the audit line below said, and still
+                // says, that it went to the main treasury. A movement that disagrees with its own
+                // audit record is worse than either being wrong alone.
+                TreasuryAccounts.Drawer, TreasuryAccounts.Main, Money.FromPiastres(request.AmountPiastres),
                 "safe_drop", request.DropRequestId, businessDayId, request.ShiftId,
                 request.Reason, createdByUser.Name, authorization.Approver?.ApproverName, now);
 

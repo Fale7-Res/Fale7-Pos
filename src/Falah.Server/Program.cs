@@ -130,6 +130,7 @@ builder.Services.AddScoped<ReportingQueryService>();
 builder.Services.AddScoped<OwnerDashboardQueryService>();
 builder.Services.AddScoped<CreatePrintJobsHandler>();
 builder.Services.AddScoped<OrderAutoPrintService>();
+builder.Services.AddScoped<Falah.Infrastructure.Authorization.SessionService>();
 builder.Services.AddScoped<ReportPrintJobResultHandler>();
 builder.Services.AddScoped<SetProductStationHandler>();
 builder.Services.AddScoped<PrintJobQueryService>();
@@ -209,6 +210,8 @@ if (app.Environment.IsDevelopment())
 //
 // The response is deliberately generic: the operator gets a sentence they can act on and a
 // reference to quote, while the detail goes to the log rather than over the wire.
+app.UseMiddleware<Falah.Server.AuthenticationMiddleware>();
+
 app.UseExceptionHandler(branch => branch.Run(async context =>
 {
     var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
@@ -1662,7 +1665,7 @@ app.MapGet("/api/users", async (FalahDbContext db, CancellationToken ct) =>
 // Rate-limited (see the "login" policy registered above) as a generic technical safeguard against
 // PIN brute-forcing - not a restaurant policy, just standard API hygiene for an unauthenticated,
 // low-entropy-secret endpoint.
-app.MapPost("/api/auth/login-by-pin", async (Falah.Application.Users.LoginByPinRequest request, FalahDbContext db, CancellationToken ct) =>
+app.MapPost("/api/auth/login-by-pin", async (Falah.Application.Users.LoginByPinRequest request, FalahDbContext db, Falah.Infrastructure.Authorization.SessionService sessions, CancellationToken ct) =>
 {
     var candidates = await db.Users.AsNoTracking().Where(u => u.Active).ToListAsync(ct);
     var user = candidates.FirstOrDefault(u => Falah.Domain.Authorization.PinHasher.Verify(request.Pin, u.PinHash, u.PinSalt, u.PinIterations));
@@ -1676,8 +1679,21 @@ app.MapPost("/api/auth/login-by-pin", async (Falah.Application.Users.LoginByPinR
         await db.SaveChangesAsync(ct);
         return Results.Unauthorized();
     }
-    return Results.Ok(ToUserSummary(user));
+    var token = await sessions.IssueAsync(user.Id, ct);
+    var summary = ToUserSummary(user);
+    return Results.Ok(new Falah.Application.Users.LoginResultDto(
+        summary.Id, summary.Name, summary.Role, summary.Permissions, token));
 }).RequireRateLimiting("login");
+
+// Ends the session behind the presented token. Logging out has to actually stop the token working,
+// not merely clear the screen - a station left unlocked is exactly when that matters.
+app.MapPost("/api/auth/logout", async (HttpContext http, Falah.Infrastructure.Authorization.SessionService sessions, CancellationToken ct) =>
+{
+    var header = http.Request.Headers.Authorization.ToString();
+    var token = header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? header["Bearer ".Length..].Trim() : null;
+    await sessions.RevokeAsync(token, ct);
+    return Results.Ok();
+});
 
 // ---- User management (all gated on users_manage - see RequireUsersManageAsync's own doc comment) ----
 

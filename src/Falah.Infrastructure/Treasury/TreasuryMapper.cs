@@ -10,9 +10,38 @@ using Microsoft.EntityFrameworkCore;
 /// balance-derivation functions - never the whole table.</summary>
 public static class TreasuryBalanceQuery
 {
+    /// <summary>Reads an account's movements for DISPLAY. Takes no lock, because a balance being
+    /// shown on a screen has no decision hanging on it.</summary>
     public static async Task<IReadOnlyList<TreasuryMovement>> LoadAccountMovementsAsync(FalahDbContext db, string accountId, CancellationToken ct) =>
         (await db.TreasuryMovements.AsNoTracking()
             .Where(m => m.Status == nameof(MovementStatus.Posted) && (m.SourceAccountId == accountId || m.DestinationAccountId == accountId))
+            .ToListAsync(ct))
+        .Select(TreasuryMapper.ToDomain).ToList();
+
+    /// <summary>
+    /// Reads an account's movements in order to SPEND from it, holding a lock on those rows until
+    /// the caller's transaction commits.
+    ///
+    /// Every money-moving command reads this account's balance, decides the balance is sufficient,
+    /// and then writes. Without the lock, several concurrent commands each read the SAME balance,
+    /// each decide independently that it covers them, and each write - so an account holding 30
+    /// can pay out three separate transfers of 20 and finish at -30. Idempotency does not help
+    /// here: these are genuinely different operations, not a retry of one, and every existing
+    /// protection in this system deduplicates by request key.
+    ///
+    /// HOLDLOCK is a range lock, which matters because the danger is a concurrent INSERT of a new
+    /// movement for this account, not an update of an existing one - a plain row lock would leave
+    /// exactly the gap being closed. The caller must already be inside a transaction; the lock is
+    /// released when that transaction ends.
+    /// </summary>
+    public static async Task<IReadOnlyList<TreasuryMovement>> LoadAccountMovementsForUpdateAsync(
+        FalahDbContext db, string accountId, CancellationToken ct) =>
+        (await db.TreasuryMovements
+            .FromSqlRaw(
+                "SELECT * FROM TreasuryMovements WITH (UPDLOCK, HOLDLOCK) " +
+                "WHERE Status = {0} AND (SourceAccountId = {1} OR DestinationAccountId = {1})",
+                nameof(MovementStatus.Posted), accountId)
+            .AsNoTracking()
             .ToListAsync(ct))
         .Select(TreasuryMapper.ToDomain).ToList();
 }

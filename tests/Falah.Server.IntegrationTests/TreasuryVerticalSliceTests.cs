@@ -111,6 +111,81 @@ public class TreasuryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(50000, await BalanceAsync("tre-main"));
     }
 
+    // ---- Different concurrent operations against ONE balance ----
+    //
+    // The tests above prove that retrying the SAME request posts once. That is a different
+    // guarantee from the one below, and an independent audit found the gap between them: each
+    // handler read the account balance, decided it was sufficient, and only then opened its
+    // transaction, so several DIFFERENT commands could each read the same balance, each decide it
+    // covered them, and each write. An account holding 30 paid out three separate transfers of 20
+    // and finished at -30.
+
+    [Fact]
+    public async Task Different_concurrent_withdrawals_cannot_between_them_overdraw_the_account()
+    {
+        await OpenBusinessDayAsync();
+        await _client.PostAsJsonAsync("/api/treasury/deposit",
+            new DepositRequest($"dep-{Guid.NewGuid():N}", "owner_deposit", 3000, "tre-main", "تمويل", null, _managerId, null, null));
+
+        // Six genuinely distinct withdrawals of 2,000 against a balance of 3,000. Exactly one can
+        // be afforded; idempotency cannot help, because no two of these are the same request.
+        var tasks = Enumerable.Range(0, 6).Select(_ => _client.PostAsJsonAsync("/api/treasury/withdraw",
+            new WithdrawalRequest($"wd-{Guid.NewGuid():N}", 2000, "tre-main", "سحب", null, _managerId, null, null)));
+        var responses = await Task.WhenAll(tasks);
+
+        var accepted = responses.Count(r => r.IsSuccessStatusCode);
+        var balance = await BalanceAsync("tre-main");
+
+        Assert.Equal(1, accepted);
+        Assert.Equal(1000, balance);
+        // The real point, stated so a future regression reads as what it is rather than as an
+        // arithmetic surprise: the account must never end below zero.
+        Assert.True(balance >= 0, $"account was overdrawn to {balance}");
+    }
+
+    [Fact]
+    public async Task Different_concurrent_transfers_cannot_between_them_overdraw_the_account()
+    {
+        await OpenBusinessDayAsync();
+        await _client.PostAsJsonAsync("/api/treasury/deposit",
+            new DepositRequest($"dep-{Guid.NewGuid():N}", "owner_deposit", 3000, "tre-main", "تمويل", null, _managerId, null, null));
+
+        var tasks = Enumerable.Range(0, 6).Select(_ => _client.PostAsJsonAsync("/api/treasury/transfer",
+            new TransferRequest($"tr-{Guid.NewGuid():N}", "tre-main", "tre-bank", 2000, "تحويل", _managerId, null, null)));
+        var responses = await Task.WhenAll(tasks);
+
+        Assert.Equal(1, responses.Count(r => r.IsSuccessStatusCode));
+        Assert.Equal(1000, await BalanceAsync("tre-main"));
+        // Every piastre that left the source has to have arrived somewhere.
+        Assert.Equal(2000, await BalanceAsync("tre-bank"));
+    }
+
+    [Fact]
+    public async Task A_safe_drop_moves_the_cash_into_the_main_treasury_rather_than_out_of_the_books()
+    {
+        // The drawer used to fall while nothing rose: the movement carried no destination account
+        // at all, so the money simply left the books - while the audit line for the same operation
+        // said, and still says, that it had gone to the main treasury.
+        await OpenBusinessDayAsync();
+        await _client.PostAsJsonAsync("/api/treasury/deposit",
+            new DepositRequest($"dep-{Guid.NewGuid():N}", "owner_deposit", 20000, "tre-main", "تمويل", null, _managerId, null, null));
+        var shift = await _client.PostAsJsonAsync("/api/shifts/open",
+            new Falah.Application.Shifts.OpenShiftRequest($"sh-{Guid.NewGuid():N}", "وردية", _managerId, 5000));
+        shift.EnsureSuccessStatusCode();
+        var shiftId = (await shift.Content.ReadFromJsonAsync<Falah.Application.Shifts.OpenShiftResult>())!.ShiftId;
+
+        var mainBefore = await BalanceAsync("tre-main");
+        var drawerBefore = await BalanceAsync("tre-drawer");
+
+        var response = await _client.PostAsJsonAsync("/api/treasury/safe-drop",
+            new SafeDropRequest($"sd-{Guid.NewGuid():N}", shiftId, 1000, "إيداع آمن", _managerId, null, null));
+        response.EnsureSuccessStatusCode();
+
+        Assert.Equal(drawerBefore - 1000, await BalanceAsync("tre-drawer"));
+        // The half that was missing: cash out of the till has to be cash into the safe.
+        Assert.Equal(mainBefore + 1000, await BalanceAsync("tre-main"));
+    }
+
     [Fact]
     public async Task Concurrent_deposits_with_the_same_request_id_post_exactly_once()
     {

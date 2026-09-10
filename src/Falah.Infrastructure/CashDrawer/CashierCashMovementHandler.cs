@@ -74,12 +74,16 @@ public sealed class CashierCashMovementHandler
         var destinationAccount = isCashIn ? TreasuryAccounts.Drawer : TreasuryAccounts.Main;
 
         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-        var sourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, sourceAccount, ct);
-        FinancialRules.AssertProtectedSourceBalance(sourceMovements, sourceAccount, amount);
-
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            // Read under a lock, inside the transaction, immediately before spending.
+            // Outside it, concurrent commands each read the same balance, each decide it covers
+            // them, and each write - which is how an account holding 30 paid out three separate
+            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
+            var sourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, sourceAccount, ct);
+            FinancialRules.AssertProtectedSourceBalance(sourceMovements, sourceAccount, amount);
+
             var journal = new EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, request.MovementType))
                 throw new TreasuryConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");

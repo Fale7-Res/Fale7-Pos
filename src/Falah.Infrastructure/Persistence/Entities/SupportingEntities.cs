@@ -147,3 +147,16 @@ public class UserEntity
     public string PinSalt { get; set; } = default!;
     public int PinIterations { get; set; }
 }
+
+/// <summary>One logged-in session. Only the token's hash is stored, so this table is a list of who
+/// is logged in rather than a list of working credentials - see SessionToken.</summary>
+public class UserSessionEntity
+{
+    public string Id { get; set; } = default!;
+    public string TokenHash { get; set; } = default!;
+    public string UserId { get; set; } = default!;
+    public DateTimeOffset CreatedAtUtc { get; set; }
+    /// <summary>Refreshed on every authenticated request; a session dies of idleness, not of age.</summary>
+    public DateTimeOffset LastSeenAtUtc { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
+}

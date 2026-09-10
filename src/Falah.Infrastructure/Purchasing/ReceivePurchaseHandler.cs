@@ -74,7 +74,7 @@ public sealed class ReceivePurchaseHandler
         if (paid.IsPositive && accountId is null) throw new DomainException("يجب تحديد حساب دفع فعلي للمبلغ المدفوع.");
         if (accountId is not null)
         {
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsAsync(_db, accountId, ct);
+            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
         }
         // Read each ingredient's current cost basis BEFORE this receipt is written, so the change
