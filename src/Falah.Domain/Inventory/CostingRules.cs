@@ -2,7 +2,10 @@ namespace Falah.Domain.Inventory;
 
 using Falah.Domain.Common;
 
-public enum CostResultSource { Purchase, Prep, Unknown }
+/// <summary>Where a cost figure came from, which matters as much as the figure. "Estimated" is a
+/// number the owner typed because no invoice exists yet; it is never presented as though a real
+/// purchase produced it, and a real purchase always wins over it.</summary>
+public enum CostResultSource { Purchase, Prep, Estimated, Unknown }
 
 /// <summary>
 /// Pure recipe/costing engine ported from lib/costing-domain.mjs. Core principle enforced
@@ -27,8 +30,14 @@ public static class CostingRules
             return new IngredientCostResult(result.UnitCost, CostResultSource.Prep);
         }
 
+        // A real purchase always wins. What the restaurant actually paid is a fact; what somebody
+        // estimated is a placeholder, and the moment the fact exists the placeholder stops being used.
         var cost = PurchasingRules.LastPurchaseUnitCost(ctx.StockMovements, item.Id);
-        return new IngredientCostResult(cost, cost is null ? CostResultSource.Unknown : CostResultSource.Purchase);
+        if (cost is not null) return new IngredientCostResult(cost, CostResultSource.Purchase);
+
+        return item.EstimatedUnitCostPiastres is { } estimated and > 0
+            ? new IngredientCostResult(Money.FromPiastres(estimated), CostResultSource.Estimated)
+            : new IngredientCostResult(null, CostResultSource.Unknown);
     }
 
     public readonly record struct PrepRecipeCostResult(Money? UnitCost, Money KnownCost, double Completeness, IReadOnlyList<string> Missing, int LineCount, int KnownLineCount);

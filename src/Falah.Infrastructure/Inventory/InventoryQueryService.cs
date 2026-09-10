@@ -29,7 +29,8 @@ public sealed class InventoryQueryService
         {
             var balance = balances.GetValueOrDefault(i.Id, 0);
             return new InventoryItemDto(i.Id, i.Name, i.Category, i.Unit, i.MinimumMilliUnits, i.Active,
-                i.IsPackaging, i.CostSource, i.StandardDailyUsageMilliUnits, balance, balance <= i.MinimumMilliUnits);
+                i.IsPackaging, i.CostSource, i.StandardDailyUsageMilliUnits, balance, balance <= i.MinimumMilliUnits,
+                i.EstimatedUnitCostPiastres);
         }).ToList();
     }
 
@@ -217,7 +218,7 @@ public sealed class InventoryQueryService
     private async Task<CostingContext> LoadCostingContextAsync(CancellationToken ct)
     {
         var items = await _db.InventoryItems.AsNoTracking()
-            .Select(i => new InventoryItem(i.Id, i.Name, Enum.Parse<CostSource>(i.CostSource))).ToListAsync(ct);
+            .Select(i => new InventoryItem(i.Id, i.Name, Enum.Parse<CostSource>(i.CostSource), i.EstimatedUnitCostPiastres)).ToListAsync(ct);
         var prepEntities = await _db.PrepRecipes.AsNoTracking().ToListAsync(ct);
         var preps = prepEntities.Select(p => new PrepRecipe(p.Id, p.OutputInventoryItemId, p.OutputQuantityMilliUnits, p.Active)).ToList();
         var prepLineEntities = await _db.PrepRecipeLines.AsNoTracking().ToListAsync(ct);

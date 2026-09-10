@@ -4,7 +4,11 @@ using Falah.Domain.Common;
 
 public enum CostSource { Purchase, Prep }
 
-public sealed record InventoryItem(string Id, string Name, CostSource CostSource);
+/// <param name="EstimatedUnitCostPiastres">A cost the owner entered by hand, used only until a real
+/// purchase for this item exists. It lets a restaurant that has not yet recorded a single invoice
+/// still see an approximate food cost, without fabricating purchase invoices that would post
+/// supplier obligations and stock the restaurant never received. Null means genuinely unknown.</param>
+public sealed record InventoryItem(string Id, string Name, CostSource CostSource, long? EstimatedUnitCostPiastres = null);
 
 public enum RecipeLineKind { Direct, Yield, Packaging }
 

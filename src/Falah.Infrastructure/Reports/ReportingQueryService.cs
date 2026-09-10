@@ -264,7 +264,7 @@ public sealed class ReportingQueryService
         var recipes = await _db.Recipes.AsNoTracking().Include(r => r.Items).ToDictionaryAsync(r => r.Id, ct);
 
         var items = await _db.InventoryItems.AsNoTracking()
-            .Select(i => new InventoryItem(i.Id, i.Name, Enum.Parse<CostSource>(i.CostSource))).ToListAsync(ct);
+            .Select(i => new InventoryItem(i.Id, i.Name, Enum.Parse<CostSource>(i.CostSource), i.EstimatedUnitCostPiastres)).ToListAsync(ct);
         var preps = await _db.PrepRecipes.AsNoTracking().Select(p => new PrepRecipe(p.Id, p.OutputInventoryItemId, p.OutputQuantityMilliUnits, p.Active)).ToListAsync(ct);
         var prepLines = await _db.PrepRecipeLines.AsNoTracking().Select(l => new PrepRecipeLine(l.PrepRecipeId, l.InventoryItemId, l.QuantityMilliUnits)).ToListAsync(ct);
         var purchaseMovements = await _db.StockMovements.AsNoTracking()

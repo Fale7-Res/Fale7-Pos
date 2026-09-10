@@ -119,6 +119,7 @@ builder.Services.AddScoped<CreateInventoryItemHandler>();
 builder.Services.AddScoped<UpdateInventoryItemHandler>();
 builder.Services.AddScoped<RecordCountAdjustmentHandler>();
 builder.Services.AddScoped<RecordWasteHandler>();
+builder.Services.AddScoped<SetEstimatedCostHandler>();
 builder.Services.AddScoped<SaveRecipeHandler>();
 builder.Services.AddScoped<SavePrepRecipeHandler>();
 builder.Services.AddScoped<SaveOrderPackagingRuleHandler>();
@@ -842,6 +843,18 @@ app.MapGet("/api/inventory/items", async (InventoryQueryService query, Cancellat
 
 app.MapGet("/api/inventory/items/{id}/balance", async (string id, InventoryQueryService query, CancellationToken ct) =>
     Results.Ok(new { inventoryItemId = id, balanceMilliUnits = await query.GetStockBalanceAsync(id, ct) }));
+
+// Not a financial command: no money, no stock, no supplier. See the handler for why that matters.
+app.MapPut("/api/inventory/items/{id}/estimated-cost", async (string id, Falah.Application.Inventory.SetEstimatedCostRequest body, SetEstimatedCostHandler handler, CancellationToken ct) =>
+{
+    try
+    {
+        await handler.HandleAsync(body with { InventoryItemId = id }, ct);
+        return Results.Ok();
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
 
 app.MapGet("/api/inventory/items/{id}/cost", async (string id, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await query.GetIngredientCostAsync(id, ct)));

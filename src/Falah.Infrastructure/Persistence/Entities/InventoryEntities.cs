@@ -32,6 +32,13 @@ public class InventoryItemEntity
     /// <summary>True for wrapping/bags/boxes etc. - lets costing report packaging cost separately
     /// from food cost. Recipe lines of kind 'Packaging' are expected to reference one of these.</summary>
     public bool IsPackaging { get; set; }
+
+    /// <summary>A unit cost the owner entered by hand, used only while no real purchase exists for
+    /// this item. It exists so a restaurant can see an approximate food cost before its first
+    /// invoice is recorded, WITHOUT the alternative: fabricating purchase invoices, which would post
+    /// supplier obligations, move treasury money and add stock that never arrived. Every report says
+    /// which of the two a figure came from - see CostResultSource.</summary>
+    public long? EstimatedUnitCostPiastres { get; set; }
     /// <summary>For shared/communal consumption (frying oil, ketchup, gas) that cannot be
     /// defensibly allocated to a single menu item - an editable reference figure to compare against
     /// actual recorded usage, without inventing a fake per-portion allocation into any recipe.</summary>

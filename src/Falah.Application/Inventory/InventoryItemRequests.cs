@@ -20,4 +20,14 @@ public sealed record UpdateInventoryItemRequest(
 
 public sealed record InventoryItemDto(
     string Id, string Name, string Category, string Unit, long MinimumMilliUnits, bool Active,
-    bool IsPackaging, string CostSource, long? StandardDailyUsageMilliUnits, long BalanceMilliUnits, bool IsLowStock);
+    bool IsPackaging, string CostSource, long? StandardDailyUsageMilliUnits, long BalanceMilliUnits, bool IsLowStock,
+    /// <summary>A hand-entered unit cost used only until a real purchase exists for this item. Null
+    /// once an invoice has been recorded, or when nobody has estimated anything.</summary>
+    long? EstimatedUnitCostPiastres = null);
+
+/// <summary>Sets or clears an item's estimated unit cost. Deliberately its own small command: it
+/// moves no money, receives no stock and creates no supplier obligation - which is the entire
+/// reason it exists, since the alternative was fabricating purchase invoices to make costing
+/// work.</summary>
+public sealed record SetEstimatedCostRequest(
+    string InventoryItemId, long? EstimatedUnitCostPiastres, string ActorUserId);

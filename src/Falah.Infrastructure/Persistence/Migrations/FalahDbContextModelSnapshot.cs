@@ -1344,6 +1344,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("EstimatedUnitCostPiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsPackaging")
                         .HasColumnType("bit");
 

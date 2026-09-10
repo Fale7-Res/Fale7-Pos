@@ -70,6 +70,24 @@ public sealed class SaveRecipeHandler
             Kind = line.Kind, YieldUnitsPerBaseUnit = line.YieldUnitsPerBaseUnit,
         }).ToList();
 
+        // Point the product back at its recipe.
+        //
+        // Costing resolves a sold line through Product.RecipeId (see
+        // ReportingQueryService.GetFoodCostReportAsync), while a recipe records the product it
+        // belongs to on itself. Saving only set the second, so a restaurant could enter every
+        // recipe it has and still be told its food cost was unknown, forever, with no error and
+        // nothing on screen to suggest what was missing. Found by entering a real menu's 99
+        // recipes and watching the margin stay blank.
+        //
+        // An INACTIVE recipe clears the link rather than leaving the product pointing at something
+        // deliberately switched off - that would silently keep costing from a retired recipe.
+        var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId, ct);
+        if (product is not null)
+        {
+            if (request.Active) product.RecipeId = recipeId;
+            else if (product.RecipeId == recipeId) product.RecipeId = null;
+        }
+
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
