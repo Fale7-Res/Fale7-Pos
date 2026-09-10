@@ -128,7 +128,12 @@ public class FinalVerificationTests
     [Fact]
     public async Task Printing_empty_state_is_notified_after_loading_finishes()
     {
-        var vm = new PrintingViewModel(Session(_ => Task.FromResult(Json("[]"))));
+        // The screen now opens on the whole printing picture - every route's queue, what failed,
+        // what is stuck - and then loads the selected route's own jobs.
+        var vm = new PrintingViewModel(Session(r => Task.FromResult(Json(
+            r.RequestUri!.AbsolutePath.EndsWith("/overview")
+                ? """{"routes":[],"needsAttention":[],"totalPendingCount":0,"totalFailedCount":0,"totalStuckCount":0}"""
+                : "[]"))));
         var seen = false;
         vm.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(vm.HasNoPending) && vm.HasNoPending) seen = true; };
         await vm.LoadAsync();

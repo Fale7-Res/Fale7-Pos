@@ -39,6 +39,51 @@ public sealed class PrintJobQueryService
             .OrderBy(j => j.CreatedAtUtc).ToListAsync(ct))
             .Select(CreatePrintJobsHandler.ToDto).ToList();
 
+    /// <summary>How long a Pending job has to sit before it means the agent is not draining the
+    /// queue rather than that the job is new. Not a policy about printing - just long enough that
+    /// no healthy station would still be holding it.</summary>
+    private static readonly TimeSpan StuckAfter = TimeSpan.FromMinutes(5);
+
+    /// <summary>The whole printing picture in one read - see PrintingOverviewDto.</summary>
+    public async Task<PrintingOverviewDto> GetOverviewAsync(CancellationToken ct = default)
+    {
+        var since = DateTimeOffset.UtcNow.AddDays(-2);
+        var jobs = await _db.PrintJobs.AsNoTracking()
+            .Where(j => j.Status != nameof(PrintJobStatus.Succeeded) || j.LastAttemptAtUtc >= since)
+            .ToListAsync(ct);
+
+        var stuckBefore = DateTimeOffset.UtcNow - StuckAfter;
+        var routes = new List<PrintRouteStatusDto>();
+        foreach (var route in new[] { "Receipt", "CallCenter", "Charcoal", "Grill" })
+        {
+            var forRoute = jobs.Where(j => j.Route == route).ToList();
+            var pending = forRoute.Where(j => j.Status == nameof(PrintJobStatus.Pending)).ToList();
+            routes.Add(new PrintRouteStatusDto(
+                route,
+                pending.Count,
+                forRoute.Count(j => j.Status == nameof(PrintJobStatus.Failed)),
+                pending.Count(j => j.CreatedAtUtc <= stuckBefore),
+                pending.Count == 0 ? null : pending.Min(j => j.CreatedAtUtc),
+                forRoute.Where(j => j.Status == nameof(PrintJobStatus.Succeeded))
+                    .Select(j => j.LastAttemptAtUtc).DefaultIfEmpty(null).Max()));
+        }
+
+        // Failures first, then whatever has been waiting longest: that is the order somebody
+        // working through this screen would pick them up in anyway.
+        var attention = jobs
+            .Where(j => j.Status == nameof(PrintJobStatus.Failed)
+                        || (j.Status == nameof(PrintJobStatus.Pending) && j.CreatedAtUtc <= stuckBefore))
+            .OrderBy(j => j.Status == nameof(PrintJobStatus.Failed) ? 0 : 1)
+            .ThenBy(j => j.CreatedAtUtc)
+            .Take(60)
+            .Select(CreatePrintJobsHandler.ToDto)
+            .ToList();
+
+        return new PrintingOverviewDto(
+            routes, attention,
+            routes.Sum(r => r.PendingCount), routes.Sum(r => r.FailedCount), routes.Sum(r => r.StuckCount));
+    }
+
     public async Task<PrintJobDetailsDto> GetJobDetailsAsync(string jobId, CancellationToken ct = default)
     {
         var job = await _db.PrintJobs.AsNoTracking().FirstOrDefaultAsync(j => j.Id == jobId, ct)

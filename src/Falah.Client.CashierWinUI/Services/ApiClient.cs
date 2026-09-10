@@ -272,6 +272,9 @@ public sealed partial class ApiClient
         SendEmptyAsync(() => _http.PostAsJsonAsync(
             $"/api/control-exceptions/{Uri.EscapeDataString(request.ExceptionId)}/status", request, ct), ct);
 
+    public Task<ApiResult<PrintingOverviewDto>> GetPrintingOverviewAsync(CancellationToken ct = default) =>
+        SendAsync<PrintingOverviewDto>(() => _http.GetAsync("/api/print-jobs/overview", ct), ct);
+
     public Task<ApiResult<IReadOnlyList<PrintJobDto>>> GetPendingPrintJobsAsync(string route, CancellationToken ct = default) =>
         SendAsync<IReadOnlyList<PrintJobDto>>(() => _http.GetAsync(
             $"/api/print-jobs/pending?route={Uri.EscapeDataString(route)}", ct), ct);

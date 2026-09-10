@@ -1975,6 +1975,11 @@ app.MapPost("/api/print-jobs/{id}/report-result", async (string id, Falah.Applic
     }
 });
 
+// Pending is what a station's agent asks for. This is what a PERSON needs: every route's queue,
+// what failed, and what has been sitting long enough to mean the agent is not draining it.
+app.MapGet("/api/print-jobs/overview", async (PrintJobQueryService query, CancellationToken ct) =>
+    Results.Ok(await query.GetOverviewAsync(ct)));
+
 app.MapGet("/api/print-jobs/pending", async (string route, PrintJobQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListPendingJobsForRouteAsync(route, ct)));
 

@@ -20,6 +20,22 @@ public sealed record PrintJobDto(
     string Id, string OrderId, string OrderNumber, string Route, string Status, int AttemptCount,
     DateTimeOffset? LastAttemptAtUtc, string? LastError, bool IsReprint, DateTimeOffset CreatedAtUtc);
 
+/// <summary>Every print route's queue at a glance, and the jobs that need a person.
+///
+/// A FAILED job is the one somebody has to act on - a kitchen ticket that never came out is an
+/// order nobody is cooking - and the screen used to list only Pending, so the state that matters
+/// most was the one it could not show. StuckCount is Pending jobs old enough that the station's
+/// agent is evidently not draining them: nothing is wrong with the job, something is wrong with
+/// the printer or the agent, and that is a different thing to go and fix.</summary>
+public sealed record PrintRouteStatusDto(
+    string Route, int PendingCount, int FailedCount, int StuckCount,
+    DateTimeOffset? OldestPendingAtUtc, DateTimeOffset? LastSucceededAtUtc);
+
+public sealed record PrintingOverviewDto(
+    IReadOnlyList<PrintRouteStatusDto> Routes,
+    IReadOnlyList<PrintJobDto> NeedsAttention,
+    int TotalPendingCount, int TotalFailedCount, int TotalStuckCount);
+
 public sealed record CreatePrintJobsResult(IReadOnlyList<PrintJobDto> Jobs, bool WasReplayed);
 
 /// <summary>Ported from nothing in the reference app (it never tracked print outcomes at all) -

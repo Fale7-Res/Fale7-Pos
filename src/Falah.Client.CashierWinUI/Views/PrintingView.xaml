@@ -30,111 +30,200 @@
 
         <Border Grid.Row="1" Style="{StaticResource AlertBannerStyle}" Margin="28,0,28,12">
             <TextBlock TextWrapping="Wrap"
-                       Text="النظام يسجّل أوامر الطباعة ويتتبّع محاولاتها. الإرسال الفعلي للطابعة يقوم به برنامج المحطة، وتسجيل الأمر لا يعني أن الإيصال طُبع فعليًا."/>
+                       Text="النظام يسجّل أوامر الطباعة ويتتبّع كل محاولة. الإرسال الفعلي للورق بيعمله برنامج المحطة على كل طابعة، فتذكرة في الانتظار معناها إن حد لسه مطبعهاش - مش إنها طلعت."/>
         </Border>
 
-        <!-- Queue per route -->
+        <!-- One card per physical printer. Failed and stuck read differently from a queue. -->
         <Border Grid.Row="2" Style="{StaticResource PageCardStyle}" Margin="28,0,28,12">
-            <ItemsControl ItemsSource="{Binding Queues}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" Spacing="12"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button MinHeight="44" MinWidth="190" Style="{StaticResource SecondaryButtonStyle}"
-                                HorizontalContentAlignment="Stretch"
-                                Command="{Binding ElementName=Root, Path=DataContext.SelectRouteCommand}"
-                                CommandParameter="{Binding Route}">
-                            <Grid ColumnSpacing="10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Label}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                <Border Grid.Column="1" Background="#EDF3EE" CornerRadius="8" Padding="8,3" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding PendingCount}" FontSize="13" FontWeight="Bold"
-                                               Foreground="{StaticResource BrandPrimaryBrush}"/>
-                                </Border>
-                            </Grid>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
-
-        <Border Grid.Row="3" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
-                    <Grid ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="رقم الطلب" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="1" Text="الحالة" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="2" Text="المحاولات" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="3" Text="آخر خطأ" Style="{StaticResource TableHeaderText}"/>
-                    </Grid>
-                </Grid>
-
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding PendingJobs}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding HeadlineState}" FontWeight="SemiBold" Style="{StaticResource BodyText}"/>
+                <ItemsControl ItemsSource="{Binding Queues}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="12"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button MinHeight="44" MinWidth="230" Style="{StaticResource SecondaryButtonStyle}"
+                                    HorizontalContentAlignment="Stretch" Padding="12,10"
+                                    Command="{Binding ElementName=Root, Path=DataContext.SelectRouteCommand}"
+                                    CommandParameter="{Binding Route}">
+                                <StackPanel Spacing="3">
                                     <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="150"/>
-                                            <ColumnDefinition Width="130"/>
-                                            <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}"
-                                                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Label}" FontSize="13" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <Border Grid.Column="1" CornerRadius="8" Padding="8,3" VerticalAlignment="Center"
-                                                HorizontalAlignment="Right"
-                                                Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
-                                            <TextBlock Text="{Binding Status}" Style="{StaticResource StatusPillText}"/>
+                                                Background="{Binding NeedsAttention, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBackgroundBrush|NeutralBackgroundBrush}">
+                                            <TextBlock Text="{Binding PendingCount}" FontSize="13" FontWeight="Bold"
+                                                       Foreground="{Binding NeedsAttention, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|BrandPrimaryBrush}"/>
                                         </Border>
-                                        <TextBlock Grid.Column="2" Text="{Binding AttemptCount}" Style="{StaticResource TableCellText}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding LastError}" Style="{StaticResource TableCellText}"
-                                                   Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
                                     </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
-                    <ProgressRing IsActive="True" Width="36" Height="36"/>
-                    <TextBlock Text="جاري تحميل حالة الطباعة..." Style="{StaticResource MutedText}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
-                            Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
-                    <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
-                    <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
-                            HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding HasNoPending, Converter={StaticResource BoolToVisibleConverter}}">
-                    <TextBlock Text="لا توجد أوامر طباعة معلّقة لهذه المحطة" Style="{StaticResource SectionTitleText}"
-                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Grid>
+                                    <TextBlock Text="{Binding StateLine}" Style="{StaticResource CaptionText}"
+                                               HorizontalAlignment="Right" TextWrapping="Wrap"
+                                               Foreground="{Binding NeedsAttention, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding WaitingLine}" Style="{StaticResource CaptionText}"
+                                               HorizontalAlignment="Right" TextWrapping="Wrap"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding LastSuccessLine}" Style="{StaticResource CaptionText}"
+                                               HorizontalAlignment="Right" TextWrapping="Wrap"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </Border>
+
+        <Grid Grid.Row="3" Margin="28,0,28,24" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="380"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- The selected printer's queue -->
+            <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="رقم الطلب" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="1" Text="الحالة" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="2" Text="منتظرة منذ" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="3" Text="المحاولات وآخر خطأ" Style="{StaticResource TableHeaderText}"/>
+                        </Grid>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding RouteJobs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}"
+                                                       FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <Border Grid.Column="1" CornerRadius="8" Padding="8,3" VerticalAlignment="Center"
+                                                    HorizontalAlignment="Right"
+                                                    Background="{Binding IsFailed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBackgroundBrush|NeutralBackgroundBrush}">
+                                                <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource StatusPillText}"
+                                                           Foreground="{Binding IsFailed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|NeutralTextBrush}"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="2" Text="{Binding AgeLine}" Style="{StaticResource CaptionText}"
+                                                       VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                                            <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding AttemptsLine}" Style="{StaticResource CaptionText}"
+                                                           Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding ErrorLine}" Style="{StaticResource CaptionText}"
+                                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                                           Visibility="{Binding HasError, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ProgressRing IsActive="True" Width="36" Height="36"/>
+                        <TextBlock Text="جاري تحميل حالة الطباعة..." Style="{StaticResource MutedText}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
+                                Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                                HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                MaxWidth="340" Padding="16"
+                                Visibility="{Binding HasNoPending, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="طابور هذه المحطة فاضي" Style="{StaticResource SectionTitleText}"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <TextBlock Text="كل التذاكر اللي اتبعتت لهذه الطابعة اتسحبت منها." Style="{StaticResource MutedText}"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- What needs a person, across all four printers -->
+            <Border Grid.Column="1" Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Padding="18,16,18,10" Spacing="3">
+                        <TextBlock Text="يحتاج تدخّل" Style="{StaticResource CardTitleText}"/>
+                        <TextBlock Text="تذاكر فشلت، أو واقفة في الطابور من زمان - الطابعة أو برنامج المحطة مش شغال."
+                                   Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{Binding NeedsAttention}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="18,10">
+                                            <StackPanel Spacing="3">
+                                                <Grid ColumnSpacing="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding OrderNumber}" FontWeight="SemiBold"
+                                                               Style="{StaticResource TableCellText}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding StatusLabel}"
+                                                               Style="{StaticResource CaptionText}" FontWeight="SemiBold"
+                                                               Foreground="{Binding IsFailed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|WarningBrush}"/>
+                                                </Grid>
+                                                <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                                           Foreground="{StaticResource TextMutedBrush}">
+                                                    <Run Text="{Binding RouteLabel}"/><Run Text=" · "/><Run Text="{Binding AgeLine}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding ErrorLine}" Style="{StaticResource CaptionText}"
+                                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                                           Visibility="{Binding HasError, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Spacing="8" Padding="20" HorizontalAlignment="Center"
+                                        Visibility="{Binding NeedsAttention.Count, Converter={StaticResource ZeroCountToVisibleConverter}}">
+                                <TextBlock Text="مافيش تذكرة محتاجة تدخّل" Style="{StaticResource MutedText}"
+                                           TextAlignment="Center" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
     </Grid>
 </UserControl>
