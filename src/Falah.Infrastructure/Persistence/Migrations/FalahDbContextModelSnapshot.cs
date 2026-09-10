@@ -1539,6 +1539,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long>("SubtotalPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("TableNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("TaxAmountPiastres")
                         .HasColumnType("bigint");
 

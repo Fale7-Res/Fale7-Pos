@@ -53,7 +53,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: totalPiastres, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
@@ -88,7 +88,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 500, DeliveryFeePiastres: 0, CompAmountPiastres: 1000,
             CompApprovalId: approval!.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 8500, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: "hospitality");
         (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
 
@@ -203,7 +203,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 5000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
 
         var report = await (await _client.GetAsync($"/api/reports/food-cost?actorUserId={_managerId}")).Content.ReadFromJsonAsync<FoodCostReportDto>();
@@ -222,7 +222,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 5000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
 
         var report = await (await _client.GetAsync($"/api/reports/food-cost?actorUserId={_managerId}")).Content.ReadFromJsonAsync<FoodCostReportDto>();
@@ -253,7 +253,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 5000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
 
         var report = await (await _client.GetAsync($"/api/reports/food-cost?actorUserId={_managerId}")).Content.ReadFromJsonAsync<FoodCostReportDto>();
@@ -312,7 +312,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 1000, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: "أحمد", CustomerPhone: "01000000000", DeliveryAddress: null, DeliveryArea: "المعادي",
+            TableNumber: null, CustomerName: "أحمد", CustomerPhone: "01000000000", DeliveryAddress: null, DeliveryArea: "المعادي",
             BusinessDayId: null, DeliveryStreet: "شارع 9", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل");
         var order = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
 
@@ -359,7 +359,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 11400, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
 
         var report = await (await _client.GetAsync($"/api/reports/tax?actorUserId={_managerId}&shiftId={_shiftId}"))

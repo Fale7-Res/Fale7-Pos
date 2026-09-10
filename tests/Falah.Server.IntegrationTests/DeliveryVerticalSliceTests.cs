@@ -54,7 +54,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: amountPaid, SplitPayments: null, WalletProvider: null,
-            CustomerName: "عميل اختبار", CustomerPhone: "01000000000", DeliveryAddress: "شارع الاختبار", DeliveryArea: "المنطقة أ", BusinessDayId: null,
+            TableNumber: null, CustomerName: "عميل اختبار", CustomerPhone: "01000000000", DeliveryAddress: "شارع الاختبار", DeliveryArea: "المنطقة أ", BusinessDayId: null,
             DeliveryStreet: "شارع 9", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل سريع");
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
@@ -120,7 +120,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var order = (await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
 
         var count = await _factory.QueryAsync(db => db.Deliveries.CountAsync(d => d.OrderId == order.OrderId));

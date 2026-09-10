@@ -8,6 +8,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -29,14 +30,30 @@
             </StackPanel>
         </Grid>
 
+        <!--
+            The one question this screen exists to answer: if the database were lost right now, how
+            much would go with it. A list of rows makes the reader work that out.
+        -->
+        <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Margin="28,0,28,12" Padding="18,14">
+            <StackPanel Spacing="4">
+                <TextBlock Text="{Binding LastBackupHeadline}" Style="{StaticResource CardTitleText}"
+                           Foreground="{Binding IsBackupStale, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WarningBrush|TextPrimaryBrush}"/>
+                <TextBlock Text="{Binding LastBackupDetail}" Style="{StaticResource CaptionText}"
+                           Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding LastRestoreLine}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           Visibility="{Binding HasRestoreHistory, Converter={StaticResource BoolToVisibleConverter}}"/>
+            </StackPanel>
+        </Border>
+
         <!-- Restore deliberately lives outside this screen - see BackupViewModel's doc comment. -->
-        <Border Grid.Row="1" Style="{StaticResource AlertBannerStyle}" Margin="28,0,28,12">
+        <Border Grid.Row="2" Style="{StaticResource AlertBannerStyle}" Margin="28,0,28,12">
             <TextBlock TextWrapping="Wrap">
                 <Run Text="الاستعادة غير متاحة من هذه الشاشة عمدًا: فهي العملية الوحيدة التي تمحو سجلات مالية مثبتة، ويحرسها السيرفر بسبب إلزامي وعبارة تأكيد حرفية واعتماد مدير وعدم وجود أي عملية جارية."/>
             </TextBlock>
         </Border>
 
-        <Border Grid.Row="2" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
+        <Border Grid.Row="3" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -118,12 +135,12 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
+        <Border Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
                 Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
             <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
         </Border>
-        <Border Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
+        <Border Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
                 Background="{StaticResource DangerBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
             <TextBlock Text="{Binding ActionError}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
@@ -131,7 +148,7 @@
 
         <!-- Restore. Declared last so it layers above the page; a database restore discards every
              transaction committed after the backup, so nothing here is a one-tap action. -->
-        <Grid Grid.RowSpan="3" Background="#66313D35"
+        <Grid Grid.RowSpan="4" Background="#66313D35"
               Visibility="{Binding IsRestoreOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="620" VerticalAlignment="Center"
                     HorizontalAlignment="Center" Margin="24">

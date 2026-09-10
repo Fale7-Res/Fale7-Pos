@@ -41,6 +41,7 @@ public partial class CashierViewModel
     public bool CanCloseShift => _session.HasPermission("shifts_blind_close");
     public bool CanCountCash => _session.HasPermission("cash_count");
     public bool IsDelivery => OrderType == "delivery";
+    public bool IsDineIn => OrderType == "dine_in";
     public string OrderTypeLabel => OrderType switch { "delivery" => "توصيل", "dine_in" => "صالة", _ => "تيك أواي" };
     public string DeliveryFeeDisplay => CashInput.Format(IsDelivery ? SelectedDeliveryService?.FeePiastres ?? 0 : 0) + " ج";
     public string DiscountDisplay => CashInput.Format(DiscountAmountPiastres) + " ج";

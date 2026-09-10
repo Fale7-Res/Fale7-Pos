@@ -171,7 +171,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
             DeliveryStreet: "شارع 1", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل"));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
@@ -202,7 +202,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 15000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
         checkout.EnsureSuccessStatusCode(); // left unconfirmed on purpose
         // An unconfirmed InstaPay sale is a claim, not money - it never adds to the drawer's
         // expected cash, so the shift still closes clean against its unchanged 50000 opening float.
@@ -404,7 +404,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 60_000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
         Assert.NotNull(order);
@@ -471,7 +471,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
             DeliveryStreet: "شارع 1", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل"));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
@@ -495,7 +495,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
             DeliveryStreet: "شارع 1", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل"));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();

@@ -135,7 +135,7 @@ public sealed class PrintJobQueryService
         var settings = await _settings.GetAsync(ct);
         var header = new ReceiptHeader(
             order.Id, settings.RestaurantName, settings.SubName, settings.Address, order.OrderNumber, order.CreatedAtUtc,
-            cashierName, orderType, null, order.CustomerName, order.DeliveryAddress, order.DeliveryArea,
+            cashierName, orderType, order.TableNumber, order.CustomerName, order.DeliveryAddress, order.DeliveryArea,
             settings.Phone1, settings.Phone2, settings.ComplaintsPhone,
             ElectronicPaymentPending: order.ElectronicPaymentStatus == "pending",
             Footer: settings.ReceiptFooter);

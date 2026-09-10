@@ -40,7 +40,10 @@ public partial class CashierViewModel
     {
         NotifyTotals();
         OnPropertyChanged(nameof(IsDelivery));
+        OnPropertyChanged(nameof(IsDineIn));
         OnPropertyChanged(nameof(OrderTypeLabel));
+        // A table number left over from the last dine-in order must not ride along on a takeaway.
+        if (value != "dine_in") TableNumber = string.Empty;
         if (value == "delivery") OpenDeliveryEditor();
     }
 

@@ -51,7 +51,7 @@ public class OwnerDashboardVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: totalPiastres, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null,
             BusinessDayId: null));
         response.EnsureSuccessStatusCode();
     }

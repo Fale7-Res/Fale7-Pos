@@ -63,7 +63,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approvalId, CompApproverUserId: _managerId, CompReason: "ضيافة عميل مميز",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: "hospitality"));
         checkout.EnsureSuccessStatusCode();
 
@@ -84,7 +84,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
             DeliveryStreet: "شارع 1", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل"));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
@@ -164,7 +164,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null));
         checkout.EnsureSuccessStatusCode();
         var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
 

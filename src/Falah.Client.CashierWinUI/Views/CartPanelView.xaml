@@ -26,6 +26,12 @@
      Background="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivery|WhiteBrush|TransparentBrush}"
      Foreground="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivery|BrandPrimaryBrush|TextMutedBrush}"/>
    </Grid>
+   <!-- Which table. The till has had this field all along and never sent it anywhere, so every
+        dine-in ticket printed "صالة" and left the runner to ask whose food it was. -->
+   <TextBox MinHeight="44" PlaceholderText="رقم الطاولة" InputScope="Default"
+    IsEnabled="{Binding CanEditOperation}"
+    Visibility="{Binding IsDineIn, Converter={StaticResource BoolToVisibleConverter}}"
+    Text="{Binding TableNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
    <Button Command="{Binding OpenDeliveryEditorCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
     Visibility="{Binding IsDelivery, Converter={StaticResource BoolToVisibleConverter}}">
     <TextBlock Text="{Binding DeliverySummary}" TextWrapping="Wrap" FontSize="13" MaxLines="2"/>

@@ -149,6 +149,7 @@ public partial class CallCenterViewModel
                 AmountPaidPiastres: amountPaidPiastres,
                 SplitPayments: null,
                 WalletProvider: PaymentMethod == "wallet" ? WalletProvider : null,
+                TableNumber: null,   // the Call Center takes delivery orders; there is no table
                 CustomerName: CustomerName,
                 CustomerPhone: CustomerPhone,
                 DeliveryAddress: null,

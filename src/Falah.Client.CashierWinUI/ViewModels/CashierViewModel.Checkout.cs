@@ -355,6 +355,7 @@ public partial class CashierViewModel
                 AmountPaidPiastres: amountPiastres,
                 SplitPayments: splitPayments,
                 WalletProvider: PaymentMethod == "wallet" || IsSplitPaymentEnabled && (SplitMethod1 == "wallet" || SplitMethod2 == "wallet") ? NullIfEmpty(WalletProvider) : null,
+                TableNumber: OrderType == "dine_in" ? NullIfEmpty(TableNumber) : null,
                 CustomerName: isDelivery && !string.IsNullOrWhiteSpace(CustomerName) ? CustomerName : null,
                 CustomerPhone: isDelivery && !string.IsNullOrWhiteSpace(CustomerPhone) ? CustomerPhone : null,
                 DeliveryAddress: null,

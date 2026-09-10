@@ -47,6 +47,7 @@ public class CallCenterDurabilityTests : IDisposable
         AmountPaidPiastres: 0,
         SplitPayments: null,
         WalletProvider: null,
+        TableNumber: null,
         CustomerName: "عميل",
         CustomerPhone: "01000000000",
         DeliveryAddress: null,

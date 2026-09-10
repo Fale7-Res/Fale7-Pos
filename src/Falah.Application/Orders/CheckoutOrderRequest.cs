@@ -34,6 +34,10 @@ public sealed record CheckoutOrderRequest(
     long AmountPaidPiastres,
     IReadOnlyList<CheckoutSplitRequest>? SplitPayments,
     string? WalletProvider,
+    /// <summary>Which table, for a dine-in order. Frozen on the order like every other thing a
+    /// ticket prints, so a table renumbered next month does not rewrite last month's receipts.
+    /// Null for takeaway and delivery, and null for a dine-in order nobody labelled.</summary>
+    string? TableNumber,
     string? CustomerName,
     string? CustomerPhone,
     /// <summary>Free-text one-liner from the client, kept for backward source-compat - the actual

@@ -45,7 +45,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
         DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
         CompApprovalId: null, CompApproverUserId: null, CompReason: null,
         AmountPaidPiastres: totalPiastres, SplitPayments: null, WalletProvider: null,
-        CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+        TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
     }
 
     [Fact]
@@ -229,7 +229,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval!.ApprovalId, CompApproverUserId: managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: "hospitality");
 
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
@@ -251,7 +251,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 1000, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 9000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
 
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
@@ -285,7 +285,7 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval!.ApprovalId, CompApproverUserId: managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: reasonCode);
 
         var missing = await _client.PostAsJsonAsync("/api/orders/checkout", MakeRequest(null));

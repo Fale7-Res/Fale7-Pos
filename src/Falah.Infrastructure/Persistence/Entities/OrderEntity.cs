@@ -14,6 +14,11 @@ public class OrderEntity
     public string CashierId { get; set; } = default!;
     public string ShiftId { get; set; } = default!;
     public string OrderType { get; set; } = default!;
+    /// <summary>Which table a dine-in order belongs to, as typed at the till. Free text on
+    /// purpose: restaurants number, letter and nickname their tables however they like, and this
+    /// system has never been told which scheme this one uses.</summary>
+    public string? TableNumber { get; set; }
+
     public string? CustomerName { get; set; }
     public string? CustomerPhone { get; set; }
     /// <summary>Composed one-liner (DeliveryRules.ComposeDeliveryAddress), computed server-side from

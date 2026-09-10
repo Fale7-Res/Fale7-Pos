@@ -77,10 +77,80 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 100_000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null,
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+    }
+
+    /// <summary>The ticket contract has carried a table number since it was written, PrintRules
+    /// prints it, a domain test covers it - and nothing ever supplied one. The receipt composer
+    /// passed a hard-coded null, so every dine-in ticket said "صالة" and left the runner carrying
+    /// the tray to ask whose food it was.
+    ///
+    /// This follows one table number the whole way: typed at the till, frozen on the order,
+    /// readable again after the order is looked up, and printed on both the customer's receipt and
+    /// the kitchen's preparation ticket.</summary>
+    [Fact]
+    public async Task A_dine_in_table_number_reaches_the_receipt_and_the_kitchen_ticket()
+    {
+        var charcoalProduct = await _factory.SeedProductAsync(20_000, preparationStation: "Charcoal");
+
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "dine_in", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(charcoalProduct, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 20_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: "  12  ", CustomerName: null, CustomerPhone: null,
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+
+        var checkout = await (await _client.PostAsJsonAsync("/api/orders/checkout", request))
+            .Content.ReadFromJsonAsync<CheckoutOrderResult>();
+
+        // Survives the round trip, trimmed - a stray space must not print an empty table.
+        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={checkout!.OrderNumber}"))
+            .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
+        Assert.Equal("12", looked!.TableNumber);
+
+        var jobs = await CreatePrintJobsAsync(checkout.OrderId, "Receipt");
+        foreach (var job in jobs!.Jobs)
+        {
+            var ticket = await (await _client.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
+                .Content.ReadFromJsonAsync<ComposedTicketDto>();
+            var text = string.Join("\n", ticket!.Lines.Select(l => l.Text));
+            Assert.Contains("12", text);
+        }
+
+        // Both of them: the customer's copy and the charcoal station's.
+        Assert.Contains(jobs.Jobs, j => j.Route == "Receipt");
+        Assert.Contains(jobs.Jobs, j => j.Route == "Charcoal");
+    }
+
+    /// <summary>A table number left on a takeaway order would print a table that does not exist.</summary>
+    [Fact]
+    public async Task A_takeaway_order_carries_no_table_even_if_one_is_sent()
+    {
+        var productId = await _factory.SeedProductAsync(15_000);
+
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 15_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: "7", CustomerName: null, CustomerPhone: null,
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+
+        var checkout = await (await _client.PostAsJsonAsync("/api/orders/checkout", request))
+            .Content.ReadFromJsonAsync<CheckoutOrderResult>();
+
+        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={checkout!.OrderNumber}"))
+            .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
+        Assert.Null(looked!.TableNumber);
     }
 
     private Task<CreatePrintJobsResult?> CreatePrintJobsAsync(string orderId, string? customerRoute, bool isReprint = false, string? requestId = null) =>

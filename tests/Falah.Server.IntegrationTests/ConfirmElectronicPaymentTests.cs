@@ -37,7 +37,7 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: totalPiastres, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
@@ -101,7 +101,7 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var checkoutResponse = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         var cashOrder = (await checkoutResponse.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
 

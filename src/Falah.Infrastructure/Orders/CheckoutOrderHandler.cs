@@ -169,6 +169,15 @@ public sealed class CheckoutOrderHandler
             orderEntity.DeliveryNotes = request.DeliveryNotes;
             orderEntity.DeliveryServiceId = request.DeliveryServiceId;
             orderEntity.DeliveryServiceName = request.DeliveryServiceName;
+
+            // The dine-in table, on the same footing as the delivery breakdown above: no rule of
+            // Order's own reads it, it exists so the runner knows where the tray goes. Trimmed to
+            // null so a stray space does not print an empty table on the ticket, and ignored for
+            // any order type that has no table.
+            orderEntity.TableNumber = order.OrderType == OrderType.DineIn
+                ? (string.IsNullOrWhiteSpace(request.TableNumber) ? null : request.TableNumber.Trim())
+                : null;
+
             _db.Orders.Add(orderEntity);
 
             if (compAmount.IsPositive)

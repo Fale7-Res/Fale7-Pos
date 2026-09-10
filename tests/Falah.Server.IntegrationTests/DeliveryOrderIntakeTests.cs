@@ -49,7 +49,7 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 1000, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: customerName, CustomerPhone: customerPhone, DeliveryAddress: null, DeliveryArea: deliveryArea,
+            TableNumber: null, CustomerName: customerName, CustomerPhone: customerPhone, DeliveryAddress: null, DeliveryArea: deliveryArea,
             BusinessDayId: null, DeliveryStreet: deliveryStreet, DeliveryBuilding: building, DeliveryFloor: floor,
             DeliveryApartment: apartment, DeliveryLandmark: landmark, DeliveryNotes: null,
             DeliveryServiceId: deliveryServiceId, DeliveryServiceName: "توصيل سريع");
@@ -91,7 +91,7 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
     }

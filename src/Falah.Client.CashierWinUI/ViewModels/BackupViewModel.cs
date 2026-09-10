@@ -32,6 +32,68 @@ public partial class BackupViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
 
     public bool HasNoBackups => !IsLoading && LoadError is null && Backups.Count == 0;
+
+    /// <summary>The one question this screen exists to answer, and the one it did not: if the
+    /// restaurant lost its database right now, how much would it lose? A list of rows makes the
+    /// reader work that out; a sentence does not.</summary>
+    private BackupRecordDto? LastGoodBackup => Backups
+        .Where(b => b.Kind == "Backup" && b.Status == "Succeeded" && b.CompletedAtUtc is not null)
+        .OrderByDescending(b => b.CompletedAtUtc)
+        .FirstOrDefault();
+
+    public string LastBackupHeadline =>
+        LastGoodBackup is not { CompletedAtUtc: { } at }
+            ? "لا توجد نسخة احتياطية ناجحة"
+            : $"آخر نسخة ناجحة من {DescribeAge(DateTimeOffset.UtcNow - at)}";
+
+    public string LastBackupDetail
+    {
+        get
+        {
+            if (LastGoodBackup is not { } backup) return "لو ضاعت قاعدة البيانات دلوقتي، مفيش نسخة تترجع منها.";
+            var size = backup.FileSizeBytes is { } bytes ? $" · {bytes / 1024 / 1024} م.ب" : "";
+            var verified = backup.VerificationStatus switch
+            {
+                "Verified" => " · تم التحقق من سلامة الملف",
+                "Failed" => " · فشل التحقق من سلامة الملف",
+                _ => " · لم يتم التحقق من سلامة الملف",
+            };
+            return backup.CompletedAtUtc!.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm") + size + verified;
+        }
+    }
+
+    /// <summary>Aging is a fact about the file, not a policy about how often to back up - the
+    /// system does not decide what "too old" is for this restaurant, it says how old.</summary>
+    public bool IsBackupStale =>
+        LastGoodBackup is not { CompletedAtUtc: { } at } || DateTimeOffset.UtcNow - at > TimeSpan.FromHours(24);
+
+    private static string DescribeAge(TimeSpan elapsed)
+    {
+        var minutes = Math.Max(0, (int)elapsed.TotalMinutes);
+        if (minutes < 60) return $"{minutes} دقيقة";
+        var hours = minutes / 60;
+        return hours < 48 ? $"{hours} ساعة" : $"{hours / 24} يوم";
+    }
+
+    /// <summary>The last restore, if any - a database that was replaced is the single most
+    /// important thing that ever happened to it.</summary>
+    public string LastRestoreLine
+    {
+        get
+        {
+            var restore = Backups.Where(b => b.Kind == "Restore").OrderByDescending(b => b.RequestedAtUtc).FirstOrDefault();
+            if (restore is null) return "";
+            var when = (restore.CompletedAtUtc ?? restore.RequestedAtUtc).ToLocalTime().ToString("yyyy/MM/dd HH:mm");
+            return restore.Status switch
+            {
+                "Succeeded" => $"آخر استعادة تمت في {when} بواسطة {restore.RequestedBy}.",
+                "Blocked" => $"آخر محاولة استعادة اتمنعت في {when}: {restore.ErrorMessage}",
+                _ => $"آخر محاولة استعادة فشلت في {when}: {restore.ErrorMessage}",
+            };
+        }
+    }
+
+    public bool HasRestoreHistory => LastRestoreLine.Length > 0;
     public bool CanManage => _session.HasPermission("backup_manage");
 
     [RelayCommand]
@@ -55,6 +117,11 @@ public partial class BackupViewModel : ObservableObject
         {
             IsLoading = false;
             OnPropertyChanged(nameof(HasNoBackups));
+            OnPropertyChanged(nameof(LastBackupHeadline));
+            OnPropertyChanged(nameof(LastBackupDetail));
+            OnPropertyChanged(nameof(IsBackupStale));
+            OnPropertyChanged(nameof(LastRestoreLine));
+            OnPropertyChanged(nameof(HasRestoreHistory));
         }
     }
 

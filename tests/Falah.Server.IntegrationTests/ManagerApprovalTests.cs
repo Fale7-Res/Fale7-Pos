@@ -45,7 +45,7 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: "hospitality");
 
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
@@ -66,7 +66,7 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: "hospitality");
 
         var first = await _client.PostAsJsonAsync("/api/orders/checkout", MakeRequest($"req-{Guid.NewGuid():N}"));
@@ -95,7 +95,7 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var order = (await (await _client.PostAsJsonAsync("/api/orders/checkout", checkoutRequest)).Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
 
         var approval = await IssueAsync("orders_refund");
@@ -125,7 +125,7 @@ public class ManagerApprovalTests : IAsyncLifetime
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 10000,
             CompApprovalId: approval.ApprovalId, CompApproverUserId: _managerId, CompReason: "ضيافة",
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
             CompReasonCode: "hospitality");
 
         var response = await restartedClient.PostAsJsonAsync("/api/orders/checkout", request);

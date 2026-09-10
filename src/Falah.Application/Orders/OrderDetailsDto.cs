@@ -20,6 +20,8 @@ public sealed record OrderDetailsDto(
     /// order. The legs were always persisted and always used to attribute each channel's total, but
     /// were not exposed here - so an order that read "multi" could not be reconciled from any
     /// screen, receipt or report. An accountant needs to see which part came from where.</summary>
-    IReadOnlyList<OrderSplitPaymentDto>? SplitPayments = null);
+    IReadOnlyList<OrderSplitPaymentDto>? SplitPayments = null,
+    /// <summary>The dine-in table this order was for, as it was at the time.</summary>
+    string? TableNumber = null);
 
 public sealed record OrderSplitPaymentDto(string Method, long AmountPiastres);
