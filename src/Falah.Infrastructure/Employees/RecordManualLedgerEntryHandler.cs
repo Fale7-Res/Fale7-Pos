@@ -27,8 +27,14 @@ public sealed class RecordManualLedgerEntryHandler
 
     public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordManualLedgerEntryRequest request, CancellationToken ct = default)
     {
-        if (!Enum.TryParse<LedgerEntryType>(request.Type, ignoreCase: true, out _))
+        // Parsed leniently, stored canonically. The type used to be validated case-insensitively
+        // and then written down exactly as it arrived, so a bonus recorded as "bonus" was accepted,
+        // appeared on the employee's statement, and was then skipped by the payroll calculation -
+        // which matches "Bonus". The employee simply did not get paid it, and nothing anywhere said
+        // so. Whatever casing the caller uses, one spelling reaches the database.
+        if (!Enum.TryParse<LedgerEntryType>(request.Type, ignoreCase: true, out var entryType))
             throw new DomainException("نوع حركة كشف الحساب غير صالح.");
+        var canonicalType = entryType.ToString();
         var amount = Money.FromPiastres(request.AmountPiastres);
         EmployeeRules.AssertLedgerAmount(amount);
         if (string.IsNullOrWhiteSpace(request.Description)) throw new DomainException("وصف الحركة مطلوب.");
@@ -59,7 +65,7 @@ public sealed class RecordManualLedgerEntryHandler
 
         var entity = new EmployeeLedgerEntryEntity
         {
-            Id = $"led-{Guid.NewGuid():N}", EmployeeId = request.EmployeeId, Type = request.Type,
+            Id = $"led-{Guid.NewGuid():N}", EmployeeId = request.EmployeeId, Type = canonicalType,
             Description = request.Description.Trim(), DebitPiastres = debit.Piastres, CreditPiastres = credit.Piastres,
             BalanceAfterPiastres = newBalance.Piastres, RecordedBy = actorUser.Name,
             AuthorizedBy = authorization.Approver?.ApproverName, CreatedAtUtc = DateTimeOffset.UtcNow,

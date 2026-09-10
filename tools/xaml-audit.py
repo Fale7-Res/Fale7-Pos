@@ -10,6 +10,9 @@ Catches resource/style failures that compile but crash at runtime, plus unsuppor
      Name/Key ..."), same symptom.
   3. IsEnabled on a layout element rather than a Control. WinUI's XAML compiler can exit with
      an opaque MSB3073 error here; disable the individual input controls instead.
+  4. "--" inside an XML comment. XML forbids it outright, and XamlCompiler.exe reacts by exiting
+     with code 1 and printing nothing at all - no file, no line, no message - so a divider rule
+     drawn with hyphens costs an afternoon of bisecting. Draw dividers with "=" instead.
 
 Run from the repo root:  python tools/xaml-audit.py
 Exits non-zero when anything is found, so it can gate a build.
@@ -47,6 +50,11 @@ def audit(project):
     for f in files:
         s = io.open(f, encoding="utf-8").read()
         name = os.path.relpath(f)
+
+        for m in re.finditer(r'<!--(.*?)-->', s, re.S):
+            if "--" in m.group(1):
+                line = s[: m.start()].count("\n") + 1
+                problems.append(f"{name}:{line}  '--' inside an XML comment; XamlCompiler exits 1 in silence")
 
         for m in re.finditer(r'<(Grid|StackPanel|Border|TextBlock|Canvas)\b[^>]*?\bIsEnabled\s*=', s, re.S):
             line = s[: m.start()].count("\n") + 1

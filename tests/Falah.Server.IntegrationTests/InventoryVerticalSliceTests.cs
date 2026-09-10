@@ -387,6 +387,75 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
         Assert.Equal("Prep", ingredientCost.Source);
     }
 
+    /// <summary>The server used to accept this, and asking for the cost afterwards took the whole
+    /// process down: resolving the batch's cost needed the batch's cost. Refused at the door now,
+    /// so the recipe never exists to be asked about.</summary>
+    [Fact]
+    public async Task A_batch_cannot_be_made_out_of_itself()
+    {
+        var tahini = await CreateItemAsync("طحينة", actorId: _inventoryManagerId);
+        var sesame = await CreateItemAsync("سمسم");
+
+        var response = await _client.PostAsJsonAsync("/api/prep-recipes",
+            new SavePrepRecipeRequest($"req-{Guid.NewGuid():N}", null, "طحينة", tahini, 1000, true,
+                new[] { new PrepRecipeLineInput(sesame, 800), new PrepRecipeLineInput(tahini, 200) },
+                _inventoryManagerId, null, null));
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_batch_cannot_close_a_loop_through_another_batch()
+    {
+        var sauce = await CreateItemAsync("صوص", actorId: _inventoryManagerId);
+        var paste = await CreateItemAsync("عجينة", actorId: _inventoryManagerId);
+
+        // Sauce out of paste is fine on its own.
+        (await _client.PostAsJsonAsync("/api/prep-recipes",
+            new SavePrepRecipeRequest($"req-{Guid.NewGuid():N}", null, "صوص", sauce, 1000, true,
+                new[] { new PrepRecipeLineInput(paste, 500) }, _inventoryManagerId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        // Paste out of sauce closes the loop. Neither recipe names itself.
+        var response = await _client.PostAsJsonAsync("/api/prep-recipes",
+            new SavePrepRecipeRequest($"req-{Guid.NewGuid():N}", null, "عجينة", paste, 1000, true,
+                new[] { new PrepRecipeLineInput(sauce, 500) }, _inventoryManagerId, null, null));
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Two_batches_sharing_an_ingredient_are_still_allowed()
+    {
+        // The guard walks the chain, so it has to not mistake a shared ingredient for a loop.
+        var salt = await CreateItemAsync("ملح");
+        var sauce = await CreateItemAsync("صوص", actorId: _inventoryManagerId);
+        var marinade = await CreateItemAsync("تتبيلة", actorId: _inventoryManagerId);
+
+        (await _client.PostAsJsonAsync("/api/prep-recipes",
+            new SavePrepRecipeRequest($"req-{Guid.NewGuid():N}", null, "صوص", sauce, 1000, true,
+                new[] { new PrepRecipeLineInput(salt, 10) }, _inventoryManagerId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        var response = await _client.PostAsJsonAsync("/api/prep-recipes",
+            new SavePrepRecipeRequest($"req-{Guid.NewGuid():N}", null, "تتبيلة", marinade, 1000, true,
+                new[] { new PrepRecipeLineInput(salt, 20), new PrepRecipeLineInput(sauce, 100) },
+                _inventoryManagerId, null, null));
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task An_active_recipe_cannot_be_saved_with_no_ingredients()
+    {
+        var productId = await _factory.SeedProductAsync(5000);
+        var response = await _client.PostAsJsonAsync("/api/recipes",
+            new SaveRecipeRequest($"req-{Guid.NewGuid():N}", null, productId, "وصفة فارغة", true,
+                Array.Empty<RecipeLineInput>(), _inventoryManagerId, null, null));
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
     [Fact]
     public async Task Saving_an_order_packaging_rule_persists_it()
     {

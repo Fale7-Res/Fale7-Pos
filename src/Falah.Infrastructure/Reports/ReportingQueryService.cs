@@ -294,7 +294,9 @@ public sealed class ReportingQueryService
 
             var recipeLines = recipe.Items.Select(i => new RecipeLine(i.InventoryItemId, i.QuantityMilliUnits, Enum.Parse<RecipeLineKind>(i.Kind), i.YieldUnitsPerBaseUnit)).ToList();
             var cost = CostingRules.ComputeRecipeCost(recipeLines, costingCtx);
-            if (cost.Missing.Count > 0) { missing.Add(line.ProductName); continue; }
+            // Not "is anything missing" - a recipe with no lines is missing nothing and knows
+            // nothing. IsComplete asks the question that was meant: is this the whole cost?
+            if (!cost.IsComplete) { missing.Add(line.ProductName); continue; }
             knownLines++;
             totalCost += cost.KnownCost.Piastres * line.Quantity;
         }

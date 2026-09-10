@@ -44,6 +44,8 @@ public sealed class SavePrepRecipeHandler
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "menu_manage", approval, requireApproval: true);
 
         var prepRecipeId = request.PrepRecipeId ?? $"prep-{request.RequestId}";
+        await AssertDoesNotConsumeItsOwnOutputAsync(prepRecipeId, request, ct);
+
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
 
         var entity = await _db.PrepRecipes.Include(p => p.Lines).FirstOrDefaultAsync(p => p.Id == prepRecipeId, ct);
@@ -69,6 +71,42 @@ public sealed class SavePrepRecipeHandler
         await transaction.CommitAsync(ct);
 
         return ToDto(entity);
+    }
+
+    /// <summary>A batch that consumes what it produces - tahini whose recipe lists tahini, or the
+    /// same loop around a chain of other batches - has no cost that can be worked out: pricing it
+    /// walks the loop forever. The costing engine now stops at the loop rather than recursing
+    /// until the process dies, but the recipe itself is a data mistake, and the place to refuse it
+    /// is here, before it is stored and starts making every dish that uses it uncostable.
+    ///
+    /// Checked whether or not the recipe is being saved active: an inactive one is a switch away
+    /// from being the same problem.</summary>
+    private async Task AssertDoesNotConsumeItsOwnOutputAsync(string prepRecipeId, SavePrepRecipeRequest request, CancellationToken ct)
+    {
+        var output = request.OutputInventoryItemId;
+        if (request.Lines.Any(l => l.InventoryItemId == output))
+            throw new DomainException("لا يمكن أن تحتوي الخلطة على الصنف الناتج عنها نفسه.");
+
+        // Every other stored batch, as "what it produces" -> "what it consumes". The chain is
+        // walked outward from this recipe's ingredients; reaching our own output closes a loop.
+        var others = await _db.PrepRecipes.AsNoTracking()
+            .Where(p => p.Active && p.Id != prepRecipeId)
+            .Select(p => new { p.OutputInventoryItemId, Inputs = p.Lines.Select(l => l.InventoryItemId).ToList() })
+            .ToListAsync(ct);
+        var producers = others.ToLookup(p => p.OutputInventoryItemId, p => p.Inputs, StringComparer.Ordinal);
+
+        var seen = new HashSet<string>(request.Lines.Select(l => l.InventoryItemId), StringComparer.Ordinal);
+        var pending = new Queue<string>(seen);
+        while (pending.Count > 0)
+        {
+            foreach (var producerInputs in producers[pending.Dequeue()])
+                foreach (var input in producerInputs)
+                {
+                    if (input == output)
+                        throw new DomainException("هذه الخلطة تستهلك ناتجها من خلال خلطة أخرى، فلا يمكن حساب تكلفتها.");
+                    if (seen.Add(input)) pending.Enqueue(input);
+                }
+        }
     }
 
     private static PrepRecipeDto ToDto(PrepRecipeEntity entity) => new(entity.Id, entity.Name, entity.OutputInventoryItemId,

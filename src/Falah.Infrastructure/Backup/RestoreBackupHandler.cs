@@ -138,6 +138,7 @@ public sealed class RestoreBackupHandler
         var databaseName = _db.Database.GetDbConnection().Database;
         BackupRules.AssertSafeDatabaseIdentifier(databaseName);
         var connectionString = _db.Database.GetConnectionString()!;
+        var databaseWasReplaced = false;
         try
         {
             // RESTORE requires exclusive access - a connection scoped to 'master', never to the
@@ -163,6 +164,7 @@ public sealed class RestoreBackupHandler
                 await multiUser.ExecuteNonQueryAsync(ct);
             }
 
+            databaseWasReplaced = true;
             restoreRecord.Status = nameof(BackupRecordStatus.Succeeded);
             restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
             _auditLog.Append(new AuditEvent(
@@ -173,6 +175,11 @@ public sealed class RestoreBackupHandler
         }
         catch (Exception ex)
         {
+            // A restore that fails partway can leave the database in SINGLE_USER - which locks the
+            // whole restaurant out of a database that was never replaced. Best effort, and its own
+            // failure must not bury the real error above.
+            await TryReleaseSingleUserAsync(connectionString, databaseName);
+
             restoreRecord.Status = nameof(BackupRecordStatus.Failed);
             restoreRecord.ErrorMessage = ex.Message;
             restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
@@ -183,7 +190,65 @@ public sealed class RestoreBackupHandler
                 restoreRecord.CompletedAtUtc.Value, Reason: request.Reason, ReferenceId: restoreRecord.Id));
         }
 
-        await _db.SaveChangesAsync(ct);
+        await RecordOutcomeAsync(restoreRecord, databaseWasReplaced, connectionString, ct);
         return BackupQueryService.ToDto(restoreRecord);
+    }
+
+    /// <summary>Writing down what happened, after the database it would be written to may have been
+    /// swapped underneath us.
+    ///
+    /// The restore record was saved into the database the restore has just discarded. Once the
+    /// restore succeeds that row does not exist any more, so the update EF had queued for it
+    /// matched nothing and threw - and the caller got HTTP 500 for an operation that had completed
+    /// perfectly. The operator's screen said the restore failed while the restaurant's entire
+    /// database had in fact been replaced, which is the most dangerous thing this handler could
+    /// possibly report.
+    ///
+    /// So the row is re-created inside the restored database rather than updated, along with the
+    /// audit entry - otherwise the restored database carries no trace of ever having been restored,
+    /// and neither does anything else. And if even that write fails, the restore still happened:
+    /// the note about it is what was lost, and that is what the caller is told.</summary>
+    private async Task RecordOutcomeAsync(BackupRecordEntity restoreRecord, bool databaseWasReplaced, string connectionString, CancellationToken ct)
+    {
+        if (databaseWasReplaced)
+        {
+            // SINGLE_USER WITH ROLLBACK IMMEDIATE killed every pooled connection; handing one of
+            // those corpses to the next command would fail for a reason unrelated to any of this.
+            using (var pooled = new SqlConnection(connectionString)) SqlConnection.ClearPool(pooled);
+            _db.Entry(restoreRecord).State = EntityState.Added;
+        }
+
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _db.ChangeTracker.Clear();
+            var note = databaseWasReplaced
+                ? "تمت الاستعادة فعليًا، لكن تعذّر تسجيلها داخل قاعدة البيانات المستعادة: "
+                : "تعذّر تسجيل نتيجة المحاولة: ";
+            restoreRecord.ErrorMessage = restoreRecord.ErrorMessage is null
+                ? note + ex.Message
+                : restoreRecord.ErrorMessage + " | " + note + ex.Message;
+        }
+    }
+
+    private static async Task TryReleaseSingleUserAsync(string connectionString, string databaseName)
+    {
+        try
+        {
+            var masterBuilder = new SqlConnectionStringBuilder(connectionString) { InitialCatalog = "master" };
+            await using var connection = new SqlConnection(masterBuilder.ConnectionString);
+            await connection.OpenAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText = $"IF DATABASEPROPERTYEX('{databaseName}', 'UserAccess') = 'SINGLE_USER' " +
+                                  $"ALTER DATABASE [{databaseName}] SET MULTI_USER";
+            await command.ExecuteNonQueryAsync();
+        }
+        catch
+        {
+            // Nothing more this process can do; the operator is already being told the restore failed.
+        }
     }
 }

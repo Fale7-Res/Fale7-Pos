@@ -88,7 +88,15 @@ public sealed class CreatePayrollHandler
         }
         catch (DbUpdateException)
         {
-            var replay = await _db.PayrollRuns.AsNoTracking().FirstOrDefaultAsync(r => r.Id == runId, ct);
+            // Either this exact request already ran (same RequestId, same run id), or another
+            // request created this period's run in the moment between the read above and this
+            // insert - the unique index on Period is what makes the second case an exception here
+            // instead of a second payroll run for the same month. Both mean the same thing to the
+            // caller: the run exists, and this is it.
+            _db.ChangeTracker.Clear();
+            var replay = await _db.PayrollRuns.AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == runId ||
+                    (r.Period == request.Period && r.Status != nameof(PayrollRunStatus.Cancelled)), ct);
             if (replay is null) throw;
             return ToDto(replay, wasReplayed: true);
         }

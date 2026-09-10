@@ -964,6 +964,31 @@ app.MapGet("/api/recipes/{id}/profitability", async (string id, long? sellingPri
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
+// The recipes screen asked for a cost and then a margin, per recipe, and still had to look up every
+// ingredient's name and cost itself to say anything about WHY a cost was incomplete. These three
+// answer the whole screen: the menu's costing coverage, every row, and one recipe line by line.
+app.MapGet("/api/recipes/cost-summary", async (string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await query.ListRecipeCostSummariesAsync(ct));
+});
+
+app.MapGet("/api/recipes/cost-coverage", async (string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await query.GetRecipeCostCoverageAsync(ct));
+});
+
+app.MapGet("/api/recipes/{id}/cost-detail", async (string id, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    try { return Results.Ok(await query.GetRecipeCostDetailAsync(id, ct)); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
 app.MapPost("/api/prep-recipes", async (Falah.Application.Inventory.SavePrepRecipeRequest request, SavePrepRecipeHandler handler, CancellationToken ct) =>
 {
     try

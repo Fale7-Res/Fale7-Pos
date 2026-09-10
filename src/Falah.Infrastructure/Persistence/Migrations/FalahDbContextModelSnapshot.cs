@@ -1833,7 +1833,7 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Period")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset?>("ReviewedAtUtc")
                         .HasColumnType("datetimeoffset");
@@ -1853,6 +1853,11 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasIndex("IdempotencyKey")
                         .IsUnique()
                         .HasFilter("[IdempotencyKey] IS NOT NULL");
+
+                    b.HasIndex("Period")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PayrollRuns_Period_Live")
+                        .HasFilter("[Status] <> 'Cancelled'");
 
                     b.ToTable("PayrollRuns");
                 });

@@ -366,6 +366,21 @@ public sealed partial class ApiClient
         SendAsync<Falah.Application.Inventory.MenuItemProfitabilityDto>(() => _http.GetAsync(
             $"/api/recipes/{Uri.EscapeDataString(recipeId)}/profitability?sellingPricePiastres={sellingPricePiastres}&actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
+    // The three below replaced a load that asked the server for a cost and then a margin for every
+    // single recipe in turn - two hundred requests to draw one screen on this menu.
+
+    public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.RecipeCostSummaryDto>>> GetRecipeCostSummariesAsync(string actorUserId, CancellationToken ct = default) =>
+        SendAsync<IReadOnlyList<Falah.Application.Inventory.RecipeCostSummaryDto>>(() => _http.GetAsync(
+            $"/api/recipes/cost-summary?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    public Task<ApiResult<Falah.Application.Inventory.RecipeCostCoverageDto>> GetRecipeCostCoverageAsync(string actorUserId, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Inventory.RecipeCostCoverageDto>(() => _http.GetAsync(
+            $"/api/recipes/cost-coverage?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    public Task<ApiResult<Falah.Application.Inventory.RecipeCostDetailDto>> GetRecipeCostDetailAsync(string recipeId, string actorUserId, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Inventory.RecipeCostDetailDto>(() => _http.GetAsync(
+            $"/api/recipes/{Uri.EscapeDataString(recipeId)}/cost-detail?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
     public Task<ApiResult<Falah.Application.Inventory.RecipeDto>> SaveRecipeAsync(Falah.Application.Inventory.SaveRecipeRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Inventory.RecipeDto>(() => _http.PostAsJsonAsync("/api/recipes", request, ct), ct);
 

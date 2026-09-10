@@ -33,6 +33,11 @@ public sealed class SaveRecipeHandler
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم الوصفة مطلوب.");
         if (string.IsNullOrEmpty(request.ProductId)) throw new DomainException("يجب اختيار الصنف المرتبط بالوصفة.");
         if (request.Lines.Any(l => l.QuantityMilliUnits <= 0)) throw new DomainException("كمية كل مكوّن يجب أن تكون رقمًا صحيحًا أكبر من صفر.");
+        // An active recipe with no ingredients asserts that the dish is made of nothing. It is not -
+        // nobody has said yet what it is made of - and the food-cost report used to read the
+        // difference as a dish costing a known zero. Detaching a recipe is what Active=false does.
+        if (request.Active && request.Lines.Count == 0)
+            throw new DomainException("لا يمكن حفظ وصفة مفعّلة بدون مكوّنات. أضف مكوّنًا واحدًا على الأقل أو أوقف تفعيل الوصفة.");
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");

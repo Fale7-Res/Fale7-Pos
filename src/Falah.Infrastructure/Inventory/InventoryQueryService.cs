@@ -100,8 +100,14 @@ public sealed class InventoryQueryService
     {
         sellingPricePiastres ??= await ResolveSellingPriceAsync(recipeId, ct);
         var recipeCost = await GetRecipeCostAsync(recipeId, ct);
-        var result = CostingRules.MenuItemProfitability(Money.FromPiastres(sellingPricePiastres.Value), Money.FromPiastres(recipeCost.KnownCostPiastres));
-        return new MenuItemProfitabilityDto(result.FoodCostPercent, result.Contribution?.Piastres, result.ContributionPercent);
+        // A recipe that is empty, or only partly priced, has no margin to report - it used to
+        // report a zero food cost and a hundred percent contribution, which is the most flattering
+        // possible answer and never a true one.
+        var complete = recipeCost.LineCount > 0 && recipeCost.KnownLineCount == recipeCost.LineCount;
+        var result = CostingRules.MenuItemProfitability(
+            Money.FromPiastres(sellingPricePiastres.Value), Money.FromPiastres(recipeCost.KnownCostPiastres), complete);
+        return new MenuItemProfitabilityDto(result.FoodCostPercent, result.Contribution?.Piastres, result.ContributionPercent,
+            recipeCost.CompletenessPercent, recipeCost.Missing);
     }
 
     /// <summary>The price the restaurant actually charges for the product this recipe makes. A
@@ -215,6 +221,163 @@ public sealed class InventoryQueryService
 
     /// <summary>Only PurchaseReceipt movements are loaded here - the sole movement type
     /// PurchasingRules.LastPurchaseUnitCost (and therefore every costing function) ever looks at.</summary>
+    // -----------------------------------------------------------------------------------------
+    // Costing read models - see CostingDtos.cs for why these exist.
+    // -----------------------------------------------------------------------------------------
+
+    /// <summary>One recipe, fully priced, line by line.</summary>
+    public async Task<RecipeCostDetailDto> GetRecipeCostDetailAsync(string recipeId, CancellationToken ct = default)
+    {
+        var recipe = await _db.Recipes.AsNoTracking().Include(r => r.Items).FirstOrDefaultAsync(r => r.Id == recipeId, ct)
+            ?? throw new InvalidOperationException("الوصفة غير موجودة.");
+
+        var ctx = await LoadCostingContextAsync(ct);
+        var units = await LoadItemUnitsAsync(ct);
+        var (price, basis) = await ResolvePriceWithBasisAsync(recipeId, ct);
+        var product = await _db.Products.AsNoTracking()
+            .Where(p => p.Id == recipe.ProductId)
+            .Select(p => new { p.Name, CategoryName = _db.Categories.Where(c => c.Id == p.CategoryId).Select(c => c.Name).FirstOrDefault() })
+            .FirstOrDefaultAsync(ct);
+
+        var domainLines = recipe.Items.Select(ToDomainLine).ToList();
+        var cost = CostingRules.ComputeRecipeCost(domainLines, ctx);
+        var profit = Profitability(price, cost);
+        var lines = recipe.Items.Select(item => BuildCostLine(item, ctx, units)).ToList();
+
+        return new RecipeCostDetailDto(
+            recipe.Id, recipe.Name, recipe.Active, recipe.ProductId, product?.Name ?? recipe.ProductId, product?.CategoryName,
+            price, basis, lines,
+            cost.KnownCost.Piastres, cost.FoodCost.Piastres, cost.PackagingCost.Piastres,
+            cost.CompletenessPercent, cost.Missing, cost.LineCount, cost.KnownLineCount,
+            profit.FoodCostPercent, profit.Contribution?.Piastres, profit.ContributionPercent);
+    }
+
+    /// <summary>Every recipe's cost and margin in one read, so the list screen does not ask twice
+    /// per row and then leave the owner to compare rows in their head.</summary>
+    public async Task<List<RecipeCostSummaryDto>> ListRecipeCostSummariesAsync(CancellationToken ct = default)
+    {
+        var recipes = await _db.Recipes.AsNoTracking().Include(r => r.Items).ToListAsync(ct);
+        var ctx = await LoadCostingContextAsync(ct);
+        var products = await _db.Products.AsNoTracking()
+            .Select(p => new { p.Id, p.Name, p.BasePricePiastres, p.CategoryId })
+            .ToListAsync(ct);
+        var categories = await _db.Categories.AsNoTracking().ToDictionaryAsync(c => c.Id, c => c.Name, ct);
+        var variantPrices = await _db.ProductVariants.AsNoTracking()
+            .Where(v => v.PricePiastres > 0 && v.RecipeId != null)
+            .GroupBy(v => v.RecipeId!)
+            .Select(g => new { RecipeId = g.Key, Price = g.Min(v => v.PricePiastres) })
+            .ToDictionaryAsync(x => x.RecipeId, x => x.Price, ct);
+
+        var byProduct = products.ToDictionary(p => p.Id);
+        var result = new List<RecipeCostSummaryDto>(recipes.Count);
+        foreach (var recipe in recipes)
+        {
+            var cost = CostingRules.ComputeRecipeCost(recipe.Items.Select(ToDomainLine).ToList(), ctx);
+            byProduct.TryGetValue(recipe.ProductId, out var product);
+
+            long? price = product is { BasePricePiastres: > 0 } ? product.BasePricePiastres
+                : variantPrices.TryGetValue(recipe.Id, out var variantPrice) ? variantPrice
+                : null;
+            var profit = Profitability(price, cost);
+
+            result.Add(new RecipeCostSummaryDto(
+                recipe.Id, recipe.Name, recipe.Active, recipe.ProductId, product?.Name ?? recipe.ProductId,
+                product is null ? null : categories.GetValueOrDefault(product.CategoryId),
+                price, cost.KnownCost.Piastres, cost.FoodCost.Piastres, cost.PackagingCost.Piastres,
+                cost.CompletenessPercent, cost.LineCount, cost.KnownLineCount, cost.Missing,
+                profit.FoodCostPercent, profit.Contribution?.Piastres, profit.ContributionPercent));
+        }
+        return result;
+    }
+
+    /// <summary>How much of the menu can be trusted for profitability at all - the sentence that
+    /// belongs above the list, before any individual row means anything.</summary>
+    public async Task<RecipeCostCoverageDto> GetRecipeCostCoverageAsync(CancellationToken ct = default)
+    {
+        var summaries = await ListRecipeCostSummariesAsync(ct);
+        var live = summaries.Where(s => s.Active).ToList();
+
+        var productsWithoutRecipe = await _db.Products.AsNoTracking()
+            .CountAsync(p => p.IsAvailable && p.RecipeId == null, ct);
+
+        var ctx = await LoadCostingContextAsync(ct);
+        var uncostedIngredients = ctx.InventoryItems
+            .Count(i => CostingRules.IngredientUnitCost(i, ctx).UnitCost is null);
+
+        return new RecipeCostCoverageDto(
+            live.Count,
+            live.Count(s => s.LineCount > 0 && s.KnownLineCount == s.LineCount),
+            live.Count(s => s.KnownLineCount > 0 && s.KnownLineCount < s.LineCount),
+            live.Count(s => s.LineCount == 0 || s.KnownLineCount == 0),
+            productsWithoutRecipe,
+            uncostedIngredients);
+    }
+
+    private static RecipeCostLineDto BuildCostLine(RecipeItemEntity entity, CostingContext ctx, IReadOnlyDictionary<string, string> units)
+    {
+        var line = ToDomainLine(entity);
+        var item = ctx.InventoryItems.FirstOrDefault(i => i.Id == entity.InventoryItemId);
+        var baseQuantity = CostingRules.BaseQuantityMilliUnits(line);
+        var (unitCost, source) = CostingRules.IngredientUnitCost(item, ctx);
+
+        // Three different reasons a line has no cost, needing three different actions: fix the
+        // recipe's own conversion ratio, fix a circular batch, or go and enter a purchase invoice.
+        string? missingReason = null;
+        var sourceLabel = source.ToString();
+        if (baseQuantity is null)
+            missingReason = "سطر بالقطعة بدون معامل تحويل للوحدة";
+        else if (unitCost is null)
+        {
+            if (CostingRules.IsCircularPrep(item, ctx))
+            {
+                sourceLabel = "Circular";
+                missingReason = "خلطة تجهيز دائرية";
+            }
+            else if (item is null)
+                missingReason = "الصنف غير موجود في المخزون";
+            else
+                missingReason = item.CostSource == CostSource.Prep
+                    ? "خلطة التجهيز نفسها غير مكتملة التكلفة"
+                    : "لا توجد فاتورة شراء ولا تكلفة تقديرية";
+        }
+
+        long? extended = baseQuantity is { } qty && unitCost is { } cost
+            ? PurchasingRules.PurchaseLineTotal(qty, cost).Piastres
+            : null;
+
+        return new RecipeCostLineDto(
+            entity.InventoryItemId, item?.Name ?? entity.InventoryItemId, units.GetValueOrDefault(entity.InventoryItemId, ""),
+            entity.QuantityMilliUnits, entity.Kind, entity.YieldUnitsPerBaseUnit, baseQuantity,
+            unitCost?.Piastres, sourceLabel,
+            source == CostResultSource.Purchase ? PurchasingRules.LastPurchaseAt(ctx.StockMovements, entity.InventoryItemId) : null,
+            extended, missingReason);
+    }
+
+    private static CostingRules.ProfitabilityResult Profitability(long? price, CostingRules.RecipeCostResult cost) =>
+        price is { } p && p > 0
+            ? CostingRules.MenuItemProfitability(Money.FromPiastres(p), cost.KnownCost, cost.IsComplete)
+            : new CostingRules.ProfitabilityResult(null, null, null);
+
+    private async Task<Dictionary<string, string>> LoadItemUnitsAsync(CancellationToken ct) =>
+        await _db.InventoryItems.AsNoTracking().ToDictionaryAsync(i => i.Id, i => i.Unit, ct);
+
+    /// <summary>The price AND where it came from. A "from 45" figure off the cheapest variant is a
+    /// different statement from a single product price, and a margin computed on it means something
+    /// different - so the screen showing it gets told which one it has.</summary>
+    private async Task<(long? Price, string Basis)> ResolvePriceWithBasisAsync(string recipeId, CancellationToken ct)
+    {
+        var direct = await _db.Products.AsNoTracking()
+            .Where(p => p.RecipeId == recipeId)
+            .Select(p => (long?)p.BasePricePiastres).FirstOrDefaultAsync(ct);
+        if (direct is { } basePrice and > 0) return (basePrice, "product");
+
+        var variantPrice = await _db.ProductVariants.AsNoTracking()
+            .Where(v => v.RecipeId == recipeId && v.PricePiastres > 0)
+            .OrderBy(v => v.PricePiastres)
+            .Select(v => (long?)v.PricePiastres).FirstOrDefaultAsync(ct);
+        return variantPrice is { } price ? (price, "variant") : (null, "none");
+    }
+
     private async Task<CostingContext> LoadCostingContextAsync(CancellationToken ct)
     {
         var items = await _db.InventoryItems.AsNoTracking()

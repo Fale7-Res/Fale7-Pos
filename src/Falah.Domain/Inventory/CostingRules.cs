@@ -18,15 +18,30 @@ public static class CostingRules
     public readonly record struct IngredientCostResult(Money? UnitCost, CostResultSource Source);
 
     public static IngredientCostResult IngredientUnitCost(InventoryItem? item, CostingContext ctx)
+        => IngredientUnitCost(item, ctx, resolving: null);
+
+    /// <summary><paramref name="resolving"/> holds the prep outputs whose cost is already being
+    /// worked out further up the call stack. A prep item that appears in it again is a circular
+    /// recipe - tahini made from tahini, directly or around a chain - and following it recurses
+    /// until the process dies. Its cost is not zero: it is undefined until somebody breaks the
+    /// loop, which is what this returns.</summary>
+    private static IngredientCostResult IngredientUnitCost(InventoryItem? item, CostingContext ctx, HashSet<string>? resolving)
     {
         if (item is null) return new IngredientCostResult(null, CostResultSource.Unknown);
 
         if (item.CostSource == CostSource.Prep)
         {
+            if (resolving is not null && resolving.Contains(item.Id))
+                return new IngredientCostResult(null, CostResultSource.Unknown);
+
             var prep = ctx.PrepRecipes.FirstOrDefault(p => p.OutputInventoryItemId == item.Id && p.Active);
             if (prep is null) return new IngredientCostResult(null, CostResultSource.Unknown);
             var lines = ctx.PrepRecipeLines.Where(l => l.PrepRecipeId == prep.Id).ToList();
-            var result = ComputePrepRecipeCost(prep, lines, ctx);
+
+            resolving ??= new HashSet<string>(StringComparer.Ordinal);
+            resolving.Add(item.Id);
+            var result = ComputePrepRecipeCost(prep, lines, ctx, resolving);
+            resolving.Remove(item.Id);
             return new IngredientCostResult(result.UnitCost, CostResultSource.Prep);
         }
 
@@ -40,12 +55,46 @@ public static class CostingRules
             : new IngredientCostResult(null, CostResultSource.Unknown);
     }
 
+    /// <summary>Whether this ingredient's batch consumes its own output - directly, or around a
+    /// chain of other batches. Its cost is undefined until somebody breaks the loop, and saying so
+    /// is a very different message from "no purchase invoice yet": one is a data mistake to fix in
+    /// the recipe, the other is an invoice to go and enter.</summary>
+    public static bool IsCircularPrep(InventoryItem? item, CostingContext ctx)
+    {
+        if (item is null || item.CostSource != CostSource.Prep) return false;
+
+        var seen = new HashSet<string>(StringComparer.Ordinal) { item.Id };
+        var pending = new Queue<string>();
+        pending.Enqueue(item.Id);
+
+        while (pending.Count > 0)
+        {
+            var outputId = pending.Dequeue();
+            var prep = ctx.PrepRecipes.FirstOrDefault(p => p.OutputInventoryItemId == outputId && p.Active);
+            if (prep is null) continue;
+
+            foreach (var line in ctx.PrepRecipeLines.Where(l => l.PrepRecipeId == prep.Id))
+            {
+                if (line.InventoryItemId == item.Id) return true;
+                if (seen.Add(line.InventoryItemId)) pending.Enqueue(line.InventoryItemId);
+            }
+        }
+        return false;
+    }
+
     public readonly record struct PrepRecipeCostResult(Money? UnitCost, Money KnownCost, double Completeness, IReadOnlyList<string> Missing, int LineCount, int KnownLineCount);
 
     /// <summary>Cost per whole output unit of a prep/batch recipe (tahini, toum, a house sauce...).
     /// Deliberately returns UnitCost=null unless EVERY input line resolves to a known cost - a
     /// batch that is 90% known is still an unknown-cost item, never a quietly-underpriced one.</summary>
+    /// <summary>Seeded with this batch's own output: pricing a batch IS resolving that output, so a
+    /// line naming it is a self-reference even at the top of the stack - and gets told so by name
+    /// rather than appearing as an ordinary ingredient nobody has bought yet.</summary>
     public static PrepRecipeCostResult ComputePrepRecipeCost(PrepRecipe? prep, IReadOnlyList<PrepRecipeLine> lines, CostingContext ctx)
+        => ComputePrepRecipeCost(prep, lines, ctx,
+            prep is null ? null : new HashSet<string>(StringComparer.Ordinal) { prep.OutputInventoryItemId });
+
+    private static PrepRecipeCostResult ComputePrepRecipeCost(PrepRecipe? prep, IReadOnlyList<PrepRecipeLine> lines, CostingContext ctx, HashSet<string>? resolving)
     {
         if (prep is null || prep.OutputQuantityMilliUnits <= 0)
             return new PrepRecipeCostResult(null, Money.Zero, 0, Array.Empty<string>(), lines.Count, 0);
@@ -57,8 +106,16 @@ public static class CostingRules
         foreach (var line in lines)
         {
             var item = ctx.InventoryItems.FirstOrDefault(i => i.Id == line.InventoryItemId);
-            var (unitCost, _) = IngredientUnitCost(item, ctx);
-            if (unitCost is null) { missing.Add(item?.Name ?? line.InventoryItemId); continue; }
+            var label = item?.Name ?? line.InventoryItemId;
+
+            // Say WHY this line has no cost. "Missing: tahini" on a batch whose every ingredient
+            // has an invoice would send the cost controller looking for a purchase that is
+            // already there; the problem is the loop, and only this line knows it is in one.
+            if (resolving is not null && item is not null && resolving.Contains(item.Id))
+            { missing.Add($"{label} (وصفة تجهيز دائرية)"); continue; }
+
+            var (unitCost, _) = IngredientUnitCost(item, ctx, resolving);
+            if (unitCost is null) { missing.Add(label); continue; }
             knownCost += PurchasingRules.PurchaseLineTotal(line.QuantityMilliUnits, unitCost.Value);
             knownLines++;
         }
@@ -83,7 +140,15 @@ public static class CostingRules
         return (long)Math.Round((double)line.QuantityMilliUnits / ratio);
     }
 
-    public readonly record struct RecipeCostResult(Money KnownCost, Money FoodCost, Money PackagingCost, int CompletenessPercent, IReadOnlyList<string> Missing, int LineCount, int KnownLineCount);
+    public readonly record struct RecipeCostResult(Money KnownCost, Money FoodCost, Money PackagingCost, int CompletenessPercent, IReadOnlyList<string> Missing, int LineCount, int KnownLineCount)
+    {
+        /// <summary>Whether KnownCost is the WHOLE cost of this dish. Callers used to decide that
+        /// by asking whether anything was missing, which is true of a recipe with no lines at all -
+        /// so a dish attached to an empty recipe was counted as costing a known zero, and a menu of
+        /// them read as a hundred percent margin. A recipe with no ingredients is not free; nobody
+        /// has said yet what it is made of.</summary>
+        public bool IsComplete => LineCount > 0 && KnownLineCount == LineCount;
+    }
 
     public static RecipeCostResult ComputeRecipeCost(IReadOnlyList<RecipeLine> lines, CostingContext ctx)
     {
@@ -126,9 +191,12 @@ public static class CostingRules
 
     public readonly record struct ProfitabilityResult(double? FoodCostPercent, Money? Contribution, double? ContributionPercent);
 
-    public static ProfitabilityResult MenuItemProfitability(Money sellingPrice, Money knownCost)
+    /// <param name="costIsComplete">False when some - or every - ingredient of the dish has no
+    /// price yet. The margin is then unanswerable, not excellent: subtracting a partial cost from
+    /// the full price produces a contribution the restaurant is not making.</param>
+    public static ProfitabilityResult MenuItemProfitability(Money sellingPrice, Money knownCost, bool costIsComplete)
     {
-        if (!sellingPrice.IsPositive) return new ProfitabilityResult(null, null, null);
+        if (!sellingPrice.IsPositive || !costIsComplete) return new ProfitabilityResult(null, null, null);
         var contribution = sellingPrice - knownCost;
         var foodCostPercent = Math.Round((double)knownCost.Piastres / sellingPrice.Piastres * 100, 2);
         var contributionPercent = Math.Round((double)contribution.Piastres / sellingPrice.Piastres * 100, 2);

@@ -3,110 +3,444 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FlowDirection="RightToLeft">
-    <!-- Recipe cost and food-cost %. "Unknown cost is not zero": an incomplete recipe is labelled as
-         incomplete and its percentage withheld, never estimated into a flattering number. -->
+    <!--
+        Master-detail: the menu on the right of the eye (RTL leading edge), one dish opened at a
+        time on the other side. The list answers "which dishes can I trust"; the detail answers
+        "what is this made of, what does each part cost, and where did that number come from".
+
+        "Unknown cost is not zero" is enforced in the presentation too: a partly-priced recipe shows
+        its known cost as a floor ("من ..."), and its margin is left blank with the reason printed
+        underneath rather than computed against a cost with holes in it.
+    -->
     <Grid Background="{StaticResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+        <!-- Header -->
+        <Grid Padding="28,22,28,10" ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Spacing="4">
                 <TextBlock Text="الوصفات والتكلفة" Style="{StaticResource PageTitleText}"/>
-                <TextBlock Text="تكلفة المكوّنات ونسبة تكلفة الطعام لكل صنف" Style="{StaticResource PageSubtitleText}"/>
+                <TextBlock Text="مكوّنات كل صنف وتكلفتها الحقيقية ونسبة تكلفة الطعام" Style="{StaticResource PageSubtitleText}"/>
             </StackPanel>
-            <Button Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
-                    Command="{Binding LoadCommand}">
+            <Button Grid.Column="1" MinHeight="44" MinWidth="52" VerticalAlignment="Center"
+                    Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}"
+                    ToolTipService.ToolTip="تحديث">
                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
             </Button>
         </Grid>
 
-        <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+        <!-- Coverage + filters: how much of the menu is trustworthy, before any single row is read -->
+        <Grid Grid.Row="1" Padding="28,0,28,14" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-                <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="16,10">
-                    <Grid ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="140"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="الوصفة" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="1" Text="المكوّنات" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="2" Text="تكلفة المكوّنات" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="3" Text="نسبة التكلفة" Style="{StaticResource TableHeaderText}"/>
+            <Border Style="{StaticResource CardBorderStyle}" Padding="16,11"
+                    Visibility="{Binding Coverage, Converter={StaticResource NullToCollapsedConverter}}">
+                <StackPanel Spacing="3">
+                    <TextBlock Text="{Binding CoverageHeadline}" FontWeight="SemiBold" Style="{StaticResource BodyText}"/>
+                    <TextBlock Text="{Binding CoverageDetail}" Style="{StaticResource CaptionText}"
+                               Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                               Visibility="{Binding HasCoverageWarning, Converter={StaticResource BoolToVisibleConverter}}"/>
+                </StackPanel>
+            </Border>
+
+            <TextBox Grid.Column="1" Width="240" MinHeight="44" VerticalAlignment="Stretch"
+                     Style="{StaticResource SearchBoxStyle}" PlaceholderText="ابحث باسم الصنف أو القسم"
+                     Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <ComboBox Grid.Column="2" Width="180" MinHeight="44" VerticalAlignment="Stretch"
+                      SelectedIndex="{Binding FilterIndex, Mode=TwoWay}">
+                <ComboBoxItem Content="كل الوصفات"/>
+                <ComboBoxItem Content="تكلفة غير مكتملة"/>
+                <ComboBoxItem Content="بلا تكلفة"/>
+            </ComboBox>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="28,0,28,22" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ============================ list ============================ -->
+            <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <ListView ItemsSource="{Binding Recipes}" SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
+                              SelectionMode="Single" Padding="0,6">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="4,8" ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="3">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                   Style="{StaticResource TableCellText}"/>
+                                        <TextBlock Text="{Binding CategoryName}" Style="{StaticResource CaptionText}"
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
+                                        <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource CaptionText}"
+                                                   Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                                   Visibility="{Binding IsComplete, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="3" HorizontalAlignment="Left" MinWidth="86">
+                                        <TextBlock Text="{Binding CostDisplay}" FontWeight="SemiBold"
+                                                   Style="{StaticResource TableCellText}" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{Binding FoodCostPercentDisplay}" Style="{StaticResource CaptionText}"
+                                                   Foreground="{StaticResource BrandPrimaryBrush}" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ProgressRing IsActive="True" Width="34" Height="34"/>
+                        <TextBlock Text="جاري حساب التكاليف..." Style="{StaticResource MutedText}"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="320" Padding="16"
+                                Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                                HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="300" Padding="16"
+                                Visibility="{Binding HasNoRecipes, Converter={StaticResource BoolToVisibleConverter}}">
+                        <Border Width="60" Height="60" CornerRadius="20" Background="{StaticResource NeutralBackgroundBrush}"
+                                HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7C1;" FontSize="24" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                        </Border>
+                        <TextBlock Text="لا توجد وصفات بعد" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="اربط الأصناف بمكوّناتها من شاشة القائمة لحساب التكلفة الفعلية"
+                                   Style="{StaticResource MutedText}" HorizontalAlignment="Center"
+                                   TextAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="300" Padding="16"
+                                Visibility="{Binding HasNoMatches, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="لا توجد وصفات مطابقة" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="جرّب بحثًا آخر أو غيّر التصفية" Style="{StaticResource MutedText}"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============================ detail ============================ -->
+            <Border Grid.Column="1" Style="{StaticResource PageCardStyle}" Padding="0">
+                <Grid>
+                    <!-- Nothing selected: say what this side is for rather than leave it blank -->
+                    <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" Padding="24"
+                                Visibility="{Binding HasSelection, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                        <Border Width="64" Height="64" CornerRadius="22" Background="{StaticResource NeutralBackgroundBrush}"
+                                HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7BF;" FontSize="26" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                        </Border>
+                        <TextBlock Text="اختر صنفًا لعرض تكلفته" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
+                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" Style="{StaticResource MutedText}"
+                                   Text="هتشوف كل مكوّن وكميته ووحدته وتكلفته، ومصدر السعر: فاتورة شراء فعلية، تقدير مؤقت، أو غير معروف - وسبب نقص التكلفة لو ناقصة."/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsDetailLoading, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ProgressRing IsActive="True" Width="34" Height="34"/>
+                        <TextBlock Text="جاري تحميل تفاصيل الوصفة..." Style="{StaticResource MutedText}"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360" Padding="20"
+                                Visibility="{Binding DetailError, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding DetailError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                        <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                                HorizontalAlignment="Center" Command="{Binding LoadDetailCommand}"/>
+                    </StackPanel>
+
+                    <Grid Visibility="{Binding HasDetail, Converter={StaticResource BoolToVisibleConverter}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Identity + price -->
+                        <Grid Padding="20,18,20,12" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="3">
+                                <TextBlock Text="{Binding Detail.ProductName}" Style="{StaticResource CardTitleText}" TextWrapping="Wrap"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Detail.CategoryName}" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="·" Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding Detail.Name}" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <Button Grid.Column="1" MinHeight="44" VerticalAlignment="Top" Content="تعديل المكوّنات"
+                                    Style="{StaticResource SecondaryButtonStyle}" Command="{Binding StartEditCommand}"
+                                    Visibility="{Binding CanStartEdit, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        </Grid>
+
+                        <!-- The six figures the screen exists to produce -->
+                        <Grid Grid.Row="1" Padding="20,0,20,12" ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource CardBorderStyle}" Padding="14,11">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="تكلفة المكوّنات" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding DetailCostDisplay}" Style="{StaticResource MetricValueText}"/>
+                                    <TextBlock Text="{Binding DetailPackagingCostDisplay}" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"
+                                               Visibility="{Binding HasPackagingCost, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="14,11">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="سعر البيع" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding DetailPriceDisplay}" Style="{StaticResource MetricValueText}"/>
+                                    <TextBlock Text="{Binding DetailPriceBasisNote}" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="14,11">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="المساهمة" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding DetailContributionDisplay}" Style="{StaticResource MetricValueText}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Padding="14,11">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="نسبة تكلفة الطعام" Style="{StaticResource CaptionText}"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding DetailFoodCostPercentDisplay}" Style="{StaticResource MetricValueText}"
+                                               Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- ================ read mode ================ -->
+                        <Grid Grid.Row="2" Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="20,9">
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="110"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="المكوّن" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="1" Text="الكمية" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="2" Text="النوع" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="3" Text="تكلفة الوحدة" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="4" Text="التكلفة" Style="{StaticResource TableHeaderText}"/>
+                                </Grid>
+                            </Grid>
+
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{Binding DetailLines}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="20,10">
+                                                    <Grid ColumnSpacing="10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="110"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <StackPanel Spacing="3">
+                                                            <TextBlock Text="{Binding ItemName}" Style="{StaticResource TableCellText}"
+                                                                       FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding MissingReason}" Style="{StaticResource CaptionText}"
+                                                                       Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                                                       Visibility="{Binding HasMissingReason, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                                        </StackPanel>
+
+                                                        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding QuantityDisplay}" Style="{StaticResource TableCellText}"/>
+                                                            <TextBlock Text="{Binding BaseQuantityDisplay}" Style="{StaticResource CaptionText}"
+                                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                                        </StackPanel>
+
+                                                        <TextBlock Grid.Column="2" Text="{Binding KindLabel}" VerticalAlignment="Center"
+                                                                   Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+
+                                                        <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding UnitCostDisplay}" Style="{StaticResource TableCellText}"/>
+                                                            <TextBlock Text="{Binding SourceLabel}" Style="{StaticResource CaptionText}"
+                                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                                            <TextBlock Text="{Binding CostAsOfDisplay}" Style="{StaticResource CaptionText}"
+                                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                                        </StackPanel>
+
+                                                        <TextBlock Grid.Column="4" Text="{Binding ExtendedCostDisplay}" VerticalAlignment="Center"
+                                                                   FontWeight="SemiBold" Style="{StaticResource TableCellText}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <StackPanel Spacing="8" Padding="24" HorizontalAlignment="Center"
+                                                Visibility="{Binding DetailLines, Converter={StaticResource EmptyCollectionToVisibleConverter}}">
+                                        <TextBlock Text="هذه الوصفة بدون مكوّنات" Style="{StaticResource SectionTitleText}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock Text="وصفة بلا مكوّنات لا تعني تكلفة صفر، تعني تكلفة غير معروفة - ولن يظهر لها هامش ربح."
+                                                   Style="{StaticResource MutedText}" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="380"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+
+                        <!-- ================ edit mode ================ -->
+                        <Grid Grid.Row="2" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Padding="20,4,20,12" ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox ItemsSource="{Binding Ingredients}" SelectedItem="{Binding IngredientToAdd, Mode=TwoWay}"
+                                          DisplayMemberPath="Name" MinHeight="44" HorizontalAlignment="Stretch"
+                                          PlaceholderText="اختر خامة لإضافتها"/>
+                                <Button Grid.Column="1" MinHeight="44" Content="إضافة مكوّن"
+                                        Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddIngredientCommand}"/>
+                            </Grid>
+
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{Binding EditorLines}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="20,10">
+                                                    <Grid ColumnSpacing="10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="130"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="130"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock Text="{Binding ItemName}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                                   Style="{StaticResource TableCellText}" FontWeight="SemiBold"/>
+
+                                                        <TextBox Grid.Column="1" MinHeight="44" InputScope="Number"
+                                                                 PlaceholderText="{Binding UnitLabel}"
+                                                                 Text="{Binding QuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                                        <ComboBox Grid.Column="2" MinHeight="44" HorizontalAlignment="Stretch"
+                                                                  SelectedIndex="{Binding KindIndex, Mode=TwoWay}">
+                                                            <ComboBoxItem Content="مباشر"/>
+                                                            <ComboBoxItem Content="بالقطعة"/>
+                                                            <ComboBoxItem Content="تغليف"/>
+                                                        </ComboBox>
+
+                                                        <TextBox Grid.Column="3" MinHeight="44" InputScope="Number"
+                                                                 PlaceholderText="قطع لكل وحدة"
+                                                                 Visibility="{Binding IsYield, Converter={StaticResource BoolToVisibleConverter}}"
+                                                                 Text="{Binding YieldRatioText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                                        <Button Grid.Column="4" MinHeight="44" MinWidth="44"
+                                                                Style="{StaticResource IconButtonDangerStyle}"
+                                                                ToolTipService.ToolTip="حذف المكوّن"
+                                                                Command="{Binding DataContext.RemoveLineCommand, ElementName=Root}"
+                                                                CommandParameter="{Binding}">
+                                                            <FontIcon Glyph="&#xE74D;" FontSize="13"/>
+                                                        </Button>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <StackPanel Spacing="8" Padding="24" HorizontalAlignment="Center"
+                                                Visibility="{Binding EditorLines, Converter={StaticResource EmptyCollectionToVisibleConverter}}">
+                                        <TextBlock Text="أضف أول مكوّن للوصفة" Style="{StaticResource SectionTitleText}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock Text="اختر الخامة من القائمة فوق، ثم اكتب الكمية بوحدتها"
+                                                   Style="{StaticResource MutedText}" TextAlignment="Center" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+
+                        <!-- Footer: completeness, what is missing, and why the margin is blank -->
+                        <Grid Grid.Row="3" Padding="20,12,20,16" RowSpacing="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Spacing="4"
+                                        Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                                <TextBlock Text="{Binding DetailCompletenessLabel}" Style="{StaticResource CaptionText}"
+                                           Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Text="{Binding DetailMissingLabel}" Style="{StaticResource CaptionText}"
+                                           Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding HasDetailMissing, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                <TextBlock Text="{Binding MarginWithheldReason}" Style="{StaticResource CaptionText}"
+                                           Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding HasMarginWithheldReason, Converter={StaticResource BoolToVisibleConverter}}"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" ColumnSpacing="10"
+                                  Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibleConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding SaveError}" Style="{StaticResource CaptionText}" VerticalAlignment="Center"
+                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding SaveError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                <Button Grid.Column="1" MinHeight="44" Content="إلغاء" Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding CancelEditCommand}"/>
+                                <Button Grid.Column="2" MinHeight="44" Content="حفظ الوصفة" Style="{StaticResource PrimaryButtonStyle}"
+                                        Command="{Binding SaveCommand}"/>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
-
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Recipes}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
-                                    <Grid ColumnSpacing="10">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="110"/>
-                                            <ColumnDefinition Width="140"/>
-                                            <ColumnDefinition Width="140"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <StackPanel Spacing="4" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Recipe.Name}" Style="{StaticResource TableCellText}"
-                                                       FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="7" Padding="7,2"
-                                                    HorizontalAlignment="Right"
-                                                    Visibility="{Binding IsCostIncomplete, Converter={StaticResource BoolToVisibleConverter}}">
-                                                <TextBlock Text="{Binding IncompleteLabel}" FontSize="11" FontWeight="SemiBold"
-                                                           Foreground="{StaticResource WarningBrush}"/>
-                                            </Border>
-                                        </StackPanel>
-
-                                        <TextBlock Grid.Column="1" Text="{Binding LineCountLabel}" Style="{StaticResource TableCellText}"
-                                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding CostDisplay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding FoodCostPercentDisplay}" FontWeight="SemiBold"
-                                                   VerticalAlignment="Center" Foreground="{StaticResource BrandPrimaryBrush}"/>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
-                    <ProgressRing IsActive="True" Width="36" Height="36"/>
-                    <TextBlock Text="جاري حساب التكاليف..." Style="{StaticResource MutedText}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="380"
-                            Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
-                    <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
-                    <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
-                            HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding HasNoRecipes, Converter={StaticResource BoolToVisibleConverter}}">
-                    <Border Width="64" Height="64" CornerRadius="22" Background="#F0F4EE" HorizontalAlignment="Center">
-                        <FontIcon Glyph="&#xE7C1;" FontSize="26" Foreground="{StaticResource BrandPrimaryBrush}"/>
-                    </Border>
-                    <TextBlock Text="لا توجد وصفات بعد" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="اربط الأصناف بمكوّناتها لحساب التكلفة الفعلية" Style="{StaticResource MutedText}"
-                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

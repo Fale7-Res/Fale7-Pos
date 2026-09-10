@@ -20,6 +20,15 @@ public static class PurchasingRules
             .Select(m => m.UnitCost)
             .FirstOrDefault();
 
+    /// <summary>WHEN the cost above was set. An ingredient cost that moves on its own is alarming;
+    /// the same figure with a date next to it is a purchase somebody made, and can be checked.</summary>
+    public static DateTimeOffset? LastPurchaseAt(IEnumerable<StockMovementFacts> stockMovements, string inventoryItemId) =>
+        stockMovements
+            .Where(m => m.InventoryItemId == inventoryItemId && m.Type == StockMovementType.PurchaseReceipt && m.UnitCost is { IsPositive: true })
+            .OrderByDescending(m => m.CreatedAtUtc)
+            .Select(m => (DateTimeOffset?)m.CreatedAtUtc)
+            .FirstOrDefault();
+
     /// <summary>
     /// How much a newly received purchase moves an ingredient's cost basis.
     ///

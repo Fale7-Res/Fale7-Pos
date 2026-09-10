@@ -60,6 +60,28 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
         Assert.Equal(first.Id, second!.Id);
     }
 
+    /// <summary>The sequential no-op above was already covered. Under load it was not: eight
+    /// requests arriving together all read "no run for this period yet" before any of them had
+    /// inserted, and the month ended up with several payroll runs, each carrying its own set of
+    /// employee lines waiting to be paid.</summary>
+    [Fact]
+    public async Task Eight_simultaneous_creates_still_produce_one_run_for_the_month()
+    {
+        await CreateEmployeeAsync();
+        var period = CurrentPeriod();
+
+        var responses = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ =>
+            _client.PostAsJsonAsync("/api/payroll-runs", new CreatePayrollRequest($"req-{Guid.NewGuid():N}", period, _hrUserId))));
+
+        foreach (var response in responses) response.EnsureSuccessStatusCode();
+        var runs = await Task.WhenAll(responses.Select(r => r.Content.ReadFromJsonAsync<PayrollRunDto>()));
+        Assert.Single(runs.Select(r => r!.Id).Distinct());
+
+        var stored = await _factory.QueryAsync(db => db.PayrollRuns
+            .Where(r => r.Period == period && r.Status != "Cancelled").CountAsync());
+        Assert.Equal(1, stored);
+    }
+
     [Fact]
     public async Task Creating_a_payroll_run_requires_employees_manage()
     {
@@ -84,6 +106,28 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
         Assert.Equal(20000, line.BasePiastres);
         Assert.Equal(6000, line.OvertimePiastres);
         Assert.Equal(26000, line.NetPayablePiastres);
+    }
+
+    /// <summary>The ledger accepted "bonus" because it parsed the type case-insensitively, then
+    /// stored the string exactly as sent - and payroll adds up entries whose type is "Bonus". The
+    /// bonus showed on the employee's statement and was quietly left out of what they were paid.</summary>
+    [Fact]
+    public async Task A_bonus_entered_in_lowercase_is_still_paid()
+    {
+        var employee = await CreateEmployeeAsync(dailyWagePiastres: 20000);
+        (await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/daily-wage",
+            new RecordDailyWageRequest(employee.Id, null, null, _hrUserId, null, null))).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/ledger-entries",
+            new RecordManualLedgerEntryRequest(employee.Id, "bonus", 5000, true, "مكافأة", _hrUserId, null, null)))
+            .EnsureSuccessStatusCode();
+
+        var run = await (await _client.PostAsJsonAsync("/api/payroll-runs", new CreatePayrollRequest($"req-{Guid.NewGuid():N}", CurrentPeriod(), _hrUserId)))
+            .Content.ReadFromJsonAsync<PayrollRunDto>();
+        var lines = await (await _client.GetAsync($"/api/payroll-runs/{run!.Id}/lines")).Content.ReadFromJsonAsync<List<PayrollLineDto>>();
+        var line = Assert.Single(lines!, l => l.EmployeeId == employee.Id);
+
+        Assert.Equal(5000, line.BonusesPiastres);
+        Assert.Equal(25000, line.NetPayablePiastres);
     }
 
     // ---- Transitions ----

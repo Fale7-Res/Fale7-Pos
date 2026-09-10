@@ -31,6 +31,7 @@ public class FinalVerificationTests
         "/api/reports/delivery-outcomes" => "{}",
         "/api/reports/tax" => "{}",
         "/api/reports/food-cost" => "{}",
+        "/api/recipes/cost-coverage" => """{"recipeCount":0,"fullyCostedCount":0,"partlyCostedCount":0,"uncostedCount":0,"productsWithoutRecipeCount":0,"ingredientsWithoutCostCount":0}""",
         _ => "[]"
     };
 
@@ -42,7 +43,8 @@ public class FinalVerificationTests
     [InlineData("treasury", "/api/treasury/movements")]
     [InlineData("delivery", "/api/delivery/drivers")]
     [InlineData("users", "/api/permissions/catalog")]
-    [InlineData("recipes", "/api/menu")]
+    [InlineData("recipes", "/api/recipes/cost-coverage")]
+    [InlineData("recipes", "/api/inventory/items")]
     [InlineData("inventory", "/api/inventory/movements")]
     public async Task Secondary_read_failure_is_visible_and_retry_recovers(string module, string failedPath)
     {

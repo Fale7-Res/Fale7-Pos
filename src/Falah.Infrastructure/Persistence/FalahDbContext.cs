@@ -455,6 +455,13 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(e => e.Id);
             b.HasIndex(e => e.IdempotencyKey).IsUnique().HasFilter("[IdempotencyKey] IS NOT NULL");
+            // One live run per period, enforced by the database rather than by a read the handler
+            // does just before it inserts. Eight requests arriving together all read "no run for
+            // this period yet" and all inserted one; the restaurant ended up with several payroll
+            // runs for the same month, each with its own set of employee lines to be paid.
+            // Cancelled runs are excluded - a period whose run was cancelled has to be re-run.
+            b.HasIndex(e => e.Period).IsUnique().HasDatabaseName("IX_PayrollRuns_Period_Live")
+                .HasFilter("[Status] <> 'Cancelled'");
         });
 
         modelBuilder.Entity<PayrollLineEntity>(b =>

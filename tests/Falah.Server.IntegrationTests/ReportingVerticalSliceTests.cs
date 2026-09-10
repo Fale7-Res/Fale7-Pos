@@ -230,6 +230,38 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
         Assert.Single(report.Missing);
     }
 
+    /// <summary>The most expensive kind of wrong number: not a missing one, but a confident one.
+    /// A dish attached to a recipe with no ingredients was counted as a dish whose cost is KNOWN to
+    /// be zero, so a menu of them reported a hundred percent gross margin. Recipes like this cannot
+    /// be saved any more, but ones already stored still have to be read honestly.</summary>
+    [Fact]
+    public async Task A_dish_whose_recipe_has_no_ingredients_is_unknown_cost_not_zero_cost()
+    {
+        var (productId, recipeId, _) = await _factory.SeedProductWithRecipeAsync(5000, quantityMilliUnitsPerUnit: 200);
+        await _factory.QueryAsync(async db =>
+        {
+            var recipe = await db.Recipes.Include(r => r.Items).FirstAsync(r => r.Id == recipeId);
+            db.RecipeItems.RemoveRange(recipe.Items);
+            await db.SaveChangesAsync();
+            return 0;
+        });
+
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 5000, SplitPayments: null, WalletProvider: null,
+            CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+        (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
+
+        var report = await (await _client.GetAsync($"/api/reports/food-cost?actorUserId={_managerId}")).Content.ReadFromJsonAsync<FoodCostReportDto>();
+        Assert.Equal(1, report!.SoldLineCount);
+        Assert.Equal(0, report.KnownLineCount);   // it was 1 - "known to cost nothing"
+        Assert.Single(report.Missing);
+    }
+
     // ---- Significant actions ----
 
     [Fact]

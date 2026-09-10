@@ -109,10 +109,31 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
     /// PIN now, so a test approving as someone has to know that someone's PIN.</summary>
     public string PinFor(string userId) => _pins[userId];
 
+    private readonly object _stationLock = new();
+
     /// <summary>Any seeded session, for requests that name no acting user of their own - manager
     /// approval is the case that matters: its security is the PIN it carries, but it still has to
-    /// come from a station where somebody is logged in.</summary>
-    public string? AnySessionToken() => _tokens.Values.FirstOrDefault();
+    /// come from a station where somebody is logged in.
+    ///
+    /// Some classes seed no users at all, because what they exercise needs none: taking a customer's
+    /// phone number and address is ordinary order-taking with no permission gate. Their requests
+    /// still arrive from a station, and a station always has somebody logged in - so one is created
+    /// the first time anybody asks, rather than letting those requests arrive anonymous and fail
+    /// with a 401 that is about the harness and not about what the test is checking.
+    ///
+    /// The station user holds one ordinary permission: it exists to satisfy authentication, and
+    /// anything that checks authorisation names its own actor and gets that actor's token.</summary>
+    public string? AnySessionToken()
+    {
+        if (_tokens.Values.FirstOrDefault() is { } existing) return existing;
+
+        lock (_stationLock)
+        {
+            if (_tokens.Values.FirstOrDefault() is { } sinceWeWaited) return sinceWeWaited;
+            var stationUserId = SeedUserAsync("محطة", "cashier", "pos").GetAwaiter().GetResult();
+            return _tokens[stationUserId];
+        }
+    }
 
     /// <summary>A client that presents the seeded session of whichever user each request names.
     /// Tests keep the shape they already have; the server still enforces the real rule.</summary>
