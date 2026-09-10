@@ -52,8 +52,16 @@ public class PrintAgentTests
     private static PrintJobDto Job(string id, string route = "Receipt") =>
         new(id, "ord-1", "A-1", route, "Pending", 0, null, null, false, DateTimeOffset.UtcNow);
 
-    private static PrintJobProcessor Processor(FakeServer server, FakeTransport transport) =>
-        new(server, transport, Encoding.UTF8, "usr-1", _ => { });
+    /// <summary>Each processor gets its own store file. The agent remembers an attempt it could not
+    /// report ON DISK, deliberately - a station that loses power between printing and reporting is
+    /// the whole reason it exists - and a single shared file would let one test's unreported job
+    /// make the next test re-report instead of print.</summary>
+    private static PrintJobProcessor Processor(FakeServer server, FakeTransport transport,
+        UnreportedAttemptStore? store = null) =>
+        new(server, transport, Encoding.UTF8, "usr-1", _ => { }, store ?? NewStore());
+
+    private static UnreportedAttemptStore NewStore() =>
+        new(Path.Combine(Path.GetTempPath(), $"falah-print-agent-{Guid.NewGuid():N}.json"));
 
     [Fact]
     public async Task A_printed_job_is_reported_as_succeeded()
@@ -140,8 +148,41 @@ public class PrintAgentTests
 
         await Processor(server, transport).DrainAsync("Receipt", CancellationToken.None);
 
+        // Both physically printed, and both outcomes were offered to the server more than once
+        // before being kept for later - each retry reusing that attempt's own id, so the server
+        // can recognise the replay rather than record attempts that never physically happened.
         Assert.Equal(2, transport.Sent.Count);
-        Assert.Equal(2, server.Reports.Count);
+        Assert.Equal(new[] { "job-1", "job-2" }, server.Reports.Select(r => r.PrintJobId).Distinct());
+        Assert.All(server.Reports.GroupBy(r => r.PrintJobId),
+            byJob => Assert.Single(byJob.Select(r => r.RequestId).Distinct()));
+    }
+
+    /// <summary>The defect this store exists for: when the report could not be delivered, the job
+    /// stayed Pending on the server, the next poll handed the agent the same job, and it PRINTED IT
+    /// AGAIN. Three failed reports meant three tickets out of the kitchen printer for one order.</summary>
+    [Fact]
+    public async Task A_job_whose_outcome_could_not_be_reported_is_re_reported_not_reprinted()
+    {
+        var store = NewStore();
+        var transport = new FakeTransport();
+
+        var unreachable = new FakeServer { ReportFailure = new HttpRequestException("server unreachable") };
+        unreachable.Pending.Add(Job("job-1"));
+        await Processor(unreachable, transport, store).DrainAsync("Receipt", CancellationToken.None);
+
+        Assert.Single(transport.Sent);
+        var attemptId = unreachable.Reports[0].RequestId;
+
+        // The server comes back, and hands out the same still-Pending job.
+        var recovered = new FakeServer();
+        recovered.Pending.Add(Job("job-1"));
+        await Processor(recovered, transport, store).DrainAsync("Receipt", CancellationToken.None);
+
+        Assert.Single(transport.Sent);                       // no second ticket
+        Assert.Equal(attemptId, Assert.Single(recovered.Reports).RequestId);
+
+        // Once the server has it, the record is gone - a later job of the same id would print.
+        Assert.Null(store.Find("job-1"));
     }
 
     [Fact]

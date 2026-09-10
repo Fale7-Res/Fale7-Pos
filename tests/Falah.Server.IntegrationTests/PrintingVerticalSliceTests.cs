@@ -107,11 +107,15 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
             TableNumber: "  12  ", CustomerName: null, CustomerPhone: null,
             DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
 
-        var checkout = await (await _client.PostAsJsonAsync("/api/orders/checkout", request))
-            .Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.True(response.IsSuccessStatusCode,
+            $"checkout failed with {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+        var checkout = await response.Content.ReadFromJsonAsync<CheckoutOrderResult>();
 
+        // Escaped, because an order number is "#0001" and an unescaped # is a URL fragment - which
+        // is exactly what every real client already does before asking.
         // Survives the round trip, trimmed - a stray space must not print an empty table.
-        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={checkout!.OrderNumber}"))
+        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={Uri.EscapeDataString(checkout!.OrderNumber)}"))
             .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
         Assert.Equal("12", looked!.TableNumber);
 
@@ -145,10 +149,12 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
             TableNumber: "7", CustomerName: null, CustomerPhone: null,
             DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
 
-        var checkout = await (await _client.PostAsJsonAsync("/api/orders/checkout", request))
-            .Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.True(response.IsSuccessStatusCode,
+            $"checkout failed with {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+        var checkout = await response.Content.ReadFromJsonAsync<CheckoutOrderResult>();
 
-        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={checkout!.OrderNumber}"))
+        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={Uri.EscapeDataString(checkout!.OrderNumber)}"))
             .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
         Assert.Null(looked!.TableNumber);
     }
