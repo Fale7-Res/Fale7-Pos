@@ -40,7 +40,58 @@ public partial class PayrollViewModel : ObservableObject
     }
 
     public ObservableCollection<PayrollRunDto> Runs { get; } = new();
-    public ObservableCollection<PayrollLineDto> Lines { get; } = new();
+    /// <summary>One employee's line, in words. It used to be the raw DTO, which meant the sheet
+    /// named people by their id and showed a "deductions and advances" column bound only to the
+    /// advances - so a late penalty was labelled as shown and was not.</summary>
+    public sealed class PayrollLineRow
+    {
+        public required PayrollLineDto Line { get; init; }
+        public required string EmployeeName { get; init; }
+
+        public long NetPayablePiastres => Line.NetPayablePiastres;
+
+        public string BaseDisplay => CashInput.Format(Line.BasePiastres) + " ج";
+
+        /// <summary>Everything added on top of the base, itemised underneath so a disputed figure
+        /// can be traced without opening the ledger.</summary>
+        public long AdditionsPiastres => Line.OvertimePiastres + Line.ExtraShiftsPiastres + Line.BonusesPiastres;
+        public string AdditionsDisplay => CashInput.Format(AdditionsPiastres) + " ج";
+
+        public string AdditionsBreakdown => Describe(new[]
+        {
+            ("إضافي", Line.OvertimePiastres),
+            ("ورديات", Line.ExtraShiftsPiastres),
+            ("مكافآت", Line.BonusesPiastres),
+        });
+
+        public long SubtractionsPiastres => Line.DeductionsPiastres + Line.AdvanceDeductionsPiastres;
+        public string SubtractionsDisplay => CashInput.Format(SubtractionsPiastres) + " ج";
+
+        public string SubtractionsBreakdown => Describe(new[]
+        {
+            ("خصومات", Line.DeductionsPiastres),
+            ("سلف", Line.AdvanceDeductionsPiastres),
+        });
+
+        public string NetDisplay => CashInput.Format(Line.NetPayablePiastres) + " ج";
+
+        public bool IsPaid => Line.Status == "paid";
+        public string StatusLabel => IsPaid
+            ? (Line.PaidAtUtc is { } at ? $"مدفوع {at.ToLocalTime():MM/dd}" : "مدفوع")
+            : "غير مدفوع";
+
+        private static string Describe((string Label, long Amount)[] parts)
+        {
+            var shown = parts.Where(p => p.Amount != 0)
+                .Select(p => $"{p.Label} {CashInput.Format(p.Amount)}");
+            return string.Join(" · ", shown);
+        }
+    }
+
+    public ObservableCollection<PayrollLineRow> Lines { get; } = new();
+
+    /// <summary>Employee names, so a payroll sheet can name the people on it.</summary>
+    private readonly Dictionary<string, string> _employeeNames = new();
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string? _loadError;
@@ -140,8 +191,13 @@ public partial class PayrollViewModel : ObservableObject
             var lines = await _session.Api.GetPayrollLinesAsync(run.Id);
             if (version != _linesVersion) return;
             if (!lines.Success || lines.Value is null) { LoadError = lines.Error ?? "تعذر تحميل بنود مسيّر الرواتب."; return; }
-            if (lines.Success && lines.Value is not null)
-                foreach (var l in lines.Value) Lines.Add(l);
+            await EnsureEmployeeNamesAsync();
+            foreach (var l in lines.Value)
+                Lines.Add(new PayrollLineRow
+                {
+                    Line = l,
+                    EmployeeName = _employeeNames.GetValueOrDefault(l.EmployeeId, l.EmployeeId),
+                });
         }
         finally
         {
@@ -152,6 +208,17 @@ public partial class PayrollViewModel : ObservableObject
                 OnPropertyChanged(nameof(SelectedRunTotalDisplay));
             }
         }
+    }
+
+    /// <summary>Read once per screen and reused: a payroll run does not change who works here.
+    /// A failure leaves the ids in place rather than blanking the sheet - a row named by its id is
+    /// still a row that can be paid, and refusing to show the run would be the worse outcome.</summary>
+    private async Task EnsureEmployeeNamesAsync()
+    {
+        if (_employeeNames.Count > 0) return;
+        var employees = await _session.Api.GetEmployeesAsync();
+        if (!employees.Success || employees.Value is null) return;
+        foreach (var employee in employees.Value) _employeeNames[employee.Id] = employee.Name;
     }
 
     [RelayCommand]

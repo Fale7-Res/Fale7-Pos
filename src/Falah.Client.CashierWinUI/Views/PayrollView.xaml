@@ -59,7 +59,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="الموظف" Style="{StaticResource TableHeaderText}"/>
                             <TextBlock Grid.Column="1" Text="الأساسي" Style="{StaticResource TableHeaderText}"/>
-                            <TextBlock Grid.Column="2" Text="إضافي" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="2" Text="إضافات" Style="{StaticResource TableHeaderText}"/>
                             <TextBlock Grid.Column="3" Text="خصومات وسلف" Style="{StaticResource TableHeaderText}"/>
                             <TextBlock Grid.Column="4" Text="الصافي" Style="{StaticResource TableHeaderText}"/>
                         </Grid>
@@ -78,17 +78,27 @@
                                                 <ColumnDefinition Width="120"/>
                                                 <ColumnDefinition Width="130"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding EmployeeId}" Style="{StaticResource TableCellText}"
-                                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding EmployeeName}" Style="{StaticResource TableCellText}"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource CaptionText}"
+                                                           Foreground="{Binding IsPaid, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=SuccessBrush|TextMutedBrush}"/>
+                                            </StackPanel>
                                             <TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TableCellText}"
-                                                       Text="{Binding BasePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Style="{StaticResource TableCellText}"
-                                                       Text="{Binding OvertimePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Style="{StaticResource TableCellText}"
-                                                       Foreground="{StaticResource DangerBrush}"
-                                                       Text="{Binding AdvanceDeductionsPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                                       Text="{Binding BaseDisplay}"/>
+                                            <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding AdditionsDisplay}" Style="{StaticResource TableCellText}"/>
+                                                <TextBlock Text="{Binding AdditionsBreakdown}" Style="{StaticResource CaptionText}"
+                                                           Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SubtractionsDisplay}" Style="{StaticResource TableCellText}"
+                                                           Foreground="{StaticResource DangerBrush}"/>
+                                                <TextBlock Text="{Binding SubtractionsBreakdown}" Style="{StaticResource CaptionText}"
+                                                           Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                            </StackPanel>
                                             <TextBlock Grid.Column="4" VerticalAlignment="Center" FontWeight="SemiBold"
-                                                       Text="{Binding NetPayablePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                                       Text="{Binding NetDisplay}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
