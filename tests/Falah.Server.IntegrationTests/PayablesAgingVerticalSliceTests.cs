@@ -173,16 +173,20 @@ public class PayablesAgingVerticalSliceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task A_due_date_before_the_invoice_is_refused()
+    public async Task An_invoice_entered_late_keeps_its_already_expired_term()
     {
-        var supplier = await CreateSupplierAsync("مورد بتاريخ خاطئ");
+        // The common case this system must not refuse: the goods arrived a while back, the invoice
+        // is being keyed in now, and its agreed term has already passed. Receipt is always stamped
+        // "now", so rejecting a past due date would force the operator to leave the field blank and
+        // lose a true fact.
+        var supplier = await CreateSupplierAsync("مورد أُدخلت فاتورته متأخرة");
         var item = await CreateItemAsync("بصل");
-        var response = await _client.PostAsJsonAsync("/api/purchases", new ReceivePurchaseRequest(
-            $"preq-{Guid.NewGuid():N}", supplier, "INV-BACKDATED",
-            new[] { new PurchaseLineRequest(item, 1000, 10_000) },
-            0, "credit", _managerId, null, null, null, BusinessClock.Today().AddDays(-1)));
+        await ReceiveCreditAsync(supplier, item, 10_000, BusinessClock.Today().AddDays(-6), "INV-LATEENTRY");
 
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        var aging = await GetAgingAsync();
+        var invoice = Assert.Single(aging.Invoices);
+        Assert.Equal(6, invoice.DaysOverdue);
+        Assert.Equal(1, aging.OverdueInvoiceCount);
     }
 
     [Fact]

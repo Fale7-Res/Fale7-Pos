@@ -41,9 +41,6 @@ public sealed class SetPurchaseDueDateHandler
             .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)
             ?? throw new DomainException("الفاتورة غير موجودة.");
 
-        var receivedOn = BusinessClock.BusinessDate(purchase.CreatedAtUtc);
-        PayablesAging.AssertValidDueDate(request.DueDate, receivedOn);
-
         var previous = purchase.DueDate;
         // Setting the date it already has changes nothing and is not worth an audit entry.
         if (previous == request.DueDate) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);

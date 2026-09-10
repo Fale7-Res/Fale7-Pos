@@ -70,8 +70,6 @@ public sealed class ReceivePurchaseHandler
         var paid = Money.FromPiastres(request.PaidPiastres);
         PurchasingRules.AssertPurchasePayment(paid, total);
 
-        Falah.Domain.Purchasing.PayablesAging.AssertValidDueDate(request.DueDate, Falah.Domain.Common.BusinessClock.Today());
-
         var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod);
         if (paid.IsPositive && accountId is null) throw new DomainException("يجب تحديد حساب دفع فعلي للمبلغ المدفوع.");
         if (accountId is not null)

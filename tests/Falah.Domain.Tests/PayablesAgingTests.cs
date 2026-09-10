@@ -1,6 +1,5 @@
 namespace Falah.Domain.Tests;
 
-using Falah.Domain.Common;
 using Falah.Domain.Purchasing;
 using Xunit;
 
@@ -68,18 +67,14 @@ public class PayablesAgingTests
     }
 
     [Fact]
-    public void A_due_date_before_the_invoice_itself_is_rejected()
+    public void An_invoice_entered_late_with_an_already_expired_term_is_simply_overdue()
     {
-        var ex = Assert.Throws<DomainException>(
-            () => PayablesAging.AssertValidDueDate(Today.AddDays(-1), Today));
-        Assert.Contains("تاريخ الاستحقاق", ex.Message);
-    }
-
-    [Fact]
-    public void No_due_date_and_a_due_date_on_the_receipt_day_are_both_accepted()
-    {
-        PayablesAging.AssertValidDueDate(null, Today);
-        PayablesAging.AssertValidDueDate(Today, Today);
+        // Receipt is always stamped "now", so an invoice keyed in a week after the goods arrived
+        // carries a term that has already expired. That is a true statement about a real invoice,
+        // not an input error - the report says overdue rather than refusing the date.
+        var expiredTerm = Today.AddDays(-6);
+        Assert.Equal(6, PayablesAging.DaysOverdue(expiredTerm, Today));
+        Assert.Equal(PayablesAging.Bucket.Days1To30, PayablesAging.Classify(expiredTerm, Today));
     }
 
     [Fact]

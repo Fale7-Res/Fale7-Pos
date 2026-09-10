@@ -52,11 +52,14 @@ public static class PayablesAging
     public static int AgeInDays(DateOnly receivedOn, DateOnly asOf) =>
         Math.Max(0, asOf.DayNumber - receivedOn.DayNumber);
 
-    /// <summary>A due date must not precede the invoice it belongs to. Anything else - however far
-    /// out - is a term the restaurant is free to agree.</summary>
-    public static void AssertValidDueDate(DateOnly? dueDate, DateOnly receivedOn)
-    {
-        if (dueDate is { } due && due < receivedOn)
-            throw new DomainException("تاريخ الاستحقاق لا يمكن أن يسبق تاريخ استلام الفاتورة.");
-    }
+    // A due date in the past is deliberately NOT rejected.
+    //
+    // This system stamps every invoice's receipt date as "now", so a rule saying "the due date must
+    // not precede the invoice" collapses into "no past due date, ever" - and that blocks an entirely
+    // ordinary case: entering an invoice a week late, whose agreed term has already expired. That
+    // invoice really is overdue, and refusing to record its date would force the operator to leave
+    // the field blank, losing a true fact to protect against a typo the aging report itself makes
+    // loud (an invoice sitting in "متأخرة أكثر من 90 يوم" that nobody recognises).
+    //
+    // Deciding when a term is unreasonable is the restaurant's call, not this system's.
 }
