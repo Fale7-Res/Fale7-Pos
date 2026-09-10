@@ -157,6 +157,12 @@
                         <TextBlock FontSize="14" FontWeight="Bold">
                             <Run Text="الإجمالي: "/><Run Text="{Binding LookedUpOrder.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                         </TextBlock>
+                        <!-- Whether the money is settled. An operator taking a follow-up call was
+                             not told, and "مدفوع" and "تحويل لم يُؤكَّد" are not the same promise. -->
+                        <TextBlock FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"
+                                   Text="{Binding LookedUpPaymentLine}"
+                                   Foreground="{Binding IsLookedUpPaymentUnconfirmed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WarningBrush|TextMutedBrush}"
+                                   Visibility="{Binding HasLookedUpPaymentLine, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <Button Content="إعادة طباعة إيصال مركز الاتصال" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"
                                 Command="{Binding ReprintLookedUpOrderCommand}"/>
                         <TextBlock Text="{Binding ReprintNote}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"

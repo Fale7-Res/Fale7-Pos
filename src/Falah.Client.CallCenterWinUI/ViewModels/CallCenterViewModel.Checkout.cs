@@ -250,6 +250,33 @@ public partial class CallCenterViewModel
     [ObservableProperty] private bool _isOrderLookupOpen;
     [ObservableProperty] private string _lookupOrderNumber = "";
     [ObservableProperty] private OrderDetailsDto? _lookedUpOrder;
+
+    /// <summary>Whether the money for a looked-up order is settled - which an operator taking a
+    /// follow-up call has to know before promising anything. Three states, not two: an electronic
+    /// transfer nobody has confirmed is neither paid nor collect-on-delivery.</summary>
+    public string LookedUpPaymentLine
+    {
+        get
+        {
+            if (LookedUpOrder is not { } order) return "";
+            var how = order.SplitPayments is { Count: > 0 } splits
+                ? string.Join(" + ", splits.Select(s => $"{s.Method} {CashInput.Format(s.AmountPiastres)} ج"))
+                : order.PaymentMethod;
+            return order.ElectronicPaymentStatus == "pending" ? $"{how} - تحويل لم يُؤكَّد"
+                : order.IsPaid ? $"{how} - مدفوع"
+                : $"{how} - تحصيل عند التسليم";
+        }
+    }
+
+    public bool HasLookedUpPaymentLine => LookedUpPaymentLine.Length > 0;
+    public bool IsLookedUpPaymentUnconfirmed => LookedUpOrder?.ElectronicPaymentStatus == "pending";
+
+    partial void OnLookedUpOrderChanged(OrderDetailsDto? value)
+    {
+        OnPropertyChanged(nameof(LookedUpPaymentLine));
+        OnPropertyChanged(nameof(HasLookedUpPaymentLine));
+        OnPropertyChanged(nameof(IsLookedUpPaymentUnconfirmed));
+    }
     [ObservableProperty] private string? _lookupError;
     [ObservableProperty] private bool _isLookingUpOrder;
     [ObservableProperty] private bool _isReprinting;
