@@ -50,6 +50,18 @@ public partial class ReportsViewModel : ObservableObject
     /// away - an unknown cost is not a zero cost.</summary>
     public bool HasIncompleteFoodCost => FoodCost is { } fc && fc.KnownLineCount < fc.SoldLineCount;
 
+    /// <summary>The limitation, said out loud on the screen that shows the number.
+    ///
+    /// Usage movements carry no unit cost of their own, so a past day's food cost is worked out
+    /// from TODAY's recipes at TODAY's ingredient prices. Re-open last week's report after a price
+    /// rise and the figure will have moved. Whether this report should instead freeze the cost at
+    /// the moment of sale is a decision about what the restaurant wants the number to mean, and
+    /// nobody has made it - so the number is labelled rather than quietly redefined.</summary>
+    public string FoodCostBasisNote =>
+        FoodCost is null ? "" : "محسوبة بأسعار المكوّنات الحالية ووصفاتها الحالية، مش بأسعار وقت البيع.";
+
+    public bool HasFoodCostBasisNote => FoodCostBasisNote.Length > 0;
+
     public string FoodCostCoverageLabel => FoodCost is { } fc
         ? $"{fc.KnownLineCount} من {fc.SoldLineCount} سطر مبيعات له تكلفة معروفة"
         : "";
@@ -58,6 +70,8 @@ public partial class ReportsViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(HasIncompleteFoodCost));
         OnPropertyChanged(nameof(FoodCostCoverageLabel));
+        OnPropertyChanged(nameof(FoodCostBasisNote));
+        OnPropertyChanged(nameof(HasFoodCostBasisNote));
     }
 
     public bool HasData => Sales is not null && !IsLoading && LoadError is null;

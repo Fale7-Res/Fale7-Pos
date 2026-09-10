@@ -18,6 +18,12 @@ namespace Falah.PrintAgent;
 /// and reused if reporting has to be retried. Reporting is the one step that can fail after the
 /// printer has already printed; retrying with the same id lets the server recognise the replay
 /// instead of recording a second attempt that never physically happened.
+///
+/// And it is retried, on disk, across restarts. Swallowing a failed report left the job Pending on
+/// the server, and the next poll handed the agent the same job and it PRINTED IT AGAIN: three
+/// failed reports meant three tickets out of the kitchen printer for one order, and the kitchen
+/// cooks what it is handed. An attempt that could not be delivered is written down before anything
+/// else happens, and the next pass re-reports it rather than reprinting it.
 /// </summary>
 public sealed class PrintJobProcessor
 {
@@ -26,16 +32,23 @@ public sealed class PrintJobProcessor
     private readonly Encoding _encoding;
     private readonly string _reportedByUserId;
     private readonly Action<string> _log;
+    private readonly UnreportedAttemptStore _unreported;
+
+    /// <summary>How many times the outcome is offered to the server before the attempt is left on
+    /// disk for the next pass. Short: the poll loop comes back in seconds and will try again.</summary>
+    private const int ReportAttempts = 3;
 
     public PrintJobProcessor(
         IPrintServerClient server, ITicketTransport transport, Encoding encoding,
-        string reportedByUserId, Action<string> log)
+        string reportedByUserId, Action<string> log, UnreportedAttemptStore? unreported = null)
     {
         _server = server;
         _transport = transport;
         _encoding = encoding;
         _reportedByUserId = reportedByUserId;
         _log = log;
+        _unreported = unreported ?? new UnreportedAttemptStore(
+            Path.Combine(AppContext.BaseDirectory, "unreported-print-attempts.json"));
     }
 
     /// <summary>Drains the pending queue for one route. Jobs are processed oldest first, in order,
@@ -56,6 +69,16 @@ public sealed class PrintJobProcessor
 
     public async Task ProcessAsync(PrintJobDto job, CancellationToken ct)
     {
+        // This job already came out of a printer; only the telling failed. Tell it again - do not
+        // print it again.
+        if (_unreported.Find(job.Id) is { } already)
+        {
+            _log($"job {job.Id} already printed; re-reporting attempt {already.AttemptRequestId} instead of reprinting");
+            await ReportAsync(new ReportPrintJobResultRequest(
+                already.AttemptRequestId, job.Id, already.Succeeded, already.Error, _reportedByUserId), ct);
+            return;
+        }
+
         // Minted before anything is sent, and reused for every retry of the report below.
         var attemptRequestId = $"pra-{Guid.NewGuid():N}";
         bool succeeded;
@@ -89,20 +112,33 @@ public sealed class PrintJobProcessor
 
     private async Task ReportAsync(ReportPrintJobResultRequest request, CancellationToken ct)
     {
-        try
+        for (var attempt = 1; attempt <= ReportAttempts; attempt++)
         {
-            await _server.ReportResultAsync(request, ct);
-        }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            // The outcome is now genuinely unknown to the server. Say so plainly rather than
-            // pretending the attempt did not happen; the next poll will retry the same job, and the
-            // attempt id above keeps a replay from being counted twice.
-            _log($"could not report the outcome of job {request.PrintJobId} to the server: {ex.Message}");
+            try
+            {
+                await _server.ReportResultAsync(request, ct);
+                // The server has it. Nothing left to remember, and nothing left to re-report.
+                _unreported.Forget(request.PrintJobId);
+                return;
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex) when (attempt < ReportAttempts)
+            {
+                _log($"could not report job {request.PrintJobId} (attempt {attempt}): {ex.Message}");
+                await Task.Delay(TimeSpan.FromMilliseconds(400 * attempt), ct);
+            }
+            catch (Exception ex)
+            {
+                // The paper is already out of the printer and the server does not know. Writing the
+                // attempt down is what stops the next poll from printing the same ticket again.
+                _unreported.Remember(request.PrintJobId, new UnreportedAttemptStore.StoredAttempt(
+                    request.RequestId, request.Succeeded, request.Error, DateTimeOffset.UtcNow));
+                _log($"could not report the outcome of job {request.PrintJobId} to the server: {ex.Message} - " +
+                     "kept on disk; it will be re-reported, not reprinted");
+            }
         }
     }
 

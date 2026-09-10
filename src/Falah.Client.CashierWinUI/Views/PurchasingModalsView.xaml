@@ -74,6 +74,10 @@
                                                     <ColumnDefinition Width="120"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
                                                 <ComboBox IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEditAction}" Header="الصنف" HorizontalAlignment="Stretch" MinHeight="44"
                                                           ItemsSource="{Binding ElementName=Root, Path=DataContext.InventoryItems}"
                                                           DisplayMemberPath="Name" SelectedItem="{Binding Item, Mode=TwoWay}"/>
@@ -85,6 +89,11 @@
                                                         Style="{StaticResource GhostButtonStyle}" AutomationProperties.Name="حذف السطر"
                                                         Command="{Binding ElementName=Root, Path=DataContext.RemoveReceiveLineCommand}"
                                                         CommandParameter="{Binding}"/>
+
+                                                <TextBlock Grid.Row="1" Grid.ColumnSpan="4" Margin="0,6,0,0" TextWrapping="Wrap"
+                                                           Style="{StaticResource CaptionText}"
+                                                           Text="{Binding CostShiftNote}"
+                                                           Visibility="{Binding HasCostShiftNote, Converter={StaticResource BoolToVisibleConverter}}"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -148,6 +157,22 @@
                         <TextBlock Text="{Binding ReceiveError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding ReceiveError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <!--
+                            This system values an ingredient at its LAST purchase price, so one
+                            keyed line becomes THE cost immediately - and with it every recipe using
+                            that ingredient. A tenfold move is asked about once; it is never refused.
+                        -->
+                        <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
+                                Visibility="{Binding HasSuspiciousCostShift, Converter={StaticResource BoolToVisibleConverter}}">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding SuspiciousCostShiftLabel}" TextWrapping="Wrap"
+                                           Foreground="{StaticResource WarningBrush}" FontWeight="SemiBold"/>
+                                <CheckBox Content="راجعت السعر وهو صحيح" MinHeight="44"
+                                          IsEnabled="{Binding CanEditAction}"
+                                          IsChecked="{Binding CostShiftAcknowledged, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Border>
+
                         <Button Content="تسجيل الاستلام" MinHeight="52" HorizontalAlignment="Stretch"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitReceiveCommand}"/>
                     </StackPanel>

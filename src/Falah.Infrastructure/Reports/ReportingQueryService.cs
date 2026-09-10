@@ -259,6 +259,19 @@ public sealed class ReportingQueryService
                 i => i.OrderId, o => o.Id, (i, _) => new { i.ProductId, i.VariantId, i.ProductName, i.Quantity })
             .ToListAsync(ct);
 
+        // Order-level packaging - the delivery bag - is consumed once per qualifying order, not per
+        // item, so it is counted here rather than inside the per-line loop. It used to be counted
+        // nowhere at all: the rule could be configured and no report ever read it.
+        var soldOrderTypes = await _db.Orders.AsNoTracking()
+            .Where(o => o.Status != nameof(OrderStatus.Cancelled)
+                && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end))
+            .GroupBy(o => o.OrderType)
+            .Select(g => new { OrderType = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+        var packagingRules = await _db.OrderPackagingRules.AsNoTracking()
+            .Select(r => new OrderPackagingRule(r.OrderType, r.InventoryItemId, r.QuantityMilliUnits, r.Active))
+            .ToListAsync(ct);
+
         var productRecipeIds = await _db.Products.AsNoTracking().ToDictionaryAsync(p => p.Id, p => p.RecipeId, ct);
         var variantRecipeIds = await _db.ProductVariants.AsNoTracking().ToDictionaryAsync(v => v.Id, v => v.RecipeId, ct);
         var recipes = await _db.Recipes.AsNoTracking().Include(r => r.Items).ToDictionaryAsync(r => r.Id, ct);
@@ -299,6 +312,15 @@ public sealed class ReportingQueryService
             if (!cost.IsComplete) { missing.Add(line.ProductName); continue; }
             knownLines++;
             totalCost += cost.KnownCost.Piastres * line.Quantity;
+        }
+
+        foreach (var orderType in soldOrderTypes)
+        {
+            var (cost, known, name) = CostingRules.OrderPackagingCost(orderType.OrderType, packagingRules, costingCtx);
+            // The same rule as everywhere else: packaging whose cost is unknown is named, never
+            // added as a zero that makes the total look complete.
+            if (!known) { missing.Add(name ?? orderType.OrderType); continue; }
+            totalCost += cost.Piastres * orderType.Count;
         }
 
         return new FoodCostReportDto(totalCost, totalLines, knownLines, missing.ToList());

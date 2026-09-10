@@ -264,6 +264,9 @@
                             <TextBlock Style="{StaticResource MetricValueText}" TextWrapping="Wrap"
                                        Text="{Binding FoodCost.TotalFoodCostPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             <TextBlock Text="{Binding FoodCostCoverageLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding FoodCostBasisNote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       Visibility="{Binding HasFoodCostBasisNote, Converter={StaticResource BoolToVisibleConverter}}"/>
                             <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
                                     Visibility="{Binding HasIncompleteFoodCost, Converter={StaticResource BoolToVisibleConverter}}">
                                 <TextBlock Text="بعض الأصناف المباعة ليس لها تكلفة معروفة، فالرقم أعلاه أقل من التكلفة الحقيقية. أضف وصفة أو تكلفة لهذه الأصناف."

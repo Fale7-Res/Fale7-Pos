@@ -74,6 +74,15 @@ public partial class PurchasingViewModel : ObservableObject
             if (items.Success && items.Value is not null)
                 foreach (var i in items.Value.Where(i => i.Active)) InventoryItems.Add(i);
 
+            // Optional: feeds the "this price moves the cost basis tenfold" warning on a receipt
+            // line. Silent when the user's permissions do not reach the stock overview - receiving
+            // must keep working for a storekeeper who cannot read cost reports.
+            var overview = await _session.Api.GetInventoryOverviewAsync(_session.CurrentUser!.Id);
+            _currentUnitCosts.Clear();
+            if (overview.Success && overview.Value is not null)
+                foreach (var row in overview.Value.Items)
+                    if (row.UnitCostPiastres is { } cost) _currentUnitCosts[row.Id] = cost;
+
             await LoadPayablesAsync();
         }
         finally
@@ -274,6 +283,75 @@ public partial class PurchasingViewModel : ObservableObject
         [ObservableProperty] private InventoryItemDto? _item;
         [ObservableProperty] private string _quantityText = "";
         [ObservableProperty] private string _unitCostText = "";
+
+        /// <summary>The ingredient's cost basis before this invoice, so the person keying it can be
+        /// told what the line is about to do to it. Null when nothing has ever been purchased.</summary>
+        [ObservableProperty] private long? _currentUnitCostPiastres;
+
+        /// <summary>Supplied by the screen so a line can find out what the ingredient costs today
+        /// the moment it is chosen, without the nested entry knowing anything about the API.</summary>
+        public Func<string, long?>? CostLookup { get; set; }
+
+        /// <summary>Raised so the screen's own "one of these lines looks wrong" banner updates.
+        /// A computed property on the screen would never re-evaluate on its own when a line inside
+        /// a collection changes - the same trap the empty states in this app were caught in.</summary>
+        public Action? Changed { get; set; }
+
+        partial void OnItemChanged(InventoryItemDto? value)
+        {
+            CurrentUnitCostPiastres = value is null ? null : CostLookup?.Invoke(value.Id);
+            RefreshCostShift();
+        }
+        partial void OnUnitCostTextChanged(string value) => RefreshCostShift();
+        partial void OnCurrentUnitCostPiastresChanged(long? value) => RefreshCostShift();
+
+        private void RefreshCostShift()
+        {
+            OnPropertyChanged(nameof(CostShiftNote));
+            OnPropertyChanged(nameof(HasCostShiftNote));
+            OnPropertyChanged(nameof(IsCostShiftSuspicious));
+            Changed?.Invoke();
+        }
+
+        private long? TypedUnitCost => CashInput.TryParse(UnitCostText, out var piastres) && piastres > 0 ? piastres : null;
+
+        /// <summary>Ten times up or down. This system values an ingredient at its LAST purchase
+        /// price, so one line becomes THE cost immediately - and a tenfold move is far more often a
+        /// misplaced decimal than a real one.</summary>
+        public bool IsCostShiftSuspicious =>
+            CurrentUnitCostPiastres is { } previous and > 0 && TypedUnitCost is { } typed
+            && (typed >= previous * 10 || typed * 10 <= previous);
+
+        public string CostShiftNote
+        {
+            get
+            {
+                if (CurrentUnitCostPiastres is not { } previous || previous <= 0 || TypedUnitCost is not { } typed) return "";
+                if (typed == previous) return "";
+                var direction = typed > previous ? "أعلى" : "أقل";
+                var note = $"التكلفة الحالية {CashInput.Format(previous)} ج - السعر ده {direction}";
+                return IsCostShiftSuspicious ? note + " بعشرة أضعاف أو أكتر، راجع الرقم" : note;
+            }
+        }
+
+        public bool HasCostShiftNote => CostShiftNote.Length > 0;
+    }
+
+    /// <summary>Set once the receiver has been shown a tenfold cost move and said it is right. It
+    /// never blocks the invoice; it makes the person keying it look at the number once.</summary>
+    [ObservableProperty] private bool _costShiftAcknowledged;
+
+    public bool HasSuspiciousCostShift => ReceiveLines.Any(l => l.IsCostShiftSuspicious);
+
+    public string SuspiciousCostShiftLabel
+    {
+        get
+        {
+            var lines = ReceiveLines.Where(l => l.IsCostShiftSuspicious).ToList();
+            if (lines.Count == 0) return "";
+            var names = string.Join("، ", lines.Select(l => l.Item?.Name ?? "").Where(n => n.Length > 0));
+            return $"سعر الوحدة في {names} بيغيّر تكلفة الخامة بعشرة أضعاف أو أكتر. ده بيغيّر تكلفة كل وصفة بتستخدمها فورًا.";
+        }
     }
 
     [ObservableProperty] private bool _isReceiveOpen;
@@ -316,7 +394,8 @@ public partial class PurchasingViewModel : ObservableObject
         ReceiveDueDateText = "";
         ReceiveManagerPin = "";
         ReceiveLines.Clear();
-        ReceiveLines.Add(new PurchaseLineEntry());
+        ReceiveLines.Add(NewLine());
+        CostShiftAcknowledged = false;
         _receiveRequestId = $"pur-{Guid.NewGuid():N}";
         IsReceiveOpen = true;
         OnPropertyChanged(nameof(ReceiveNeedsApproval));
@@ -326,14 +405,30 @@ public partial class PurchasingViewModel : ObservableObject
     private void CloseReceive() { if (CanEditAction) IsReceiveOpen = false; }
 
     [RelayCommand]
-    private void AddReceiveLine() { if (CanEditAction) ReceiveLines.Add(new PurchaseLineEntry()); }
+    private void AddReceiveLine() { if (CanEditAction) ReceiveLines.Add(NewLine()); }
+
+    private PurchaseLineEntry NewLine() => new() { CostLookup = LookupCurrentUnitCost, Changed = OnReceiveLinesChanged };
+
+    private void OnReceiveLinesChanged()
+    {
+        OnPropertyChanged(nameof(HasSuspiciousCostShift));
+        OnPropertyChanged(nameof(SuspiciousCostShiftLabel));
+    }
+
+    /// <summary>What the ingredient costs today, from the stock overview. Read once per screen load
+    /// and quietly absent when the user's permissions do not reach it: the warning it feeds is an
+    /// extra pair of eyes on a keyed price, not something receiving depends on.</summary>
+    private readonly Dictionary<string, long> _currentUnitCosts = new();
+
+    private long? LookupCurrentUnitCost(string inventoryItemId) =>
+        _currentUnitCosts.TryGetValue(inventoryItemId, out var cost) ? cost : null;
 
     [RelayCommand]
     private void RemoveReceiveLine(PurchaseLineEntry line)
     {
         if (!CanEditAction) return;
         ReceiveLines.Remove(line);
-        if (ReceiveLines.Count == 0) ReceiveLines.Add(new PurchaseLineEntry());
+        if (ReceiveLines.Count == 0) ReceiveLines.Add(NewLine());
     }
 
     [RelayCommand]
@@ -371,6 +466,15 @@ public partial class PurchasingViewModel : ObservableObject
         if (lines.Count == 0)
         {
             ReceiveError = "أضف صنفًا واحدًا على الأقل.";
+            return;
+        }
+        // Asked once, never refused: this system values an ingredient at its last purchase price,
+        // so a misplaced decimal here silently rewrites every recipe that uses it.
+        if (HasSuspiciousCostShift && !CostShiftAcknowledged)
+        {
+            ReceiveError = SuspiciousCostShiftLabel + " أكّد إنك متأكد قبل الحفظ.";
+            OnPropertyChanged(nameof(HasSuspiciousCostShift));
+            OnPropertyChanged(nameof(SuspiciousCostShiftLabel));
             return;
         }
         if (!CashInput.TryParse(ReceivePaidText, out var paid))

@@ -197,7 +197,7 @@ public sealed class CheckoutOrderHandler
             // Stock leaves the kitchen the moment the order is made, independent of whether the
             // money settles now or later (cash-on-delivery, a pending electronic transfer) - same
             // unconditional placement as the current app's checkout flow.
-            await _inventory.DeductForOrderAsync(orderId, resolvedItems, cashierUser.Name, now, ct);
+            await _inventory.DeductForOrderAsync(orderId, request.OrderType, resolvedItems, cashierUser.Name, now, ct);
 
             if (!plan.DefersAllMoney)
             {
