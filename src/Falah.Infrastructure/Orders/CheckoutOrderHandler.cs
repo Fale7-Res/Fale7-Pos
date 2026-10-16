@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Orders;
+﻿namespace Falah.Infrastructure.Orders;
 
 using Falah.Application.Orders;
 using Falah.Domain.Audit;
@@ -88,6 +88,16 @@ public sealed class CheckoutOrderHandler
                 request.DeliveryArea, request.DeliveryStreet, request.DeliveryBuilding, request.DeliveryFloor,
                 request.DeliveryApartment, request.DeliveryLandmark);
         }
+        else if (orderType == OrderType.Pickup)
+        {
+            // Enforced here for the same reason delivery is, spelled out above: the POS form is not
+            // the only way an order reaches this endpoint, so a pickup with nobody's name on it must
+            // be refused by the server rather than by whichever client happens to have a form.
+            var missing = DeliveryRules.FirstMissingPickupField(request.CustomerPhone, request.CustomerName);
+            if (missing is not null) throw new DomainException(missing);
+        }
+
+        CheckoutRules.AssertRequestedPickupTime(orderType, request.RequestedPickupAtUtc, DateTimeOffset.UtcNow);
 
         // Ported from checkout() in lib/store.tsx: 'pos' is the base gate on EVERY checkout,
         // unconditionally, before any comp logic runs at all - a comped checkout is still a
@@ -116,12 +126,16 @@ public sealed class CheckoutOrderHandler
                 throw new DomainException("الضيافة تتطلب اعتماد مدير.");
             var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CompApproverUserId, ct)
                 ?? throw new DomainException("المعتمد غير موجود.");
-            // NOTE: the approval registry is in-memory only in this slice (does not survive a
-            // Server restart) - see the TODO in docs/PROGRESS.md. Comp authorization is otherwise
-            // fully enforced (single-use, action-matched, role-gated issuance).
+            // The approval is looked up in the persisted registry (EfApprovalRegistry), so it survives
+            // a Server restart between the manager granting it and this checkout spending it. It is
+            // single-use, must match the orders_comp action, and only a role allowed to issue it can.
+            //
+            // Validated for EVERY cashier, including one who holds orders_comp: the order and the
+            // audit trail name this approver, so the approval has to be real. Holding the permission
+            // used to skip the check entirely and record whatever approver the request named.
             var approval = new ManagerApproval(request.CompApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "orders_comp", request.CompReason);
-            AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, cashier, "orders_comp", approval, requireApproval: true);
+            AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_comp", approval);
             compApprovedByName = approverUser.Name;
         }
 
@@ -170,13 +184,11 @@ public sealed class CheckoutOrderHandler
             orderEntity.DeliveryServiceId = request.DeliveryServiceId;
             orderEntity.DeliveryServiceName = request.DeliveryServiceName;
 
-            // The dine-in table, on the same footing as the delivery breakdown above: no rule of
-            // Order's own reads it, it exists so the runner knows where the tray goes. Trimmed to
-            // null so a stray space does not print an empty table on the ticket, and ignored for
-            // any order type that has no table.
-            orderEntity.TableNumber = order.OrderType == OrderType.DineIn
-                ? (string.IsNullOrWhiteSpace(request.TableNumber) ? null : request.TableNumber.Trim())
-                : null;
+            // No order type has a table any more - DineIn was the only one, and it is gone. The
+            // column and the request field stay so the orders written before the change still read
+            // back with the table they were served at; nothing new is ever written into it.
+            orderEntity.TableNumber = null;
+            orderEntity.RequestedPickupAtUtc = orderType == OrderType.Pickup ? request.RequestedPickupAtUtc : null;
 
             _db.Orders.Add(orderEntity);
 
@@ -187,6 +199,20 @@ public sealed class CheckoutOrderHandler
                     "ضيافة على طلب", "order", $"ضيافة {compAmount.Piastres} قرش على طلب {orderNumber} - {request.CompReason}",
                     "critical", now, ShiftId: request.ShiftId, Reason: request.CompReason, AuthorizedBy: compApprovedByName,
                     ReferenceId: orderId));
+            }
+
+            // A confirmed audit gap: a manual discount is gated by orders_discount above but, unlike
+            // its sibling comp branch, was never written to the audit trail - a discounted sale and a
+            // full-price sale looked identical in "سجل المراجعة". Id is deterministic on orderId (not
+            // a random Guid) so this line is naturally idempotent-safe with the rest of this handler:
+            // a retry that reaches this point only does so once, since FindExistingAsync's replay
+            // short-circuit at the top of HandleAsync returns before this code runs again.
+            if (discount.IsPositive)
+            {
+                _auditLog.Append(new AuditEvent(
+                    $"audit-discount-{orderId}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
+                    "خصم يدوي على طلب", "order", $"خصم {discount.Piastres} قرش على طلب {orderNumber}",
+                    "normal", now, ShiftId: request.ShiftId, ReferenceId: orderId));
             }
 
             // Ported from registerDeliveryOrder in the reference app: every delivery-type order gets
@@ -200,6 +226,22 @@ public sealed class CheckoutOrderHandler
                 {
                     Id = $"delivery-{orderId}", OrderId = orderId, Status = nameof(DeliveryStatus.New),
                     ShiftId = order.ShiftId, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
+                });
+
+                // The first of the two delivery print events: one DeliveryOrder ticket per delivery
+                // order, created here at order creation. Keyed on this checkout's own
+                // CheckoutRequestId, so it inherits the handler's existing idempotency exactly - a
+                // retried checkout short-circuits at FindExistingAsync before reaching this line and
+                // can never mint a second ticket. Creating the JOB writes no money and touches no
+                // order field; whether the paper ever comes out is the print agent's problem and is
+                // recorded only on the job itself, so a print failure can never affect this order.
+                _db.PrintJobs.Add(new PrintJobEntity
+                {
+                    Id = $"printjob-{request.CheckoutRequestId}-{Falah.Domain.Printing.PrintRoute.DeliveryOrder}",
+                    CreateRequestId = request.CheckoutRequestId, OrderId = orderId, OrderNumber = orderNumber,
+                    Route = nameof(Falah.Domain.Printing.PrintRoute.DeliveryOrder),
+                    Status = nameof(Falah.Domain.Printing.PrintJobStatus.Pending), AttemptCount = 0,
+                    IsReprint = false, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
                 });
             }
 

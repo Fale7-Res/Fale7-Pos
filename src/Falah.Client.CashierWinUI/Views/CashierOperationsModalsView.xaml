@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.CashierOperationsModalsView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.CashierOperationsModalsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
@@ -15,8 +15,8 @@
     -->
     <Grid>
         <!-- ================= SAFE DROP MODAL ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsSafeDropOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsSafeDropOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="إيداع بالخزنة (Safe Drop)" CloseCommand="{Binding CancelSafeDropCommand}" CloseAutomationId="SafeDrop_Close"/>
                     <TextBlock Text="نقل مبلغ فائض من الدرج إلى الخزنة أثناء الوردية." Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
@@ -25,12 +25,12 @@
                              FontSize="20" TextAlignment="Center"/>
                     <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="SafeDrop_Reason" PlaceholderText="سبب الإيداع" Text="{Binding SafeDropReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <StackPanel Spacing="8" Visibility="{Binding SafeDropNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="صلاحيتك الحالية لا تسمح بالإيداع للخزنة - أدخل رمز المدير المخوّل." Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="صلاحيتك الحالية لا تسمح بالإيداع للخزنة - أدخل رمز المدير المخوّل." Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="Bold" TextWrapping="Wrap"/>
                         <PasswordBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="SafeDrop_ManagerPin" Password="{Binding SafeDropManagerPin, Mode=TwoWay}"
                                  PlaceholderText="رمز المدير" FontSize="18"/>
                     </StackPanel>
-                    <TextBlock Text="{Binding SafeDropError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold"
+                    <TextBlock Text="{Binding SafeDropError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding SafeDropError, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <Button AutomationProperties.AutomationId="SafeDrop_Submit" Content="تأكيد الإيداع" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SubmitSafeDropCommand}"/>
@@ -39,8 +39,8 @@
         </Grid>
 
         <!-- ================= CASH IN / OUT MODAL ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsCashMovementOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCashMovementOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="{Binding CashMovementTitle}" CloseCommand="{Binding CancelCashMovementCommand}" CloseAutomationId="CashMovement_Close"/>
                     <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
@@ -48,12 +48,12 @@
                              FontSize="20" TextAlignment="Center"/>
                     <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashMovement_Reason" PlaceholderText="سبب الحركة" Text="{Binding CashMovementReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <StackPanel Spacing="8" Visibility="{Binding CashMovementNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="صلاحيتك الحالية لا تسمح بهذه الحركة - أدخل رمز المدير المخوّل." Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="صلاحيتك الحالية لا تسمح بهذه الحركة - أدخل رمز المدير المخوّل." Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="Bold" TextWrapping="Wrap"/>
                         <PasswordBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashMovement_ManagerPin" Password="{Binding CashMovementManagerPin, Mode=TwoWay}"
                                  PlaceholderText="رمز المدير" FontSize="18"/>
                     </StackPanel>
-                    <TextBlock Text="{Binding CashMovementError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold"
+                    <TextBlock Text="{Binding CashMovementError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding CashMovementError, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <Button AutomationProperties.AutomationId="CashMovement_Submit" Content="تأكيد" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SubmitCashMovementCommand}"/>
@@ -62,20 +62,20 @@
         </Grid>
 
         <!-- ================= CASH DRAWER MODAL ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsCashDrawerOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCashDrawerOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="فتح الدرج" CloseCommand="{Binding CancelCashDrawerCommand}" CloseAutomationId="CashDrawer_Close"/>
                     <TextBlock Text="يسجل طلب فتح الدرج؛ تأكد من فتح الدرج فعلياً."
                                Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
                     <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashDrawer_Reason" PlaceholderText="سبب فتح الدرج" Text="{Binding CashDrawerReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <StackPanel Spacing="8" Visibility="{Binding CashDrawerNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="صلاحيتك الحالية لا تسمح بفتح الدرج - أدخل رمز المدير المخوّل." Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="صلاحيتك الحالية لا تسمح بفتح الدرج - أدخل رمز المدير المخوّل." Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="Bold" TextWrapping="Wrap"/>
                         <PasswordBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashDrawer_ManagerPin" Password="{Binding CashDrawerManagerPin, Mode=TwoWay}"
                                  PlaceholderText="رمز المدير" FontSize="18"/>
                     </StackPanel>
-                    <TextBlock Text="{Binding CashDrawerError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold"
+                    <TextBlock Text="{Binding CashDrawerError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding CashDrawerError, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <Button AutomationProperties.AutomationId="CashDrawer_Submit" Content="تسجيل طلب فتح الدرج" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SubmitCashDrawerCommand}"/>
@@ -84,8 +84,8 @@
         </Grid>
 
         <!-- ================= CASH COUNT MODAL (read-only) ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsCashCountOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="24" Padding="24" Width="380" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCashCountOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="380" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="رصيد الدرج المسجل" CloseCommand="{Binding CloseCashCountCommand}" CloseAutomationId="CashCount_Close"/>
                     <TextBlock Text="الرصيد النقدي الحالي في الدرج (محسوب من حركات الخزينة الفعلية على السيرفر)."
@@ -95,15 +95,15 @@
                     <TextBlock Text="{Binding CashCountBalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
                                FontSize="32" FontWeight="Black" HorizontalAlignment="Center"
                                Visibility="{Binding IsLoadingCashCount, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
-                    <TextBlock Text="{Binding CashCountError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold"
+                    <TextBlock Text="{Binding CashCountError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding CashCountError, Converter={StaticResource NullToCollapsedConverter}}"/>
                 </StackPanel>
             </ScrollViewer></Border>
         </Grid>
 
         <!-- ================= ORDER LOOKUP + REPRINT MODAL ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="24" Padding="24" Width="460" MaxHeight="640" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24"><ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="460" MaxHeight="640" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="البحث عن طلب" CloseCommand="{Binding CloseOrderLookupCommand}" CloseAutomationId="OrderLookup_Close"/>
                     <Grid ColumnSpacing="8">
@@ -112,11 +112,11 @@
                         <Button Grid.Column="1" AutomationProperties.AutomationId="OrderLookup_Search" Content="بحث" Style="{StaticResource PrimaryButtonStyle}" MinHeight="44" Padding="16,8"
                                 Command="{Binding SearchOrderCommand}"/>
                     </Grid>
-                    <TextBlock Text="{Binding OrderLookupError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold"
+                    <TextBlock Text="{Binding OrderLookupError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding OrderLookupError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
                     <StackPanel Spacing="10" Visibility="{Binding OrderLookupResult, Converter={StaticResource NullToCollapsedConverter}}">
-                        <Border Background="#F8FAFC" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="14">
+                        <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="14">
                             <StackPanel Spacing="6">
                                 <Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -126,7 +126,7 @@
                                 <Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="الحالة:" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding OrderLookupResult.Status}" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding OrderLookupResult.Status, Converter={StaticResource OrderStatusLabelConverter}}" HorizontalAlignment="Left"/>
                                 </Grid>
                                 <Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -149,6 +149,11 @@
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="المكان:" FontWeight="Bold" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Column="1" Text="{Binding LookupTableLine}" HorizontalAlignment="Left"/>
+                                </Grid>
+                                <Grid ColumnSpacing="8" Visibility="{Binding HasLookupRequestedPickup, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="موعد الاستلام:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding LookupRequestedPickupLine}" HorizontalAlignment="Left" FontWeight="Bold"/>
                                 </Grid>
                             </StackPanel>
                         </Border>

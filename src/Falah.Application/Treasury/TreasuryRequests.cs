@@ -47,7 +47,13 @@ public sealed record SafeDropResult(string MovementId, long AmountPiastres, bool
 public sealed record TreasuryMovementDto(
     string Id, string Type, string? SourceAccountId, string? DestinationAccountId, long AmountPiastres,
     string ReferenceType, string ReferenceId, string? ShiftId, string Reason, string CreatedBy,
-    string? ApprovedBy, DateTimeOffset CreatedAtUtc);
+    string? ApprovedBy, DateTimeOffset CreatedAtUtc,
+    /// <summary>The reference in a form a person can look up - an order's own NUMBER (#0172) rather
+    /// than its internal id (ord-b111c8...). Resolved once at the server, where the orders already
+    /// are, so no client has to fetch an order per ledger row to render a readable line. Null when
+    /// the reference is not something with a human-facing name; the raw ReferenceId above is always
+    /// still there for tracing. Trailing optional so every existing construction keeps compiling.</summary>
+    string? ReferenceLabel = null);
 
 /// <summary>Balances for every fixed account in one read, so a treasury screen shows one consistent
 /// picture rather than five separately-timed reads that can disagree mid-refresh.</summary>

@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Controls.PermissionDeniedStateView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Controls.PermissionDeniedStateView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,7 +11,7 @@
         nav filter alone.
     -->
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Padding="40" MaxWidth="360">
-        <FontIcon Glyph="&#xE72E;" FontSize="32" Foreground="{StaticResource WarningBrush}"
+        <FontIcon Glyph="&#xE72E;" FontSize="32" Foreground="{ThemeResource WarningBrush}"
                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
         <TextBlock Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"
                    TextAlignment="Center" Text="لا تملك صلاحية الوصول"/>

@@ -1,10 +1,10 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.OrdersView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.OrdersView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
              FlowDirection="RightToLeft">
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -62,7 +62,7 @@
                     <ItemsControl ItemsSource="{Binding Orders}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
+                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
                                     <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="110"/>
@@ -74,8 +74,8 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}"
                                                    FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding OrderType}" Style="{StaticResource TableCellText}"
-                                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding OrderType, Converter={StaticResource OrderTypeLabelConverter}}" Style="{StaticResource TableCellText}"
+                                                   Foreground="{ThemeResource TextMutedBrush}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="2" Text="{Binding CustomerName}" Style="{StaticResource TableCellText}"
                                                    VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold"
@@ -83,7 +83,7 @@
                                         <Border Grid.Column="4" CornerRadius="8" Padding="8,3" VerticalAlignment="Center"
                                                 HorizontalAlignment="Right"
                                                 Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
-                                            <TextBlock Text="{Binding Status}" Style="{StaticResource StatusPillText}"/>
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource OrderStatusLabelConverter}}" Style="{StaticResource StatusPillText}"/>
                                         </Border>
                                         <Button Grid.Column="5" Content="عرض" MinHeight="44" FontSize="12"
                                                 Style="{StaticResource SecondaryButtonStyle}"
@@ -116,9 +116,9 @@
         </Border>
 
         <!-- ================= ORDER DETAIL ================= -->
-        <Grid Grid.Row="0" Grid.RowSpan="3" Background="#66313D35"
+        <Grid Grid.Row="0" Grid.RowSpan="3" Background="{ThemeResource OverlayBrush}"
               Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="620" MaxHeight="700"
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="620" MaxHeight="700"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -130,7 +130,7 @@
                     <StackPanel Spacing="6">
                         <controls:ModalHeaderView Title="{Binding SelectedOrder.OrderNumber}" CloseCommand="{Binding CloseOrderCommand}"/>
                         <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
-                            <Run Text="{Binding SelectedOrder.OrderType}"/><Run Text=" — "/>
+                            <Run Text="{Binding SelectedOrder.OrderType, Converter={StaticResource OrderTypeLabelConverter}}"/><Run Text=" — "/>
                             <Run Text="{Binding SelectedOrder.CustomerName}"/><Run Text=" "/>
                             <Run Text="{Binding SelectedOrder.CustomerPhone}"/>
                         </TextBlock>
@@ -143,7 +143,7 @@
                         <ItemsControl ItemsSource="{Binding SelectedOrder.Items}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -168,7 +168,7 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <Border Grid.Row="2" Background="#F9FAF7" BorderBrush="{StaticResource CardBorderBrush}"
+                    <Border Grid.Row="2" Background="{ThemeResource CartFooterBrush}" BorderBrush="{ThemeResource CardBorderBrush}"
                             BorderThickness="0,1,0,0" Padding="16,12" CornerRadius="0,0,12,12">
                         <StackPanel Spacing="6">
                             <Grid ColumnSpacing="8">
@@ -178,7 +178,7 @@
                                            Text="{Binding SelectedOrder.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
                             <TextBlock Style="{StaticResource CaptionText}">
-                                <Run Text="طريقة الدفع: "/><Run Text="{Binding SelectedOrder.PaymentMethod}"/>
+                                <Run Text="طريقة الدفع: "/><Run Text="{Binding SelectedOrder.PaymentMethod, Converter={StaticResource PaymentMethodLabelConverter}}"/>
                             </TextBlock>
                         </StackPanel>
                     </Border>

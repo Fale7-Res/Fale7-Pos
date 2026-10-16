@@ -35,9 +35,12 @@ public partial class TreasuryViewModel : ObservableObject
 
         public string TypeLabel => Movement.Type switch
         {
-            "sale" => "مبيعات",
+            // "sale"/"expense"/"supplier_payment" kept for any historical rows written before the
+            // handlers below settled on their current type strings - the switch must still label
+            // old data, not just new.
+            "sale" or "sale_collection" => "مبيعات",
             "refund" => "مرتجع",
-            "expense" => "مصروف",
+            "expense" or "expense_payment" => "مصروف",
             "owner_deposit" => "إيداع من المالك",
             "capital_injection" => "ضخ رأس مال",
             "other_external_inflow" => "تدفق خارجي",
@@ -45,8 +48,12 @@ public partial class TreasuryViewModel : ObservableObject
             "transfer" => "تحويل داخلي",
             "safe_drop" => "توريد للخزنة",
             "driver_settlement" => "توريد سائق",
-            "supplier_payment" => "سداد مورد",
+            "supplier_payment" or "purchase_payment" => "سداد مورد",
             "payroll_payment" => "صرف رواتب",
+            "cash_in" => "إيداع نقدية بالدرج",
+            "cash_out" => "سحب نقدية من الدرج",
+            "employee_advance" => "سلفة موظف",
+            "employee_withdrawal" => "سحب موظف من رصيده",
             _ => Movement.Type,
         };
 
@@ -58,17 +65,31 @@ public partial class TreasuryViewModel : ObservableObject
             : Movement.CreatedBy;
 
         /// <summary>The document behind the money, so a line can be traced to the thing that caused
-        /// it rather than taken on trust.</summary>
+        /// it rather than taken on trust. An order is named by the NUMBER the server resolved
+        /// (#0172), falling back to the raw id only when the order could not be resolved at all -
+        /// which is still better than showing nothing, but should not be the normal case.</summary>
         public string ReferenceDisplay => Movement.ReferenceType switch
         {
-            "order" => "طلب " + Movement.ReferenceId,
+            "order" => "طلب " + (Movement.ReferenceLabel ?? Movement.ReferenceId),
             "purchase" => "فاتورة " + Movement.ReferenceId,
             "expense" => "مصروف " + Movement.ReferenceId,
             "payroll" => "مسيّر " + Movement.ReferenceId,
+            "employee" => "موظف",
+            "employee_ledger" => "كشف حساب موظف",
             _ => string.IsNullOrWhiteSpace(Movement.ReferenceId) ? "" : Movement.ReferenceType + " " + Movement.ReferenceId,
         };
 
-        public string Reason => Movement.Reason;
+        /// <summary>
+        /// The movement's own stored reason, with any internal order id swapped for the order number
+        /// the server resolved. Sale and refund reasons are composed at write time ("تحصيل طلب
+        /// ord-b111c9ca..."), so the raw id is baked into rows that already exist; rewriting them is
+        /// not an option and the id is meaningless to an owner reading the ledger. Substituting here
+        /// keeps the stored value untouched and fixes historical rows as well as new ones.
+        /// </summary>
+        public string Reason => Movement.ReferenceLabel is { Length: > 0 } number
+                                && Movement.ReferenceId is { Length: > 0 } id
+            ? Movement.Reason.Replace(id, number, StringComparison.Ordinal)
+            : Movement.Reason;
         public string? SourceAccountId => Movement.SourceAccountId;
         public string? DestinationAccountId => Movement.DestinationAccountId;
     }

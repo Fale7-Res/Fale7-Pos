@@ -1,11 +1,11 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.PrintingView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.PrintingView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FlowDirection="RightToLeft">
     <!-- Status of the print queue per station. This system records jobs; a station agent prints
          them. That distinction is stated plainly rather than implied. -->
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -68,10 +68,10 @@
                                                Foreground="{Binding NeedsAttention, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|TextMutedBrush}"/>
                                     <TextBlock Text="{Binding WaitingLine}" Style="{StaticResource CaptionText}"
                                                HorizontalAlignment="Right" TextWrapping="Wrap"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding LastSuccessLine}" Style="{StaticResource CaptionText}"
                                                HorizontalAlignment="Right" TextWrapping="Wrap"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
@@ -113,7 +113,7 @@
                         <ItemsControl ItemsSource="{Binding RouteJobs}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="140"/>
@@ -130,12 +130,12 @@
                                                            Foreground="{Binding IsFailed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|NeutralTextBrush}"/>
                                             </Border>
                                             <TextBlock Grid.Column="2" Text="{Binding AgeLine}" Style="{StaticResource CaptionText}"
-                                                       VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                                                       VerticalAlignment="Center" Foreground="{ThemeResource TextMutedBrush}"/>
                                             <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding AttemptsLine}" Style="{StaticResource CaptionText}"
-                                                           Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                                           Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding ErrorLine}" Style="{StaticResource CaptionText}"
-                                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                                           Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
                                                            Visibility="{Binding HasError, Converter={StaticResource BoolToVisibleConverter}}"/>
                                             </StackPanel>
                                         </Grid>
@@ -179,7 +179,7 @@
                     <StackPanel Padding="18,16,18,10" Spacing="3">
                         <TextBlock Text="يحتاج تدخّل" Style="{StaticResource CardTitleText}"/>
                         <TextBlock Text="تذاكر فشلت، أو واقفة في الطابور من زمان - الطابعة أو برنامج المحطة مش شغال."
-                                   Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"
+                                   Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -188,7 +188,7 @@
                             <ItemsControl ItemsSource="{Binding NeedsAttention}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="18,10">
+                                        <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="18,10">
                                             <StackPanel Spacing="3">
                                                 <Grid ColumnSpacing="8">
                                                     <Grid.ColumnDefinitions>
@@ -202,11 +202,11 @@
                                                                Foreground="{Binding IsFailed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|WarningBrush}"/>
                                                 </Grid>
                                                 <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap"
-                                                           Foreground="{StaticResource TextMutedBrush}">
+                                                           Foreground="{ThemeResource TextMutedBrush}">
                                                     <Run Text="{Binding RouteLabel}"/><Run Text=" · "/><Run Text="{Binding AgeLine}"/>
                                                 </TextBlock>
                                                 <TextBlock Text="{Binding ErrorLine}" Style="{StaticResource CaptionText}"
-                                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                                           Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
                                                            Visibility="{Binding HasError, Converter={StaticResource BoolToVisibleConverter}}"/>
                                             </StackPanel>
                                         </Border>

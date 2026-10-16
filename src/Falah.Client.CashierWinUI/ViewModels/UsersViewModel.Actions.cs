@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Users;
@@ -31,6 +31,34 @@ public partial class UsersViewModel
     [ObservableProperty] private bool _isCreateUserOpen;
     [ObservableProperty] private string _newUserName = "";
     [ObservableProperty] private string _newUserRole = "";
+
+    /// <summary>The three roles this system actually recognises, with the exact keys the server
+    /// compares against. Typed free-hand, "Owner" or "مالك" silently produced an ordinary account
+    /// that merely looked like an owner - the owner-immutability rule matches the literal "owner"
+    /// and nothing else - so the role is picked, not spelled.</summary>
+    public sealed record RoleOption(string Key, string Label);
+
+    public IReadOnlyList<RoleOption> RoleOptions { get; } = new[]
+    {
+        new RoleOption("cashier", "كاشير"),
+        new RoleOption("manager", "مدير"),
+        new RoleOption(UserManagementRules.OwnerRole, "مالك (حساب الطوارئ المحمي)"),
+    };
+
+    [ObservableProperty] private RoleOption? _selectedNewUserRole;
+
+    partial void OnSelectedNewUserRoleChanged(RoleOption? value)
+    {
+        NewUserRole = value?.Key ?? "";
+        OnPropertyChanged(nameof(RoleHint));
+    }
+
+    /// <summary>Shown under the role picker so whoever creates the owner knows what they are
+    /// creating: it is the one account no administrator can deactivate or strip, and the system
+    /// allows exactly one.</summary>
+    public string RoleHint => SelectedNewUserRole?.Key == UserManagementRules.OwnerRole
+        ? "حساب المالك لا يمكن تعطيله ولا تعديل صلاحياته - وهو طريق الرجوع الوحيد لو ضاع باقي المديرين. يُنشأ مرة واحدة فقط."
+        : "";
     [ObservableProperty] private string _newUserPin = "";
     [ObservableProperty] private string _confirmUserPin = "";
     [ObservableProperty] private UserDetailsDto? _pinTarget;
@@ -53,6 +81,7 @@ public partial class UsersViewModel
     {
         if (!CanCreateUser) return;
         NewUserName = NewUserRole = NewUserPin = ConfirmUserPin = "";
+        SelectedNewUserRole = null;
         ActionError = ActionNote = null;
         NewUserPermissions.Clear();
         foreach (var definition in _catalog.OrderBy(d => d.Category).ThenBy(d => d.Key))
@@ -86,7 +115,9 @@ public partial class UsersViewModel
         {
             if (string.IsNullOrWhiteSpace(NewUserName) || string.IsNullOrWhiteSpace(NewUserRole))
             { ActionError = "اسم المستخدم ودوره مطلوبان."; return; }
-            if (NewUserRole.Trim() == UserManagementRules.OwnerRole) { ActionError = "لا يمكن إنشاء حساب مالك من هنا."; return; }
+            // The server decides whether an owner may be created (only when the installation has
+            // none yet) - the client used to refuse outright, which left a till with no owner no
+            // way to ever get one.
             if (!ValidatePin(NewUserPin, ConfirmUserPin)) return;
             var permissions = NewUserPermissions.Where(p => p.IsGranted).Select(p => p.Key).ToArray();
             if (permissions.Any(p => !_session.HasPermission(p))) { ActionError = "لا يمكنك منح صلاحية لا تملكها."; return; }

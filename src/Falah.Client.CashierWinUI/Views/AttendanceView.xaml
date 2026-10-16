@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.AttendanceView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.AttendanceView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,7 +7,7 @@
     <!-- Read of the real attendance records. Check-in/out are driven by the biometric device, not by
          this screen - see AttendanceViewModel's own doc comment for why manufacturing attendance
          from a desktop button would post real wage money for a shift nobody worked. -->
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -27,7 +27,7 @@
                         IsEnabled="{Binding CanBrowse}" AutomationProperties.Name="اليوم السابق" Command="{Binding PreviousDayCommand}">
                     <FontIcon Glyph="&#xE76C;" FontSize="12"/>
                 </Button>
-                <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1"
                         CornerRadius="10" Padding="16,0" MinHeight="44" MinWidth="150">
                     <TextBlock Text="{Binding DateLabel}" FontSize="14" FontWeight="SemiBold"
                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -70,7 +70,7 @@
                     <ItemsControl ItemsSource="{Binding Records}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                     <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -85,7 +85,7 @@
                                             <TextBlock Text="{Binding EmployeeName}" Style="{StaticResource TableCellText}"
                                                        FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Text="تصحيح يدوي" Style="{StaticResource CaptionText}"
-                                                       Foreground="{StaticResource WarningBrush}"
+                                                       Foreground="{ThemeResource WarningBrush}"
                                                        Visibility="{Binding IsManualCorrection, Converter={StaticResource BoolToVisibleConverter}}"/>
                                         </StackPanel>
 
@@ -130,14 +130,14 @@
             </Grid>
         </Border>
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="24"
-                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
             <TextBlock Text="{Binding ActionNote}" Foreground="White" TextWrapping="Wrap" MaxWidth="540"/>
         </Border>
 
-        <Grid Grid.RowSpan="2" Background="#66313D35"
+        <Grid Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"
               Visibility="{Binding IsCorrectionOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border x:Name="AttendanceCorrectionCard" Background="White" CornerRadius="20" Padding="24" MaxWidth="640" MaxHeight="730"
+            <Border x:Name="AttendanceCorrectionCard" Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="640" MaxHeight="730"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
                 <Grid RowSpacing="16">
                     <Grid.RowDefinitions>
@@ -171,7 +171,7 @@
                         </StackPanel>
                     </ScrollViewer>
                     <StackPanel x:Name="AttendanceCorrectionFooter" Grid.Row="2" Spacing="12">
-                        <TextBlock Text="{Binding CorrectionError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                        <TextBlock Text="{Binding CorrectionError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
                                    Visibility="{Binding CorrectionError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="{Binding SaveCorrectionLabel}" MinHeight="52" HorizontalAlignment="Stretch"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SaveCorrectionCommand}"/>

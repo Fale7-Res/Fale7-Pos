@@ -113,11 +113,23 @@ public sealed class ControlCenterQueryService
         }).ToList();
     }
 
-    public async Task<IReadOnlyList<ControlAuditEventDto>> ListAuditEventsAsync(int limit = 100, CancellationToken ct = default) =>
-        (await _db.ControlAuditEvents.AsNoTracking().OrderByDescending(e => e.CreatedAtUtc).Take(limit).ToListAsync(ct))
+    /// <summary>from/to are optional and additive - the one existing caller (Control Center's own
+    /// audit panel) passes neither and keeps reading the most recent N events unchanged. The daily
+    /// statement is the first caller to pass a range, so it can fold permission/user-management and
+    /// business-day open/close/reopen events (which post ONLY here, never to the general AuditEvent
+    /// table - see AuditQueryService's own doc comment) into one day's view without a second,
+    /// separately-maintained log ever being merged or migrated into the first.</summary>
+    public async Task<IReadOnlyList<ControlAuditEventDto>> ListAuditEventsAsync(
+        int limit = 100, DateTimeOffset? from = null, DateTimeOffset? to = null, CancellationToken ct = default)
+    {
+        var query = _db.ControlAuditEvents.AsNoTracking().AsQueryable();
+        if (from is not null) query = query.Where(e => e.CreatedAtUtc >= from);
+        if (to is not null) query = query.Where(e => e.CreatedAtUtc < to);
+        return (await query.OrderByDescending(e => e.CreatedAtUtc).Take(limit).ToListAsync(ct))
             .Select(e => new ControlAuditEventDto(e.Id, e.Action, e.Actor, e.EntityId, e.AmountPiastres, e.OperationId,
                 e.ApprovedBy, e.Reason, e.BlockerCodesJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<List<string>>(e.BlockerCodesJson), e.CreatedAtUtc))
             .ToList();
+    }
 
     public async Task<IReadOnlyList<CashDenominationCountDto>> ListCashCountsAsync(string businessDayId, CancellationToken ct = default) =>
         (await _db.CashDenominationCounts.AsNoTracking().Where(c => c.BusinessDayId == businessDayId)

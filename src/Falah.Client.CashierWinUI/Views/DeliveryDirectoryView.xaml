@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryDirectoryView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryDirectoryView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,9 +6,9 @@
              FlowDirection="RightToLeft">
     <!-- Drivers and delivery services. Retiring is always Active=false, never a delete: an order
          that was already sold keeps the service name and fee it was actually charged. -->
-    <Grid Background="#66313D35"
+    <Grid Background="{ThemeResource OverlayBrush}"
           Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
-        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="980" MaxHeight="860"
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="980" MaxHeight="860"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
             <Grid RowSpacing="14">
                 <Grid.RowDefinitions>
@@ -181,14 +181,14 @@
                                  IsEnabled="{Binding CanAct}"
                                  Visibility="{Binding NeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
                                  Password="{Binding ManagerPin, Mode=TwoWay}"/>
-                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
-                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <StackPanel Spacing="10" HorizontalAlignment="Center"

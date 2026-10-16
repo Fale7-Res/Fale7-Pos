@@ -1394,6 +1394,7 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Consumed")
+                        .IsConcurrencyToken()
                         .HasColumnType("bit");
 
                     b.Property<string>("Reason")
@@ -1521,6 +1522,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<long>("RefundAmountPiastres")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("RequestedPickupAtUtc")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<long>("SequenceNumber")
                         .HasColumnType("bigint");
@@ -2031,6 +2035,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DocumentKind")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsReprint")
                         .HasColumnType("bit");
 
@@ -2415,6 +2422,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("DefaultOpeningCashPiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("DeliveryFeePiastres")
                         .HasColumnType("bigint");
 
@@ -2432,6 +2442,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("MaxLatePenaltyHours")
                         .HasColumnType("int");
+
+                    b.Property<string>("MenuUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("NumberOfReceiptCopies")
                         .HasColumnType("int");

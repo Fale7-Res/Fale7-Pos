@@ -1,4 +1,4 @@
-using Falah.Client.CashierWinUI.Services;
+﻿using Falah.Client.CashierWinUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.CashDrawer;
@@ -315,9 +315,11 @@ public partial class CashierViewModel
         ReprintStatusMessage = null;
         try
         {
+            // Receipt only. Reprinting a customer's copy must not send the order to the kitchen
+            // again - a second Charcoal/Grill ticket is an order to cook the food twice.
             var request = _pendingReprint ?? new CreatePrintJobsRequest(
                 RequestId: $"rp-{Guid.NewGuid():N}", OrderId: OrderLookupResult.Id, CustomerRoute: "Receipt",
-                IsReprint: true, ActorUserId: _session.CurrentUser!.Id);
+                IsReprint: true, ActorUserId: _session.CurrentUser!.Id, IncludeKitchenRoutes: false);
             var wasUnresolved = _pendingReprint is not null;
             _pendingReprint = request; RefreshOperationState();
             var result = await _session.Api.CreatePrintJobsAsync(request.OrderId, request);

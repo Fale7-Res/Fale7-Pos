@@ -136,7 +136,10 @@ public sealed class RecordDeliveryResultHandler
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                $"تسجيل نتيجة توصيل: {targetStatus}", "order", $"طلب {delivery.OrderId} - {request.Reason}",
+                // Both the outcome and the order are said in the reader's own terms: the status as an
+                // Arabic word rather than the bare enum name, and the order by its NUMBER rather
+                // than its internal id.
+                $"تسجيل نتيجة توصيل: {DescribeOutcome(targetStatus)}", "order", $"طلب {order.OrderNumber} - {request.Reason}",
                 targetStatus == DeliveryStatus.Delivered ? "normal" : "warning", now,
                 Reason: request.Reason, AuthorizedBy: approval?.ApproverName, ReferenceId: delivery.Id));
 
@@ -157,4 +160,15 @@ public sealed class RecordDeliveryResultHandler
             throw new DeliveryConflictException("تعذر تسجيل نتيجة التوصيل بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }
+
+    /// <summary>The outcome in Arabic for the audit trail. The enum name itself is unchanged and
+    /// still what is stored on the delivery row and the event - this only governs the sentence a
+    /// person reads.</summary>
+    private static string DescribeOutcome(DeliveryStatus status) => status switch
+    {
+        DeliveryStatus.Delivered => "تم التسليم",
+        DeliveryStatus.Failed => "فشل التسليم",
+        DeliveryStatus.Returned => "مرتجع",
+        _ => status.ToString(),
+    };
 }

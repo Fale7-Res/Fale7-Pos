@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -178,6 +178,49 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
         Assert.Contains(categories!, c => c.TotalPiastres >= 12000);
     }
 
+    /// <summary>Top Selling says what sold and the dashboard trend says when the day was busy, but
+    /// neither could put the two together. This one asks the product x hour endpoint and checks that
+    /// a sale lands in the hour the Cairo wall clock was showing when it was rung up - not the UTC
+    /// hour, which is one or two columns to the left of it.</summary>
+    [Fact]
+    public async Task Product_hourly_sales_put_a_sale_in_its_own_cairo_hour()
+    {
+        await CashOrderAsync(12000);
+
+        var rows = await (await _client.GetAsync($"/api/reports/product-hourly?actorUserId={_managerId}"))
+            .Content.ReadFromJsonAsync<List<ProductHourlySalesDto>>();
+
+        var expectedHour = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, Falah.Domain.Common.BusinessClock.CairoTimeZone).Hour;
+        var sold = Assert.Single(rows!, r => r.TotalPiastres == 12000);
+        Assert.Equal(expectedHour, sold.Hour);
+        Assert.Equal(1, sold.Quantity);
+
+        // Every hour it reports is a real hour, and no hour is reported twice for one product.
+        Assert.All(rows!, r => Assert.InRange(r.Hour, 0, 23));
+        Assert.Equal(rows!.Count, rows.Select(r => (r.ProductName, r.Hour)).Distinct().Count());
+    }
+
+    /// <summary>The whole reason the screen can now ask for a week: a range that excludes today has
+    /// to come back empty rather than quietly falling back to everything.</summary>
+    [Fact]
+    public async Task Product_hourly_sales_respect_the_requested_range()
+    {
+        await CashOrderAsync(12000);
+
+        var today = Falah.Domain.Common.BusinessClock.Today();
+        var lastWeek = today.AddDays(-7);
+
+        var inRange = await (await _client.GetAsync(
+            $"/api/reports/product-hourly?actorUserId={_managerId}&from={today:yyyy-MM-dd}&to={today:yyyy-MM-dd}"))
+            .Content.ReadFromJsonAsync<List<ProductHourlySalesDto>>();
+        Assert.Contains(inRange!, r => r.TotalPiastres == 12000);
+
+        var outOfRange = await (await _client.GetAsync(
+            $"/api/reports/product-hourly?actorUserId={_managerId}&from={lastWeek:yyyy-MM-dd}&to={lastWeek:yyyy-MM-dd}"))
+            .Content.ReadFromJsonAsync<List<ProductHourlySalesDto>>();
+        Assert.Empty(outOfRange!);
+    }
+
     // ---- Food cost report ----
 
     [Fact]
@@ -274,6 +317,8 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
 
         var actions = await (await _client.GetAsync($"/api/reports/significant-actions?actorUserId={_managerId}")).Content.ReadFromJsonAsync<List<SignificantActionDto>>();
         Assert.Contains(actions!, a => a.Category == "expense" && a.Approver == "المدير" && a.AmountPiastres == 4000);
+        // The person, never the internal user id - every other source in this report names a person.
+        Assert.Contains(actions!, a => a.Category == "expense" && a.AmountPiastres == 4000 && a.Actor == "كاشير بلا صلاحية");
     }
 
     [Fact]
@@ -297,6 +342,66 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, summary.Sales.OrderCount);
         Assert.Equal(10000, summary.Sales.NetSalesPiastres);
         Assert.Equal(2000, summary.ExpensesTotalPiastres);
+    }
+
+    /// <summary>The Shifts screen's history table - the same per-shift figures
+    /// Shift_summary_reports_sales_expenses_and_opening_cash_for_one_shift proves for one shift,
+    /// here for the whole list, plus the display fields (who opened it, when) that list needs and
+    /// the single-shift report never did.</summary>
+    [Fact]
+    public async Task Shifts_history_lists_the_open_shift_with_its_name_and_totals()
+    {
+        await CashOrderAsync(15000);
+
+        var history = await (await _client.GetAsync($"/api/reports/shifts?actorUserId={_managerId}"))
+            .Content.ReadFromJsonAsync<List<ShiftSummaryDto>>();
+
+        var row = Assert.Single(history!, s => s.ShiftId == _shiftId);
+        Assert.Equal("Open", row.Status);
+        Assert.Equal("كاشير الاختبار", row.OpenedByUserName);
+        Assert.Null(row.ClosedByUserName);
+        Assert.Null(row.ClosedAtUtc);
+        Assert.Equal(50000, row.OpeningCashPiastres);
+        Assert.Equal(15000, row.Sales.NetSalesPiastres);
+    }
+
+    /// <summary>Closed shifts carry a closer's name distinct from the opener's - the history table's
+    /// whole reason for showing both columns.</summary>
+    [Fact]
+    public async Task Shifts_history_shows_who_closed_a_shift_separately_from_who_opened_it()
+    {
+        await (await _client.PostAsJsonAsync("/api/shifts/prepare-close",
+            new PrepareShiftCloseRequest(_shiftId, 50000))).Content.ReadFromJsonAsync<PrepareShiftCloseResult>();
+        await _client.PostAsJsonAsync("/api/shifts/close",
+            new CloseShiftRequest($"close-{Guid.NewGuid():N}", _shiftId, _managerId, 50000, null, null, null));
+
+        var history = await (await _client.GetAsync($"/api/reports/shifts?actorUserId={_managerId}"))
+            .Content.ReadFromJsonAsync<List<ShiftSummaryDto>>();
+
+        var row = Assert.Single(history!, s => s.ShiftId == _shiftId);
+        Assert.Equal("Closed", row.Status);
+        Assert.Equal("كاشير الاختبار", row.OpenedByUserName);
+        Assert.Equal("المدير", row.ClosedByUserName);
+        Assert.NotNull(row.ClosedAtUtc);
+    }
+
+    /// <summary>Gated exactly like the single-shift report it is built from - sales/cash figures are
+    /// management information, whichever shift they belong to.</summary>
+    [Fact]
+    public async Task Shifts_history_is_refused_without_reports_view()
+    {
+        var noPermCashier = await _factory.SeedUserAsync("كاشير بلا صلاحية", "cashier", "pos");
+        var response = await _client.GetAsync($"/api/reports/shifts?actorUserId={noPermCashier}");
+        Assert.False(response.IsSuccessStatusCode);
+    }
+
+    /// <summary>The current-shift endpoint used to report only an id - a manager who never opened
+    /// the shift themselves had no way to see whose it was without reading the history table.</summary>
+    [Fact]
+    public async Task Current_shift_reports_who_opened_it_by_name()
+    {
+        var current = await (await _client.GetAsync("/api/shifts/current")).Content.ReadFromJsonAsync<CurrentShiftDto>();
+        Assert.Equal("كاشير الاختبار", current!.OpenedByUserName);
     }
 
     // ---- Delivery outcomes ----
@@ -375,5 +480,72 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
         var noReportsUser = await _factory.SeedUserAsync("موظف عادي", "cashier", "pos");
         var response = await _client.GetAsync($"/api/reports/tax?actorUserId={noReportsUser}");
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    // ---- P0 regression: every Reports-screen panel must agree for the same business date ----
+
+    /// <summary>The confirmed pre-go-live bug: ReportsViewModel's own GetSalesReportAsync call
+    /// always appended "&shiftId=" even with no shift chosen - present but empty, not absent - so
+    /// ASP.NET Core bound the server's shiftId to "" rather than null, and LoadSalesOrdersAsync's
+    /// "if (shiftId is not null)" then filtered to ShiftId == "", matching zero orders. Every sibling
+    /// panel (top-items, product-hourly, delivery-outcomes, tax, food-cost) has no shiftId parameter
+    /// at all and kept reading the same rows correctly - exactly "headline zero, everything below it
+    /// real." Reproduces the exact historic query string (?shiftId= with no value) against every
+    /// panel for the same day and proves they now all agree.</summary>
+    [Fact]
+    public async Task All_report_panels_agree_for_the_same_business_date_even_with_an_empty_shiftId_query_value()
+    {
+        var (productId, recipeId, inventoryItemId) = await _factory.SeedProductWithRecipeAsync(10000, quantityMilliUnitsPerUnit: 200);
+        await _factory.QueryAsync(async db =>
+        {
+            db.StockMovements.Add(new Falah.Infrastructure.Persistence.Entities.StockMovementEntity
+            {
+                IdempotencyKey = $"seed-{Guid.NewGuid():N}", InventoryItemId = inventoryItemId, Type = "PurchaseReceipt",
+                Direction = "In", QuantityMilliUnits = 10000, UnitCostPiastres = 1000, ReferenceType = "seed",
+                ReferenceId = "seed", Reason = "seed", CreatedBy = "seed", CreatedAtUtc = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+            return 0;
+        });
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+        (await _client.PostAsJsonAsync("/api/orders/checkout", request)).EnsureSuccessStatusCode();
+
+        var today = Falah.Domain.Common.BusinessClock.Today();
+        var q = $"actorUserId={_managerId}&from={today:yyyy-MM-dd}&to={today:yyyy-MM-dd}";
+
+        // The exact historic client bug, reproduced literally: shiftId present, value empty.
+        var sales = await (await _client.GetAsync($"/api/reports/sales?{q}&shiftId="))
+            .Content.ReadFromJsonAsync<SalesReportDto>();
+        var topItems = await (await _client.GetAsync($"/api/reports/top-items?{q}")).Content.ReadFromJsonAsync<List<TopSellingItemDto>>();
+        var hourly = await (await _client.GetAsync($"/api/reports/product-hourly?{q}")).Content.ReadFromJsonAsync<List<ProductHourlySalesDto>>();
+        var tax = await (await _client.GetAsync($"/api/reports/tax?{q}")).Content.ReadFromJsonAsync<TaxReportDto>();
+        var foodCost = await (await _client.GetAsync($"/api/reports/food-cost?{q}")).Content.ReadFromJsonAsync<FoodCostReportDto>();
+
+        // The headline must no longer read zero while the panels below it are real.
+        Assert.Equal(1, sales!.OrderCount);
+        Assert.Equal(10000, sales.NetSalesPiastres);
+        Assert.Equal(10000, sales.CollectedSalesPiastres);
+
+        Assert.Contains(topItems!, i => i.TotalPiastres == 10000);
+        Assert.Contains(hourly!, h => h.TotalPiastres == 10000);
+        Assert.Equal(10000, tax!.GrossPiastres);
+        Assert.Equal(200, foodCost!.TotalFoodCostPiastres); // 200 milliUnits * 1000 piastres / 1000, same as the dedicated food-cost test
+
+        // And an explicit shiftId (present, non-empty) must still filter correctly - the fix must
+        // not have turned the filter itself into a no-op.
+        var wrongShift = await (await _client.GetAsync($"/api/reports/sales?{q}&shiftId=no-such-shift"))
+            .Content.ReadFromJsonAsync<SalesReportDto>();
+        Assert.Equal(0, wrongShift!.OrderCount);
+        var rightShift = await (await _client.GetAsync($"/api/reports/sales?{q}&shiftId={_shiftId}"))
+            .Content.ReadFromJsonAsync<SalesReportDto>();
+        Assert.Equal(1, rightShift!.OrderCount);
+        _ = recipeId;
     }
 }

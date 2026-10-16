@@ -1,9 +1,10 @@
-namespace Falah.Infrastructure.Shifts;
+﻿namespace Falah.Infrastructure.Shifts;
 
 using Falah.Application.Shifts;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Falah.Domain.Financial;
+using Falah.Domain.Printing;
 using Falah.Domain.Shifts;
 using Falah.Infrastructure.BusinessDay;
 using Falah.Infrastructure.Orders;
@@ -81,6 +82,14 @@ public sealed class OpenShiftHandler
                     $"عهدة افتتاح {shift.ShiftName}", openedByUser.Name, approvedBy: null, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
             }
+
+            // The cashier's own receipt for the float they were handed. Queued here so it exists if
+            // and only if the shift does; its id is derived from the shift, so a replay of this
+            // request cannot queue a second slip.
+            var openedBy = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.OpenedByUserId, ct);
+            _db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
+                PrintDocumentKind.ShiftOpen, shift.Id, PrintRules.ShiftOpenLabel,
+                openedBy?.Name ?? request.OpenedByUserId, now));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

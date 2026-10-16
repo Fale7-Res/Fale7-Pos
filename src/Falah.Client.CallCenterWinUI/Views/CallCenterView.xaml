@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterView"
+﻿<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -146,13 +146,17 @@
                             <Run Text="{Binding LookedUpOrder.OrderNumber}"/>
                         </TextBlock>
                         <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}">
-                            <Run Text="الحالة: "/><Run Text="{Binding LookedUpOrder.Status}"/>
+                            <Run Text="الحالة: "/><Run Text="{Binding LookedUpOrder.Status, Converter={StaticResource OrderStatusLabelConverter}}"/>
                         </TextBlock>
                         <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}">
                             <Run Text="العميل: "/><Run Text="{Binding LookedUpOrder.CustomerName}"/><Run Text=" - "/><Run Text="{Binding LookedUpOrder.CustomerPhone}"/>
                         </TextBlock>
                         <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap">
                             <Run Text="العنوان: "/><Run Text="{Binding LookedUpOrder.DeliveryArea}"/><Run Text=" - "/><Run Text="{Binding LookedUpOrder.DeliveryStreet}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"
+                                   Visibility="{Binding HasLookedUpRequestedPickup, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Run Text="موعد الاستلام: "/><Run Text="{Binding LookedUpRequestedPickupLine}"/>
                         </TextBlock>
                         <TextBlock FontSize="14" FontWeight="Bold">
                             <Run Text="الإجمالي: "/><Run Text="{Binding LookedUpOrder.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>

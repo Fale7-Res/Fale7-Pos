@@ -53,3 +53,26 @@ public sealed record RecordEmployeeCashOutRequest(
     string ShiftId, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);
 
 public sealed record EmployeeCashOutResult(string LedgerEntryId, long BalanceAfterPiastres, string? TreasuryMovementId, bool WasReplayed);
+
+/// <summary>The standalone "PAY EMPLOYEE" flow (final pre-go-live business rule): pays down an
+/// employee's continuous running balance at ANY time, in ANY amount up to that balance - no payroll
+/// run required. Sourced from the restaurant's own accounts (Main/Bank/InstaPay - the same set
+/// PayPayrollHandler already validates), never the drawer: a drawer-sourced, shift-scoped payment
+/// already exists as RecordEmployeeCashOutRequest's "withdrawal" kind, and this flow does not
+/// duplicate it. Capped at the current balance - unlike an advance, a payment can never overdraw
+/// what is actually owed.</summary>
+public sealed record PayEmployeeRequest(
+    string RequestId, string EmployeeId, long AmountPiastres, string PaymentAccountId, string ActorUserId,
+    string? Reason, string? ManagerApprovalId, string? ManagerApproverUserId);
+
+public sealed record PayEmployeeResult(string LedgerEntryId, long BalanceAfterPiastres, string TreasuryMovementId, bool WasReplayed);
+
+/// <summary>One employee's figures over an arbitrary date range - payroll/employee reporting "by
+/// today / last 7 days / last 10 days / month / custom range" now that payment is not tied to a
+/// payroll period. Earnings/Additions/Deductions/Advances/Payments are each a sum of the ledger
+/// types that make them up (see EmployeeFinancialReportQueryService); RemainingBalancePiastres is
+/// the same all-time running balance every other screen reads, included so this report needs no
+/// second screen to answer "so what do we still owe them."</summary>
+public sealed record EmployeeFinancialReportLineDto(
+    string EmployeeId, string EmployeeName, long EarningsPiastres, long AdditionsPiastres, long DeductionsPiastres,
+    long AdvancesPiastres, long PaymentsPiastres, long RemainingBalancePiastres);

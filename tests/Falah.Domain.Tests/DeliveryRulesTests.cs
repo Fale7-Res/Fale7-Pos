@@ -1,4 +1,4 @@
-using Falah.Domain.Common;
+﻿using Falah.Domain.Common;
 using Falah.Domain.Delivery;
 using Falah.Domain.Financial;
 using Xunit;
@@ -112,13 +112,21 @@ public class DeliveryRulesTests
         DeliveryRules.AssertCollectionAmount(Money.FromEgp(100m), Money.FromEgp(90m), reason: "العميل دفع أقل");
     }
 
+    /// <summary>A driver is out on the road while shifts change behind him, so his cash is settled per
+    /// business day or whenever he comes in - never as a condition of closing a cashier's shift. The
+    /// outstanding custody is reported (handover slip warning, dashboard, and the business day's own
+    /// close blocker), not used to refuse the close.</summary>
     [Fact]
-    public void Shift_cannot_close_while_one_of_its_deliveries_has_unsettled_custody()
+    public void Unsettled_custody_is_reported_for_a_shift_rather_than_blocking_its_close()
     {
         var deliveries = new[] { MakeDelivery("d1", "ord-1", PaymentMethod.Cash, settled: false, Money.FromEgp(50m)) with { ShiftId = "shift-1" } };
         var custodies = new[] { new DriverCustody("c1", "trip-1", "driver-1", "ord-1", "d1", Money.FromEgp(50m), Money.FromEgp(50m), Money.Zero, Money.Zero, CustodyStatus.Open, Now) };
 
-        Assert.Throws<DomainException>(() => DeliveryRules.AssertShiftHasNoUnsettledCustody(custodies, deliveries, "shift-1"));
+        var outstanding = DeliveryRules.UnsettledCustodyForShift(custodies, deliveries, "shift-1");
+
+        Assert.Equal("c1", Assert.Single(outstanding).Id);
+        // Another shift's deliveries are not this shift's business.
+        Assert.Empty(DeliveryRules.UnsettledCustodyForShift(custodies, deliveries, "shift-2"));
     }
 
     [Fact]
@@ -169,6 +177,23 @@ public class DeliveryRulesTests
     {
         var address = DeliveryRules.ComposeDeliveryAddress(null, null, null, null, null, "بجوار الصيدلية");
         Assert.Equal("بجوار الصيدلية", address);
+    }
+
+    [Fact]
+    public void A_pickup_needs_the_phone_first_then_the_name()
+    {
+        // Same field order the form shows them in, so the cashier is sent to the first empty box
+        // rather than the last one.
+        Assert.Equal("أدخل رقم هاتف العميل قبل المتابعة.", DeliveryRules.FirstMissingPickupField(null, "سارة"));
+        Assert.Equal("أدخل اسم العميل قبل المتابعة.", DeliveryRules.FirstMissingPickupField("01000000000", "   "));
+    }
+
+    [Fact]
+    public void A_pickup_with_a_name_and_a_phone_is_complete()
+    {
+        // And it asks for nothing else - no area, no street, no delivery service. Those are the
+        // delivery check's business; a pickup is collected at the counter.
+        Assert.Null(DeliveryRules.FirstMissingPickupField("01000000000", "سارة"));
     }
 
     private static DeliveryFacts MakeDelivery(string id, string orderId, PaymentMethod method, bool settled, Money amount) =>

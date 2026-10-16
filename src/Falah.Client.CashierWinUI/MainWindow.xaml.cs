@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Falah.Client.CashierWinUI.Services;
 using Falah.Client.CashierWinUI.ViewModels;
 using Falah.Client.CashierWinUI.Views;
 using Microsoft.UI.Windowing;
@@ -17,11 +18,22 @@ public partial class MainWindow : Window
         CloseNotice.DataContext = _viewModel;
         RecoveredNotice.DataContext = _viewModel;
         AppWindow.Closing += (_, args) => args.Cancel = !_viewModel.TryClose();
-        Closed += (_, _) => { _viewModel.PropertyChanged -= OnViewModelPropertyChanged; _viewModel.Stop(); };
+        Closed += (_, _) =>
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            ThemeService.Instance.Changed -= OnThemeChanged;
+            _viewModel.Stop();
+        };
 
         HeaderHost.DataContext = _viewModel.Header;
         HeaderHost.LockRequested += (_, _) => _viewModel.LockCommand.Execute(null);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        // Applied before the rest of the tree is populated: RootGrid.RequestedTheme is inherited
+        // by every descendant, so whatever is realised next (login screen or the full shell) is
+        // already correct rather than flashing Light and then repainting.
+        RootGrid.RequestedTheme = ThemeService.ToElementTheme(ThemeService.Instance.Current);
+        ThemeService.Instance.Changed += OnThemeChanged;
 
         ApplyIsLoggedIn();
         ApplyIsOnline();
@@ -30,6 +42,13 @@ public partial class MainWindow : Window
         // bindings first; do not expose a partially initialized root to activation/layout.
         MaximizeOnTargetDisplay();
     }
+
+    /// <summary>Live theme switching, no restart: RequestedTheme on the root propagates to the
+    /// whole subtree, and every `{ThemeResource}` binding in it re-resolves on its own. Raised off
+    /// the UI thread is not expected (ThemeService.Set is only ever called from a command), but the
+    /// dispatch keeps this safe even if that ever changes.</summary>
+    private void OnThemeChanged(AppTheme theme) =>
+        DispatcherQueue.TryEnqueue(() => RootGrid.RequestedTheme = ThemeService.ToElementTheme(theme));
 
     /// <summary>This is real dedicated POS hardware (a ~15" touch terminal), not a resizable desktop
     /// tool window - it should own the whole screen from launch. Maximizing rather than requesting a

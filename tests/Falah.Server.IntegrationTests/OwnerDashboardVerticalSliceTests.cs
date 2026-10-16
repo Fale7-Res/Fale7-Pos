@@ -198,8 +198,10 @@ public class OwnerDashboardVerticalSliceTests : IAsyncLifetime
 
         Assert.Null(dashboard!.Health.LastCompletedBackupAtUtc);
         Assert.Null(dashboard.Health.LastBackupAgeHours);
-        // Every print route is listed even when it has never run, so a silent printer is visible.
-        Assert.Equal(4, dashboard.Health.PrintRoutes.Count);
+        // Every print route is listed even when it has never run, so a silent printer is visible -
+        // six now that DeliveryOrder and DriverDispatch exist alongside Receipt/CallCenter/
+        // Charcoal/Grill.
+        Assert.Equal(6, dashboard.Health.PrintRoutes.Count);
         Assert.All(dashboard.Health.PrintRoutes, r => Assert.Null(r.LastSuccessAtUtc));
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Delivery;
@@ -40,18 +40,27 @@ public partial class CashierViewModel
     {
         NotifyTotals();
         OnPropertyChanged(nameof(IsDelivery));
-        OnPropertyChanged(nameof(IsDineIn));
+        OnPropertyChanged(nameof(IsPickup));
         OnPropertyChanged(nameof(OrderTypeLabel));
-        // A table number left over from the last dine-in order must not ride along on a takeaway.
-        if (value != "dine_in") TableNumber = string.Empty;
+        OnPropertyChanged(nameof(PickupSummary));
+        // Customer details left over from the last order must not ride along on a walk-in takeaway,
+        // which asks for nobody's name.
+        if (value == "takeaway") { CustomerName = ""; CustomerPhone = ""; }
+        // A collection time belongs to a pickup and to nothing else - it must not ride along on a
+        // delivery or a walk-in.
+        if (value != "pickup") ClearRequestedPickupTime();
         if (value == "delivery") OpenDeliveryEditor();
+        if (value == "pickup") OpenPickupEditor();
     }
 
     partial void OnSelectedDeliveryServiceChanged(DeliveryServiceDto? value) => NotifyTotals();
     partial void OnCustomerPhoneChanged(string value)
     {
         SavedAddresses.Clear(); SelectedSavedAddress = null; CustomerLookupMessage = null;
+        OnPropertyChanged(nameof(PickupSummary));
     }
+
+    partial void OnCustomerNameChanged(string value) => OnPropertyChanged(nameof(PickupSummary));
     partial void OnSelectedSavedAddressChanged(CustomerAddressDto? value)
     {
         if (value is null) return;

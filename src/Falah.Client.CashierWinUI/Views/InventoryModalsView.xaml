@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.InventoryModalsView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.InventoryModalsView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,8 +7,8 @@
     <Grid>
 
         <!-- ================= PHYSICAL COUNT ADJUSTMENT ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsCountOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="440" MaxHeight="640"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCountOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="440" MaxHeight="640"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
@@ -27,7 +27,7 @@
                         <TextBox IsEnabled="{Binding CanEditAction}" Header="الكمية المعدودة فعليًا" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
                                  Text="{Binding CountActualText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBlock Text="{Binding CountDifferenceLabel}" Style="{StaticResource CaptionText}"
-                                   Foreground="{StaticResource BrandPrimaryBrush}" TextAlignment="Center"/>
+                                   Foreground="{ThemeResource BrandPrimaryBrush}" TextAlignment="Center"/>
 
                         <TextBox IsEnabled="{Binding CanEditAction}" Header="سبب التسوية (إلزامي)" MinHeight="44" TextWrapping="Wrap"
                                  Text="{Binding CountReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -39,7 +39,7 @@
                                          Password="{Binding CountManagerPin, Mode=TwoWay}"/>
                         </StackPanel>
 
-                        <TextBlock Text="{Binding CountError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding CountError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding CountError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
@@ -51,8 +51,8 @@
         </Grid>
 
         <!-- ================= WASTE / SPOILAGE / BREAKAGE ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsWasteOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="440" MaxHeight="660"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsWasteOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="440" MaxHeight="660"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
@@ -68,7 +68,7 @@
                         <!-- Three distinct types, never merged: each implies a different corrective
                              action (prep error / storage-expiry / handling accident). -->
                         <TextBlock Text="نوع الفاقد" Style="{StaticResource MutedText}"/>
-                        <Grid ColumnSpacing="6" Background="#F0F3EF" CornerRadius="12" Padding="4">
+                        <Grid ColumnSpacing="6" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -103,7 +103,7 @@
                                          Password="{Binding WasteManagerPin, Mode=TwoWay}"/>
                         </StackPanel>
 
-                        <TextBlock Text="{Binding WasteError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding WasteError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding WasteError, Converter={StaticResource NullToCollapsedConverter}}"/>
 

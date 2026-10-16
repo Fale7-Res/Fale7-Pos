@@ -1,4 +1,4 @@
-using Falah.Domain.Common;
+﻿using Falah.Domain.Common;
 using Falah.Domain.Financial;
 using Falah.Domain.Orders;
 using Falah.Domain.Reports;
@@ -98,11 +98,11 @@ public class SalesRulesTests
     [Fact]
     public void Order_type_totals_are_net_of_that_orders_own_refund()
     {
-        var order = MakeOrder("1", OrderType.DineIn, PaymentMethod.Cash, new[] { Item(200m, 200m) });
+        var order = MakeOrder("1", OrderType.Pickup, PaymentMethod.Cash, new[] { Item(200m, 200m) });
         order.ApplyRefund(new OrderRefund("r1", "op1", "k1", Money.FromEgp(50m), PaymentMethod.Cash, "tm1", Now, "c1", "m1", "reason", "shift-1", "shift-1"));
 
         var report = SalesRules.ComputeSalesReport(new[] { order }, NoCashOutside);
-        Assert.Equal(Money.FromEgp(150m), report.DineIn);
+        Assert.Equal(Money.FromEgp(150m), report.Pickup);
         Assert.Equal(Money.Zero, report.Takeaway);
         Assert.Equal(Money.Zero, report.Delivery);
     }

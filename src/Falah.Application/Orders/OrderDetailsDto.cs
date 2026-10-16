@@ -1,4 +1,4 @@
-namespace Falah.Application.Orders;
+﻿namespace Falah.Application.Orders;
 
 /// <summary>What a client sees when it (re)opens an order to display or print it - a proper API
 /// contract, not the raw EF persistence entity. Read-only by construction: nothing about fetching
@@ -21,7 +21,10 @@ public sealed record OrderDetailsDto(
     /// were not exposed here - so an order that read "multi" could not be reconciled from any
     /// screen, receipt or report. An accountant needs to see which part came from where.</summary>
     IReadOnlyList<OrderSplitPaymentDto>? SplitPayments = null,
-    /// <summary>The dine-in table this order was for, as it was at the time.</summary>
-    string? TableNumber = null);
+    /// <summary>The dine-in table this order was for, as it was at the time. Dine-in is gone; this
+    /// still reads back for the orders written before it was.</summary>
+    string? TableNumber = null,
+    /// <summary>When the customer said they would collect a pickup order. Null elsewhere.</summary>
+    DateTimeOffset? RequestedPickupAtUtc = null);
 
 public sealed record OrderSplitPaymentDto(string Method, long AmountPiastres);

@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Printing;
@@ -72,12 +72,17 @@ public partial class PrintingViewModel : ObservableObject
         public string OrderNumber => Job.OrderNumber;
         public bool IsFailed => Job.Status == "Failed";
 
+        // Same wording as PrintRouteLabelConverter. Kept here rather than calling it because view
+        // models are also compiled into Falah.Client.Tests, which has no WinUI converters. This map
+        // used to miss the two delivery routes and showed "DeliveryOrder"/"DriverDispatch" in English.
         public string RouteLabel => Job.Route switch
         {
             "Receipt" => "إيصال الكاشير",
             "CallCenter" => "إيصال مركز الاتصال",
             "Charcoal" => "محطة الفحم",
             "Grill" => "محطة الشواية",
+            "DeliveryOrder" => "أوردر الدليفري",
+            "DriverDispatch" => "تذكرة السائق",
             _ => Job.Route,
         };
 

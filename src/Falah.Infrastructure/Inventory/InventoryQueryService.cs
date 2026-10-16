@@ -51,8 +51,10 @@ public sealed class InventoryQueryService
 
     public async Task<LossSummaryDto> GetLossSummaryAsync(DateOnly businessDate, CancellationToken ct = default)
     {
-        var dayStart = businessDate.ToDateTime(TimeOnly.MinValue);
-        var dayEnd = dayStart.AddDays(1);
+        // Was: businessDate.ToDateTime(TimeOnly.MinValue), which treats Cairo local midnight as if
+        // it were UTC midnight - misaligning this screen's day boundary by 2-3 hours against every
+        // other business-day-scoped report in the system (they all go through BusinessClock).
+        var (dayStart, dayEnd) = BusinessClock.UtcRangeForBusinessDate(businessDate);
         var lossTypes = new[] { nameof(StockMovementType.Waste), nameof(StockMovementType.Spoilage), nameof(StockMovementType.Breakage) };
         var rows = await _db.StockMovements.AsNoTracking()
             .Where(m => lossTypes.Contains(m.Type) && m.CreatedAtUtc >= dayStart && m.CreatedAtUtc < dayEnd)

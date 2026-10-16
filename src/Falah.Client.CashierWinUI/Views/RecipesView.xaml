@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.RecipesView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.RecipesView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,7 +12,7 @@
         its known cost as a floor ("من ..."), and its margin is left blank with the reason printed
         underneath rather than computed against a cost with holes in it.
     -->
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -49,7 +49,7 @@
                 <StackPanel Spacing="3">
                     <TextBlock Text="{Binding CoverageHeadline}" FontWeight="SemiBold" Style="{StaticResource BodyText}"/>
                     <TextBlock Text="{Binding CoverageDetail}" Style="{StaticResource CaptionText}"
-                               Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                               Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
                                Visibility="{Binding HasCoverageWarning, Converter={StaticResource BoolToVisibleConverter}}"/>
                 </StackPanel>
             </Border>
@@ -88,16 +88,16 @@
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"
                                                    Style="{StaticResource TableCellText}"/>
                                         <TextBlock Text="{Binding CategoryName}" Style="{StaticResource CaptionText}"
-                                                   Foreground="{StaticResource TextMutedBrush}"/>
+                                                   Foreground="{ThemeResource TextMutedBrush}"/>
                                         <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource CaptionText}"
-                                                   Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                                   Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
                                                    Visibility="{Binding IsComplete, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="3" HorizontalAlignment="Left" MinWidth="86">
                                         <TextBlock Text="{Binding CostDisplay}" FontWeight="SemiBold"
                                                    Style="{StaticResource TableCellText}" HorizontalAlignment="Left"/>
                                         <TextBlock Text="{Binding FoodCostPercentDisplay}" Style="{StaticResource CaptionText}"
-                                                   Foreground="{StaticResource BrandPrimaryBrush}" HorizontalAlignment="Left"/>
+                                                   Foreground="{ThemeResource BrandPrimaryBrush}" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>
@@ -119,9 +119,9 @@
 
                     <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="300" Padding="16"
                                 Visibility="{Binding HasNoRecipes, Converter={StaticResource BoolToVisibleConverter}}">
-                        <Border Width="60" Height="60" CornerRadius="20" Background="{StaticResource NeutralBackgroundBrush}"
+                        <Border Width="60" Height="60" CornerRadius="20" Background="{ThemeResource NeutralBackgroundBrush}"
                                 HorizontalAlignment="Center">
-                            <FontIcon Glyph="&#xE7C1;" FontSize="24" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                            <FontIcon Glyph="&#xE7C1;" FontSize="24" Foreground="{ThemeResource BrandPrimaryBrush}"/>
                         </Border>
                         <TextBlock Text="لا توجد وصفات بعد" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
                         <TextBlock Text="اربط الأصناف بمكوّناتها من شاشة القائمة لحساب التكلفة الفعلية"
@@ -144,9 +144,9 @@
                     <!-- Nothing selected: say what this side is for rather than leave it blank -->
                     <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" Padding="24"
                                 Visibility="{Binding HasSelection, Converter={StaticResource InverseBoolToVisibleConverter}}">
-                        <Border Width="64" Height="64" CornerRadius="22" Background="{StaticResource NeutralBackgroundBrush}"
+                        <Border Width="64" Height="64" CornerRadius="22" Background="{ThemeResource NeutralBackgroundBrush}"
                                 HorizontalAlignment="Center">
-                            <FontIcon Glyph="&#xE7BF;" FontSize="26" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                            <FontIcon Glyph="&#xE7BF;" FontSize="26" Foreground="{ThemeResource BrandPrimaryBrush}"/>
                         </Border>
                         <TextBlock Text="اختر صنفًا لعرض تكلفته" Style="{StaticResource SectionTitleText}" HorizontalAlignment="Center"/>
                         <TextBlock TextAlignment="Center" TextWrapping="Wrap" Style="{StaticResource MutedText}"
@@ -184,10 +184,10 @@
                                 <TextBlock Text="{Binding Detail.ProductName}" Style="{StaticResource CardTitleText}" TextWrapping="Wrap"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="{Binding Detail.CategoryName}" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
-                                    <TextBlock Text="·" Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
+                                    <TextBlock Text="·" Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding Detail.Name}" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                 </StackPanel>
                             </StackPanel>
                             <Button Grid.Column="1" MinHeight="44" VerticalAlignment="Top" Content="تعديل المكوّنات"
@@ -207,10 +207,10 @@
                             <Border Style="{StaticResource CardBorderStyle}" Padding="14,11">
                                 <StackPanel Spacing="3">
                                     <TextBlock Text="تكلفة المكوّنات" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding DetailCostDisplay}" Style="{StaticResource MetricValueText}"/>
                                     <TextBlock Text="{Binding DetailPackagingCostDisplay}" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"
+                                               Foreground="{ThemeResource TextMutedBrush}"
                                                Visibility="{Binding HasPackagingCost, Converter={StaticResource BoolToVisibleConverter}}"/>
                                 </StackPanel>
                             </Border>
@@ -218,17 +218,17 @@
                             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="14,11">
                                 <StackPanel Spacing="3">
                                     <TextBlock Text="سعر البيع" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding DetailPriceDisplay}" Style="{StaticResource MetricValueText}"/>
                                     <TextBlock Text="{Binding DetailPriceBasisNote}" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                 </StackPanel>
                             </Border>
 
                             <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="14,11">
                                 <StackPanel Spacing="3">
                                     <TextBlock Text="المساهمة" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding DetailContributionDisplay}" Style="{StaticResource MetricValueText}"/>
                                 </StackPanel>
                             </Border>
@@ -236,9 +236,9 @@
                             <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Padding="14,11">
                                 <StackPanel Spacing="3">
                                     <TextBlock Text="نسبة تكلفة الطعام" Style="{StaticResource CaptionText}"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                               Foreground="{ThemeResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding DetailFoodCostPercentDisplay}" Style="{StaticResource MetricValueText}"
-                                               Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                               Foreground="{ThemeResource BrandPrimaryBrush}"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -272,7 +272,7 @@
                                     <ItemsControl ItemsSource="{Binding DetailLines}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="20,10">
+                                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="20,10">
                                                     <Grid ColumnSpacing="10">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -286,25 +286,25 @@
                                                             <TextBlock Text="{Binding ItemName}" Style="{StaticResource TableCellText}"
                                                                        FontWeight="SemiBold" TextWrapping="Wrap"/>
                                                             <TextBlock Text="{Binding MissingReason}" Style="{StaticResource CaptionText}"
-                                                                       Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                                                       Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
                                                                        Visibility="{Binding HasMissingReason, Converter={StaticResource BoolToVisibleConverter}}"/>
                                                         </StackPanel>
 
                                                         <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding QuantityDisplay}" Style="{StaticResource TableCellText}"/>
                                                             <TextBlock Text="{Binding BaseQuantityDisplay}" Style="{StaticResource CaptionText}"
-                                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                                                       Foreground="{ThemeResource TextMutedBrush}"/>
                                                         </StackPanel>
 
                                                         <TextBlock Grid.Column="2" Text="{Binding KindLabel}" VerticalAlignment="Center"
-                                                                   Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                                                   Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
 
                                                         <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding UnitCostDisplay}" Style="{StaticResource TableCellText}"/>
                                                             <TextBlock Text="{Binding SourceLabel}" Style="{StaticResource CaptionText}"
-                                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                                                       Foreground="{ThemeResource TextMutedBrush}"/>
                                                             <TextBlock Text="{Binding CostAsOfDisplay}" Style="{StaticResource CaptionText}"
-                                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                                                       Foreground="{ThemeResource TextMutedBrush}"/>
                                                         </StackPanel>
 
                                                         <TextBlock Grid.Column="4" Text="{Binding ExtendedCostDisplay}" VerticalAlignment="Center"
@@ -350,7 +350,7 @@
                                     <ItemsControl ItemsSource="{Binding EditorLines}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="20,10">
+                                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="20,10">
                                                     <Grid ColumnSpacing="10">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -413,12 +413,12 @@
                             <StackPanel Spacing="4"
                                         Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibleConverter}}">
                                 <TextBlock Text="{Binding DetailCompletenessLabel}" Style="{StaticResource CaptionText}"
-                                           Foreground="{StaticResource TextMutedBrush}"/>
+                                           Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Text="{Binding DetailMissingLabel}" Style="{StaticResource CaptionText}"
-                                           Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
                                            Visibility="{Binding HasDetailMissing, Converter={StaticResource BoolToVisibleConverter}}"/>
                                 <TextBlock Text="{Binding MarginWithheldReason}" Style="{StaticResource CaptionText}"
-                                           Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
                                            Visibility="{Binding HasMarginWithheldReason, Converter={StaticResource BoolToVisibleConverter}}"/>
                             </StackPanel>
 
@@ -430,7 +430,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding SaveError}" Style="{StaticResource CaptionText}" VerticalAlignment="Center"
-                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
                                            Visibility="{Binding SaveError, Converter={StaticResource NullToCollapsedConverter}}"/>
                                 <Button Grid.Column="1" MinHeight="44" Content="إلغاء" Style="{StaticResource SecondaryButtonStyle}"
                                         Command="{Binding CancelEditCommand}"/>

@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.MenuEditorView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.MenuEditorView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,9 +9,9 @@
          price rules), which the view model enforces - this view only reflects it. Every input is
          disabled while a write is in flight or unresolved, so a retry can never pick up edited
          values instead of the values that were actually submitted. -->
-    <Grid Background="#66313D35"
+    <Grid Background="{ThemeResource OverlayBrush}"
           Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
-        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="1220" MaxHeight="900"
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="1220" MaxHeight="900"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
             <Grid RowSpacing="14">
                 <Grid.RowDefinitions>
@@ -136,8 +136,8 @@
                         <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
                                     MaxWidth="420" Padding="24">
                             <Border Width="64" Height="64" CornerRadius="22" HorizontalAlignment="Center"
-                                    Background="{StaticResource NeutralBackgroundBrush}">
-                                <FontIcon Glyph="&#xE70F;" FontSize="26" Foreground="{StaticResource BrandPrimaryBrush}"/>
+                                    Background="{ThemeResource NeutralBackgroundBrush}">
+                                <FontIcon Glyph="&#xE70F;" FontSize="26" Foreground="{ThemeResource BrandPrimaryBrush}"/>
                             </Border>
                             <TextBlock Text="{Binding KindTitle}" Style="{StaticResource SectionTitleText}"
                                        HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
@@ -225,10 +225,10 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Width="132" Height="96" CornerRadius="12" Background="{StaticResource NeutralBackgroundBrush}"
-                                                BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                                        <Border Width="132" Height="96" CornerRadius="12" Background="{ThemeResource NeutralBackgroundBrush}"
+                                                BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1">
                                             <Grid>
-                                                <TextBlock Text="بدون صورة" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
+                                                <TextBlock Text="بدون صورة" FontSize="12" Foreground="{ThemeResource TextMutedBrush}"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 <Image Source="{Binding ProductImageUri, Converter={StaticResource ImageUriToSourceConverter}}" Stretch="UniformToFill"
                                                        Visibility="{Binding HasProductImage, Converter={StaticResource BoolToVisibleConverter}}"/>
@@ -240,7 +240,7 @@
                                                 <Button Content="اختيار صورة" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
                                                         IsEnabled="{Binding CanEditImage}" Command="{Binding ChooseImageCommand}"/>
                                                 <Button Content="حذف الصورة" MinHeight="44" Style="{StaticResource GhostButtonStyle}"
-                                                        Foreground="{StaticResource DangerBrush}"
+                                                        Foreground="{ThemeResource DangerBrush}"
                                                         Visibility="{Binding HasProductImage, Converter={StaticResource BoolToVisibleConverter}}"
                                                         IsEnabled="{Binding CanEditImage}" Command="{Binding RemoveImageCommand}"/>
                                                 <ProgressRing IsActive="{Binding IsImageBusy}" Width="22" Height="22" VerticalAlignment="Center"/>
@@ -268,7 +268,7 @@
                                     <ItemsControl ItemsSource="{Binding Variants}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="{StaticResource NeutralBackgroundBrush}" CornerRadius="12"
+                                                <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12"
                                                         Padding="12" Margin="0,0,0,8">
                                                     <Grid ColumnSpacing="10">
                                                         <Grid.ColumnDefinitions>
@@ -321,7 +321,7 @@
                                     </ItemsControl>
 
                                     <TextBlock Text="الأصناف المشمولة" Style="{StaticResource SectionTitleText}"/>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="12"
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="12"
                                             MaxHeight="260">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
                                             <ItemsControl ItemsSource="{Binding PriceProducts}">
@@ -347,14 +347,14 @@
                 </Grid>
 
                 <StackPanel Grid.Row="3" Spacing="10">
-                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
-                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <TextBlock Text="ليس لديك صلاحية تعديل هذا القسم؛ يمكنك الاطلاع فقط."

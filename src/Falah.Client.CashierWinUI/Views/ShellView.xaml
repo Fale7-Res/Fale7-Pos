@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.ShellView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.ShellView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FlowDirection="RightToLeft">
@@ -17,13 +17,13 @@
         The bar carries the same dark ground as the app header directly above it, with no gap, so the
         two read as one piece of chrome instead of two stacked bars.
     -->
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Background="{StaticResource ShellNavBrush}" Padding="14,0">
+        <Border Background="{ThemeResource ShellNavBrush}" Padding="14,0">
             <ScrollViewer HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto"
                           VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled">
                 <!-- Entries are appended here in code-behind, one per permitted group. -->

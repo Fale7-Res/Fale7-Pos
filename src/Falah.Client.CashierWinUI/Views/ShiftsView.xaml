@@ -1,0 +1,411 @@
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.ShiftsView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- Ported from ShiftsScreen.tsx: header + action button, the active-shift live card (dark
+         panel, matching this app's own established graphite-dark-surface convention rather than
+         the reference's one-off slate gradient), the shift-history table, and the two modals
+         (blind close in two steps, open-shift). -->
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Padding="28,24,28,12" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="إدارة الورديات وتقفيل الخزنة (التقفيل الأعمى)" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="نظام جرد وعد الخزنة بدون إظهار الرصيد المتوقع مسبقاً لمنع التلاعب وضمان الشفافية"
+                           Style="{StaticResource PageSubtitleText}" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- Exactly the reference's three-way header action: close button while a shift is open,
+                 open button when none is and the actor may open one, an explanatory notice otherwise
+                 (never a button that would just fail on click). -->
+            <Button Grid.Column="1" Style="{StaticResource PrimaryButtonStyle}" MinHeight="44" VerticalAlignment="Center"
+                    Command="{Binding OpenCloseShiftModalCommand}"
+                    Visibility="{Binding HasActiveShift, Converter={StaticResource BoolToVisibleConverter}}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE72E;" FontSize="14"/>
+                    <TextBlock Text="تقفيل الوردية الحالية (جرد أعمى)" FontWeight="Bold" FontSize="13"/>
+                </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Style="{StaticResource SuccessButtonStyle}" MinHeight="44" VerticalAlignment="Center"
+                    Command="{Binding OpenOpenShiftModalCommand}"
+                    Visibility="{Binding CanOpenNewShift, Converter={StaticResource BoolToVisibleConverter}}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                    <TextBlock Text="فتح وردية جديدة" FontWeight="Bold" FontSize="13"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28,0,28,24">
+            <StackPanel Spacing="16">
+
+                <TextBlock Text="فتح الوردية يتطلب مدير أو مالك" Style="{StaticResource CaptionText}"
+                           Foreground="{ThemeResource TextMutedBrush}" HorizontalAlignment="Left"
+                           Visibility="{Binding ShowOpenNotAllowedNotice, Converter={StaticResource BoolToVisibleConverter}}"/>
+
+                <TextBlock Text="{Binding LoadError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
+                           TextWrapping="Wrap" Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                <!-- Active shift live card - dark, matching AppHeaderView/ShellNav's own established
+                     graphite surface, not a page-specific gradient invented for this screen alone. -->
+                <Border Background="{ThemeResource GraphiteBrush}" BorderBrush="{ThemeResource GraphiteBorderBrush}"
+                        BorderThickness="1" CornerRadius="24" Padding="24"
+                        Visibility="{Binding HasActiveShift, Converter={StaticResource BoolToVisibleConverter}}">
+                    <StackPanel Spacing="16">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Foreground="{ThemeResource TextOnDarkBrush}" FontWeight="Black" FontSize="16">
+                                    <Run Text="{Binding ActiveShift.ShiftName}"/><Run Text=" (الوردية النشطة)"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding ActiveShiftOpenedLine}" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="12"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="999" Padding="12,4" VerticalAlignment="Center">
+                                <TextBlock Text="مفتوحة وقيد العمل" Foreground="{ThemeResource SuccessBrush}" FontWeight="Bold" FontSize="11"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Sales/cash figures are management information - a cashier operates the
+                             shift and blind-counts it, but must never see the running total
+                             beforehand, which is what keeps the blind close honest. -->
+                        <ItemsControl Visibility="{Binding CanSeeShiftTotals, Converter={StaticResource BoolToVisibleConverter}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="10"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="رصيد الافتتاح" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShift.OpeningCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                               Foreground="{ThemeResource TextOnDarkBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="إجمالي المبيعات" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShiftSummary.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                               Foreground="{ThemeResource SuccessBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="مبيعات نقدية (كاش)" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShiftSummary.Sales.CashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                               Foreground="{ThemeResource TextOnDarkBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="مبيعات فيزا / بنك" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShiftSummary.Sales.CardPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                               Foreground="{ThemeResource InfoBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="مبيعات InstaPay" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShiftSummary.Sales.InstaPayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                               Foreground="{ThemeResource InstaPayBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="المصروفات المسجلة" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShiftSummary.ExpensesTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                               Foreground="{ThemeResource DangerBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12" MinWidth="130">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="عدد الطلبات" Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding ActiveShiftSummary.Sales.OrderCount}"
+                                               Foreground="{ThemeResource WarningBrush}" FontWeight="Black" FontSize="16"/>
+                                </StackPanel>
+                            </Border>
+                        </ItemsControl>
+
+                        <Border Background="{ThemeResource GraphiteButtonBrush}" CornerRadius="16" Padding="12"
+                                Visibility="{Binding CanSeeShiftTotals, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                            <TextBlock Text="إجماليات المبيعات والنقدية مخصصة للإدارة. عند التقفيل ستقوم بعدّ الدرج فعليًا دون عرض الرصيد المتوقع مسبقًا."
+                                       Foreground="{ThemeResource TextOnDarkMutedBrush}" FontSize="11" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Shift history -->
+                <Border Style="{StaticResource PageCardStyle}" Padding="0">
+                    <StackPanel>
+                        <Grid Padding="16,14" Background="{ThemeResource NeutralBackgroundBrush}" ColumnSpacing="8">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE81C;" FontSize="14" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Text="سجل إغلاق وتسوية الورديات السابقة" Style="{StaticResource SectionTitleText}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding History.Count}" Style="{StaticResource CaptionText}"
+                                       Foreground="{ThemeResource TextMutedBrush}" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <TextBlock Margin="16" TextWrapping="Wrap" Style="{StaticResource CaptionText}"
+                                   Foreground="{ThemeResource TextMutedBrush}"
+                                   Text="سجل الورديات وأرقام المبيعات مخصص للإدارة (صلاحية عرض التقارير)."
+                                   Visibility="{Binding IsHistoryRestricted, Converter={StaticResource BoolToVisibleConverter}}"/>
+
+                        <ScrollViewer HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto"
+                                      Visibility="{Binding IsHistoryRestricted, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                            <StackPanel MinWidth="1020">
+                                <Grid Padding="16,10" ColumnSpacing="8" Background="{ThemeResource TableHeaderBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/><ColumnDefinition Width="200"/><ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="150"/><ColumnDefinition Width="170"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="الوردية" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="1" Text="تاريخ الفتح / الإغلاق" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="2" Text="الكاشير المغلق" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="3" Text="الافتتاح" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="المبيعات" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="المصروفات" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="المتوقع بالدرج" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="الفعلي المعدود" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="8" Text="الفارق النقدي" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="9" Text="الإجراء" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding History}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                                <Grid ColumnSpacing="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="180"/><ColumnDefinition Width="200"/><ColumnDefinition Width="140"/>
+                                                        <ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/>
+                                                        <ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="150"/><ColumnDefinition Width="170"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding ShiftName}" Style="{StaticResource TableCellText}" FontWeight="Bold"/>
+                                                        <TextBlock Text="{Binding OpenedByLine}" Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding OpenedLine}" Style="{StaticResource TableCellText}"/>
+                                                        <TextBlock Text="{Binding ClosedLine}" Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" Text="{Binding ClosedByOrOpenedByName}" Style="{StaticResource TableCellText}"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding OpeningCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                               Style="{StaticResource TableCellText}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="4" Text="{Binding NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                               Foreground="{ThemeResource SuccessBrush}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="5" Text="{Binding ExpensesTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                               Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="6" Text="{Binding ExpectedCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                               Style="{StaticResource TableCellText}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="7" Text="{Binding ActualCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                               Style="{StaticResource TableCellText}" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+                                                    <StackPanel Grid.Column="8" HorizontalAlignment="Center">
+                                                        <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="999" Padding="10,3"
+                                                                Visibility="{Binding IsBalanced, Converter={StaticResource BoolToVisibleConverter}}">
+                                                            <TextBlock Text="مطابق (0 ج)" Foreground="{ThemeResource SuccessBrush}" FontWeight="Black" FontSize="11"/>
+                                                        </Border>
+                                                        <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="999" Padding="10,3"
+                                                                Visibility="{Binding IsDeficit, Converter={StaticResource BoolToVisibleConverter}}">
+                                                            <TextBlock Foreground="{ThemeResource DangerBrush}" FontWeight="Black" FontSize="11">
+                                                                <Run Text="عجز "/><Run Text="{Binding AbsoluteDifferencePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                                            </TextBlock>
+                                                        </Border>
+                                                        <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="999" Padding="10,3"
+                                                                Visibility="{Binding IsSurplus, Converter={StaticResource BoolToVisibleConverter}}">
+                                                            <TextBlock Foreground="{ThemeResource WarningBrush}" FontWeight="Black" FontSize="11">
+                                                                <Run Text="زيادة +"/><Run Text="{Binding AbsoluteDifferencePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                                            </TextBlock>
+                                                        </Border>
+                                                        <TextBlock Text="قيد العمل" Foreground="{ThemeResource TextMutedBrush}"
+                                                                   Visibility="{Binding IsClosed, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                                                    </StackPanel>
+
+                                                    <!-- The action column: whether the shift is still running, and the reprints of its
+                                                         own paperwork. A reprint queues a marked print job and nothing else. -->
+                                                    <StackPanel Grid.Column="9" Spacing="4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <TextBlock Text="نشطة" Foreground="{ThemeResource SuccessBrush}" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center"
+                                                                   Visibility="{Binding IsClosed, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                                                        <Button Content="طباعة الافتتاح" MinHeight="40" FontSize="12" HorizontalAlignment="Stretch"
+                                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                                AutomationProperties.AutomationId="Shifts_ReprintOpen"
+                                                                AutomationProperties.Name="إعادة طباعة إيصال الافتتاح"
+                                                                Command="{Binding ElementName=Root, Path=DataContext.ReprintShiftOpenCommand}" CommandParameter="{Binding}"/>
+                                                        <Button Content="طباعة التسليم" MinHeight="40" FontSize="12" HorizontalAlignment="Stretch"
+                                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                                AutomationProperties.AutomationId="Shifts_ReprintClose"
+                                                                AutomationProperties.Name="إعادة طباعة إيصال التسليم"
+                                                                Visibility="{Binding IsClosed, Converter={StaticResource BoolToVisibleConverter}}"
+                                                                Command="{Binding ElementName=Root, Path=DataContext.ReprintShiftCloseCommand}" CommandParameter="{Binding}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="لا توجد ورديات مسجلة" Style="{StaticResource MutedText}" Margin="16,20" HorizontalAlignment="Center"
+                                           Visibility="{Binding History.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+            <ProgressRing IsActive="True" Width="36" Height="36"/>
+            <TextBlock Text="جاري تحميل الورديات..." Style="{StaticResource MutedText}"/>
+        </StackPanel>
+
+        <!-- ===================== BLIND CLOSE MODAL ===================== -->
+        <Grid Background="{ThemeResource OverlayBrush}"
+              Visibility="{Binding IsCloseShiftModalOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Width="480" MaxHeight="640"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{ThemeResource GraphiteBrush}" CornerRadius="24,24,0,0" Padding="20,16">
+                        <controls:ModalHeaderView Title="تقفيل الوردية (الجرد الأعمى للخزنة)" CloseCommand="{Binding CancelCloseShiftModalCommand}"
+                                                   CloseAutomationId="Shifts_CloseModal_Close"/>
+                    </Border>
+                    <ScrollViewer Grid.Row="1" Padding="20"><StackPanel Spacing="14">
+
+                        <!-- STEP 1: blind count -->
+                        <StackPanel Spacing="14" Visibility="{Binding IsCloseShiftCounting, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Border Background="{ThemeResource WarningBackgroundBrush}" BorderBrush="{ThemeResource WarningBrush}" BorderThickness="1"
+                                    CornerRadius="16" Padding="14">
+                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource WarningBrush}">
+                                    <Run Text="تنبيه أمان للخزنة: " FontWeight="Bold"/>
+                                    <Run Text="قم بعد كافة المبالغ النقدية الموجودة بالدرج فعلياً، واكتب المبلغ الإجمالي دون أي تقريب. سيقوم النظام بمقارنته مع المبيعات والمصروفات المسجلة وحساب الفارق آلياً."/>
+                                </TextBlock>
+                            </Border>
+                            <TextBox Header="المبلغ النقدي الفعلي الموجود بالدرج (بالجنيه):" MinHeight="52" InputScope="Number"
+                                     AutomationProperties.AutomationId="Shifts_CountedCash"
+                                     Text="{Binding CloseShiftActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding CloseShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                                       Visibility="{Binding CloseShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
+                                <Button Content="إلغاء" MinHeight="48" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelCloseShiftModalCommand}"/>
+                                <Button Grid.Column="1" Content="متابعة وحساب الفارق" MinHeight="48" Style="{StaticResource PrimaryButtonStyle}"
+                                        AutomationProperties.AutomationId="Shifts_PrepareClose"
+                                        Command="{Binding PrepareCloseShiftCommand}"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- STEP 2: discrepancy reveal + approval -->
+                        <StackPanel Spacing="14" Visibility="{Binding IsCloseShiftCounting, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                            <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="16" Padding="14">
+                                <StackPanel Spacing="8">
+                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="الكاش المتوقع بالدرج (السيستم):" Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding CloseShiftPreview.ExpectedCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                                    </Grid>
+                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="الكاش الفعلي المعدود (الكاشير):" Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding CloseShiftPreview.ActualCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                                    </Grid>
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="الفارق النقدي:" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding CloseShiftPreview.DifferencePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                       FontWeight="Black" Foreground="{ThemeResource DangerBrush}"/>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="سبب الفارق النقدي (العجز أو الزيادة):" Style="{StaticResource CaptionText}" FontWeight="Bold"
+                                           Foreground="{Binding CloseShiftNeedsApproval, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=DangerBrush|TextMutedBrush}"/>
+                                <TextBox Text="{Binding CloseShiftReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                                         AutomationProperties.AutomationId="Shifts_DifferenceReason"
+                                         PlaceholderText="اكتب تفاصيل سبب العجز أو الزيادة" TextWrapping="Wrap" MinHeight="60"/>
+                            </StackPanel>
+
+                            <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="14" Padding="12"
+                                    Visibility="{Binding CloseShiftNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                                <StackPanel Spacing="10">
+                                    <TextBlock Text="يتطلب حفظ هذا الإغلاق موافقة المدير وإدخال رمز PIN." Foreground="{ThemeResource DangerBrush}"
+                                               FontSize="12" TextWrapping="Wrap"/>
+                                    <PasswordBox Header="رمز المدير" MinHeight="44" MaxLength="6"
+                                                 AutomationProperties.AutomationId="Shifts_ManagerPin"
+                                                 Password="{Binding CloseShiftManagerPin, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding CloseShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                                       Visibility="{Binding CloseShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
+                                <Button Content="إعادة العد" MinHeight="48" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding BackToCloseShiftCountCommand}"/>
+                                <Button Grid.Column="1" Content="تأكيد إغلاق الوردية" MinHeight="48" Style="{StaticResource PrimaryButtonStyle}"
+                                        AutomationProperties.AutomationId="Shifts_ConfirmClose"
+                                        Command="{Binding ConfirmCloseShiftCommand}"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel></ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ===================== OPEN SHIFT MODAL ===================== -->
+        <Grid Background="{ThemeResource OverlayBrush}"
+              Visibility="{Binding IsOpenShiftModalOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="440"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                <StackPanel Spacing="14">
+                    <controls:ModalHeaderView Title="افتتاح وردية جديدة" CloseCommand="{Binding CloseOpenShiftModalCommand}"
+                                               CloseAutomationId="Shifts_OpenModal_Close"/>
+
+                    <ComboBox Header="اسم الوردية:" HorizontalAlignment="Stretch" MinHeight="44"
+                              ItemsSource="{Binding ShiftNameOptions}" DisplayMemberPath="Label"
+                              SelectedItem="{Binding SelectedShiftName, Mode=TwoWay}"/>
+
+                    <TextBox Header="رصيد العهدة النقدية الافتتاحية (الفكة بالدرج):" MinHeight="52" InputScope="Number"
+                             AutomationProperties.AutomationId="Shifts_OpeningCash"
+                             Text="{Binding OpeningCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12"
+                            Visibility="{Binding CanSeeMainTreasuryBalance, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock TextWrapping="Wrap" FontSize="12">
+                            <Run Text="الرصيد المتاح بالخزنة الرئيسية: " Foreground="{ThemeResource TextMutedBrush}"/>
+                            <Run Text="{Binding MainTreasuryBalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                        </TextBlock>
+                    </Border>
+                    <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="14" Padding="12"
+                            Visibility="{Binding MainTreasuryIsEmpty, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock TextWrapping="Wrap" FontSize="12" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"
+                                   Text="الخزنة الرئيسية فارغة، فلن يمكن تحويل أي عهدة نقدية للدرج. يمكنك فتح الوردية برصيد افتتاحي 0 والاستمرار، أو تمويل الخزنة أولًا من شاشة الخزينة والعُهد."/>
+                    </Border>
+
+                    <TextBlock Text="{Binding OpenShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                               Visibility="{Binding OpenShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Button Content="إلغاء" MinHeight="48" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CloseOpenShiftModalCommand}"/>
+                        <Button Grid.Column="1" Content="فتح الوردية" MinHeight="48" Style="{StaticResource SuccessButtonStyle}"
+                                AutomationProperties.AutomationId="Shifts_ConfirmOpen"
+                                Command="{Binding ConfirmOpenShiftCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

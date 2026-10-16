@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -84,27 +84,27 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
     }
 
-    /// <summary>The ticket contract has carried a table number since it was written, PrintRules
-    /// prints it, a domain test covers it - and nothing ever supplied one. The receipt composer
-    /// passed a hard-coded null, so every dine-in ticket said "صالة" and left the runner carrying
-    /// the tray to ask whose food it was.
+    /// <summary>Dine-in was the only order type that ever had a table, and it has been replaced by
+    /// pickup, which is collected at the counter. So a table number sent by any client is now
+    /// dropped on the way in rather than frozen on the order: the column and the request field stay
+    /// only so the orders written before the change still read back with the table they were served
+    /// at.
     ///
-    /// This follows one table number the whole way: typed at the till, frozen on the order,
-    /// readable again after the order is looked up, and printed on both the customer's receipt and
-    /// the kitchen's preparation ticket.</summary>
+    /// This follows one the whole way - sent at checkout, absent from the order when it is looked
+    /// up again, and absent from both the customer's receipt and the kitchen's ticket.</summary>
     [Fact]
-    public async Task A_dine_in_table_number_reaches_the_receipt_and_the_kitchen_ticket()
+    public async Task A_pickup_order_carries_no_table_even_if_one_is_sent()
     {
-        var charcoalProduct = await CreateProductAsync("كباب طاولة", 20_000, "Charcoal");
+        var charcoalProduct = await CreateProductAsync("كباب الفحم", 20_000, "Charcoal");   // not "طاولة": the assertion below looks for that word
 
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
-            OrderType: "dine_in", PaymentMethod: "cash",
+            OrderType: "pickup", PaymentMethod: "cash",
             Items: new[] { new CheckoutItemRequest(charcoalProduct, null, 1, null, null) },
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 20_000, SplitPayments: null, WalletProvider: null,
-            TableNumber: "  12  ", CustomerName: null, CustomerPhone: null,
+            TableNumber: "  12  ", CustomerName: "سارة", CustomerPhone: "01000000000",
             DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
 
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
@@ -114,23 +114,112 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
 
         // Escaped, because an order number is "#0001" and an unescaped # is a URL fragment - which
         // is exactly what every real client already does before asking.
-        // Survives the round trip, trimmed - a stray space must not print an empty table.
         var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={Uri.EscapeDataString(checkout!.OrderNumber)}"))
             .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
-        Assert.Equal("12", looked!.TableNumber);
+        Assert.Null(looked!.TableNumber);
 
         var jobs = await CreatePrintJobsAsync(checkout.OrderId, "Receipt");
         foreach (var job in jobs!.Jobs)
         {
             var ticket = await (await _client.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
                 .Content.ReadFromJsonAsync<ComposedTicketDto>();
-            var text = string.Join("\n", ticket!.Lines.Select(l => l.Text));
-            Assert.Contains("12", text);
+            var text = string.Join('\n', ticket!.Lines.SelectMany(TicketDtoText.Of));
+            // Not the digits - the shop's own phone number on the footer contains "12". What must
+            // be absent is any table at all.
+            Assert.DoesNotContain("طاولة", text);
+            Assert.Contains("استلام من المطعم", text);
         }
 
         // Both of them: the customer's copy and the charcoal station's.
         Assert.Contains(jobs.Jobs, j => j.Route == "Receipt");
         Assert.Contains(jobs.Jobs, j => j.Route == "Charcoal");
+    }
+
+    /// <summary>A requested collection time, followed the whole way: sent at checkout, frozen on the
+    /// order, readable again after lookup, and printed on both the customer's receipt and the
+    /// station's ticket - the station being the one that must not cook it now.</summary>
+    [Fact]
+    public async Task A_requested_pickup_time_reaches_the_order_the_receipt_and_the_kitchen()
+    {
+        var charcoalProduct = await CreateProductAsync("كفتة محجوزة", 20_000, "Charcoal");
+        var wantedAtUtc = DateTimeOffset.UtcNow.AddHours(3);
+
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "pickup", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(charcoalProduct, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 20_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: "سارة", CustomerPhone: "01000000000",
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            RequestedPickupAtUtc: wantedAtUtc);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var checkout = await response.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+
+        var looked = await (await _client.GetAsync($"/api/orders/lookup?orderNumber={Uri.EscapeDataString(checkout!.OrderNumber)}"))
+            .Content.ReadFromJsonAsync<Falah.Application.Orders.OrderDetailsDto>();
+        Assert.NotNull(looked!.RequestedPickupAtUtc);
+        Assert.Equal(wantedAtUtc.ToUnixTimeSeconds(), looked.RequestedPickupAtUtc!.Value.ToUnixTimeSeconds());
+
+        var jobs = await CreatePrintJobsAsync(checkout.OrderId, "Receipt");
+        foreach (var job in jobs!.Jobs)
+        {
+            var ticket = await (await _client.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
+                .Content.ReadFromJsonAsync<ComposedTicketDto>();
+            var text = string.Join('\n', ticket!.Lines.SelectMany(TicketDtoText.Of));
+            Assert.Contains("موعد الاستلام", text);
+        }
+        Assert.Contains(jobs.Jobs, j => j.Route == "Receipt");
+        Assert.Contains(jobs.Jobs, j => j.Route == "Charcoal");
+    }
+
+    /// <summary>A time in the past is refused by the server, not only by the till's own form.</summary>
+    [Fact]
+    public async Task A_requested_pickup_time_in_the_past_is_refused()
+    {
+        var productId = await _factory.SeedProductAsync(15_000);
+
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "pickup", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 15_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: "سارة", CustomerPhone: "01000000000",
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null,
+            RequestedPickupAtUtc: DateTimeOffset.UtcNow.AddHours(-2));
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Contains("موعد الاستلام", await response.Content.ReadAsStringAsync());
+    }
+
+    /// <summary>A pickup is the customer who ordered ahead and comes to collect, so the counter has
+    /// to be able to match a waiting person to a waiting bag. The POS form asks for the name and
+    /// phone, but the Call Center posts straight to this endpoint with no such form, so the refusal
+    /// has to live here.</summary>
+    [Fact]
+    public async Task A_pickup_order_without_a_name_and_phone_is_refused()
+    {
+        var productId = await _factory.SeedProductAsync(15_000);
+
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "pickup", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 15_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null,
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Contains("رقم هاتف العميل", await response.Content.ReadAsStringAsync());
     }
 
     /// <summary>A table number left on a takeaway order would print a table that does not exist.</summary>
@@ -252,7 +341,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
 
         var charcoalJobId = result.Jobs.Single(j => j.Route == "Charcoal").Id;
         var charcoalTicket = await (await _client.GetAsync($"/api/print-jobs/{charcoalJobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
-        var charcoalText = string.Join('\n', charcoalTicket!.Lines.Select(l => l.Text));
+        var charcoalText = string.Join('\n', charcoalTicket!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("كباب", charcoalText);
         Assert.DoesNotContain("فراخ مشوية", charcoalText);
     }
@@ -510,7 +599,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var reprintCharcoalJobId = reprint.Jobs.Single(j => j.Route == "Charcoal").Id;
         var reprintTicket = await (await _client.GetAsync($"/api/print-jobs/{reprintCharcoalJobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
         Assert.Equal("Charcoal", reprintTicket!.Route);
-        Assert.Contains("كباب حلة", string.Join('\n', reprintTicket.Lines.Select(l => l.Text)));
+        Assert.Contains("كباب حلة", string.Join('\n', reprintTicket.Lines.SelectMany(TicketDtoText.Of)));
 
         // A brand-new order for the SAME (now-Grill) product must route to Grill.
         var newOrder = await CheckoutAsync((productId, 1));
@@ -538,13 +627,13 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
 
         var oldCharcoalJobId = reprint.Jobs.Single(j => j.Route == "Charcoal").Id;
         var oldCharcoalText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{oldCharcoalJobId}/ticket"))
-            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.Select(l => l.Text));
+            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("كباب", oldCharcoalText); // originally-Charcoal product still on the Charcoal ticket
         Assert.DoesNotContain("فراخ مشوية", oldCharcoalText);
 
         var oldGrillJobId = reprint.Jobs.Single(j => j.Route == "Grill").Id;
         var oldGrillText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{oldGrillJobId}/ticket"))
-            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.Select(l => l.Text));
+            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("فراخ مشوية", oldGrillText); // originally-Grill product still on the Grill ticket
         Assert.DoesNotContain("كباب", oldGrillText);
 
@@ -554,12 +643,12 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
 
         var newGrillJobId = newJobs!.Jobs.Single(j => j.Route == "Grill").Id;
         var newGrillText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{newGrillJobId}/ticket"))
-            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.Select(l => l.Text));
+            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("كباب", newGrillText); // now-Grill product (originally Charcoal) is on the new Grill ticket
 
         var newCharcoalJobId = newJobs.Jobs.Single(j => j.Route == "Charcoal").Id;
         var newCharcoalText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{newCharcoalJobId}/ticket"))
-            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.Select(l => l.Text));
+            .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("فراخ مشوية", newCharcoalText); // now-Charcoal product (originally Grill) is on the new Charcoal ticket
     }
 
@@ -597,7 +686,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var jobId = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!.Jobs.Single().Id;
 
         var ticket = await (await _client.GetAsync($"/api/print-jobs/{jobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
-        var text = string.Join('\n', ticket!.Lines.Select(l => l.Text));
+        var text = string.Join('\n', ticket!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("الإجمالي", text);
         Assert.Contains(order.OrderNumber, text);
     }
@@ -658,5 +747,55 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         Assert.Equal(first.OrderNumber, again.OrderNumber);
         var jobs = await (await _client.GetAsync($"/api/orders/{first.OrderId}/print-jobs")).Content.ReadFromJsonAsync<List<PrintJobDto>>();
         Assert.Equal(2, jobs!.Count);
+    }
+    // ---- Menu QR ----
+
+    /// <summary>The menu link is a setting, validated before it is stored, and the receipt carries
+    /// it as a QR only while one is configured. Nothing invents an address: with no link there is no
+    /// code, and a malformed link is refused rather than printed as a code that goes nowhere.</summary>
+    [Fact]
+    public async Task The_configured_menu_link_becomes_the_receipt_qr_and_nothing_else_does()
+    {
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول المنيو", "manager", "settings_manage");
+        var product = await CreateProductAsync("مياه", 1_000, null);
+
+        async Task<List<TicketElementDto>> ReceiptLinesAsync()
+        {
+            var order = await CheckoutAsync((product, 1));
+            var jobs = await CreatePrintJobsAsync(order.OrderId, "Receipt");
+            var receipt = jobs!.Jobs.Single(j => j.Route == "Receipt");
+            var ticket = await (await _client.GetAsync($"/api/print-jobs/{receipt.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
+            return ticket!.Lines.ToList();
+        }
+
+        // Nothing configured: no code.
+        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
+
+        // Refused, and nothing stored.
+        foreach (var bad in new[] { "menu.falah", "ftp://menu.example/x", "javascript:alert(1)" })
+        {
+            var refused = await _client.PutAsJsonAsync("/api/settings",
+                new Falah.Application.Settings.UpdateSettingsRequest(settingsAdmin, MenuUrl: bad));
+            Assert.False(refused.IsSuccessStatusCode, $"'{bad}' should have been refused");
+        }
+        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
+
+        // Configured: exactly one code, carrying the link as stored (trimmed).
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, MenuUrl: "  https://menu.example/falah  "))).EnsureSuccessStatusCode();
+        var settings = await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings");
+        Assert.Equal("https://menu.example/falah", settings!.MenuUrl);
+        var qr = Assert.Single(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.Equal("https://menu.example/falah", qr.Text);
+
+        // Another settings change that does not mention the link leaves it alone.
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, RestaurantName: "فالح أبو العنبه"))).EnsureSuccessStatusCode();
+        Assert.Single(await ReceiptLinesAsync(), l => l.Kind == "qr");
+
+        // Cleared with an empty value: the code goes away again.
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, MenuUrl: ""))).EnsureSuccessStatusCode();
+        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
     }
 }

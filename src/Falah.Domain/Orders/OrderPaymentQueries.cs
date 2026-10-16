@@ -57,4 +57,26 @@ public static class OrderPaymentQueries
     /// PaymentMethodTotals.</summary>
     public static Money CashSalesFromOrders(IEnumerable<Order> orders) =>
         PaymentMethodTotals(orders)[PaymentMethod.Cash];
+
+    /// <summary>
+    /// Cash handed back out of those same sales - reporting only, never a second subtraction.
+    ///
+    /// CashSalesFromOrders already counts a cash order as Total MINUS RefundAmount, so a drawer
+    /// reconciliation that subtracted this again would charge every refund twice. It exists so the
+    /// handover slip can show the gross take and the refunds on their own lines while their net
+    /// stays exactly what the drawer should hold. The conditions mirror the cash channel above:
+    /// same skipped cancellations, same single-method paid orders (a split order's legs are counted
+    /// as-is there, so their refunds are not netted and are not reported here either).
+    /// </summary>
+    public static Money CashRefundsFromOrders(IEnumerable<Order> orders)
+    {
+        var refunds = Money.Zero;
+        foreach (var order in orders)
+        {
+            if (order.Status == OrderStatus.Cancelled) continue;
+            if (order.PaymentMethod == PaymentMethod.Multi && order.SplitPayments is not null) continue;
+            if (order.IsPaid && order.PaymentMethod == PaymentMethod.Cash) refunds += order.RefundAmount;
+        }
+        return refunds;
+    }
 }

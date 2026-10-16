@@ -1,4 +1,4 @@
-namespace Falah.Domain.Orders;
+﻿namespace Falah.Domain.Orders;
 
 using Falah.Domain.Common;
 using Falah.Domain.Financial;
@@ -112,5 +112,31 @@ public static class CheckoutRules
 
         return new CheckoutPlan(orderType, paymentMethod, subtotal, deliveryFee, compAmount, tax, payableTotal,
             amountPaid, changeDue, splitPayments, electronicLeg, cashOnDelivery, defers, isPaid);
+    }
+
+    /// <summary>How far ahead a pickup may be booked. Not a restaurant policy - no opening hours,
+    /// no lead time, no cut-off are encoded anywhere in this system and none are invented here. It
+    /// is a typo guard: a year entered as 2027 instead of 2026 should be refused at the till rather
+    /// than printed on a ticket nobody will look at for twelve months.</summary>
+    public static readonly TimeSpan MaxPickupLeadTime = TimeSpan.FromDays(14);
+
+    /// <summary>A few minutes of slack, so a cashier who picks "now" and then finishes ringing up
+    /// the order is not refused for a time that went stale while they worked.</summary>
+    public static readonly TimeSpan PickupGracePeriod = TimeSpan.FromMinutes(5);
+
+    /// <summary>Validates an optional requested pickup time. Optional is the normal case: most
+    /// pickups are "on the way", and a time nobody asked for must not be invented for them.</summary>
+    public static void AssertRequestedPickupTime(OrderType orderType, DateTimeOffset? requestedAtUtc, DateTimeOffset nowUtc)
+    {
+        if (requestedAtUtc is not { } requested) return;
+
+        if (orderType != OrderType.Pickup)
+            throw new DomainException("موعد الاستلام يُسجَّل لطلبات الاستلام من المطعم فقط.");
+
+        if (requested < nowUtc - PickupGracePeriod)
+            throw new DomainException("موعد الاستلام في الماضي - اختر وقتًا قادمًا.");
+
+        if (requested > nowUtc + MaxPickupLeadTime)
+            throw new DomainException($"موعد الاستلام بعيد أكثر من اللازم - الحد الأقصى {MaxPickupLeadTime.TotalDays:0} يومًا.");
     }
 }

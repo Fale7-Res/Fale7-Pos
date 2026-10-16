@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Reports;
+﻿namespace Falah.Infrastructure.Reports;
 
 using Falah.Application.Reports;
 using Falah.Domain.Common;
@@ -50,7 +50,7 @@ public sealed class OwnerDashboardQueryService
             sales.CollectedSalesPiastres, sales.PendingElectronicSalesPiastres, sales.CashWithDriversPiastres,
             sales.AverageOrderValuePiastres, sales.CashPiastres, sales.CardPiastres,
             sales.InstaPayPiastres, sales.WalletPiastres,
-            sales.DineInPiastres, sales.TakeawayPiastres, sales.DeliveryPiastres,
+            sales.PickupPiastres, sales.TakeawayPiastres, sales.DeliveryPiastres,
             await CurrentTreasuryAsync(ct),
             await LoadSettledFromDriversAsync(start, end, ct));
 

@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.ReportsView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.ReportsView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,7 +9,7 @@
         distinct because conflating them would mislead (collected vs. pending electronic; offers vs.
         comps vs. manual discount), this screen shows them separately too.
     -->
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -23,19 +23,26 @@
             </Grid.ColumnDefinitions>
             <StackPanel Spacing="4">
                 <TextBlock Text="التقارير" Style="{StaticResource PageTitleText}"/>
-                <TextBlock Text="ملخص يوم العمل من الحركات الفعلية المسجلة" Style="{StaticResource PageSubtitleText}"/>
+                <TextBlock Text="{Binding RangeLabel}" Style="{StaticResource PageSubtitleText}"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <ComboBox MinHeight="44" MinWidth="150" ItemsSource="{Binding Periods}" DisplayMemberPath="Label"
+                          AutomationProperties.Name="الفترة" SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"/>
+                <!-- The day stepper belongs to the one period that names a day; for a week or a
+                     month there is no "previous day" to step to. -->
                 <Button MinHeight="44" MinWidth="44" Style="{StaticResource SecondaryButtonStyle}"
+                        Visibility="{Binding IsSpecificDay, Converter={StaticResource BoolToVisibleConverter}}"
                         AutomationProperties.Name="اليوم السابق" Command="{Binding PreviousDayCommand}">
                     <FontIcon Glyph="&#xE76C;" FontSize="12"/>
                 </Button>
-                <Border Background="White" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
-                        CornerRadius="10" Padding="16,0" MinHeight="44" MinWidth="150">
+                <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1"
+                        CornerRadius="10" Padding="16,0" MinHeight="44" MinWidth="150"
+                        Visibility="{Binding IsSpecificDay, Converter={StaticResource BoolToVisibleConverter}}">
                     <TextBlock Text="{Binding BusinessDateLabel}" FontSize="14" FontWeight="SemiBold"
                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Border>
                 <Button MinHeight="44" MinWidth="44" Style="{StaticResource SecondaryButtonStyle}"
+                        Visibility="{Binding IsSpecificDay, Converter={StaticResource BoolToVisibleConverter}}"
                         AutomationProperties.Name="اليوم التالي" Command="{Binding NextDayCommand}">
                     <FontIcon Glyph="&#xE76B;" FontSize="12"/>
                 </Button>
@@ -67,7 +74,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="2">
                             <TextBlock Text="المحصّل فعليًا" Style="{StaticResource CardTitleText}"/>
-                            <TextBlock Style="{StaticResource MetricValueText}" Foreground="{StaticResource BrandPrimaryBrush}"
+                            <TextBlock Style="{StaticResource MetricValueText}" Foreground="{ThemeResource BrandPrimaryBrush}"
                                        Text="{Binding Sales.CollectedSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="2">
@@ -119,13 +126,13 @@
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="نقدًا" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Text="نقدًا" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="1" Text="بطاقة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Text="بطاقة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CardPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="2" Text="إنستاباي" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Text="إنستاباي" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.InstaPayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="3" Text="محفظة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="3" Text="محفظة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.WalletPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
                         </StackPanel>
@@ -141,17 +148,17 @@
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="صالة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
-                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.DineInPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="1" Text="تيك أواي" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Text="استلام من المطعم" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.PickupPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="1" Text="تيك أواي" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.TakeawayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="2" Text="توصيل" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Text="توصيل" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.DeliveryPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="3" Text="قيمة العروض" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="3" Text="قيمة العروض" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.OffersValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="4" Text="الضيافة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="4" Text="الضيافة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CompsValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="5" Text="خصم يدوي" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="5" Text="خصم يدوي" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.ManualDiscountsPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
                         </StackPanel>
@@ -174,7 +181,7 @@
                         <ItemsControl ItemsSource="{Binding TopItems}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="90"/><ColumnDefinition Width="120"/>
@@ -188,8 +195,75 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock Text="لا توجد مبيعات في هذا اليوم" Style="{StaticResource MutedText}" Margin="16,14"
+                        <TextBlock Text="لا توجد مبيعات في هذه الفترة" Style="{StaticResource MutedText}" Margin="16,14"
                                    Visibility="{Binding TopItems.Count, Converter={StaticResource ZeroCountToVisibleConverter}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Product x hour. The panel above says what sold; this one says when. Columns are
+                     only the hours that sold anything in the period, so a kitchen that opens at noon
+                     does not read twelve empty ones first. Scrolls sideways in its own container -
+                     the page itself must never scroll horizontally. -->
+                <Border Style="{StaticResource PageCardStyle}"
+                        Visibility="{Binding HasProductHours, Converter={StaticResource BoolToVisibleConverter}}">
+                    <StackPanel>
+                        <StackPanel Padding="16,14,16,10" Spacing="2">
+                            <TextBlock Text="مبيعات الأصناف على مدار الساعة" Style="{StaticResource SectionTitleText}"/>
+                            <TextBlock Text="الكمية المباعة من كل صنف في كل ساعة. الساعة الأعلى لكل صنف مميّزة."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <ScrollViewer HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto" VerticalScrollMode="Disabled">
+                            <StackPanel>
+                                <Grid ColumnSpacing="10" Padding="16,0,16,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/><ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="70"/><ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="الصنف" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="1" Text="الإجمالي" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="2" Text="الذروة" Style="{StaticResource TableHeaderText}"/>
+                                    <ItemsControl Grid.Column="3" ItemsSource="{Binding ActiveHours}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" Width="40" TextAlignment="Center"
+                                                           Style="{StaticResource TableHeaderText}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding ProductHours}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
+                                                <Grid ColumnSpacing="10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="200"/><ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="70"/><ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding ProductName}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Total}" FontWeight="SemiBold"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding PeakLabel}" Style="{StaticResource TableCellText}"/>
+                                                    <ItemsControl Grid.Column="3" ItemsSource="{Binding Cells}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Width="40" TextAlignment="Center" Text="{Binding Display}"
+                                                                           Foreground="{Binding IsPeak, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=BrandPrimaryBrush|TextMutedBrush}"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
                     </StackPanel>
                 </Border>
 
@@ -212,11 +286,11 @@
                             <Grid ColumnSpacing="8" RowSpacing="8">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                <TextBlock Text="تم التسليم" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Text="تم التسليم" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Delivery.DeliveredCount}"/>
-                                <TextBlock Grid.Row="1" Text="فشل / مرتجع" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Text="فشل / مرتجع" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Delivery.FailedCount}"/>
-                                <TextBlock Grid.Row="2" Text="عهدة غير مسوّاة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Text="عهدة غير مسوّاة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Delivery.UnsettledCustodyExpectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
@@ -242,13 +316,13 @@
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="الوعاء الخاضع" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Text="الوعاء الخاضع" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Tax.TaxablePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="1" Text="الضريبة المحصّلة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Text="الضريبة المحصّلة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Tax.TaxPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                <TextBlock Grid.Row="2" Text="أثر المرتجعات" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="2" Text="أثر المرتجعات" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Tax.RefundTaxImpactPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                 <TextBlock Grid.Row="3" Text="الصافي" Style="{StaticResource TableCellText}" FontWeight="SemiBold"/>
@@ -265,12 +339,12 @@
                                        Text="{Binding FoodCost.TotalFoodCostPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             <TextBlock Text="{Binding FoodCostCoverageLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding FoodCostBasisNote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextMutedBrush}"
+                                       Foreground="{ThemeResource TextMutedBrush}"
                                        Visibility="{Binding HasFoodCostBasisNote, Converter={StaticResource BoolToVisibleConverter}}"/>
-                            <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
+                            <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
                                     Visibility="{Binding HasIncompleteFoodCost, Converter={StaticResource BoolToVisibleConverter}}">
                                 <TextBlock Text="بعض الأصناف المباعة ليس لها تكلفة معروفة، فالرقم أعلاه أقل من التكلفة الحقيقية. أضف وصفة أو تكلفة لهذه الأصناف."
-                                           Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"/>
+                                           Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"/>
                             </Border>
                         </StackPanel>
                     </Border>
@@ -295,7 +369,7 @@
                         <ItemsControl ItemsSource="{Binding Refunds}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="140"/><ColumnDefinition Width="120"/>
@@ -308,7 +382,7 @@
                                             <TextBlock Grid.Column="2" Text="{Binding Reason}" Style="{StaticResource TableCellText}"
                                                        VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             <TextBlock Grid.Column="3" Text="{Binding AuthorizedBy}" Style="{StaticResource TableCellText}"
-                                                       Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                       Foreground="{ThemeResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -336,14 +410,14 @@
                         <ItemsControl ItemsSource="{Binding SignificantActions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="150"/><ColumnDefinition Width="120"/>
                                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/>
                                             </Grid.ColumnDefinitions>
                                             <StackPanel VerticalAlignment="Center" Spacing="2">
-                                                <TextBlock Text="{Binding Type}" Style="{StaticResource TableCellText}"
+                                                <TextBlock Text="{Binding Converter={StaticResource SignificantActionTypeLabelConverter}}" Style="{StaticResource TableCellText}"
                                                            FontWeight="SemiBold" TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding Actor}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                                             </StackPanel>
@@ -352,7 +426,7 @@
                                             <TextBlock Grid.Column="2" Text="{Binding Reason}" Style="{StaticResource TableCellText}"
                                                        VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             <TextBlock Grid.Column="3" Text="{Binding Approver}" Style="{StaticResource TableCellText}"
-                                                       Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                       Foreground="{ThemeResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

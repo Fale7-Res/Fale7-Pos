@@ -1,10 +1,10 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.BackupView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.BackupView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
              FlowDirection="RightToLeft">
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -39,9 +39,9 @@
                 <TextBlock Text="{Binding LastBackupHeadline}" Style="{StaticResource CardTitleText}"
                            Foreground="{Binding IsBackupStale, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WarningBrush|TextPrimaryBrush}"/>
                 <TextBlock Text="{Binding LastBackupDetail}" Style="{StaticResource CaptionText}"
-                           Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
+                           Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding LastRestoreLine}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
-                           Foreground="{StaticResource TextMutedBrush}"
+                           Foreground="{ThemeResource TextMutedBrush}"
                            Visibility="{Binding HasRestoreHistory, Converter={StaticResource BoolToVisibleConverter}}"/>
             </StackPanel>
         </Border>
@@ -79,7 +79,7 @@
                     <ItemsControl ItemsSource="{Binding Backups}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
+                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
                                     <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -88,16 +88,18 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding FilePath}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding FilePath, Converter={StaticResource FileNameConverter}}"
+                                                       Style="{StaticResource TableCellText}" TextWrapping="Wrap"
+                                                       ToolTipService.ToolTip="{Binding FilePath}"/>
                                             <TextBlock Text="{Binding RequestedBy}" Style="{StaticResource CaptionText}"/>
                                         </StackPanel>
                                         <Border Grid.Column="1" CornerRadius="8" Padding="8,3" VerticalAlignment="Center"
                                                 HorizontalAlignment="Right"
                                                 Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
-                                            <TextBlock Text="{Binding Status}" Style="{StaticResource StatusPillText}"/>
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource GeneralStatusLabelConverter}}" Style="{StaticResource StatusPillText}"/>
                                         </Border>
-                                        <TextBlock Grid.Column="2" Text="{Binding VerificationStatus}" Style="{StaticResource TableCellText}"
-                                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VerificationStatus, Converter={StaticResource GeneralStatusLabelConverter}}" Style="{StaticResource TableCellText}"
+                                                   Foreground="{ThemeResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <Button Content="تحقق" MinHeight="44" FontSize="12"
                                                     Style="{StaticResource SecondaryButtonStyle}"
@@ -136,31 +138,31 @@
         </Border>
 
         <Border Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
-                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
             <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
         </Border>
         <Border Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
-                Background="{StaticResource DangerBrush}" CornerRadius="12" Padding="18,12"
+                Background="{ThemeResource DangerBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
             <TextBlock Text="{Binding ActionError}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
         </Border>
 
         <!-- Restore. Declared last so it layers above the page; a database restore discards every
              transaction committed after the backup, so nothing here is a one-tap action. -->
-        <Grid Grid.RowSpan="4" Background="#66313D35"
+        <Grid Grid.RowSpan="4" Background="{ThemeResource OverlayBrush}"
               Visibility="{Binding IsRestoreOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="620" VerticalAlignment="Center"
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="620" VerticalAlignment="Center"
                     HorizontalAlignment="Center" Margin="24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
                         <controls:ModalHeaderView Title="استعادة نسخة احتياطية" CloseCommand="{Binding CloseRestoreCommand}"/>
-                        <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,12">
+                        <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,12">
                             <StackPanel Spacing="6">
                                 <TextBlock Text="تحذير: الاستعادة تمحو كل ما سُجّل بعد تاريخ هذه النسخة."
-                                           Foreground="{StaticResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                           Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"/>
                                 <TextBlock Text="كل الطلبات والحركات المالية والورديات المسجَّلة بعد النسخة ستختفي نهائيًا. لن تُنفَّذ الاستعادة أثناء وجود عملية مالية قيد التنفيذ."
-                                           Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+                                           Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                         <TextBlock Text="{Binding RestoreTarget.FilePath}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
@@ -172,9 +174,9 @@
                                      IsEnabled="{Binding CanSubmitRestore}"
                                      Visibility="{Binding RestoreNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
                                      Password="{Binding RestoreManagerPin, Mode=TwoWay}"/>
-                        <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                        <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
                                 Visibility="{Binding RestoreError, Converter={StaticResource NullToCollapsedConverter}}">
-                            <TextBlock Text="{Binding RestoreError}" Foreground="{StaticResource DangerBrush}"
+                            <TextBlock Text="{Binding RestoreError}" Foreground="{ThemeResource DangerBrush}"
                                        FontWeight="SemiBold" TextWrapping="Wrap"/>
                         </Border>
                         <Button Content="{Binding RestoreLabel}" MinHeight="52" HorizontalAlignment="Stretch"

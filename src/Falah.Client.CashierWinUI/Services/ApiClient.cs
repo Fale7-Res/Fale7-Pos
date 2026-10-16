@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Json;
 using Falah.Application.Approvals;
 using Falah.Application.CashDrawer;
@@ -83,6 +83,32 @@ public sealed partial class ApiClient
         return new ApiResult<T>(false, default, message, (int)response.StatusCode >= 500, (int)response.StatusCode);
     }
 
+    /// <summary>
+    /// A GET that failed in transport. Unlike a command, a read changes nothing, so there is no
+    /// outcome to verify: saying "retry with the same data to check the operation" on a screen the
+    /// operator only opened to LOOK at something reads as though their money may have moved. The
+    /// honest message is that the screen could not be loaded, and the cure is simply to try again.
+    /// </summary>
+    private static async Task<ApiResult<T>> ReadAsync<T>(Func<Task<HttpResponseMessage>> send, CancellationToken ct)
+    {
+        try
+        {
+            using var response = await send();
+            return await ReadResultAsync<T>(response, ct);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException or System.IO.IOException)
+        {
+            return new(false, default, "تعذر تحميل البيانات من السيرفر. تأكد من الاتصال ثم أعد المحاولة.", true);
+        }
+    }
+
+    /// <summary>
+    /// A command that failed in transport. The request may or may not have reached the server and
+    /// been applied, so the message deliberately tells the operator to retry with the SAME data:
+    /// every command carries an idempotency key, so a repeat either completes the original or
+    /// returns its result, and never performs it twice. Do not soften this wording - see ReadAsync
+    /// for the read-only case.
+    /// </summary>
     private static async Task<ApiResult<T>> SendAsync<T>(Func<Task<HttpResponseMessage>> send, CancellationToken ct)
     {
         try
@@ -111,13 +137,13 @@ public sealed partial class ApiClient
     }
 
     public Task<ApiResult<CurrentShiftDto>> GetCurrentShiftAsync(CancellationToken ct = default) =>
-        SendAsync<CurrentShiftDto>(() => _http.GetAsync("/api/shifts/current", ct), ct);
+        ReadAsync<CurrentShiftDto>(() => _http.GetAsync("/api/shifts/current", ct), ct);
     public Task<ApiResult<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>> GetTaxRulesAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>(() => _http.GetAsync("/api/tax-rules", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>(() => _http.GetAsync("/api/tax-rules", ct), ct);
     public Task<ApiResult<Falah.Application.Settings.SettingsDto>> GetSettingsAsync(CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Settings.SettingsDto>(() => _http.GetAsync("/api/settings", ct), ct);
+        ReadAsync<Falah.Application.Settings.SettingsDto>(() => _http.GetAsync("/api/settings", ct), ct);
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> LookupCustomerAsync(string phone, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.GetAsync($"/api/customers/lookup?phone={Uri.EscapeDataString(phone)}", ct), ct);
+        ReadAsync<Falah.Application.Customers.CustomerDto>(() => _http.GetAsync($"/api/customers/lookup?phone={Uri.EscapeDataString(phone)}", ct), ct);
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
@@ -157,7 +183,7 @@ public sealed partial class ApiClient
 
     public async Task<ApiResult<MenuResponse>> GetMenuAsync(CancellationToken ct = default)
     {
-        return await SendAsync<MenuResponse>(() => _http.GetAsync("/api/menu", ct), ct);
+        return await ReadAsync<MenuResponse>(() => _http.GetAsync("/api/menu", ct), ct);
     }
 
     public async Task<ApiResult<OpenShiftResult>> OpenShiftAsync(OpenShiftRequest request, CancellationToken ct = default)
@@ -197,19 +223,19 @@ public sealed partial class ApiClient
 
     public async Task<ApiResult<IReadOnlyList<DeliveryServiceDto>>> GetActiveDeliveryServicesAsync(CancellationToken ct = default)
     {
-        return await SendAsync<IReadOnlyList<DeliveryServiceDto>>(() => _http.GetAsync("/api/delivery/services", ct), ct);
+        return await ReadAsync<IReadOnlyList<DeliveryServiceDto>>(() => _http.GetAsync("/api/delivery/services", ct), ct);
     }
 
     /// <summary>Scope is decided server-side: without orders_view_all the caller gets only the
     /// currently-open shift's orders.</summary>
     public Task<ApiResult<IReadOnlyList<OrderDetailsDto>>> GetOrdersAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<OrderDetailsDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<OrderDetailsDto>>(() => _http.GetAsync(
             $"/api/orders?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     // ---------------- Menu / tax / pricing ----------------
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Pricing.PriceRuleDto>>> GetPriceRulesAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Pricing.PriceRuleDto>>(() => _http.GetAsync("/api/price-rules", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Pricing.PriceRuleDto>>(() => _http.GetAsync("/api/price-rules", ct), ct);
 
     public Task<ApiResult<bool>> SetProductAvailabilityAsync(Falah.Application.Menu.SetProductAvailabilityRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync(
@@ -221,7 +247,7 @@ public sealed partial class ApiClient
         SendAsync<Falah.Application.Settings.SettingsDto>(() => _http.PutAsJsonAsync("/api/settings", request, ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Backup.BackupRecordDto>>> GetBackupsAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Backup.BackupRecordDto>>(() => _http.GetAsync("/api/backups", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Backup.BackupRecordDto>>(() => _http.GetAsync("/api/backups", ct), ct);
 
     public Task<ApiResult<Falah.Application.Backup.BackupRecordDto>> CreateBackupAsync(Falah.Application.Backup.CreateBackupRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Backup.BackupRecordDto>(() => _http.PostAsJsonAsync("/api/backups", request, ct), ct);
@@ -233,17 +259,17 @@ public sealed partial class ApiClient
     /// <summary>The day currently in play, or a 404 that the caller must treat as the legitimate
     /// "no day open" state rather than an error.</summary>
     public Task<ApiResult<Falah.Application.BusinessDay.BusinessDayDto>> GetCurrentBusinessDayAsync(CancellationToken ct = default) =>
-        SendAsync<Falah.Application.BusinessDay.BusinessDayDto>(() => _http.GetAsync("/api/business-day/current", ct), ct);
+        ReadAsync<Falah.Application.BusinessDay.BusinessDayDto>(() => _http.GetAsync("/api/business-day/current", ct), ct);
 
     public Task<ApiResult<Falah.Application.BusinessDay.BusinessDayDto>> GetBusinessDayAsync(string id, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.BusinessDay.BusinessDayDto>(() => _http.GetAsync($"/api/business-day/{Uri.EscapeDataString(id)}", ct), ct);
+        ReadAsync<Falah.Application.BusinessDay.BusinessDayDto>(() => _http.GetAsync($"/api/business-day/{Uri.EscapeDataString(id)}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.BusinessDay.CloseBlockerDto>>> GetCloseBlockersAsync(string id, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.BusinessDay.CloseBlockerDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.BusinessDay.CloseBlockerDto>>(() => _http.GetAsync(
             $"/api/business-day/{Uri.EscapeDataString(id)}/close-blockers", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.BusinessDay.ChecklistItemStatusDto>>> GetChecklistAsync(string id, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.BusinessDay.ChecklistItemStatusDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.BusinessDay.ChecklistItemStatusDto>>(() => _http.GetAsync(
             $"/api/business-day/{Uri.EscapeDataString(id)}/checklist", ct), ct);
 
     public Task<ApiResult<bool>> CompleteChecklistItemAsync(Falah.Application.BusinessDay.CompleteChecklistItemRequest request, CancellationToken ct = default) =>
@@ -251,11 +277,11 @@ public sealed partial class ApiClient
             $"/api/business-day/{Uri.EscapeDataString(request.BusinessDayId)}/checklist/{Uri.EscapeDataString(request.ItemId)}", request, ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.BusinessDay.ControlExceptionDto>>> GetExceptionsAsync(string id, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.BusinessDay.ControlExceptionDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.BusinessDay.ControlExceptionDto>>(() => _http.GetAsync(
             $"/api/business-day/{Uri.EscapeDataString(id)}/exceptions", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.BusinessDay.BusinessDayDto>>> GetBusinessDaysAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.BusinessDay.BusinessDayDto>>(() => _http.GetAsync("/api/business-days", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.BusinessDay.BusinessDayDto>>(() => _http.GetAsync("/api/business-days", ct), ct);
 
     public Task<ApiResult<Falah.Application.BusinessDay.OpenBusinessDayResult>> OpenBusinessDayAsync(Falah.Application.BusinessDay.OpenBusinessDayRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.BusinessDay.OpenBusinessDayResult>(() => _http.PostAsJsonAsync("/api/business-day/open", request, ct), ct);
@@ -272,11 +298,35 @@ public sealed partial class ApiClient
         SendEmptyAsync(() => _http.PostAsJsonAsync(
             $"/api/control-exceptions/{Uri.EscapeDataString(request.ExceptionId)}/status", request, ct), ct);
 
+    public Task<ApiResult<Falah.Application.Reports.BusinessDayReconciliationDto>> GetBusinessDayReconciliationAsync(string businessDayId, string actorUserId, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.BusinessDayReconciliationDto>(() => _http.GetAsync(
+            $"/api/reports/business-day/{Uri.EscapeDataString(businessDayId)}?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    public Task<ApiResult<Falah.Application.Reports.DailySummaryDto>> GetDailySummaryAsync(string businessDayId, string actorUserId, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.DailySummaryDto>(() => _http.GetAsync(
+            $"/api/reports/daily-summary/{Uri.EscapeDataString(businessDayId)}?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    /// <summary>"كشف اليوم" - one Cairo business date at a time (never a range - see the server
+    /// endpoint's own doc comment). businessDate null asks the server for today's own Cairo date.</summary>
+    public Task<ApiResult<Falah.Application.Reports.DailyStatementDto>> GetDailyStatementAsync(
+        string actorUserId, DateOnly? businessDate = null, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.DailyStatementDto>(() => _http.GetAsync(
+            $"/api/reports/daily-statement?actorUserId={Uri.EscapeDataString(actorUserId)}" +
+            (businessDate is { } d ? $"&businessDate={d:yyyy-MM-dd}" : ""), ct), ct);
+
+    public Task<ApiResult<Falah.Application.BusinessDay.BusinessDayCloseSnapshotDto>> GetLatestCloseSnapshotAsync(string businessDayId, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.BusinessDay.BusinessDayCloseSnapshotDto>(() => _http.GetAsync(
+            $"/api/business-day/{Uri.EscapeDataString(businessDayId)}/close-snapshot", ct), ct);
+
+    public Task<ApiResult<IReadOnlyList<Falah.Application.BusinessDay.BusinessDayCloseSnapshotDto>>> GetCloseSnapshotsAsync(string businessDayId, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<Falah.Application.BusinessDay.BusinessDayCloseSnapshotDto>>(() => _http.GetAsync(
+            $"/api/business-day/{Uri.EscapeDataString(businessDayId)}/close-snapshots", ct), ct);
+
     public Task<ApiResult<PrintingOverviewDto>> GetPrintingOverviewAsync(CancellationToken ct = default) =>
-        SendAsync<PrintingOverviewDto>(() => _http.GetAsync("/api/print-jobs/overview", ct), ct);
+        ReadAsync<PrintingOverviewDto>(() => _http.GetAsync("/api/print-jobs/overview", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<PrintJobDto>>> GetPendingPrintJobsAsync(string route, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<PrintJobDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<PrintJobDto>>(() => _http.GetAsync(
             $"/api/print-jobs/pending?route={Uri.EscapeDataString(route)}", ct), ct);
 
     // ---------------- Users / permissions / audit ----------------
@@ -289,11 +339,11 @@ public sealed partial class ApiClient
             $"/api/users/{Uri.EscapeDataString(request.UserId)}/change-pin", request, ct), ct);
 
     public Task<ApiResult<IReadOnlyList<UserDetailsDto>>> GetAllUsersAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<UserDetailsDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<UserDetailsDto>>(() => _http.GetAsync(
             $"/api/users/all?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Domain.Authorization.PermissionDefinition>>> GetPermissionCatalogAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Domain.Authorization.PermissionDefinition>>(() => _http.GetAsync("/api/permissions/catalog", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Domain.Authorization.PermissionDefinition>>(() => _http.GetAsync("/api/permissions/catalog", ct), ct);
 
     public Task<ApiResult<bool>> SetUserActiveAsync(SetUserActiveRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync(
@@ -305,29 +355,56 @@ public sealed partial class ApiClient
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Audit.AuditEventDto>>> GetAuditEventsAsync(
         string actorUserId, string? category = null, string? severity = null, int limit = 200, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Audit.AuditEventDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Audit.AuditEventDto>>(() => _http.GetAsync(
             $"/api/audit/events?actorUserId={Uri.EscapeDataString(actorUserId)}&category={Uri.EscapeDataString(category ?? "")}&severity={Uri.EscapeDataString(severity ?? "")}&limit={limit}", ct), ct);
 
     // ---------------- Employees / attendance / payroll ----------------
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Employees.EmployeeDto>>> GetEmployeesAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Employees.EmployeeDto>>(() => _http.GetAsync("/api/employees", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Employees.EmployeeDto>>(() => _http.GetAsync("/api/employees", ct), ct);
 
     public sealed record EmployeeBalanceDto(string EmployeeId, long BalancePiastres);
 
     public Task<ApiResult<EmployeeBalanceDto>> GetEmployeeBalanceAsync(string employeeId, CancellationToken ct = default) =>
-        SendAsync<EmployeeBalanceDto>(() => _http.GetAsync($"/api/employees/{Uri.EscapeDataString(employeeId)}/balance", ct), ct);
+        ReadAsync<EmployeeBalanceDto>(() => _http.GetAsync($"/api/employees/{Uri.EscapeDataString(employeeId)}/balance", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Employees.EmployeeLedgerEntryDto>>> GetEmployeeLedgerAsync(string employeeId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Employees.EmployeeLedgerEntryDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Employees.EmployeeLedgerEntryDto>>(() => _http.GetAsync(
             $"/api/employees/{Uri.EscapeDataString(employeeId)}/ledger", ct), ct);
 
     public Task<ApiResult<Falah.Application.Employees.EmployeeCashOutResult>> EmployeeCashOutAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Employees.EmployeeCashOutResult>(() => _http.PostAsJsonAsync(
             $"/api/employees/{Uri.EscapeDataString(request.EmployeeId)}/cash-out", request, ct), ct);
 
+    /// <summary>Payroll/employee financial reporting over a Cairo business-date range. Gated on
+    /// reports_view server-side, so the actor travels with the request like every other report.</summary>
+    public Task<ApiResult<IReadOnlyList<Falah.Application.Employees.EmployeeFinancialReportLineDto>>> GetEmployeeFinancialReportAsync(
+        string actorUserId, DateOnly from, DateOnly to, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<Falah.Application.Employees.EmployeeFinancialReportLineDto>>(() => _http.GetAsync(
+            $"/api/employees/financial-report?actorUserId={Uri.EscapeDataString(actorUserId)}" +
+            $"&from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}", ct), ct);
+
+    /// <summary>The standalone "PAY EMPLOYEE" flow - pays down the running balance from the
+    /// restaurant's own accounts (Main/Bank/InstaPay), any time, any amount up to the balance. Never
+    /// the same request as EmployeeCashOutAsync's "withdrawal" kind (drawer-sourced, shift-scoped).</summary>
+    public Task<ApiResult<Falah.Application.Employees.PayEmployeeResult>> PayEmployeeAsync(Falah.Application.Employees.PayEmployeeRequest request, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Employees.PayEmployeeResult>(() => _http.PostAsJsonAsync(
+            $"/api/employees/{Uri.EscapeDataString(request.EmployeeId)}/pay", request, ct), ct);
+
+    public Task<ApiResult<Falah.Application.Employees.EmployeeLedgerEntryDto>> RecordDailyWageAsync(Falah.Application.Employees.RecordDailyWageRequest request, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Employees.EmployeeLedgerEntryDto>(() => _http.PostAsJsonAsync(
+            $"/api/employees/{Uri.EscapeDataString(request.EmployeeId)}/daily-wage", request, ct), ct);
+
+    public Task<ApiResult<Falah.Application.Employees.EmployeeLedgerEntryDto>> RecordOvertimeAsync(Falah.Application.Employees.RecordOvertimeRequest request, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Employees.EmployeeLedgerEntryDto>(() => _http.PostAsJsonAsync(
+            $"/api/employees/{Uri.EscapeDataString(request.EmployeeId)}/overtime", request, ct), ct);
+
+    public Task<ApiResult<Falah.Application.Employees.EmployeeLedgerEntryDto>> RecordExtraShiftAsync(Falah.Application.Employees.RecordExtraShiftRequest request, CancellationToken ct = default) =>
+        SendAsync<Falah.Application.Employees.EmployeeLedgerEntryDto>(() => _http.PostAsJsonAsync(
+            $"/api/employees/{Uri.EscapeDataString(request.EmployeeId)}/extra-shift", request, ct), ct);
+
     public Task<ApiResult<IReadOnlyList<Falah.Application.Employees.AttendanceRecordDto>>> GetAttendanceAsync(DateOnly? date = null, string? employeeId = null, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Employees.AttendanceRecordDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Employees.AttendanceRecordDto>>(() => _http.GetAsync(
             $"/api/attendance?employeeId={Uri.EscapeDataString(employeeId ?? "")}&date={(date is null ? "" : date.Value.ToString("yyyy-MM-dd"))}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Employees.AttendanceRecordDto>> CorrectAttendanceAsync(Falah.Application.Employees.CorrectAttendanceRequest request, CancellationToken ct = default) =>
@@ -335,10 +412,10 @@ public sealed partial class ApiClient
             $"/api/attendance/{Uri.EscapeDataString(request.RecordId)}/correct", request, ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Employees.PayrollRunDto>>> GetPayrollRunsAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Employees.PayrollRunDto>>(() => _http.GetAsync("/api/payroll-runs", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Employees.PayrollRunDto>>(() => _http.GetAsync("/api/payroll-runs", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Employees.PayrollLineDto>>> GetPayrollLinesAsync(string runId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Employees.PayrollLineDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Employees.PayrollLineDto>>(() => _http.GetAsync(
             $"/api/payroll-runs/{Uri.EscapeDataString(runId)}/lines", ct), ct);
 
     public Task<ApiResult<Falah.Application.Employees.PayrollRunDto>> CreatePayrollRunAsync(Falah.Application.Employees.CreatePayrollRequest request, CancellationToken ct = default) =>
@@ -349,7 +426,7 @@ public sealed partial class ApiClient
             $"/api/payroll-runs/{Uri.EscapeDataString(request.PayrollRunId)}/transition", request, ct), ct);
 
     public Task<ApiResult<Falah.Application.Employees.PayrollRunDto>> GetPayrollRunAsync(string runId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Employees.PayrollRunDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Employees.PayrollRunDto>(() => _http.GetAsync(
             $"/api/payroll-runs/{Uri.EscapeDataString(runId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Employees.PayPayrollResult>> PayPayrollAsync(Falah.Application.Employees.PayPayrollRequest request, CancellationToken ct = default) =>
@@ -359,52 +436,52 @@ public sealed partial class ApiClient
     // ---------------- Recipes / costing / loss ----------------
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.RecipeDto>>> GetRecipesAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Inventory.RecipeDto>>(() => _http.GetAsync("/api/recipes", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Inventory.RecipeDto>>(() => _http.GetAsync("/api/recipes", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.RecipeCostDto>> GetRecipeCostAsync(string recipeId, string actorUserId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.RecipeCostDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.RecipeCostDto>(() => _http.GetAsync(
             $"/api/recipes/{Uri.EscapeDataString(recipeId)}/cost?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.MenuItemProfitabilityDto>> GetRecipeProfitabilityAsync(string recipeId, long sellingPricePiastres, string actorUserId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.MenuItemProfitabilityDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.MenuItemProfitabilityDto>(() => _http.GetAsync(
             $"/api/recipes/{Uri.EscapeDataString(recipeId)}/profitability?sellingPricePiastres={sellingPricePiastres}&actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     // The three below replaced a load that asked the server for a cost and then a margin for every
     // single recipe in turn - two hundred requests to draw one screen on this menu.
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.RecipeCostSummaryDto>>> GetRecipeCostSummariesAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Inventory.RecipeCostSummaryDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Inventory.RecipeCostSummaryDto>>(() => _http.GetAsync(
             $"/api/recipes/cost-summary?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.RecipeCostCoverageDto>> GetRecipeCostCoverageAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.RecipeCostCoverageDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.RecipeCostCoverageDto>(() => _http.GetAsync(
             $"/api/recipes/cost-coverage?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.RecipeCostDetailDto>> GetRecipeCostDetailAsync(string recipeId, string actorUserId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.RecipeCostDetailDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.RecipeCostDetailDto>(() => _http.GetAsync(
             $"/api/recipes/{Uri.EscapeDataString(recipeId)}/cost-detail?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.RecipeDto>> SaveRecipeAsync(Falah.Application.Inventory.SaveRecipeRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Inventory.RecipeDto>(() => _http.PostAsJsonAsync("/api/recipes", request, ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.LossSummaryDto>> GetLossSummaryAsync(string actorUserId, DateOnly businessDate, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.LossSummaryDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.LossSummaryDto>(() => _http.GetAsync(
             $"/api/inventory/loss-summary?businessDate={businessDate:yyyy-MM-dd}&actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     // ---------------- Purchasing / suppliers ----------------
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Purchasing.SupplierDto>>> GetSuppliersAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Purchasing.SupplierDto>>(() => _http.GetAsync("/api/suppliers", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Purchasing.SupplierDto>>(() => _http.GetAsync("/api/suppliers", ct), ct);
 
     public Task<ApiResult<Falah.Application.Purchasing.AddSupplierResult>> AddSupplierAsync(Falah.Application.Purchasing.AddSupplierRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Purchasing.AddSupplierResult>(() => _http.PostAsJsonAsync("/api/suppliers", request, ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Purchasing.SupplierLedgerEntryDto>>> GetSupplierLedgerAsync(string supplierId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Purchasing.SupplierLedgerEntryDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Purchasing.SupplierLedgerEntryDto>>(() => _http.GetAsync(
             $"/api/suppliers/{Uri.EscapeDataString(supplierId)}/ledger", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Purchasing.PurchaseDto>>> GetPurchasesAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Purchasing.PurchaseDto>>(() => _http.GetAsync("/api/purchases", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Purchasing.PurchaseDto>>(() => _http.GetAsync("/api/purchases", ct), ct);
 
     public Task<ApiResult<Falah.Application.Purchasing.PurchaseDto>> ReceivePurchaseAsync(Falah.Application.Purchasing.ReceivePurchaseRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Purchasing.PurchaseDto>(() => _http.PostAsJsonAsync("/api/purchases", request, ct), ct);
@@ -414,7 +491,7 @@ public sealed partial class ApiClient
             $"/api/purchases/{Uri.EscapeDataString(request.PurchaseId)}/payments", request, ct), ct);
 
     public Task<ApiResult<Falah.Application.Purchasing.PayablesAgingDto>> GetPayablesAgingAsync(CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Purchasing.PayablesAgingDto>(() => _http.GetAsync("/api/purchases/payables-aging", ct), ct);
+        ReadAsync<Falah.Application.Purchasing.PayablesAgingDto>(() => _http.GetAsync("/api/purchases/payables-aging", ct), ct);
 
     public Task<ApiResult<Falah.Application.Purchasing.PurchaseDto>> SetPurchaseDueDateAsync(Falah.Application.Purchasing.SetPurchaseDueDateRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Purchasing.PurchaseDto>(() => _http.PutAsJsonAsync(
@@ -423,15 +500,15 @@ public sealed partial class ApiClient
     // ---------------- Treasury (balances, ledger, owner-level money movement) ----------------
 
     public Task<ApiResult<TreasuryPositionDto>> GetTreasuryPositionAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<TreasuryPositionDto>(() => _http.GetAsync(
+        ReadAsync<TreasuryPositionDto>(() => _http.GetAsync(
             $"/api/treasury/position?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<TreasuryAccountBalanceDto>>> GetTreasuryBalancesAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<TreasuryAccountBalanceDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<TreasuryAccountBalanceDto>>(() => _http.GetAsync(
             $"/api/treasury/balances?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<TreasuryMovementDto>>> GetTreasuryMovementsAsync(string actorUserId, string? accountId = null, int limit = 100, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<TreasuryMovementDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<TreasuryMovementDto>>(() => _http.GetAsync(
             $"/api/treasury/movements?actorUserId={Uri.EscapeDataString(actorUserId)}&accountId={Uri.EscapeDataString(accountId ?? "")}&limit={limit}", ct), ct);
 
     public Task<ApiResult<DepositResult>> TreasuryDepositAsync(DepositRequest request, CancellationToken ct = default) =>
@@ -446,7 +523,7 @@ public sealed partial class ApiClient
     // ---------------- Inventory (items, balances, physical counts, waste, movement history) ----------------
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.InventoryItemDto>>> GetInventoryItemsAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Inventory.InventoryItemDto>>(() => _http.GetAsync("/api/inventory/items", ct), ct);
+        ReadAsync<IReadOnlyList<Falah.Application.Inventory.InventoryItemDto>>(() => _http.GetAsync("/api/inventory/items", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.CreateInventoryItemResult>> CreateInventoryItemAsync(Falah.Application.Inventory.CreateInventoryItemRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Inventory.CreateInventoryItemResult>(() => _http.PostAsJsonAsync("/api/inventory/items", request, ct), ct);
@@ -455,11 +532,11 @@ public sealed partial class ApiClient
         SendEmptyAsync(() => _http.PutAsJsonAsync($"/api/inventory/items/{Uri.EscapeDataString(request.Id)}", request, ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.InventoryOverviewDto>> GetInventoryOverviewAsync(string actorUserId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.InventoryOverviewDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.InventoryOverviewDto>(() => _http.GetAsync(
             $"/api/inventory/overview?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.InventoryItemDetailDto>> GetInventoryItemDetailAsync(string inventoryItemId, string actorUserId, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Inventory.InventoryItemDetailDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Inventory.InventoryItemDetailDto>(() => _http.GetAsync(
             $"/api/inventory/items/{Uri.EscapeDataString(inventoryItemId)}/detail?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Inventory.RecordCountAdjustmentResult>> RecordCountAdjustmentAsync(Falah.Application.Inventory.RecordCountAdjustmentRequest request, CancellationToken ct = default) =>
@@ -469,7 +546,7 @@ public sealed partial class ApiClient
         SendAsync<Falah.Application.Inventory.RecordWasteResult>(() => _http.PostAsJsonAsync("/api/inventory/waste", request, ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.StockMovementDto>>> GetStockMovementsAsync(string? inventoryItemId = null, int limit = 50, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Inventory.StockMovementDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Inventory.StockMovementDto>>(() => _http.GetAsync(
             $"/api/inventory/movements?inventoryItemId={Uri.EscapeDataString(inventoryItemId ?? "")}&limit={limit}", ct), ct);
 
     // ---------------- Reports (read-only; every endpoint is gated on reports_view server-side) ----------------
@@ -479,49 +556,69 @@ public sealed partial class ApiClient
     /// binder cannot parse.</summary>
     private static string Day(DateOnly? d) => d is null ? "" : d.Value.ToString("yyyy-MM-dd");
 
-    public Task<ApiResult<Falah.Application.Reports.SalesReportDto>> GetSalesReportAsync(string actorUserId, DateOnly? businessDate, string? shiftId = null, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Reports.SalesReportDto>(() => _http.GetAsync(
-            $"/api/reports/sales?actorUserId={Uri.EscapeDataString(actorUserId)}&businessDate={Day(businessDate)}&shiftId={Uri.EscapeDataString(shiftId ?? "")}", ct), ct);
+    // P0 fix: this used to always append "&shiftId=" - present-but-empty, not absent - so ASP.NET
+    // Core bound the server's shiftId parameter to "" rather than null. LoadSalesOrdersAsync's own
+    // "if (shiftId is not null)" then filtered to ShiftId == "", which matches no order ever, while
+    // every sibling report (top-items, product-hourly, category-sales, delivery-outcomes, tax,
+    // refunds, food-cost, expenses) has no shiftId parameter at all and read the same rows
+    // correctly - exactly the "headline is zero, everything below it is real" symptom. The query
+    // segment is now included only when a shift filter is actually requested.
+    public Task<ApiResult<Falah.Application.Reports.SalesReportDto>> GetSalesReportAsync(string actorUserId, DateOnly? from, DateOnly? to, string? shiftId = null, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.SalesReportDto>(() => _http.GetAsync(
+            $"/api/reports/sales?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}" +
+            (string.IsNullOrEmpty(shiftId) ? "" : $"&shiftId={Uri.EscapeDataString(shiftId)}"), ct), ct);
 
-    public Task<ApiResult<Falah.Application.Reports.ExpenseReportDto>> GetExpenseReportAsync(string actorUserId, DateOnly? businessDate, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Reports.ExpenseReportDto>(() => _http.GetAsync(
-            $"/api/reports/expenses?actorUserId={Uri.EscapeDataString(actorUserId)}&businessDate={Day(businessDate)}", ct), ct);
+    public Task<ApiResult<Falah.Application.Reports.ExpenseReportDto>> GetExpenseReportAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.ExpenseReportDto>(() => _http.GetAsync(
+            $"/api/reports/expenses?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
-    public Task<ApiResult<Falah.Application.Reports.TaxReportDto>> GetTaxReportAsync(string actorUserId, DateOnly? businessDate, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Reports.TaxReportDto>(() => _http.GetAsync(
-            $"/api/reports/tax?actorUserId={Uri.EscapeDataString(actorUserId)}&businessDate={Day(businessDate)}", ct), ct);
+    public Task<ApiResult<Falah.Application.Reports.TaxReportDto>> GetTaxReportAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.TaxReportDto>(() => _http.GetAsync(
+            $"/api/reports/tax?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.TopSellingItemDto>>> GetTopItemsAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Reports.TopSellingItemDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Reports.TopSellingItemDto>>(() => _http.GetAsync(
             $"/api/reports/top-items?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
+    public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.ProductHourlySalesDto>>> GetProductHourlySalesAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<Falah.Application.Reports.ProductHourlySalesDto>>(() => _http.GetAsync(
+            $"/api/reports/product-hourly?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
+
     public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.CategorySalesDto>>> GetCategorySalesAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Reports.CategorySalesDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Reports.CategorySalesDto>>(() => _http.GetAsync(
             $"/api/reports/category-sales?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Reports.DeliveryOutcomesReportDto>> GetDeliveryOutcomesAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Reports.DeliveryOutcomesReportDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Reports.DeliveryOutcomesReportDto>(() => _http.GetAsync(
             $"/api/reports/delivery-outcomes?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.SignificantActionDto>>> GetSignificantActionsAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Reports.SignificantActionDto>>(() => _http.GetAsync(
+        ReadAsync<IReadOnlyList<Falah.Application.Reports.SignificantActionDto>>(() => _http.GetAsync(
             $"/api/reports/significant-actions?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
-    public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.RefundActivityDto>>> GetRefundActivityAsync(string actorUserId, DateOnly? businessDate, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<Falah.Application.Reports.RefundActivityDto>>(() => _http.GetAsync(
-            $"/api/reports/refunds?actorUserId={Uri.EscapeDataString(actorUserId)}&businessDate={Day(businessDate)}", ct), ct);
+    public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.ShiftSummaryDto>>> GetShiftsHistoryAsync(string actorUserId, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<Falah.Application.Reports.ShiftSummaryDto>>(() => _http.GetAsync(
+            $"/api/reports/shifts?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    public Task<ApiResult<Falah.Application.Reports.ShiftSummaryDto>> GetShiftSummaryAsync(string shiftId, string actorUserId, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Reports.ShiftSummaryDto>(() => _http.GetAsync(
+            $"/api/reports/shifts/{Uri.EscapeDataString(shiftId)}?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+
+    public Task<ApiResult<IReadOnlyList<Falah.Application.Reports.RefundActivityDto>>> GetRefundActivityAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<Falah.Application.Reports.RefundActivityDto>>(() => _http.GetAsync(
+            $"/api/reports/refunds?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
     public Task<ApiResult<Falah.Application.Reports.FoodCostReportDto>> GetFoodCostReportAsync(string actorUserId, DateOnly? from, DateOnly? to, CancellationToken ct = default) =>
-        SendAsync<Falah.Application.Reports.FoodCostReportDto>(() => _http.GetAsync(
+        ReadAsync<Falah.Application.Reports.FoodCostReportDto>(() => _http.GetAsync(
             $"/api/reports/food-cost?actorUserId={Uri.EscapeDataString(actorUserId)}&from={Day(from)}&to={Day(to)}", ct), ct);
 
     // ---------------- Delivery dispatch (drivers, board, assignment, outcomes, settlement) ----------------
 
     public Task<ApiResult<IReadOnlyList<DriverDto>>> GetActiveDriversAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<DriverDto>>(() => _http.GetAsync("/api/delivery/drivers", ct), ct);
+        ReadAsync<IReadOnlyList<DriverDto>>(() => _http.GetAsync("/api/delivery/drivers", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<DriverDto>>> GetAllDriversAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<DriverDto>>(() => _http.GetAsync("/api/delivery/drivers/all", ct), ct);
+        ReadAsync<IReadOnlyList<DriverDto>>(() => _http.GetAsync("/api/delivery/drivers/all", ct), ct);
 
     public Task<ApiResult<DriverDto>> CreateDriverAsync(CreateDriverRequest request, CancellationToken ct = default) =>
         SendAsync<DriverDto>(() => _http.PostAsJsonAsync("/api/delivery/drivers", request, ct), ct);
@@ -532,7 +629,7 @@ public sealed partial class ApiClient
     /// <summary>Every delivery still in play, including the `New` ones a checkout just created -
     /// the live board. See DeliveryQueryService.ListDispatchBoardAsync.</summary>
     public Task<ApiResult<IReadOnlyList<DeliveryDto>>> GetDispatchBoardAsync(CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<DeliveryDto>>(() => _http.GetAsync("/api/delivery/board", ct), ct);
+        ReadAsync<IReadOnlyList<DeliveryDto>>(() => _http.GetAsync("/api/delivery/board", ct), ct);
 
     public Task<ApiResult<bool>> MarkDeliveryReadyAsync(MarkDeliveryReadyRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/delivery/{Uri.EscapeDataString(request.DeliveryId)}/ready", request, ct), ct);
@@ -550,19 +647,29 @@ public sealed partial class ApiClient
         SendAsync<SettleDriverCustodyResult>(() => _http.PostAsJsonAsync($"/api/delivery/drivers/{Uri.EscapeDataString(request.DriverId)}/settle", request, ct), ct);
 
     public Task<ApiResult<DriverAccountDto>> GetDriverAccountAsync(string driverId, CancellationToken ct = default) =>
-        SendAsync<DriverAccountDto>(() => _http.GetAsync($"/api/delivery/drivers/{Uri.EscapeDataString(driverId)}/account", ct), ct);
+        ReadAsync<DriverAccountDto>(() => _http.GetAsync($"/api/delivery/drivers/{Uri.EscapeDataString(driverId)}/account", ct), ct);
+
+    /// <summary>One driver's figures over a Cairo business-date range. The instants are escaped, not
+    /// interpolated raw: a round-trip DateTimeOffset carries a "+00:00" offset, and a bare "+" in a
+    /// query string decodes as a SPACE, which silently turns the range into an unparseable value and
+    /// the whole report into zeros.</summary>
+    public Task<ApiResult<DriverStatisticsDto>> GetDriverStatisticsAsync(
+        string driverId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct = default) =>
+        ReadAsync<DriverStatisticsDto>(() => _http.GetAsync(
+            $"/api/delivery/drivers/{Uri.EscapeDataString(driverId)}/statistics" +
+            $"?from={Uri.EscapeDataString(from.ToString("O"))}&to={Uri.EscapeDataString(to.ToString("O"))}", ct), ct);
 
     public Task<ApiResult<IReadOnlyList<DeliveryEventDto>>> GetDeliveryTimelineAsync(string deliveryId, CancellationToken ct = default) =>
-        SendAsync<IReadOnlyList<DeliveryEventDto>>(() => _http.GetAsync($"/api/delivery/{Uri.EscapeDataString(deliveryId)}/timeline", ct), ct);
+        ReadAsync<IReadOnlyList<DeliveryEventDto>>(() => _http.GetAsync($"/api/delivery/{Uri.EscapeDataString(deliveryId)}/timeline", ct), ct);
 
     public async Task<ApiResult<OrderDetailsDto>> LookupOrderByNumberAsync(string orderNumber, CancellationToken ct = default)
     {
-        return await SendAsync<OrderDetailsDto>(() => _http.GetAsync($"/api/orders/lookup?orderNumber={Uri.EscapeDataString(orderNumber)}", ct), ct);
+        return await ReadAsync<OrderDetailsDto>(() => _http.GetAsync($"/api/orders/lookup?orderNumber={Uri.EscapeDataString(orderNumber)}", ct), ct);
     }
 
     public async Task<ApiResult<OrderDetailsDto>> GetOrderAsync(string orderId, CancellationToken ct = default)
     {
-        return await SendAsync<OrderDetailsDto>(() => _http.GetAsync($"/api/orders/{Uri.EscapeDataString(orderId)}", ct), ct);
+        return await ReadAsync<OrderDetailsDto>(() => _http.GetAsync($"/api/orders/{Uri.EscapeDataString(orderId)}", ct), ct);
     }
 
     public async Task<ApiResult<IssueManagerApprovalResult>> IssueManagerApprovalAsync(IssueManagerApprovalRequest request, CancellationToken ct = default)
@@ -598,11 +705,18 @@ public sealed partial class ApiClient
     /// literally this call against "tre-drawer", not a bespoke calculation kept in sync by hand.</summary>
     public async Task<ApiResult<TreasuryBalanceDto>> GetTreasuryBalanceAsync(string accountId, CancellationToken ct = default)
     {
-        return await SendAsync<TreasuryBalanceDto>(() => _http.GetAsync($"/api/treasury/balance?accountId={Uri.EscapeDataString(accountId)}", ct), ct);
+        return await ReadAsync<TreasuryBalanceDto>(() => _http.GetAsync($"/api/treasury/balance?accountId={Uri.EscapeDataString(accountId)}", ct), ct);
     }
 
     public async Task<ApiResult<CreatePrintJobsResult>> CreatePrintJobsAsync(string orderId, CreatePrintJobsRequest request, CancellationToken ct = default)
     {
         return await SendAsync<CreatePrintJobsResult>(() => _http.PostAsJsonAsync($"/api/orders/{Uri.EscapeDataString(orderId)}/print-jobs", request, ct), ct);
+    }
+
+    /// <summary>Prints a shift slip or an expense voucher again. The server queues a marked print
+    /// job and audits it; nothing about the shift or the expense itself changes.</summary>
+    public async Task<ApiResult<CreatePrintJobsResult>> ReprintDocumentAsync(ReprintDocumentRequest request, CancellationToken ct = default)
+    {
+        return await SendAsync<CreatePrintJobsResult>(() => _http.PostAsJsonAsync("/api/print-jobs/reprint-document", request, ct), ct);
     }
 }

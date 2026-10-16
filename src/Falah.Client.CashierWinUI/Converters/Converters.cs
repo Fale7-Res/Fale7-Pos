@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
@@ -72,12 +72,156 @@ public sealed class TreasuryMovementTypeLabelConverter : IValueConverter
         "purchase_payment" => "سداد مشتريات",
         "supplier_payment" => "سداد مورد",
         "reconciliation" => "تسوية",
+        // Written by shift close, employee cash-outs, payroll and driver settlement - all of which
+        // reached the ledger in English before these were added.
+        "cash_overage" => "زيادة نقدية في الدرج",
+        "cash_shortage" => "عجز نقدي في الدرج",
+        "cash_in_transfer" => "تحويل إلى الدرج",
+        "cash_out_transfer" => "تحويل من الدرج",
+        "employee_advance" => "سلفة موظف",
+        "employee_withdrawal" => "مسحوبات موظف",
+        "employee_payment" => "صرف مستحقات موظف",
+        "payroll_payment" => "صرف رواتب",
+        "settlement_overage" => "زيادة في تسوية سائق",
+        "settlement_shortage" => "عجز في تسوية سائق",
         null or "" => "",
         var other => other,
     };
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
+}
+
+/// <summary>
+/// Arabic labels for the system's own stored vocabularies - payment methods, user roles, employee
+/// ledger entries, stock movements and print routes. The stored values are English identifiers that
+/// reports group by and must never be renamed; these only change what a person reads. An unknown
+/// value falls through unchanged, so something added server-side later is still visible as itself
+/// rather than blank.
+///
+/// Shared converters rather than per-screen helpers: several screens used to bind these values raw,
+/// while others had their own private maps, so the same word appeared in Arabic on one screen and in
+/// English on the next.
+/// </summary>
+public sealed class PaymentMethodLabelConverter : IValueConverter
+{
+    public static string Label(string? method) => method?.ToLowerInvariant() switch
+    {
+        "cash" => "كاش",
+        "card" => "فيزا",
+        "instapay" => "إنستاباي",
+        "wallet" => "محفظة",
+        "multi" => "دفع مقسّم",
+        null or "" => "",
+        _ => method!,
+    };
+
+    public object Convert(object value, Type targetType, object parameter, string language) => Label(value as string);
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
+}
+
+public sealed class UserRoleLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string) switch
+    {
+        "owner" => "المالك",
+        "manager" => "المدير",
+        "supervisor" => "مشرف",
+        "cashier" => "كاشير",
+        null or "" => "",
+        var other => other,
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
+}
+
+/// <summary>Every value of the domain's LedgerEntryType.</summary>
+public sealed class EmployeeLedgerTypeLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string) switch
+    {
+        "DailyWage" => "يومية",
+        "Salary" => "راتب",
+        "Advance" => "سلفة",
+        "Withdrawal" => "مسحوبات",
+        "Overtime" => "ساعات إضافية",
+        "ExtraShift" => "وردية إضافية",
+        "Deduction" => "خصم",
+        "Bonus" => "مكافأة",
+        "OtherEarning" => "مستحقات أخرى",
+        "PayrollSettlement" => "تسوية رواتب",
+        "Adjustment" => "تعديل",
+        "Settlement" => "تسوية",
+        null or "" => "",
+        var other => other,
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
+}
+
+/// <summary>Every value of the domain's StockMovementType, worded as the inventory screen already
+/// words them.</summary>
+public sealed class StockMovementTypeLabelConverter : IValueConverter
+{
+    public static string Label(string? type) => type switch
+    {
+        "PurchaseReceipt" => "استلام شراء",
+        "ManualReceipt" => "إدخال يدوي",
+        "Usage" => "استهلاك مبيعات",
+        "Waste" => "هدر تحضير",
+        "Spoilage" => "تلف وانتهاء صلاحية",
+        "Breakage" => "كسر",
+        "CountAdjustment" => "تسوية جرد",
+        null or "" => "",
+        _ => type!,
+    };
+
+    public object Convert(object value, Type targetType, object parameter, string language) => Label(value as string);
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
+}
+
+/// <summary>Every value of the domain's PrintRoute.</summary>
+public sealed class PrintRouteLabelConverter : IValueConverter
+{
+    public static string Label(string? route) => route switch
+    {
+        "Receipt" => "إيصال الكاشير",
+        "CallCenter" => "إيصال مركز الاتصال",
+        "Charcoal" => "محطة الفحم",
+        "Grill" => "محطة الشواية",
+        "DeliveryOrder" => "أوردر الدليفري",
+        "DriverDispatch" => "تذكرة السائق",
+        null or "" => "",
+        _ => route!,
+    };
+
+    public object Convert(object value, Type targetType, object parameter, string language) => Label(value as string);
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
+}
+
+/// <summary>The "type" of a significant action depends on where the row came from - a treasury
+/// movement type, an expense category (already Arabic), a stock movement type or a delivery event -
+/// so this converter takes the whole row.</summary>
+public sealed class SignificantActionTypeLabelConverter : IValueConverter
+{
+    private static readonly TreasuryMovementTypeLabelConverter Treasury = new();
+
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is not Falah.Application.Reports.SignificantActionDto action ? "" : action.Category switch
+        {
+            "treasury" => Treasury.Convert(action.Type, targetType, parameter, language),
+            "inventory" => StockMovementTypeLabelConverter.Label(action.Type),
+            "delivery" => action.Type switch
+            {
+                "assignment" => "إسناد طلب لسائق",
+                "reassignment" => "إعادة إسناد طلب",
+                "ready" => "طلب جاهز للتوصيل",
+                var other => other,
+            },
+            _ => action.Type,
+        };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
 }
 
 /// <summary>Arabic label for a fixed treasury account id. The ids are the system's own stable
@@ -131,6 +275,7 @@ public sealed class DeliveryStatusLabelConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) => (value as string) switch
     {
+        // DeliveryStatus is persisted as nameof(...), i.e. PascalCase - unlike OrderStatus.
         "New" => "جديد",
         "Preparing" => "قيد التحضير",
         "Ready" => "جاهز للإسناد",
@@ -143,6 +288,92 @@ public sealed class DeliveryStatusLabelConverter : IValueConverter
         "Settled" => "تمت التسوية",
         "Cancelled" => "ملغي",
         var other => other ?? "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>Order.Status (OrderStatus: Pending/Preparing/Ready/Completed/Cancelled/Refunded) in
+/// words - the Orders table used to bind this raw, showing an English enum name straight from the
+/// wire (final pre-go-live localization pass: user-visible internal values must be translated at
+/// the presentation layer, never by changing the wire/database value itself).</summary>
+public sealed class OrderStatusLabelConverter : IValueConverter
+{
+    // Lower-cased first: OrderStatus travels the wire and sits in the database in OrderEnumMapping's
+    // lower-case spelling ("preparing"), not as the enum's own name, so a PascalCase switch here
+    // silently matched nothing and the table showed the raw English word.
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string)?.ToLowerInvariant() switch
+    {
+        "pending" => "قيد الانتظار",
+        "preparing" => "قيد التحضير",
+        "ready" => "جاهز",
+        "completed" => "مكتمل",
+        "cancelled" => "ملغي",
+        "refunded" => "مسترجع",
+        _ => value as string ?? "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>Order.OrderType (OrderEnumMapping's wire spelling: pickup/takeaway/delivery) in words.
+/// Same presentation-layer-only rule as OrderStatusLabelConverter: the wire and database values are
+/// untouched.</summary>
+public sealed class OrderTypeLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string)?.ToLowerInvariant() switch
+    {
+        "pickup" => "استلام من المحل",
+        "takeaway" => "تيك أواي",
+        "delivery" => "توصيل",
+        // Pre-rename spelling still present on historical Pickup orders (see OrderEnumMapping).
+        "dine_in" or "dinein" => "استلام من المحل",
+        _ => value as string ?? "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>One label converter for every OTHER internal status vocabulary this app shows raw in a
+/// table cell (BusinessDayStatus, PayrollRunStatus, backup Status/VerificationStatus) - each has its
+/// own enum with no collision across them, so one case-insensitive switch covers all of them rather
+/// than one tiny single-purpose converter per screen. OrderStatusLabelConverter and
+/// DeliveryStatusLabelConverter stay separate: their values (Pending/Ready/...) DO collide with each
+/// other and with these, so merging would make one context's word wrong in another's.</summary>
+public sealed class GeneralStatusLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string)?.ToLowerInvariant() switch
+    {
+        // BusinessDayStatus
+        "open" => "مفتوح",
+        "closing" => "قيد الإغلاق",
+        "closed" => "مغلق",
+        "reopened" => "أُعيد فتحه",
+        // PayrollRunStatus
+        "draft" => "مسودة",
+        "calculated" => "تم الاحتساب",
+        "reviewed" => "تمت المراجعة",
+        "approved" => "معتمد",
+        "paid" => "مدفوع",
+        "cancelled" => "ملغي",
+        // Backup Status / VerificationStatus
+        "requested" => "قيد التنفيذ",
+        "succeeded" => "نجحت",
+        "failed" => "فشلت",
+        "blocked" => "مرفوضة",
+        // Backup VerificationStatus is literally "Valid"/"Invalid" (see VerifyBackupHandler) -
+        // "verified" kept alongside for any older row written before that settled.
+        "valid" => "سليمة",
+        "invalid" => "تالفة",
+        "verified" => "تم التحقق",
+        // AuditEvent Severity
+        "normal" => "عادي",
+        "warning" => "تحذير",
+        "critical" => "حرج",
+        _ => value as string ?? "",
     };
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -188,7 +419,7 @@ public sealed class BoolToBrushConverter : IValueConverter
     {
         var keys = ((string)parameter).Split('|');
         var key = value is true ? keys[0] : keys[1];
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[key];
+        return Services.ThemeResources.Get(key)!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -196,7 +427,7 @@ public sealed class BoolToBrushConverter : IValueConverter
 }
 
 /// <summary>Same idea as BoolToBrushConverter, but the "selected" test is a string equality
-/// (OrderType == "dine_in", PaymentMethod == "cash", etc.) rather than a plain bool.
+/// (OrderType == "pickup", PaymentMethod == "cash", etc.) rather than a plain bool.
 /// ConverterParameter is "ExpectedValue|SelectedBrushKey|UnselectedBrushKey".</summary>
 /// <summary>Picks one of two literal labels from ConverterParameter ("trueText|falseText"). Kept
 /// distinct from BoolToBrushConverter, which resolves resource KEYS - passing label text to that one
@@ -237,6 +468,19 @@ public sealed class CountToVisibleConverter : IValueConverter
         throw new NotSupportedException();
 }
 
+/// <summary>Just the file's name, for a table cell. A backup row showed its entire filesystem path,
+/// which pushed the columns that matter (status, verification) off the side of the card to display
+/// a directory that is the same on every row. The full path stays on the record itself for anyone
+/// who needs to go and find the file.</summary>
+public sealed class FileNameConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is string path && path.Length > 0 ? System.IO.Path.GetFileName(path) : "";
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
 /// <summary>A timestamp in the reader's own time, or a dash when the event never happened.</summary>
 public sealed class LocalTimestampConverter : IValueConverter
 {
@@ -260,7 +504,7 @@ public sealed class SeverityToBrushConverter : IValueConverter
             "info" => "InfoBrush",
             _ => "SuccessBrush",
         };
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[key];
+        return Services.ThemeResources.Get(key)!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -280,7 +524,7 @@ public sealed class DeltaStateToBrushConverter : IValueConverter
             "down" => "DangerBrush",
             _ => "TextMutedBrush",
         };
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[key];
+        return Services.ThemeResources.Get(key)!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -327,7 +571,22 @@ public sealed class StringEqualsToBrushConverter : IValueConverter
     {
         var parts = ((string)parameter).Split('|');
         var isMatch = string.Equals(value as string, parts[0], StringComparison.Ordinal);
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[isMatch ? parts[1] : parts[2]];
+        return Services.ThemeResources.Get(isMatch ? parts[1] : parts[2])!;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>Same shape as StringEqualsToBrushConverter for an int comparand - e.g. highlighting the
+/// selected hours button (1-5) in the overtime picker.</summary>
+public sealed class IntEqualsToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var parts = ((string)parameter).Split('|');
+        var isMatch = value is int i && int.TryParse(parts[0], out var target) && i == target;
+        return Services.ThemeResources.Get(isMatch ? parts[1] : parts[2])!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -335,7 +594,7 @@ public sealed class StringEqualsToBrushConverter : IValueConverter
 }
 
 /// <summary>Visible only when the bound string equals ConverterParameter - e.g. the dine-in table
-/// number box only shows when OrderType == "dine_in".</summary>
+/// pickup details button only shows when OrderType == "pickup".</summary>
 public sealed class StringEqualsToVisibleConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>
@@ -465,6 +724,7 @@ public sealed class NavKeyToGlyphConverter : IValueConverter
         ["customers"] = "",
         ["reports"] = "",
         ["treasury"] = "",
+        ["shifts"] = "",
         ["inventory"] = "",
         ["recipes"] = "",
         ["waste"] = "",
@@ -519,7 +779,7 @@ public sealed class StatusToPillBrushConverter : IValueConverter
                 || s.Contains("reviewed") || s.Contains("calculated") => "WarningPillBrush",
             _ => "NeutralPillBrush",
         };
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[key];
+        return Services.ThemeResources.Get(key)!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>

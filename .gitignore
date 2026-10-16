@@ -13,3 +13,14 @@ obj/
 # and none of it is source. Ignored wholesale rather than one subdirectory at a time, which is how
 # the last three probe runs each leaked a new untracked directory into git status.
 /artifacts/
+
+# Ad-hoc server/test logs written next to the solution during manual runs.
+.tmp_logs/
+
+# Recurring local output: dotnet test result files, Python caches from tools/*.py, and the print
+# agent's file-transport folder (FileOutputDirectory defaults to "tickets" in its working dir).
+TestResults/
+*.trx
+__pycache__/
+*.pyc
+tickets/

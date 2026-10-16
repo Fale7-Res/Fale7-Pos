@@ -1,4 +1,4 @@
-using Falah.Domain.Authorization;
+﻿using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Xunit;
 
@@ -57,5 +57,35 @@ public class UserManagementRulesTests
     public void Every_catalog_permission_is_accepted_as_known()
     {
         UserManagementRules.AssertKnownPermissions(PermissionCatalog.Keys);
+    }
+
+    // ---- Administrative lockout ----
+
+    [Fact]
+    public void All_counts_as_being_able_to_administer_users()
+    {
+        // Mirrors the authorization policy itself, where "all" satisfies every permission check -
+        // counting an owner-equivalent as unable would block changes that are perfectly safe.
+        Assert.True(UserManagementRules.CanManageUsers(new[] { "all" }));
+        Assert.True(UserManagementRules.CanManageUsers(new[] { "pos", "users_manage" }));
+        Assert.False(UserManagementRules.CanManageUsers(new[] { "pos", "reports_view" }));
+        Assert.False(UserManagementRules.CanManageUsers(Array.Empty<string>()));
+    }
+
+    [Fact]
+    public void Leaving_nobody_able_to_administer_users_is_refused()
+    {
+        // Unrecoverable from inside the product: no break-glass path exists, so the only way back
+        // would be editing the database by hand.
+        Assert.Throws<DomainException>(() => UserManagementRules.AssertUserAdministrationSurvives(0));
+        Assert.Throws<DomainException>(() => UserManagementRules.AssertUserAdministrationSurvives(-1));
+    }
+
+    [Fact]
+    public void Leaving_one_administrator_behind_is_allowed()
+    {
+        // One is enough. Requiring two would block a single-manager restaurant from ever tidying
+        // permissions at all, which is the normal shape of the business this runs in.
+        UserManagementRules.AssertUserAdministrationSurvives(1);
     }
 }

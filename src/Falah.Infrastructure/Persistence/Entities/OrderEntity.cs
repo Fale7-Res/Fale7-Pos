@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Persistence.Entities;
+﻿namespace Falah.Infrastructure.Persistence.Entities;
 
 /// <summary>
 /// Plain, EF-friendly persistence shape for an Order. Deliberately NOT the Falah.Domain.Orders.Order
@@ -18,6 +18,10 @@ public class OrderEntity
     /// purpose: restaurants number, letter and nickname their tables however they like, and this
     /// system has never been told which scheme this one uses.</summary>
     public string? TableNumber { get; set; }
+
+    /// <summary>When the customer said they would come and collect a pickup order. Null on every
+    /// other type, and null on a pickup nobody named a time for - which is most of them.</summary>
+    public DateTimeOffset? RequestedPickupAtUtc { get; set; }
 
     public string? CustomerName { get; set; }
     public string? CustomerPhone { get; set; }

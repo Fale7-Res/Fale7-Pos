@@ -1,4 +1,4 @@
-namespace Falah.Domain.Delivery;
+﻿namespace Falah.Domain.Delivery;
 
 using Falah.Domain.Common;
 using Falah.Domain.Financial;
@@ -85,12 +85,22 @@ public static class DeliveryRules
             throw new DomainException("فرق التحصيل يتطلب سببًا واضحًا ولا يمكن تسويته تلقائيًا.");
     }
 
-    public static void AssertShiftHasNoUnsettledCustody(IEnumerable<DriverCustody> custodies, IEnumerable<DeliveryFacts> deliveries, string shiftId)
+    /// <summary>
+    /// Driver custody is settled per BUSINESS DAY, or whenever the driver comes in to settle - never
+    /// as a condition of closing a shift.
+    ///
+    /// A driver is out on the road while shifts change behind him: tying his cash to the cashier's
+    /// shift would either hold the till open until he returns or force a fictional settlement to get
+    /// the shift closed. The obligation is still enforced, one level up: BusinessDayRules raises
+    /// UNSETTLED_DRIVER_CUSTODY as a close blocker for the day, the dashboard shows the outstanding
+    /// custody, and the shift handover slip prints it as a warning so the cash is counted with it in
+    /// view. This is deliberately NOT a shift-close check any more.
+    /// </summary>
+    public static IReadOnlyList<DriverCustody> UnsettledCustodyForShift(
+        IEnumerable<DriverCustody> custodies, IEnumerable<DeliveryFacts> deliveries, string shiftId)
     {
         var deliveryIds = deliveries.Where(d => d.ShiftId == shiftId).Select(d => d.Id).ToHashSet();
-        var blocked = custodies.Where(c => c.Status != CustodyStatus.Settled && deliveryIds.Contains(c.DeliveryId)).ToList();
-        if (blocked.Count > 0)
-            throw new DomainException($"لا يمكن إغلاق الوردية: توجد عهدة سائق غير مسوّاة لعدد {blocked.Count} طلب.");
+        return custodies.Where(c => c.Status != CustodyStatus.Settled && deliveryIds.Contains(c.DeliveryId)).ToList();
     }
 
     /// <summary>Settlement overwrites a delivery's status to Settled regardless of its original
@@ -115,6 +125,17 @@ public static class DeliveryRules
         if (string.IsNullOrEmpty(deliveryServiceId)) return "اختر خدمة التوصيل قبل المتابعة.";
         if (string.IsNullOrWhiteSpace(deliveryArea)) return "أدخل المنطقة قبل المتابعة.";
         if (string.IsNullOrWhiteSpace(deliveryStreet)) return "أدخل الشارع قبل المتابعة.";
+        return null;
+    }
+
+    /// <summary>A pickup order is collected at the counter, so it needs the two fields that let
+    /// staff match a waiting customer to a waiting bag - and nothing else. Same field order and
+    /// same wording as the delivery check above, so a cashier who has seen one recognises the
+    /// other.</summary>
+    public static string? FirstMissingPickupField(string? customerPhone, string? customerName)
+    {
+        if (string.IsNullOrWhiteSpace(customerPhone)) return "أدخل رقم هاتف العميل قبل المتابعة.";
+        if (string.IsNullOrWhiteSpace(customerName)) return "أدخل اسم العميل قبل المتابعة.";
         return null;
     }
 

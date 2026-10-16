@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Printing;
+﻿namespace Falah.Infrastructure.Printing;
 
 using Falah.Application.Printing;
 using Falah.Domain.Audit;
@@ -75,8 +75,10 @@ public sealed class CreatePrintJobsHandler
             {
                 _auditLog.Append(new AuditEvent(
                     $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                    "إعادة طباعة طلب", "order", $"إعادة طباعة الطلب {order.OrderNumber} - المسارات: {string.Join(", ", routes)}",
-                    "normal", now, ReferenceId: order.Id));
+                    "إعادة طباعة طلب", "order",
+                    $"إعادة طباعة الطلب {order.OrderNumber} - المسارات: {string.Join(", ", routes)}"
+                        + (string.IsNullOrWhiteSpace(request.Reason) ? "" : $" - السبب: {request.Reason.Trim()}"),
+                    "normal", now, ReferenceId: order.Id, Reason: request.Reason));
             }
             await _db.SaveChangesAsync(ct);
         }

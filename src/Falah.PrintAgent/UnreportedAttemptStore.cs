@@ -32,6 +32,17 @@ public sealed class UnreportedAttemptStore
         _attempts = Load(path);
     }
 
+    public static UnreportedAttemptStore ForRoute(string directory, string route)
+    {
+        var canonical = Enum.Parse<Falah.Domain.Printing.PrintRoute>(route, true).ToString();
+        var store = new UnreportedAttemptStore(Path.Combine(directory, $"unreported-print-attempts-{canonical}.json"));
+        // Preserve any outcomes recorded by the earlier shared journal. Each route only ever
+        // looks up its own pending job ids; do not delete the legacy file during an upgrade.
+        foreach (var entry in Load(Path.Combine(directory, "unreported-print-attempts.json")))
+            if (store.Find(entry.Key) is null) store.Remember(entry.Key, entry.Value);
+        return store;
+    }
+
     private static Dictionary<string, StoredAttempt> Load(string path)
     {
         try
@@ -39,12 +50,9 @@ public sealed class UnreportedAttemptStore
             if (!File.Exists(path)) return new();
             return JsonSerializer.Deserialize<Dictionary<string, StoredAttempt>>(File.ReadAllText(path)) ?? new();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // A corrupt file must not stop the station printing. The cost of losing it is that an
-            // already-printed ticket may print once more - the cost of throwing here is that the
-            // kitchen prints nothing at all.
-            return new();
+            throw new InvalidOperationException("Cannot read the print-attempt journal. Restore or inspect it before printing; ignoring it could duplicate tickets.", ex);
         }
     }
 

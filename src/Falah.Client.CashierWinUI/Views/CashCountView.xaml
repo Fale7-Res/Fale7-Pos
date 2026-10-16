@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.CashCountView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.CashCountView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,9 +6,9 @@
              FlowDirection="RightToLeft">
     <!-- Physical denomination count. The running total is a counting aid only; the authoritative
          total, expected figure and difference all come back from the server. -->
-    <Grid Background="#66313D35"
+    <Grid Background="{ThemeResource OverlayBrush}"
           Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
-        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="1020" MaxHeight="880"
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="1020" MaxHeight="880"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
             <Grid RowSpacing="14">
                 <Grid.RowDefinitions>
@@ -47,7 +47,7 @@
                                 <ItemsControl ItemsSource="{Binding Rows}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1"
+                                            <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1"
                                                     Padding="16,8">
                                                 <Grid ColumnSpacing="12">
                                                     <Grid.ColumnDefinitions>
@@ -63,7 +63,7 @@
                                                              Text="{Binding QuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding LineTotalDisplay}"
                                                                Style="{StaticResource TableCellText}"
-                                                               Foreground="{StaticResource TextMutedBrush}"
+                                                               Foreground="{ThemeResource TextMutedBrush}"
                                                                VerticalAlignment="Center"/>
                                                 </Grid>
                                             </Border>
@@ -134,14 +134,14 @@
                 </Grid>
 
                 <StackPanel Grid.Row="2" Spacing="10">
-                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
-                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <Button Content="{Binding SaveLabel}" MinHeight="52" MinWidth="220" HorizontalAlignment="Left"

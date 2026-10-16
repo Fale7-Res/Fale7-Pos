@@ -175,7 +175,13 @@ public class FalahDbContext : DbContext
             // Employee.pin and User.pin are two separate columns there).
         });
 
-        modelBuilder.Entity<ManagerApprovalEntity>(b => b.HasKey(a => a.ApprovalId));
+        modelBuilder.Entity<ManagerApprovalEntity>(b =>
+        {
+            b.HasKey(a => a.ApprovalId);
+            // Two requests may validate the same unused approval before either saves.
+            // Only the first false -> true update may commit with its financial operation.
+            b.Property(a => a.Consumed).IsConcurrencyToken();
+        });
 
         modelBuilder.Entity<UserSessionEntity>(b =>
         {

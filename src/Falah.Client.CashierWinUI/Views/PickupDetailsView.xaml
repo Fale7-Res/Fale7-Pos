@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.PickupDetailsView" x:Name="Root"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+ FlowDirection="RightToLeft">
+<!-- The delivery form's two customer fields and nothing else. A pickup is collected at the counter,
+     so there is no address, no area, no delivery service and no table to ask for. -->
+<Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsPickupEditorOpen, Converter={StaticResource BoolToVisibleConverter}}">
+ <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" MaxWidth="520" Margin="28" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+  <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+   <controls:ModalHeaderView Padding="24,18" Title="بيانات الاستلام" CloseCommand="{Binding ClosePickupEditorCommand}" CloseAutomationId="Pickup_Close"/>
+   <StackPanel Grid.Row="1" Padding="24,0,24,20" Spacing="14">
+    <TextBlock Text="اسم العميل ورقم هاتفه، عشان نعرف الطلب ده بتاع مين وقت الاستلام."
+               TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
+    <TextBox AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
+             Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    <TextBox AutomationProperties.AutomationId="Pickup_Name" IsEnabled="{Binding CanEditOperation}" Header="اسم العميل"
+             Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    <TextBlock Text="موعد الاستلام (اختياري) - سيبه فاضي لو العميل جاي دلوقتي." TextWrapping="Wrap"
+               FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
+    <Grid ColumnSpacing="12">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <CalendarDatePicker AutomationProperties.AutomationId="Pickup_Date" Header="التاريخ" HorizontalAlignment="Stretch"
+                         IsEnabled="{Binding CanEditOperation}" Date="{Binding PickupDate, Mode=TwoWay}"/>
+     <TimePicker Grid.Column="1" AutomationProperties.AutomationId="Pickup_Time" Header="الوقت" HorizontalAlignment="Stretch"
+                 ClockIdentifier="24HourClock" IsEnabled="{Binding CanEditOperation}" SelectedTime="{Binding PickupTime, Mode=TwoWay}"/>
+    </Grid>
+    <TextBlock Text="{Binding PickupError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
+               Visibility="{Binding PickupError, Converter={StaticResource NullToCollapsedConverter}}"/>
+   </StackPanel>
+   <Border Grid.Row="2" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,16">
+    <Button AutomationProperties.AutomationId="Pickup_Save" Content="حفظ بيانات الاستلام" Command="{Binding SavePickupDetailsCommand}"
+            HorizontalAlignment="Stretch" Style="{StaticResource CtaButtonStyle}"/>
+   </Border>
+  </Grid>
+ </Border>
+</Grid></UserControl>

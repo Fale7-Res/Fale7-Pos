@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Orders;
 using Falah.Client.CashierWinUI.Services;
@@ -234,6 +234,11 @@ public partial class CashierViewModel
         if (IsDelivery && (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone) ||
             string.IsNullOrWhiteSpace(DeliveryArea) || string.IsNullOrWhiteSpace(DeliveryStreet) || SelectedDeliveryService is null))
         { OpenDeliveryEditor(); return; }
+        // Same gate for pickup, on its own two fields: the counter has to be able to match the
+        // waiting customer to the waiting bag. The server refuses these too - this only saves the
+        // cashier a round trip.
+        if (IsPickup && (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone)))
+        { OpenPickupEditor(); return; }
         CheckoutError = null;
         PaymentMethod = "cash";
         AmountPaidText = CashInput.Format(GrandTotalPiastres);
@@ -355,9 +360,10 @@ public partial class CashierViewModel
                 AmountPaidPiastres: amountPiastres,
                 SplitPayments: splitPayments,
                 WalletProvider: PaymentMethod == "wallet" || IsSplitPaymentEnabled && (SplitMethod1 == "wallet" || SplitMethod2 == "wallet") ? NullIfEmpty(WalletProvider) : null,
-                TableNumber: OrderType == "dine_in" ? NullIfEmpty(TableNumber) : null,
-                CustomerName: isDelivery && !string.IsNullOrWhiteSpace(CustomerName) ? CustomerName : null,
-                CustomerPhone: isDelivery && !string.IsNullOrWhiteSpace(CustomerPhone) ? CustomerPhone : null,
+                TableNumber: null,   // no order type has a table since dine-in was replaced by pickup
+                RequestedPickupAtUtc: IsPickup ? RequestedPickupAtUtc : null,
+                CustomerName: (isDelivery || IsPickup) ? NullIfEmpty(CustomerName) : null,
+                CustomerPhone: (isDelivery || IsPickup) ? NullIfEmpty(CustomerPhone) : null,
                 DeliveryAddress: null,
                 DeliveryArea: isDelivery ? NullIfEmpty(DeliveryArea) : null,
                 BusinessDayId: null,

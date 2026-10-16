@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Backup;
+﻿namespace Falah.Infrastructure.Backup;
 
 using Falah.Application.Backup;
 using Falah.Domain.Audit;
@@ -37,7 +37,16 @@ public sealed class CreateBackupHandler
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "backup_manage");
 
-        var directory = request.DestinationDirectory ?? _configuration["Backup:DefaultDirectory"] ?? "E:\\falah-restaurant\\Backups";
+        return await RunAsync(new BackupActor(actorUser.Id, actorUser.Name, actorUser.Role), request.DestinationDirectory, ct);
+    }
+
+    /// <summary>The backup itself, with no permission check in front of it - every caller that can
+    /// reach this has already established who is asking. <see cref="HandleAsync"/> is the operator
+    /// path and authorizes first; the nightly schedule is the other caller and has no user to
+    /// authorize, which is exactly why the check lives above this rather than inside it.</summary>
+    public async Task<BackupRecordDto> RunAsync(BackupActor actor, string? destinationDirectory, CancellationToken ct = default)
+    {
+        var directory = destinationDirectory ?? _configuration["Backup:DefaultDirectory"] ?? "E:\\falah-restaurant\\Backups";
         BackupRules.AssertDestinationDirectory(directory);
         Directory.CreateDirectory(directory);
 
@@ -50,7 +59,7 @@ public sealed class CreateBackupHandler
         var entity = new BackupRecordEntity
         {
             Id = $"backup-{Guid.NewGuid():N}", Kind = nameof(BackupRecordKind.Backup), FilePath = filePath,
-            Status = nameof(BackupRecordStatus.Requested), RequestedBy = actorUser.Name, RequestedAtUtc = now,
+            Status = nameof(BackupRecordStatus.Requested), RequestedBy = actor.Name, RequestedAtUtc = now,
         };
         _db.BackupRecords.Add(entity);
         await _db.SaveChangesAsync(ct);
@@ -74,7 +83,7 @@ public sealed class CreateBackupHandler
             entity.Status = nameof(BackupRecordStatus.Succeeded);
             entity.CompletedAtUtc = DateTimeOffset.UtcNow;
             _auditLog.Append(new AuditEvent(
-                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "إنشاء نسخة احتياطية لقاعدة البيانات", "backup", $"تم حفظ النسخة في {filePath} ({entity.FileSizeBytes} بايت)",
                 "normal", entity.CompletedAtUtc.Value, ReferenceId: entity.Id));
         }
@@ -84,7 +93,7 @@ public sealed class CreateBackupHandler
             entity.ErrorMessage = ex.Message;
             entity.CompletedAtUtc = DateTimeOffset.UtcNow;
             _auditLog.Append(new AuditEvent(
-                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "فشل إنشاء نسخة احتياطية لقاعدة البيانات", "backup", $"{filePath} - الخطأ: {ex.Message}",
                 "critical", entity.CompletedAtUtc.Value, ReferenceId: entity.Id));
         }

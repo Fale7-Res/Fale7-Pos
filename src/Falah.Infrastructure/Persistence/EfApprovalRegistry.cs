@@ -47,6 +47,8 @@ public sealed class EfApprovalRegistry : IApprovalRegistry
         var entity = _db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)
             ?? _db.ManagerApprovals.FirstOrDefault(a => a.ApprovalId == approvalId) // tracked - must be mutable
             ?? throw new InvalidOperationException("الاعتماد غير موجود لتحديده كمستهلك.");
+        if (entity.Consumed)
+            throw new Falah.Domain.Common.DomainException("اعتماد المدير مستخدم بالفعل.");
         entity.Consumed = true;
     }
 }

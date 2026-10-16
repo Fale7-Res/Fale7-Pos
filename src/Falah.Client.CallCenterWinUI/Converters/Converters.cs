@@ -1,9 +1,29 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 
 namespace Falah.Client.CallCenterWinUI.Converters;
+
+/// <summary>Order.Status in words - the same map as the Cashier app's converter of the same name.
+/// Status travels in OrderEnumMapping's lower-case spelling ("preparing"); the lookup panel used to
+/// show that raw English word.</summary>
+public sealed class OrderStatusLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string)?.ToLowerInvariant() switch
+    {
+        "pending" => "قيد الانتظار",
+        "preparing" => "قيد التحضير",
+        "ready" => "جاهز",
+        "completed" => "مكتمل",
+        "cancelled" => "ملغي",
+        "refunded" => "مسترجع",
+        _ => value as string ?? "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
 
 public sealed class BoolToVisibleConverter : IValueConverter
 {
@@ -81,7 +101,7 @@ public sealed class BoolToBrushConverter : IValueConverter
 }
 
 /// <summary>Same idea as BoolToBrushConverter, but the "selected" test is a string equality
-/// (OrderType == "dine_in", PaymentMethod == "cash", etc.) rather than a plain bool.
+/// (OrderType == "pickup", PaymentMethod == "cash", etc.) rather than a plain bool.
 /// ConverterParameter is "ExpectedValue|SelectedBrushKey|UnselectedBrushKey".</summary>
 public sealed class StringEqualsToBrushConverter : IValueConverter
 {
@@ -97,7 +117,7 @@ public sealed class StringEqualsToBrushConverter : IValueConverter
 }
 
 /// <summary>Visible only when the bound string equals ConverterParameter - e.g. the dine-in table
-/// number box only shows when OrderType == "dine_in".</summary>
+/// pickup details button only shows when OrderType == "pickup".</summary>
 public sealed class StringEqualsToVisibleConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>

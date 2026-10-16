@@ -184,7 +184,11 @@ public sealed class SetProductAvailabilityHandler
         _auditLog.Append(new AuditEvent(
             receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             request.IsAvailable ? $"إتاحة صنف: {entity.Name}" : $"إخفاء صنف: {entity.Name}", "menu",
-            $"الصنف {entity.Id}", "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
+            // The name, not the internal id: an owner reading the audit log cannot identify a
+            // product from "prod-prd-50436cb6...". The id stays on ReferenceId, which is what that
+            // field is for.
+            $"الصنف {entity.Name} أصبح {(request.IsAvailable ? "متاحًا" : "مخفيًا")}",
+            "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
     }

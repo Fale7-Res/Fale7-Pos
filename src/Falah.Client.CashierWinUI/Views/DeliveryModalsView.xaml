@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryModalsView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryModalsView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,8 +10,8 @@
     <Grid>
 
         <!-- ================= ASSIGN TO DRIVER ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsAssignOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="440"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsAssignOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="440"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="إسناد الطلب لسائق" CloseCommand="{Binding CloseAssignCommand}"/>
@@ -29,7 +29,7 @@
                               ItemsSource="{Binding Drivers}" SelectedItem="{Binding AssignDriver, Mode=TwoWay}"
                               DisplayMemberPath="Name"/>
 
-                    <TextBlock Text="{Binding AssignError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                    <TextBlock Text="{Binding AssignError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                TextWrapping="Wrap" TextAlignment="Center"
                                Visibility="{Binding AssignError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
@@ -40,8 +40,8 @@
         </Grid>
 
         <!-- ================= RECORD OUTCOME ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsOutcomeOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="460" MaxHeight="640"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsOutcomeOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460" MaxHeight="640"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
@@ -51,7 +51,7 @@
                             <Run Text=" — مع "/><Run Text="{Binding OutcomeTarget.DriverName}"/>
                         </TextBlock>
 
-                        <Grid ColumnSpacing="6" Background="#F0F3EF" CornerRadius="12" Padding="4">
+                        <Grid ColumnSpacing="6" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -98,7 +98,7 @@
                         <TextBox IsEnabled="{Binding CanEditAction}" Header="السبب / ملاحظة" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
                                  Text="{Binding OutcomeReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="{Binding OutcomeError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding OutcomeError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding OutcomeError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
@@ -110,8 +110,8 @@
         </Grid>
 
         <!-- ================= DRIVER ACCOUNT + SETTLEMENT ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsDriverAccountOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="480" MaxHeight="700"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsDriverAccountOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="480" MaxHeight="700"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
@@ -121,25 +121,88 @@
                                       Visibility="{Binding IsLoadingAccount, Converter={StaticResource BoolToVisibleConverter}}"/>
 
                         <StackPanel Spacing="10" Visibility="{Binding DriverAccount, Converter={StaticResource NullToCollapsedConverter}}">
-                            <Border Background="#F8FAF7" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                            <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1"
                                     CornerRadius="14" Padding="16">
                                 <StackPanel Spacing="8">
                                     <Grid ColumnSpacing="8">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="طلبات جارية" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                        <TextBlock Text="طلبات جارية" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding DriverAccount.ActiveOrderCount}" FontWeight="SemiBold"/>
                                     </Grid>
                                     <Grid ColumnSpacing="8">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="طلبات منتهية غير مسوّاة" Style="{StaticResource TableCellText}" Foreground="{StaticResource TextMutedBrush}"/>
+                                        <TextBlock Text="طلبات منتهية غير مسوّاة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding DriverAccount.CompletedUnsettledCount}" FontWeight="SemiBold"/>
                                     </Grid>
-                                    <Border Height="1" Background="{StaticResource CardBorderBrush}"/>
+                                    <Border Height="1" Background="{ThemeResource CardBorderBrush}"/>
                                     <Grid ColumnSpacing="8">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                         <TextBlock Text="العهدة النقدية المستحقة" FontWeight="Bold"/>
-                                        <TextBlock Grid.Column="1" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}"
+                                        <TextBlock Grid.Column="1" FontSize="20" FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}"
                                                    Text="{Binding DriverAccount.CashCustodyPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Driver statistics: same dialog, same driver, read straight from
+                                 /api/delivery/drivers/{id}/statistics - nothing recomputed here. -->
+                            <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="14" Padding="16">
+                                <StackPanel Spacing="10">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="إحصائيات السائق" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" MinWidth="150" MinHeight="40"
+                                                  ItemsSource="{Binding StatsPeriods}" DisplayMemberPath="Label"
+                                                  SelectedItem="{Binding SelectedStatsPeriod, Mode=TwoWay}"/>
+                                    </Grid>
+
+                                    <!-- Stacked, not side by side: this dialog is narrow, and two DatePickers
+                                         sharing its width clip their year column so a custom range spanning
+                                         years cannot be read or set. -->
+                                    <StackPanel Spacing="8" Visibility="{Binding IsCustomStatsPeriod, Converter={StaticResource BoolToVisibleConverter}}">
+                                        <DatePicker Header="من" MinHeight="40" HorizontalAlignment="Stretch" Date="{Binding StatsFromDate, Mode=TwoWay}"/>
+                                        <DatePicker Header="إلى" MinHeight="40" HorizontalAlignment="Stretch" Date="{Binding StatsToDate, Mode=TwoWay}"/>
+                                    </StackPanel>
+
+                                    <ProgressRing IsActive="True" Width="24" Height="24" HorizontalAlignment="Center"
+                                                  Visibility="{Binding IsLoadingStatistics, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                    <TextBlock Text="{Binding StatisticsError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                               Visibility="{Binding StatisticsError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                                    <Grid ColumnSpacing="8" RowSpacing="8"
+                                          Visibility="{Binding HasStatistics, Converter={StaticResource BoolToVisibleConverter}}">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+
+                                        <StackPanel Spacing="2"><TextBlock Text="مُسندة" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.AssignedCount}" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="تم التسليم" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.DeliveredCount}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/></StackPanel>
+                                        <StackPanel Grid.Column="2" Spacing="2"><TextBlock Text="فشل" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.FailedCount}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></StackPanel>
+
+                                        <StackPanel Grid.Row="1" Spacing="2"><TextBlock Text="مرتجع" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.ReturnedCount}" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="2"><TextBlock Text="قيمة الطلبات" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.OrderValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Row="1" Grid.Column="2" Spacing="2"><TextBlock Text="نقدية محصّلة" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.CashCollectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel>
+
+                                        <StackPanel Grid.Row="2" Spacing="2"><TextBlock Text="العهدة الحالية" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.CurrentCustodyPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"/></StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="1" Spacing="2"><TextBlock Text="عدد التسويات" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.SettlementCount}" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="2" Spacing="2"><TextBlock Text="متوسط زمن التوصيل" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding AverageDeliveryMinutesDisplay}" FontWeight="Bold"/></StackPanel>
+
+                                        <StackPanel Grid.Row="3" Spacing="2"><TextBlock Text="عجز التسويات" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.SettlementShortagesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></StackPanel>
+                                        <StackPanel Grid.Row="3" Grid.Column="1" Spacing="2"><TextBlock Text="زيادة التسويات" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding DriverStatistics.SettlementOveragesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/></StackPanel>
+                                        <StackPanel Grid.Row="3" Grid.Column="2" Spacing="2"><TextBlock Text="آخر طلب / آخر تسوية" Style="{StaticResource CaptionText}"/>
+                                            <TextBlock Text="{Binding LastOrderDisplay}" FontSize="11"/>
+                                            <TextBlock Text="{Binding LastSettlementDisplay}" FontSize="11" Style="{StaticResource MutedText}"/></StackPanel>
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -147,7 +210,7 @@
                             <!-- Settlement is driver-scoped and all-or-nothing: the server refuses while
                                  any of this driver's orders is still out for delivery, and names them. -->
                             <StackPanel Spacing="8" Visibility="{Binding DriverAccount.BlockingOrders, Converter={StaticResource NonEmptyCollectionToVisibleConverter}}">
-                                <TextBlock Text="لا يمكن التسوية الآن - طلبات ما زالت في الطريق:" Foreground="{StaticResource WarningBrush}"
+                                <TextBlock Text="لا يمكن التسوية الآن - طلبات ما زالت في الطريق:" Foreground="{ThemeResource WarningBrush}"
                                            FontWeight="SemiBold" TextWrapping="Wrap"/>
                                 <ItemsControl ItemsSource="{Binding DriverAccount.BlockingOrders}">
                                     <ItemsControl.ItemTemplate>
@@ -172,10 +235,10 @@
                                              Password="{Binding SettleManagerPin, Mode=TwoWay}"/>
                             </StackPanel>
 
-                            <TextBlock Text="{Binding SettleError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding SettleError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                        TextWrapping="Wrap" TextAlignment="Center"
                                        Visibility="{Binding SettleError, Converter={StaticResource NullToCollapsedConverter}}"/>
-                            <TextBlock Text="{Binding SettleNote}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding SettleNote}" Foreground="{ThemeResource SuccessBrush}" FontWeight="SemiBold"
                                        TextWrapping="Wrap" TextAlignment="Center"
                                        Visibility="{Binding SettleNote, Converter={StaticResource NullToCollapsedConverter}}"/>
 

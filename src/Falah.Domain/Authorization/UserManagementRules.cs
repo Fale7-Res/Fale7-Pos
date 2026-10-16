@@ -1,4 +1,4 @@
-namespace Falah.Domain.Authorization;
+﻿namespace Falah.Domain.Authorization;
 
 using Falah.Domain.Common;
 
@@ -32,6 +32,34 @@ public static class UserManagementRules
         var notHeld = permissionsToGrant.Where(p => !actorPermissions.Contains(p)).ToList();
         if (notHeld.Count > 0)
             throw new DomainException($"لا يمكنك منح صلاحيات لا تملكها بنفسك: {string.Join(", ", notHeld)}.");
+    }
+
+    /// <summary>The permission that lets anyone administer users at all. Losing every active holder
+    /// of it is unrecoverable from inside the product: there is no break-glass path, so the only way
+    /// back would be editing the database by hand.</summary>
+    public const string UserManagementPermission = "users_manage";
+
+    /// <summary>True when this permission set can administer users - "all" counts, exactly as it
+    /// does in the authorization policy itself, so a holder of "all" is never miscounted as unable.</summary>
+    public static bool CanManageUsers(IEnumerable<string> permissions)
+    {
+        var set = permissions as IReadOnlySet<string> ?? permissions.ToHashSet();
+        return set.Contains("all") || set.Contains(UserManagementPermission);
+    }
+
+    /// <summary>Refuses any change that would leave nobody able to administer users.
+    /// <para>SetUserActiveHandler already stops an admin deactivating their own account, but that
+    /// guard does not cover the two ways the door still closes: revoking users_manage from the last
+    /// holder (revocation is deliberately exempt from the escalation check, since taking a
+    /// permission away is never an escalation), and deactivating the last holder while acting on a
+    /// one-off manager approval rather than on a permission of your own. Either one leaves a till
+    /// nobody can ever add a cashier to again.</para></summary>
+    public static void AssertUserAdministrationSurvives(int remainingActiveAdministrators)
+    {
+        if (remainingActiveAdministrators <= 0)
+            throw new DomainException(
+                "لا يمكن تنفيذ العملية: لن يتبقى أي مستخدم نشط يملك صلاحية إدارة المستخدمين، "
+                + "ولن يكون بالإمكان إضافة أو تعديل أي حساب بعدها.");
     }
 
     public static void AssertKnownPermissions(IEnumerable<string> permissions)

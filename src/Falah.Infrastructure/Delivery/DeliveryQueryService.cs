@@ -146,6 +146,57 @@ public sealed class DeliveryQueryService
             LastSettlementAtUtc: driverSettlements.Count == 0 ? null : driverSettlements[0].CreatedAtUtc);
     }
 
+    /// <summary>One driver's figures for "today / last 7 days / month / custom period" - reuses the
+    /// exact same Deliveries/DriverCustodies/DriverSettlements rows GetDriverAccountAsync and
+    /// GetDeliveryOutcomesReportAsync already read, scoped to one driver and a date range instead of
+    /// everyone/all-time. See DriverStatisticsDto's own doc comment for which fields stay all-time
+    /// on purpose (current custody, last settlement).</summary>
+    public async Task<DriverStatisticsDto> GetDriverStatisticsAsync(
+        string driverId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
+    {
+        var driver = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == driverId, ct)
+            ?? throw new InvalidOperationException("السائق غير موجود.");
+
+        bool InRange(DateTimeOffset? t) => t is { } value && (from is null || value >= from) && (to is null || value < to);
+
+        var deliveries = await _db.Deliveries.AsNoTracking().Where(d => d.DriverId == driverId).ToListAsync(ct);
+        var assigned = deliveries.Where(d => InRange(d.AssignedAtUtc)).ToList();
+        var delivered = deliveries.Where(d => InRange(d.DeliveredAtUtc)).ToList();
+        var failed = deliveries.Count(d => InRange(d.FailedAtUtc));
+        var returned = deliveries.Count(d => InRange(d.ReturnedAtUtc));
+
+        var deliveredOrderIds = delivered.Select(d => d.OrderId).ToList();
+        var orderValue = deliveredOrderIds.Count == 0 ? 0
+            : await _db.Orders.AsNoTracking().Where(o => deliveredOrderIds.Contains(o.Id)).SumAsync(o => (long?)o.TotalPiastres, ct) ?? 0;
+        var cashCollected = delivered.Sum(d => d.CollectedAmountPiastres ?? 0);
+
+        var custody = await _db.DriverCustodies.AsNoTracking()
+            .Where(c => c.DriverId == driverId && c.Status != nameof(CustodyStatus.Settled))
+            .SumAsync(c => (long?)c.CollectedPiastres, ct) ?? 0;
+
+        var settlements = await _db.DriverSettlements.AsNoTracking().Where(s => s.DriverId == driverId).ToListAsync(ct);
+        var settlementsInRange = settlements.Where(s => InRange(s.CreatedAtUtc)).ToList();
+
+        var durations = delivered
+            .Where(d => d.OutForDeliveryAtUtc is not null && d.DeliveredAtUtc is not null)
+            .Select(d => (d.DeliveredAtUtc!.Value - d.OutForDeliveryAtUtc!.Value).TotalMinutes)
+            .Where(m => m >= 0).ToList();
+        long? averageMinutes = durations.Count == 0 ? null : (long)Math.Round(durations.Average());
+
+        var lastOrderAtUtc = deliveries.Where(d => d.AssignedAtUtc is not null)
+            .Select(d => d.AssignedAtUtc!.Value).DefaultIfEmpty().Max();
+
+        return new DriverStatisticsDto(
+            driverId, driver.Name, assigned.Count, delivered.Count, failed, returned,
+            orderValue, cashCollected, custody,
+            settlementsInRange.Count,
+            settlementsInRange.Sum(s => Math.Max(0, -s.DifferencePiastres)),
+            settlementsInRange.Sum(s => Math.Max(0, s.DifferencePiastres)),
+            averageMinutes,
+            lastOrderAtUtc == default ? null : lastOrderAtUtc,
+            settlements.Count == 0 ? null : settlements.Max(s => s.CreatedAtUtc));
+    }
+
     /// <summary>The status in words. DriverOperationalStatus serialises as a bare integer, so a
     /// screen binding straight to it showed "0" to a supervisor. Written once here rather than
     /// re-derived in every client that displays a driver.</summary>

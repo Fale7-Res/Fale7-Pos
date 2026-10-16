@@ -1,4 +1,4 @@
-namespace Falah.Domain.Reports;
+﻿namespace Falah.Domain.Reports;
 
 using Falah.Domain.Common;
 using Falah.Domain.Financial;
@@ -20,7 +20,7 @@ public static class SalesRules
         Money OffersValue, Money CompsValue, Money ManualDiscounts, Money PendingElectronicSales,
         Money CashWithDrivers, Money CollectedSales, Money AverageOrderValue,
         Money Cash, Money Card, Money InstaPay, Money Wallet,
-        Money DineIn, Money Takeaway, Money Delivery);
+        Money Pickup, Money Takeaway, Money Delivery);
 
     /// <summary>
     /// Cash-basis: an order's money counts as COLLECTED only once the restaurant actually holds it.
@@ -81,7 +81,7 @@ public static class SalesRules
             sales.Count, grossSales, refunds, netSales, listSales, offersValue, compsValue, manualDiscounts,
             pendingElectronicSales, cashWithDrivers, collectedSales, averageOrderValue,
             payments[PaymentMethod.Cash], payments[PaymentMethod.Card], payments[PaymentMethod.InstaPay], payments[PaymentMethod.Wallet],
-            OrderTypeNet(OrderType.DineIn), OrderTypeNet(OrderType.Takeaway), OrderTypeNet(OrderType.Delivery));
+            OrderTypeNet(OrderType.Pickup), OrderTypeNet(OrderType.Takeaway), OrderTypeNet(OrderType.Delivery));
     }
 
     private static Money SumMoney(IReadOnlyList<Order> orders, Func<Order, Money> selector) =>

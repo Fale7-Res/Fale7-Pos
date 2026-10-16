@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Client.CashierWinUI.Services;
 
@@ -41,8 +41,8 @@ public partial class CashierViewModel
     public bool CanCloseShift => _session.HasPermission("shifts_blind_close");
     public bool CanCountCash => _session.HasPermission("cash_count");
     public bool IsDelivery => OrderType == "delivery";
-    public bool IsDineIn => OrderType == "dine_in";
-    public string OrderTypeLabel => OrderType switch { "delivery" => "توصيل", "dine_in" => "صالة", _ => "تيك أواي" };
+    public bool IsPickup => OrderType == "pickup";
+    public string OrderTypeLabel => OrderType switch { "delivery" => "توصيل", "pickup" => "استلام من المطعم", _ => "تيك أواي" };
     public string DeliveryFeeDisplay => CashInput.Format(IsDelivery ? SelectedDeliveryService?.FeePiastres ?? 0 : 0) + " ج";
     public string DiscountDisplay => CashInput.Format(DiscountAmountPiastres) + " ج";
     public string CompDisplay => CashInput.Format(CompAmountPiastres) + " ج";
@@ -98,7 +98,13 @@ public partial class CashierViewModel
             OnPropertyChanged(nameof(IsShiftOpen));
             _header.Refresh();
             var settings = await _session.Api.GetSettingsAsync();
-            if (settings.Success && settings.Value is not null) _header.SetIdentity(settings.Value.RestaurantName);
+            if (settings.Success && settings.Value is not null)
+            {
+                _header.SetIdentity(settings.Value.RestaurantName);
+                // Offered, not imposed: the cashier can type over it before opening the shift.
+                if (_session.ShiftId is null)
+                    OpeningCashText = CashInput.Format(Math.Max(0, settings.Value.DefaultOpeningCashPiastres));
+            }
             if (IsShiftOpen) await LoadMenuAsync();
         }
         finally { IsInitializing = false; }

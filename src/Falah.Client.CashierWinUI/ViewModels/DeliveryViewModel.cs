@@ -399,7 +399,13 @@ public partial class DeliveryViewModel : ObservableObject
         SettleReason = "";
         SettleManagerPin = "";
         _settleRequestId = $"set-{Guid.NewGuid():N}";
+        // The statistics panel shares this dialog: default it to today every time it opens, so a
+        // period left on "custom" from a previous driver never silently applies to a new one.
+        DriverStatistics = null;
+        StatisticsError = null;
+        SelectedStatsPeriod = StatsPeriods[0];
         await LoadDriverAccountAsync(driver.Id);
+        await LoadDriverStatisticsAsync(driver.Id);
     }
 
     private async Task LoadDriverAccountAsync(string driverId)
@@ -427,7 +433,10 @@ public partial class DeliveryViewModel : ObservableObject
     {
         if (!CanEditAction) return;
         _accountVersion++;
+        _statisticsVersion++;
         IsLoadingAccount = false;
+        IsLoadingStatistics = false;
+        DriverStatistics = null;
         AccountDriver = null;
     }
 

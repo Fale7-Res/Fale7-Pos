@@ -10,9 +10,19 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <Using Include="Xunit" />
     <ProjectReference Include="../../src/Falah.Application/Falah.Application.csproj" />
-    <Compile Include="../../src/Falah.Client.CashierWinUI/Services/*.cs" Link="Client/Services/%(Filename)%(Extension)" />
+    <!-- ThemeService/ThemeResources are excluded: both depend on Microsoft.UI.Xaml types
+         (ElementTheme, FrameworkElement, ResourceDictionary) that only exist in the real WinUI 3
+         app, not in this plain net8.0 test project - the same reason HeaderViewModel/MainViewModel
+         are excluded from the ViewModels glob below. -->
+    <Compile Include="../../src/Falah.Client.CashierWinUI/Services/*.cs"
+             Exclude="../../src/Falah.Client.CashierWinUI/Services/ThemeService.cs;../../src/Falah.Client.CashierWinUI/Services/ThemeResources.cs"
+             Link="Client/Services/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CashierWinUI/Models/*.cs" Link="Client/Models/%(Filename)%(Extension)" />
-    <Compile Include="../../src/Falah.Client.CashierWinUI/ViewModels/*.cs" Exclude="../../src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs;../../src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs" Link="Client/ViewModels/%(Filename)%(Extension)" />
+    <!-- SettingsViewModel.Appearance.cs is excluded alongside them for the same reason as
+         ThemeService/ThemeResources above: it references AppTheme/ThemeService directly. The
+         resulting InitializeAppearance() call in SettingsViewModel.cs simply elides in this build,
+         which is exactly what an unimplemented partial method is designed to do. -->
+    <Compile Include="../../src/Falah.Client.CashierWinUI/ViewModels/*.cs" Exclude="../../src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs;../../src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs;../../src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs" Link="Client/ViewModels/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/Services/*.cs" Link="CallCenter/Services/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/Models/*.cs" Link="CallCenter/Models/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel*.cs" Link="CallCenter/ViewModels/%(Filename)%(Extension)" />

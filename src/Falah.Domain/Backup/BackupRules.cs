@@ -1,4 +1,4 @@
-namespace Falah.Domain.Backup;
+﻿namespace Falah.Domain.Backup;
 
 using Falah.Domain.Common;
 
@@ -65,5 +65,55 @@ public static class BackupRules
     {
         if (string.IsNullOrWhiteSpace(databaseName) || !System.Text.RegularExpressions.Regex.IsMatch(databaseName, @"^[A-Za-z0-9_]+$"))
             throw new DomainException("اسم قاعدة البيانات غير صالح لعملية النسخ الاحتياطي/الاستعادة.");
+    }
+
+    /// <summary>Whether a new automatic backup is owed. Expressed as a MAXIMUM AGE rather than a
+    /// time of day on purpose: a restaurant till is switched off overnight, so a rule that fires at
+    /// 03:30 would sleep through every run it was supposed to make. An age question is answerable
+    /// whenever the machine happens to be on, which is the only time a backup can be taken at all.
+    /// <para>No backup ever taken is always due - that is the state a fresh install is in, and it
+    /// is the one case where waiting is least defensible.</para></summary>
+    public static bool IsAutomaticBackupDue(DateTimeOffset? lastSucceededAtUtc, DateTimeOffset nowUtc, double maxAgeHours)
+    {
+        if (maxAgeHours <= 0) throw new DomainException("الحد الأقصى لعمر النسخة الاحتياطية يجب أن يكون أكبر من صفر.");
+        if (lastSucceededAtUtc is not { } last) return true;
+        return nowUtc - last >= TimeSpan.FromHours(maxAgeHours);
+    }
+
+    /// <summary>How many of the recorded backups to delete, keeping the newest <paramref name="keepCount"/>.
+    /// Automatic backups accumulate without anyone deciding to keep them, and a disk filled by its
+    /// own backups takes the restaurant down exactly the way losing the database would - so the
+    /// retention is part of automating them, not a separate nicety.
+    /// <para>A keepCount of zero or less disables pruning entirely rather than deleting everything:
+    /// the destructive reading of an unset number must never be the one that runs.</para></summary>
+    public static int PrunableBackupCount(int recordedBackupCount, int keepCount)
+    {
+        if (keepCount <= 0) return 0;
+        return Math.Max(0, recordedBackupCount - keepCount);
+    }
+
+    /// <summary>One backup in the retention list.</summary>
+    /// <param name="IsVerifiedValid">RESTORE VERIFYONLY has actually read this file back.</param>
+    public readonly record struct RetainedBackup(string Id, DateTimeOffset CompletedAtUtc, bool IsVerifiedValid);
+
+    /// <summary>Which backups may be deleted, given how many to keep. Two rules, in this order:
+    /// keep the newest <paramref name="keepCount"/>, and never delete the newest VERIFIED-VALID one
+    /// whatever its age.
+    /// <para>The second rule is the one that matters. Retention counts files, not trustworthy files
+    /// - so a run of failed verifications at the top of the list could otherwise push the last
+    /// backup anybody has actually read back off the end, and delete it. A system holding sixty
+    /// unverifiable files and no good one is in a worse position than one holding a single old
+    /// backup that is known to restore.</para></summary>
+    public static IReadOnlyList<string> SelectPrunableBackups(IEnumerable<RetainedBackup> backups, int keepCount)
+    {
+        if (keepCount <= 0) return Array.Empty<string>();
+
+        var ordered = backups.OrderByDescending(b => b.CompletedAtUtc).ToList();
+        var newestValidId = ordered.FirstOrDefault(b => b.IsVerifiedValid).Id;
+
+        return ordered.Skip(keepCount)
+            .Where(b => b.Id != newestValidId)
+            .Select(b => b.Id)
+            .ToList();
     }
 }

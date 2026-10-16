@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -370,5 +370,36 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
         Assert.Contains(events!, e => e.ReferenceId == product.ProductId);
         Assert.Contains(events!, e => e.Action.Contains("ضريبة"));
         Assert.Contains(events!, e => e.Action.Contains("عرض تسعير"));
+    }
+    // ---- Menu order ----
+
+    /// <summary>The till shows products in SortOrder and each product's sizes cheapest first. The
+    /// variant order used to be whatever the database join produced, and the menu query now reads
+    /// products without a full-row SQL sort (see MenuQueryService) - so the order is pinned here,
+    /// on both the POS menu and the management list.</summary>
+    [Fact]
+    public async Task The_menu_lists_products_by_sort_order_and_variants_cheapest_first()
+    {
+        var categoryId = await SeedCategoryIdAsync();
+        Task<HttpResponseMessage> Create(string name, int sortOrder, params ProductVariantInput[] variants) =>
+            _client.PostAsJsonAsync("/api/products", new CreateProductRequest(
+                $"req-{Guid.NewGuid():N}", categoryId, name, 5000, false, null, sortOrder, null, variants, _menuManagerId));
+
+        (await Create("ثالث", 3)).EnsureSuccessStatusCode();
+        (await Create("أول", 1,
+            new ProductVariantInput(null, "كبير", 9000, null),
+            new ProductVariantInput(null, "صغير", 5000, null),
+            new ProductVariantInput(null, "وسط", 7000, null))).EnsureSuccessStatusCode();
+        (await Create("ثاني", 2)).EnsureSuccessStatusCode();
+
+        var menu = await (await _client.GetAsync("/api/menu")).Content.ReadFromJsonAsync<MenuResponse>();
+        var products = menu!.Categories.Single(c => c.Id == categoryId).Products;
+        Assert.Equal(new[] { "أول", "ثاني", "ثالث" }, products.Select(p => p.Name));
+        Assert.Equal(new[] { "صغير", "وسط", "كبير" }, products[0].Variants.Select(v => v.Name));
+
+        var managed = (await (await _client.GetAsync("/api/products/all")).Content.ReadFromJsonAsync<List<ProductDetailsDto>>())!
+            .Where(p => p.CategoryId == categoryId).ToList();
+        Assert.Equal(new[] { "أول", "ثاني", "ثالث" }, managed.Select(p => p.Name));
+        Assert.Equal(new[] { "صغير", "وسط", "كبير" }, managed[0].Variants.Select(v => v.Name));
     }
 }

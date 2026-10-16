@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.EmployeeEditorView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.EmployeeEditorView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,9 +8,9 @@
          as the ledger money actions on the parent screen. All compensation fields stay visible for
          every compensation type: the record holds them independently, and hiding one would quietly
          drop a value the employee already has. -->
-    <Grid Background="#66313D35"
+    <Grid Background="{ThemeResource OverlayBrush}"
           Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
-        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="1180" MaxHeight="900"
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="1180" MaxHeight="900"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
             <Grid RowSpacing="14">
                 <Grid.RowDefinitions>
@@ -192,14 +192,14 @@
                 </Grid>
 
                 <StackPanel Grid.Row="2" Spacing="10">
-                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
-                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <Button Content="{Binding SaveLabel}" MinHeight="52" MinWidth="220" HorizontalAlignment="Left"

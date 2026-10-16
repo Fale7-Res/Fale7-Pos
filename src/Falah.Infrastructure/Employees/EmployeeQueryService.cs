@@ -1,6 +1,7 @@
 namespace Falah.Infrastructure.Employees;
 
 using Falah.Application.Employees;
+using Falah.Domain.Common;
 using Falah.Domain.Employees;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
@@ -10,6 +11,52 @@ public sealed class EmployeeQueryService
 {
     private readonly FalahDbContext _db;
     public EmployeeQueryService(FalahDbContext db) => _db = db;
+
+    /// <summary>Payroll/employee financial reporting "by today / last 7 days / last 10 days / month
+    /// / custom range" - the report the final business rule asks for now that payment is not tied to
+    /// a payroll period. Six buckets, one row per employee, covering all twelve LedgerEntryType
+    /// values with no overlap: Earnings (DailyWage/Salary/Overtime/ExtraShift credit), Additions
+    /// (Bonus/OtherEarning credit), Deductions (Deduction/Adjustment debit), Advances (Advance debit,
+    /// kept separate per the explicit "do not merge advance with normal payment" rule), Payments
+    /// (Withdrawal/Settlement/PayrollSettlement debit - every way money already earned actually
+    /// leaves, whichever flow posted it). RemainingBalancePiastres is deliberately the all-time
+    /// running balance (EmployeeRules.CalculateBalance), not range-scoped - a running balance has no
+    /// "as of the range" version, same convention DailyStatementQueryService's own employee rows use.</summary>
+    public async Task<List<EmployeeFinancialReportLineDto>> GetFinancialReportAsync(
+        DateOnly? from, DateOnly? to, CancellationToken ct = default)
+    {
+        DateTimeOffset? start = null, end = null;
+        if (from is { } f) start = BusinessClock.UtcRangeForBusinessDate(f).Start;
+        if (to is { } t) end = BusinessClock.UtcRangeForBusinessDate(t).End;
+
+        var employees = await _db.Employees.AsNoTracking().Where(e => e.IsActive).ToListAsync(ct);
+        var allEntries = await _db.EmployeeLedgerEntries.AsNoTracking()
+            .Select(e => new { e.EmployeeId, e.Type, e.CreditPiastres, e.DebitPiastres, e.CreatedAtUtc })
+            .ToListAsync(ct);
+
+        var earningsTypes = new[] { nameof(LedgerEntryType.DailyWage), nameof(LedgerEntryType.Salary), nameof(LedgerEntryType.Overtime), nameof(LedgerEntryType.ExtraShift) };
+        var additionTypes = new[] { nameof(LedgerEntryType.Bonus), nameof(LedgerEntryType.OtherEarning) };
+        var deductionTypes = new[] { nameof(LedgerEntryType.Deduction), nameof(LedgerEntryType.Adjustment) };
+        var paymentTypes = new[] { nameof(LedgerEntryType.Withdrawal), nameof(LedgerEntryType.Settlement), nameof(LedgerEntryType.PayrollSettlement) };
+
+        var result = new List<EmployeeFinancialReportLineDto>(employees.Count);
+        foreach (var employee in employees)
+        {
+            var allForEmployee = allEntries.Where(e => e.EmployeeId == employee.Id).ToList();
+            var inRange = allForEmployee.Where(e =>
+                (start is null || e.CreatedAtUtc >= start) && (end is null || e.CreatedAtUtc < end)).ToList();
+
+            long SumCredit(IEnumerable<string> types) => inRange.Where(e => types.Contains(e.Type)).Sum(e => e.CreditPiastres);
+            long SumDebit(IEnumerable<string> types) => inRange.Where(e => types.Contains(e.Type)).Sum(e => e.DebitPiastres);
+            var balance = allForEmployee.Sum(e => e.CreditPiastres) - allForEmployee.Sum(e => e.DebitPiastres);
+
+            result.Add(new EmployeeFinancialReportLineDto(
+                employee.Id, employee.Name, SumCredit(earningsTypes), SumCredit(additionTypes),
+                SumDebit(deductionTypes), SumDebit(new[] { nameof(LedgerEntryType.Advance) }),
+                SumDebit(paymentTypes), balance));
+        }
+        return result.OrderBy(r => r.EmployeeName).ToList();
+    }
 
     public Task<List<EmployeeDto>> ListAsync(CancellationToken ct = default) =>
         _db.Employees.AsNoTracking().Select(e => ToDto(e)).ToListAsync(ct);

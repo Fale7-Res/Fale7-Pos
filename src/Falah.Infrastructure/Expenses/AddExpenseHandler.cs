@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Expenses;
+﻿namespace Falah.Infrastructure.Expenses;
 
 using Falah.Application.Expenses;
 using Falah.Domain.Audit;
@@ -119,6 +119,12 @@ public sealed class AddExpenseHandler
                 OperationId: movement.OperationId, ReferenceId: expenseEntity.Id));
 
             journal.Complete(idempotencyKey);
+
+            // The voucher for this expense. Printing it posts nothing: the money moved when the
+            // expense was recorded above, and this row only reproduces it on paper.
+            _db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
+                Falah.Domain.Printing.PrintDocumentKind.Expense, expenseEntity.Id, Falah.Domain.Printing.PrintRules.ExpenseLabel,
+                createdByUser.Name, now));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

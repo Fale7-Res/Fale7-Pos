@@ -1,4 +1,4 @@
-namespace Falah.Application.Reports;
+﻿namespace Falah.Application.Reports;
 
 /// <summary>
 /// Everything an owner needs to judge the restaurant, in one read.
@@ -65,7 +65,7 @@ public sealed record CashPositionDto(
     long CardPiastres,
     long InstaPayPiastres,
     long WalletPiastres,
-    long DineInPiastres,
+    long PickupPiastres,
     long TakeawayPiastres,
     long DeliveryPiastres,
     TreasuryBalancesDto TreasuryNow,

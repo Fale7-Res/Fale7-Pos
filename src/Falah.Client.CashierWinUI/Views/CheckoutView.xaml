@@ -1,20 +1,30 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.CheckoutView" x:Name="Root"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.CheckoutView" x:Name="Root"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" FlowDirection="RightToLeft">
- <Grid Background="#66313D35" Visibility="{Binding IsCheckoutOpen, Converter={StaticResource BoolToVisibleConverter}}">
-  <Border Background="White" CornerRadius="22" MaxWidth="940" MaxHeight="720" Margin="24" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+ <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCheckoutOpen, Converter={StaticResource BoolToVisibleConverter}}">
+  <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="22" MaxWidth="940" MaxHeight="720" Margin="24" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
    <Border.Shadow><ThemeShadow/></Border.Shadow>
    <Grid>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <Grid Padding="24,18" ColumnSpacing="16">
-     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-     <StackPanel Spacing="3"><TextBlock Text="إتمام الطلب" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-      <TextBlock Text="اختر طريقة الدفع وراجع المبلغ قبل التأكيد" FontSize="13" Foreground="{StaticResource TextMutedBrush}"/></StackPanel>
-     <Button Grid.Column="1" Content="رجوع للطلب" Command="{Binding CloseCheckoutCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
+    <!-- The grand total lives in this PINNED header, not in the scrolling tender column. On a
+         1366x768 till the dialog gets about 500px of height and the tender column's content is
+         taller than that, so anything inside it can be scrolled out of sight - and the one number
+         the operator must not lose sight of while taking money is the total. -->
+    <Grid Padding="24,14" ColumnSpacing="16">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel Spacing="3"><TextBlock Text="إتمام الطلب" FontSize="25" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+      <TextBlock Text="اختر طريقة الدفع وراجع المبلغ قبل التأكيد" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/></StackPanel>
+     <Border Grid.Column="1" Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="14" Padding="18,8" VerticalAlignment="Center">
+      <StackPanel Spacing="0">
+       <TextBlock Text="الإجمالي التقديري" Foreground="{ThemeResource TextMutedBrush}" FontSize="12"/>
+       <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="26" FontWeight="SemiBold" Foreground="{ThemeResource BrandPrimaryBrush}"/>
+      </StackPanel>
+     </Border>
+     <Button Grid.Column="2" Content="رجوع للطلب" Command="{Binding CloseCheckoutCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
     </Grid>
     <Grid Grid.Row="1" ColumnSpacing="24" Padding="24,0,24,8" IsHitTestVisible="{Binding CanEditOperation}">
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Spacing="16" Padding="0,0,0,8">
-      <TextBlock Text="طريقة الدفع" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+      <TextBlock Text="طريقة الدفع" FontSize="16" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
       <Grid ColumnSpacing="8" RowSpacing="8">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -31,7 +41,7 @@
         Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|BrandPrimaryBrush|WhiteBrush}"
         Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|WhiteBrush|TextPrimaryBrush}"/>
       </Grid>
-      <TextBlock Text="يظل التحويل الإلكتروني معلقاً حتى تأكيد وصول المبلغ." TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource TextMutedBrush}"/>
+      <TextBlock Text="يظل التحويل الإلكتروني معلقاً حتى تأكيد وصول المبلغ." TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
       <TextBox IsEnabled="{Binding CanEditOperation}" Header="اسم مزود المحفظة" Text="{Binding WalletProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
        Visibility="{Binding UsesWallet, Converter={StaticResource BoolToVisibleConverter}}"/>
       <Expander Header="تقسيم المبلغ" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -64,19 +74,17 @@
        </StackPanel>
       </Expander>
      </StackPanel></ScrollViewer>
-     <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"><StackPanel Spacing="12" Padding="0,0,0,8">
-      <Border Background="#F0F5EF" CornerRadius="16" Padding="20">
-       <StackPanel Spacing="6"><TextBlock Text="الإجمالي التقديري" Foreground="{StaticResource TextMutedBrush}" FontSize="14"/>
-        <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="38" FontWeight="SemiBold" Foreground="{StaticResource BrandPrimaryBrush}"/>
-       </StackPanel>
-      </Border>
-      <TextBlock Text="تحصيل عند التوصيل — لا يُضاف المبلغ للدرج الآن" TextWrapping="Wrap" Foreground="{StaticResource BrandPrimaryBrush}" Visibility="{Binding IsCashOnDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
+     <!-- Scrollbar always shown, never Auto: this column is taller than the dialog on a 768px-high
+          till, and a scrollbar that only appears on hover made a reachable keypad look like a
+          clipped one. -->
+     <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Visible"><StackPanel Spacing="12" Padding="0,0,0,8">
+      <TextBlock Text="تحصيل عند التوصيل — لا يُضاف المبلغ للدرج الآن" TextWrapping="Wrap" Foreground="{ThemeResource BrandPrimaryBrush}" Visibility="{Binding IsCashOnDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
       <TextBox IsEnabled="{Binding CanEnterTender}" Header="{Binding TenderLabel}" AutomationProperties.AutomationId="Checkout_Amount" FontSize="26" FlowDirection="LeftToRight"
        Text="{Binding AmountPaidText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"/>
       <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-       <Button Content="بالضبط" Command="{Binding QuickCashCommand}" CommandParameter="exact" Style="{StaticResource SecondaryButtonStyle}"/>
-       <Button Grid.Column="1" Content="100" Command="{Binding QuickCashCommand}" CommandParameter="100" Style="{StaticResource SecondaryButtonStyle}"/>
-       <Button Grid.Column="2" Content="200" Command="{Binding QuickCashCommand}" CommandParameter="200" Style="{StaticResource SecondaryButtonStyle}"/>
+       <Button Content="بالضبط" HorizontalAlignment="Stretch" Command="{Binding QuickCashCommand}" CommandParameter="exact" Style="{StaticResource SecondaryButtonStyle}"/>
+       <Button Grid.Column="1" Content="100" HorizontalAlignment="Stretch" Command="{Binding QuickCashCommand}" CommandParameter="100" Style="{StaticResource SecondaryButtonStyle}"/>
+       <Button Grid.Column="2" Content="200" HorizontalAlignment="Stretch" Command="{Binding QuickCashCommand}" CommandParameter="200" Style="{StaticResource SecondaryButtonStyle}"/>
       </Grid>
       <Grid ColumnSpacing="8" RowSpacing="8" FlowDirection="LeftToRight">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -94,12 +102,19 @@
        <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="0"/>
        <Button Grid.Row="3" Grid.Column="2" Content="⌫" AutomationProperties.Name="حذف آخر رقم" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="back"/>
       </Grid>
-      <Grid><TextBlock Text="الباقي للعميل" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}"/><TextBlock Text="{Binding ChangeDuePiastres, Converter={StaticResource PiastresToDisplayConverter}}" HorizontalAlignment="Left" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrandPrimaryBrush}"/></Grid>
+      <!-- Two real columns, not one cell with a Left-aligned value: HorizontalAlignment mirrors under
+           RightToLeft, so "Left" put the amount back on the label's own side and the two drew on top
+           of each other. Same label/value column split the cart footer already uses. -->
+      <Grid ColumnSpacing="8">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <TextBlock Grid.Column="0" Text="الباقي للعميل" VerticalAlignment="Center" FontSize="15" Foreground="{ThemeResource TextPrimaryBrush}"/>
+       <TextBlock Grid.Column="1" Text="{Binding ChangeDuePiastres, Converter={StaticResource PiastresToDisplayConverter}}" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource BrandPrimaryBrush}"/>
+      </Grid>
      </StackPanel></ScrollViewer>
     </Grid>
-    <Border Grid.Row="2" Padding="24,14" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0">
+    <Border Grid.Row="2" Padding="24,14" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,1,0,0">
      <StackPanel Spacing="10">
-      <TextBlock Text="{Binding CheckoutError}" TextWrapping="Wrap" FontSize="14" Foreground="{StaticResource DangerBrush}" Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+      <TextBlock Text="{Binding CheckoutError}" TextWrapping="Wrap" FontSize="14" Foreground="{ThemeResource DangerBrush}" Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
       <Button AutomationProperties.AutomationId="Checkout_Submit" Content="تأكيد وتسجيل الطلب" Style="{StaticResource CtaButtonStyle}" Height="56" HorizontalAlignment="Stretch" Command="{Binding SubmitPaymentCommand}"/>
      </StackPanel>
     </Border>

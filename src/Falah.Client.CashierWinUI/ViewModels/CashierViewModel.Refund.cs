@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Orders;
 using Falah.Client.CashierWinUI.Services;
@@ -43,6 +43,15 @@ public partial class CashierViewModel
 
     public bool HasLookupTable => LookupTableLine.Length > 0;
 
+    /// <summary>When the customer said they would collect a pickup order, on a Cairo wall clock -
+    /// the same clock the counter and the customer agreed it on.</summary>
+    public string LookupRequestedPickupLine =>
+        OrderLookupResult?.RequestedPickupAtUtc is { } at
+            ? TimeZoneInfo.ConvertTime(at, Falah.Domain.Common.BusinessClock.CairoTimeZone).ToString("yyyy-MM-dd HH:mm")
+            : "";
+
+    public bool HasLookupRequestedPickup => LookupRequestedPickupLine.Length > 0;
+
     private static string MethodLabel(string method) => method switch
     {
         "cash" => "كاش",
@@ -60,6 +69,7 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(RefundRemainingDisplay));
         OnPropertyChanged(nameof(LookupPaymentBreakdown)); OnPropertyChanged(nameof(HasLookupPaymentBreakdown));
         OnPropertyChanged(nameof(LookupTableLine)); OnPropertyChanged(nameof(HasLookupTable));
+        OnPropertyChanged(nameof(LookupRequestedPickupLine)); OnPropertyChanged(nameof(HasLookupRequestedPickup));
     }
 
     [RelayCommand] private void OpenRefund()

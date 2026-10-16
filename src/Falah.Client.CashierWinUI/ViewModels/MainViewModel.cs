@@ -112,7 +112,11 @@ public partial class MainViewModel : ObservableObject
         "orders_view_all", "delivery_manage", "reports_view", "treasury_manage", "inventory_manage",
         "purchasing_manage", "suppliers_manage", "employees_manage", "attendance_manage",
         "employees_ledger", "payroll_approve", "payroll_pay", "menu_manage", "users_manage", "audit_view", "control_center",
-        "backup_manage", "settings_manage", "all",
+        "backup_manage", "settings_manage",
+        // Added for the new Shifts management screen: a supervisor holding ONLY shifts_manage (no
+        // other management permission) must still reach the shell to see it - without this they
+        // would have a nav entry gated on a permission the shell itself would never let them in for.
+        "shifts_manage", "all",
     };
 
     private CashierViewModel CreateCashier()

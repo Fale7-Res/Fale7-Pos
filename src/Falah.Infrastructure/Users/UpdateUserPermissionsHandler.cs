@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Users;
+﻿namespace Falah.Infrastructure.Users;
 
 using Falah.Application.Users;
 using Falah.Domain.Authorization;
@@ -27,6 +27,8 @@ public sealed class UpdateUserPermissionsHandler
 
     public async Task HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)
     {
+        // Concurrent revocations must not each count the other administrator as a survivor.
+        await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);
@@ -44,6 +46,23 @@ public sealed class UpdateUserPermissionsHandler
         var current = target.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet();
         current.UnionWith(grant);
         current.ExceptWith(revoke);
+
+        // Counted AFTER the change, against everyone else, because the question is only ever "who
+        // is left" - and the target themselves counts only if this change leaves them both active
+        // and still able. Revoking users_manage from the last holder is the realistic way a
+        // restaurant locks itself out of its own till while tidying up permissions.
+        if (!UserManagementRules.CanManageUsers(current))
+        {
+            var othersWhoCanAdminister = await _db.Users.AsNoTracking()
+                .Where(u => u.Active && u.Id != target.Id)
+                .Select(u => u.Permissions)
+                .ToListAsync(ct);
+
+            UserManagementRules.AssertUserAdministrationSurvives(
+                othersWhoCanAdminister.Count(permissions => UserManagementRules.CanManageUsers(
+                    permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))));
+        }
+
         target.Permissions = string.Join(",", current);
 
         _db.ControlAuditEvents.Add(new ControlAuditEventEntity
@@ -52,5 +71,6 @@ public sealed class UpdateUserPermissionsHandler
             Reason = $"منح: [{string.Join(", ", grant)}] - سحب: [{string.Join(", ", revoke)}]", CreatedAtUtc = DateTimeOffset.UtcNow,
         });
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }

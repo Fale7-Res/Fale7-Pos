@@ -74,12 +74,26 @@ public static class AuthorizationPolicy
         if (!requireApproval || approval is null)
             throw new DomainException("ليس لديك صلاحية تنفيذ هذه العملية.");
 
+        return new AuthorizationResult(actor, ValidateApproval(registry, permission, approval, consumeApproval));
+    }
+
+    /// <summary>
+    /// For an operation that ALWAYS needs a manager's approval, whoever performs it: the presented
+    /// approval must have been issued, for this action, by the named approver, and not spent yet -
+    /// and it is spent here. Unlike AuthorizeCommand, the actor's own permissions do not bypass it.
+    ///
+    /// That difference is the point. A comp records its approver on the order and in the audit
+    /// trail; if holding orders_comp skipped the check, a cashier could name any manager as the
+    /// approver of a comp that manager never saw.
+    /// </summary>
+    public static ManagerApproval ValidateApproval(IApprovalRegistry registry, string action, ManagerApproval approval, bool consume = true)
+    {
         var issued = registry.Find(approval.ApprovalId);
-        if (issued is null || issued.Action != permission || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))
+        if (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))
             throw new DomainException("اعتماد المدير غير صالح أو لا يطابق العملية.");
 
-        if (consumeApproval) registry.MarkConsumed(approval.ApprovalId);
-        return new AuthorizationResult(actor, issued);
+        if (consume) registry.MarkConsumed(approval.ApprovalId);
+        return issued;
     }
 
     /// <summary>

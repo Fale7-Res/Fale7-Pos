@@ -73,7 +73,7 @@ public class ManagementWriteSafetyTests
         if (kind == "employee")
         {
             var vm = new EmployeesViewModel(session);
-            vm.OpenCashOutCommand.Execute(new EmployeesViewModel.EmployeeRow {
+            vm.OpenAdvanceCommand.Execute(new EmployeesViewModel.EmployeeRow {
                 Employee = Dto<EmployeeDto>("""{"id":"employee","name":"موظف","active":true}""") });
             vm.CashOutAmountText = "10"; vm.CashOutReason = "اختبار";
             return new(() => vm.SubmitCashOutCommand.ExecuteAsync(null),

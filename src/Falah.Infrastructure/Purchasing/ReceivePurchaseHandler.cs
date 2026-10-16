@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Purchasing;
+﻿namespace Falah.Infrastructure.Purchasing;
 
 using Falah.Application.Purchasing;
 using Falah.Domain.Audit;
@@ -177,7 +177,7 @@ public sealed class ReceivePurchaseHandler
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "استلام فاتورة مشتريات", "cash", $"من المورد {supplier.Id} - الإجمالي {total.Piastres} قرش - المدفوع {paid.Piastres} قرش",
+                "استلام فاتورة مشتريات", "cash", $"من المورد {supplier.Name} - الإجمالي {total.Piastres} قرش - المدفوع {paid.Piastres} قرش",
                 "normal", now, AuthorizedBy: authorization.Approver?.ApproverName, OperationId: operationId, ReferenceId: purchaseId));
 
             // One audit line per ingredient whose cost basis this invoice actually moved. Recording

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using Falah.Client.CashierWinUI.Services;
 using Falah.Client.CashierWinUI.ViewModels;
@@ -100,6 +100,62 @@ public class FinalVerificationTests
         Assert.False(vm.HasData);
     }
 
+    /// <summary>The day stepper used to move BusinessDate while the range resolver went on
+    /// answering "today", so the screen showed one date in its header and reported on another.
+    /// Stepping a day is choosing to look at a named day, so it selects that period too.</summary>
+    [Fact]
+    public async Task Stepping_a_day_switches_the_screen_onto_that_day()
+    {
+        var requests = new List<Uri>();
+        var vm = new ReportsViewModel(Session(r => {
+            requests.Add(r.RequestUri!);
+            return Task.FromResult(Json(ReadFixture(r.RequestUri!.AbsolutePath)));
+        }));
+
+        var today = vm.BusinessDate;
+        Assert.False(vm.IsSpecificDay);          // opens on "اليوم"
+
+        await vm.LoadAsync();
+        Assert.All(requests, r => Assert.Contains(today.ToString("yyyy-MM-dd"), r.Query));
+
+        requests.Clear();
+        vm.PreviousDayCommand.Execute(null);
+        await WaitForIdleAsync(vm);
+
+        Assert.True(vm.IsSpecificDay);
+        Assert.Equal(today.AddDays(-1), vm.BusinessDate);
+        Assert.NotEmpty(requests);
+        Assert.All(requests, r => Assert.Contains(today.AddDays(-1).ToString("yyyy-MM-dd"), r.Query));
+    }
+
+    /// <summary>A multi-day period asks for a real span, not the same day twice.</summary>
+    [Fact]
+    public async Task Choosing_a_week_asks_every_report_for_the_whole_span()
+    {
+        var requests = new List<Uri>();
+        var vm = new ReportsViewModel(Session(r => {
+            requests.Add(r.RequestUri!);
+            return Task.FromResult(Json(ReadFixture(r.RequestUri!.AbsolutePath)));
+        }));
+
+        var today = vm.BusinessDate;
+        requests.Clear();
+        vm.SelectedPeriod = vm.Periods.First(p => p.Key == "last7");
+        await WaitForIdleAsync(vm);
+
+        Assert.False(vm.IsSpecificDay);
+        Assert.NotEmpty(requests);
+        Assert.All(requests, r => Assert.Contains($"from={today.AddDays(-6):yyyy-MM-dd}", r.Query));
+        Assert.All(requests, r => Assert.Contains($"to={today:yyyy-MM-dd}", r.Query));
+    }
+
+    /// <summary>Both commands above kick off a load without awaiting it, the way a button click
+    /// does. Waits for the view model to settle rather than sleeping a fixed guess.</summary>
+    private static async Task WaitForIdleAsync(ReportsViewModel vm)
+    {
+        for (var i = 0; i < 200 && (vm.IsLoading || !vm.HasData); i++) await Task.Delay(10);
+    }
+
     [Fact]
     public async Task Changing_report_date_during_a_read_reloads_a_consistent_new_date()
     {
@@ -120,9 +176,11 @@ public class FinalVerificationTests
         await loading;
         Assert.Null(vm.LoadError);
         Assert.True(vm.HasData);
-        Assert.Equal(18, requests.Count);
-        Assert.All(requests.Take(9), r => Assert.Contains(original.ToString("yyyy-MM-dd"), r.Query));
-        Assert.All(requests.Skip(9), r => Assert.Contains(original.AddDays(1).ToString("yyyy-MM-dd"), r.Query));
+        // Ten calls per load since the product-by-hour report joined the screen, two loads deep.
+        const int callsPerLoad = 10;
+        Assert.Equal(callsPerLoad * 2, requests.Count);
+        Assert.All(requests.Take(callsPerLoad), r => Assert.Contains(original.ToString("yyyy-MM-dd"), r.Query));
+        Assert.All(requests.Skip(callsPerLoad), r => Assert.Contains(original.AddDays(1).ToString("yyyy-MM-dd"), r.Query));
     }
 
     [Fact]

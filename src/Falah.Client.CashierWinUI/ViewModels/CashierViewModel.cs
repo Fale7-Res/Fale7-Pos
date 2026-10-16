@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Menu;
@@ -297,7 +297,6 @@ public partial class CashierViewModel : ObservableObject
     // ---------------- Order type ----------------
 
     [ObservableProperty] private string _orderType = "takeaway";
-    [ObservableProperty] private string _tableNumber = string.Empty;
 
     [RelayCommand]
     private void SetOrderType(string orderType) { if (CanEditOperation) OrderType = orderType; }

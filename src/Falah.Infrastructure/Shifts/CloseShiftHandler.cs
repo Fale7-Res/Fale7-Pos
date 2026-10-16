@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Shifts;
+﻿namespace Falah.Infrastructure.Shifts;
 
 using System.Data;
 using Falah.Application.Shifts;
@@ -7,6 +7,7 @@ using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Falah.Domain.Delivery;
 using Falah.Domain.Financial;
+using Falah.Domain.Printing;
 using Falah.Domain.Shifts;
 using Falah.Infrastructure.Delivery;
 using Falah.Infrastructure.Orders;
@@ -77,18 +78,10 @@ public sealed class CloseShiftHandler
             }
             if (entity.Status != nameof(ShiftStatus.Open)) throw new DomainException("الوردية ليست مفتوحة.");
 
-            var shiftDeliveries = await _db.Deliveries.AsNoTracking().Where(d => d.ShiftId == entity.Id).ToListAsync(ct);
-            if (shiftDeliveries.Count > 0)
-            {
-                var deliveryIds = shiftDeliveries.Select(d => d.Id).ToList();
-                var deliveryOrderIds = shiftDeliveries.Select(d => d.OrderId).ToList();
-                var deliveryOrdersById = (await _db.Orders.AsNoTracking().Where(o => deliveryOrderIds.Contains(o.Id)).ToListAsync(ct))
-                    .ToDictionary(o => o.Id);
-                var deliveryFacts = shiftDeliveries.Select(d => DeliveryFactsComposer.Compose(d, deliveryOrdersById[d.OrderId])).ToList();
-                var custodies = (await _db.DriverCustodies.AsNoTracking().Where(c => deliveryIds.Contains(c.DeliveryId)).ToListAsync(ct))
-                    .Select(DeliveryFactsComposer.ToDriverCustody).ToList();
-                DeliveryRules.AssertShiftHasNoUnsettledCustody(custodies, deliveryFacts, entity.Id);
-            }
+            // Deliberately no driver-custody check here: a driver settles per business day, or when he
+            // comes in - not because a cashier wants to hand over the till. See DeliveryRules
+            // .UnsettledCustodyForShift. The obligation still blocks the BUSINESS DAY close, shows on
+            // the dashboard, and prints as a warning on this shift's own handover slip.
 
             ManagerApproval? approval = null;
             if (!string.IsNullOrEmpty(request.ManagerApprovalId))
@@ -161,6 +154,11 @@ public sealed class CloseShiftHandler
                 "إغلاق وردية", "shift", $"إغلاق {entity.ShiftName} - المتوقع {expected.Piastres} والفعلي {actual.Piastres}",
                 blindResult.RequiresManagerApproval ? "critical" : "normal", now,
                 ShiftId: entity.Id, Reason: request.Reason, AuthorizedBy: authorizedByName));
+
+            // The handover paper. Same transaction as the close, keyed on the shift, so it is
+            // queued exactly once and only for a close that actually committed.
+            _db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
+                PrintDocumentKind.ShiftClose, entity.Id, PrintRules.ShiftCloseLabel, cashierUser.Name, now));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

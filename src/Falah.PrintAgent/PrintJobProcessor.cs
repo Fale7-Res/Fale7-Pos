@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Falah.Application.Printing;
 using Falah.Domain.Printing;
 
@@ -30,6 +30,11 @@ public sealed class PrintJobProcessor
     private readonly IPrintServerClient _server;
     private readonly ITicketTransport _transport;
     private readonly Encoding _encoding;
+    private readonly byte? _codePageTableId;
+    private readonly bool _renderAsImage;
+    private readonly int _imageWidthDots;
+    private readonly bool _thickenStrokes;
+    private readonly int _imageMarginDots;
     private readonly string _reportedByUserId;
     private readonly Action<string> _log;
     private readonly UnreportedAttemptStore _unreported;
@@ -40,11 +45,17 @@ public sealed class PrintJobProcessor
 
     public PrintJobProcessor(
         IPrintServerClient server, ITicketTransport transport, Encoding encoding,
-        string reportedByUserId, Action<string> log, UnreportedAttemptStore? unreported = null)
+        string reportedByUserId, Action<string> log, UnreportedAttemptStore? unreported = null, byte? codePageTableId = null,
+        bool renderAsImage = false, int imageWidthDots = 576, bool thickenStrokes = true, int imageMarginDots = 24)
     {
         _server = server;
         _transport = transport;
         _encoding = encoding;
+        _codePageTableId = codePageTableId;
+        _renderAsImage = renderAsImage;
+        _imageWidthDots = imageWidthDots;
+        _thickenStrokes = thickenStrokes;
+        _imageMarginDots = imageMarginDots;
         _reportedByUserId = reportedByUserId;
         _log = log;
         _unreported = unreported ?? new UnreportedAttemptStore(
@@ -87,7 +98,13 @@ public sealed class PrintJobProcessor
         try
         {
             var ticket = await _server.GetTicketAsync(job.Id, ct);
-            var payload = EscPosTicketRenderer.Render(ToDomain(ticket), _encoding);
+            var payload = _renderAsImage && OperatingSystem.IsWindows()
+                ? BitmapTicketRenderer.Render(ToDomain(ticket), _imageWidthDots, _thickenStrokes, _imageMarginDots)
+                : EscPosTicketRenderer.Render(ToDomain(ticket), _encoding, _codePageTableId);
+            // Persist BEFORE the first byte can leave. After a crash or cancelled send, paper may
+            // already exist; report an uncertain failure for manual inspection, never auto-reprint.
+            _unreported.Remember(job.Id, new UnreportedAttemptStore.StoredAttempt(
+                attemptRequestId, false, "Print interrupted; output may exist. Inspect paper before retrying.", DateTimeOffset.UtcNow));
             await _transport.SendAsync(payload, ct);
             succeeded = true;
             error = null;
@@ -95,8 +112,7 @@ public sealed class PrintJobProcessor
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            // Shutting down before the attempt completed. The job stays Pending, which is the honest
-            // state: nothing was reported because nothing is known to have printed.
+            // The durable uncertain attempt remains for the next process to report.
             throw;
         }
         catch (Exception ex)
@@ -106,6 +122,8 @@ public sealed class PrintJobProcessor
             _log($"FAILED {job.Route} job {job.Id}: {error}");
         }
 
+        _unreported.Remember(job.Id, new UnreportedAttemptStore.StoredAttempt(
+            attemptRequestId, succeeded, error, DateTimeOffset.UtcNow));
         await ReportAsync(new ReportPrintJobResultRequest(
             attemptRequestId, job.Id, succeeded, error, _reportedByUserId), ct);
     }
@@ -148,5 +166,5 @@ public sealed class PrintJobProcessor
         Enum.Parse<PrintRoute>(dto.Route, ignoreCase: true),
         dto.OrderId,
         dto.OrderNumber,
-        dto.Lines.Select(l => new TicketLine(l.Text, l.Bold, l.Centered, l.LargeFont)).ToList());
+        dto.Lines.Select(Falah.Application.Printing.TicketElementMapping.ToDomain).ToList());
 }

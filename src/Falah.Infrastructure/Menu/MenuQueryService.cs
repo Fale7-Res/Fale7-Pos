@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Menu;
+﻿namespace Falah.Infrastructure.Menu;
 
 using Falah.Application.Menu;
 using Falah.Domain.Common;
@@ -17,7 +17,7 @@ public sealed class MenuQueryService
     public async Task<MenuResponse> GetMenuAsync(CancellationToken ct)
     {
         var categories = await _db.Categories.AsNoTracking().Where(c => c.Active).OrderBy(c => c.SortOrder).ToListAsync(ct);
-        var products = await _db.Products.AsNoTracking().Include(p => p.Variants).Where(p => p.IsAvailable).OrderBy(p => p.SortOrder).ToListAsync(ct);
+        var products = await LoadProductsInMenuOrderAsync(availableOnly: true, ct);
         var priceRuleEntities = await _db.PriceRules.AsNoTracking().Include(r => r.Products).Include(r => r.Days).Where(r => r.Active).ToListAsync(ct);
         // Stamps only. Projecting the two scalar columns keeps the photo bytes out of the menu
         // response entirely - the client fetches each image on its own, once, and caches it.
@@ -40,6 +40,37 @@ public sealed class MenuQueryService
         }).ToList();
 
         return new MenuResponse(categoryDtos, await LoadBestSellerIdsAsync(products.Select(p => p.Id).ToHashSet(), ct));
+    }
+
+    /// <summary>
+    /// Products with their variants, in menu order (SortOrder, then Id - exactly the order SQL Server
+    /// produced before), read WITHOUT asking SQL Server to sort the full rows.
+    ///
+    /// This is a measured fix, not a style choice. Sorting whole product rows makes SQL Server size
+    /// the sort for five nvarchar(max) columns: it requested ~10 MB of query memory to sort 129
+    /// rows (and used 136 KB). On the restaurant PC, whenever Windows squeezes SQL Server Express's
+    /// memory, the grant pool shrinks below that request, and the query then waited out SQL Server's
+    /// ~25 s memory-grant timeout before running - the "/api/menu takes 25 seconds" fault, longer than
+    /// the till's 10 s timeout. Here only the narrow keys are sorted (the minimum 1 MB grant), the
+    /// full rows are read unsorted, and the few variants are ordered in memory.
+    /// </summary>
+    private async Task<List<Falah.Infrastructure.Persistence.Entities.ProductEntity>> LoadProductsInMenuOrderAsync(
+        bool availableOnly, CancellationToken ct)
+    {
+        var source = _db.Products.AsNoTracking();
+        if (availableOnly) source = source.Where(p => p.IsAvailable);
+
+        var orderedIds = await source.OrderBy(p => p.SortOrder).ThenBy(p => p.Id).Select(p => p.Id).ToListAsync(ct);
+        var byId = (await source.ToListAsync(ct)).ToDictionary(p => p.Id);
+        // Variants cheapest first, so sizes read small to large on the till. Before this there was no
+        // variant order at all: they came out in whatever order the join happened to produce, which
+        // could change from one query plan to the next.
+        foreach (var variant in (await _db.ProductVariants.AsNoTracking().ToListAsync(ct))
+                     .OrderBy(v => v.PricePiastres).ThenBy(v => v.Id, StringComparer.Ordinal))
+            if (byId.TryGetValue(variant.ProductId, out var product)) product.Variants.Add(variant);
+
+        // A product created between the two reads is simply picked up on the next refresh.
+        return orderedIds.Where(byId.ContainsKey).Select(id => byId[id]).ToList();
     }
 
     /// <summary>How far back the "best sellers" shortcut looks. Two weeks is long enough to survive
@@ -84,7 +115,7 @@ public sealed class MenuQueryService
     /// <summary>Management view - includes unavailable products too, unlike GetMenuAsync.</summary>
     public async Task<List<ProductDetailsDto>> ListAllProductsAsync(CancellationToken ct)
     {
-        var products = await _db.Products.AsNoTracking().Include(p => p.Variants).OrderBy(p => p.SortOrder).ToListAsync(ct);
+        var products = await LoadProductsInMenuOrderAsync(availableOnly: false, ct);
         var imageVersions = await _db.ProductImages.AsNoTracking()
             .Select(i => new { i.ProductId, i.Version }).ToDictionaryAsync(i => i.ProductId, i => i.Version, ct);
         return products.Select(p => ToProductDetailsDto(p, imageVersions.GetValueOrDefault(p.Id))).ToList();

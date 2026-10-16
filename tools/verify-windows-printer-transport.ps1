@@ -37,6 +37,13 @@ try {
         TextEncoding = 'utf-8'
         PollSeconds = 3
         TransportTimeoutSeconds = 15
+        # --test-print never logs in, but the agent validates its whole config before any mode runs,
+        # so a PIN has to be present. This placeholder is never sent anywhere.
+        Pin = 'not-used-by-test-print'
+        # The production print path on the real printer: image mode at the physically proven width.
+        RenderAsImage = $true
+        ImageWidthDots = 576
+        ImageMarginDots = 24
     } | ConvertTo-Json | Set-Content -Path $cfg -Encoding utf8
 
     $before = @(Get-PrintJob -PrinterName $PrinterName -ErrorAction SilentlyContinue).Count

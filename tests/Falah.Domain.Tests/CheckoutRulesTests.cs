@@ -1,4 +1,4 @@
-using Falah.Domain.Common;
+﻿using Falah.Domain.Common;
 using Falah.Domain.Financial;
 using Falah.Domain.Orders;
 using Xunit;
@@ -125,5 +125,57 @@ public class CheckoutRulesTests
 
         // (100 - 20) * 1.14 = 91.2
         Assert.Equal(Money.FromEgp(91.2m), plan.PayableTotal);
+    }
+
+    // ---- Requested pickup time ----
+
+    private static readonly DateTimeOffset PickupNow = new(2026, 9, 12, 15, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void No_requested_time_is_the_normal_case_and_always_accepted()
+    {
+        // Most pickups are "on the way". A time nobody asked for must never be invented for them.
+        CheckoutRules.AssertRequestedPickupTime(OrderType.Pickup, null, PickupNow);
+        CheckoutRules.AssertRequestedPickupTime(OrderType.Takeaway, null, PickupNow);
+        CheckoutRules.AssertRequestedPickupTime(OrderType.Delivery, null, PickupNow);
+    }
+
+    [Fact]
+    public void A_time_in_the_past_is_refused()
+    {
+        Assert.Throws<DomainException>(() =>
+            CheckoutRules.AssertRequestedPickupTime(OrderType.Pickup, PickupNow.AddHours(-1), PickupNow));
+    }
+
+    [Fact]
+    public void A_time_that_went_stale_while_the_cashier_worked_is_still_accepted()
+    {
+        // The grace period exists so picking "now" and then finishing the order is not punished.
+        CheckoutRules.AssertRequestedPickupTime(OrderType.Pickup, PickupNow.AddMinutes(-3), PickupNow);
+    }
+
+    [Fact]
+    public void A_time_absurdly_far_ahead_is_refused_as_a_typo()
+    {
+        // Not a policy about how far ahead this restaurant takes orders - a guard against 2027
+        // being typed where 2026 was meant.
+        Assert.Throws<DomainException>(() =>
+            CheckoutRules.AssertRequestedPickupTime(OrderType.Pickup, PickupNow.AddDays(400), PickupNow));
+    }
+
+    [Fact]
+    public void A_time_later_today_or_next_week_is_accepted()
+    {
+        CheckoutRules.AssertRequestedPickupTime(OrderType.Pickup, PickupNow.AddHours(4), PickupNow);
+        CheckoutRules.AssertRequestedPickupTime(OrderType.Pickup, PickupNow.AddDays(7), PickupNow);
+    }
+
+    [Fact]
+    public void A_collection_time_belongs_to_a_pickup_and_to_nothing_else()
+    {
+        Assert.Throws<DomainException>(() =>
+            CheckoutRules.AssertRequestedPickupTime(OrderType.Delivery, PickupNow.AddHours(2), PickupNow));
+        Assert.Throws<DomainException>(() =>
+            CheckoutRules.AssertRequestedPickupTime(OrderType.Takeaway, PickupNow.AddHours(2), PickupNow));
     }
 }

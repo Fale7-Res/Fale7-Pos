@@ -1,9 +1,9 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.SettingsView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.SettingsView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FlowDirection="RightToLeft">
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -29,6 +29,21 @@
                         Visibility="{Binding CanEdit, Converter={StaticResource InverseBoolToVisibleConverter}}">
                     <TextBlock Text="لديك صلاحية العرض فقط - تعديل الإعدادات يحتاج صلاحية settings_manage."
                                TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Appearance is a per-machine preference, not part of SettingsDto: it applies the
+                     moment it is picked and is never gated on CanEdit or the "حفظ التغييرات" button
+                     the rest of this screen uses - a desktop app's own theme choice does not need a
+                     server round trip or a settings_manage permission. -->
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="المظهر" Style="{StaticResource SectionTitleText}"/>
+                        <ComboBox Header="سمة الواجهة" MinHeight="44" MinWidth="240" HorizontalAlignment="Left"
+                                  ItemsSource="{Binding ThemeOptions}" DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"
+                                   Text="السمة الداكنة إضافة خاصة بهذا التطبيق - القائمة المرجعية لا تحتوي على سمة داكنة."/>
+                    </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource PageCardStyle}">
@@ -63,6 +78,11 @@
                                  Text="{Binding ComplaintsPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBox Header="تذييل الإيصال" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True" IsEnabled="{Binding CanEdit}"
                                  Text="{Binding ReceiptFooter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <!-- Printed as a QR on the customer receipt. Left-to-right: it is a web address. -->
+                        <TextBox Header="رابط المنيو (يُطبع كود QR على الإيصال)" MinHeight="44" InputScope="Url"
+                                 FlowDirection="LeftToRight" PlaceholderText="https://"
+                                 IsEnabled="{Binding CanEdit}"
+                                 Text="{Binding MenuUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Border>
 
@@ -74,6 +94,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBox Header="رسوم التوصيل الافتراضية (ج)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
                                      Text="{Binding DeliveryFeeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -81,6 +102,10 @@
                                      Text="{Binding CashDiscrepancyThresholdText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBox Grid.Column="2" Header="أجر الساعة الإضافية (ج)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
                                      Text="{Binding OvertimeHourlyRateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <!-- Offered by the open-shift dialog; the cashier can type over it. -->
+                            <TextBox Grid.Column="3" Header="الرصيد الافتتاحي الافتراضي (ج)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                     AutomationProperties.AutomationId="Settings_DefaultOpeningCash"
+                                     Text="{Binding DefaultOpeningCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                         <TextBlock Text="حد فرق الدرج هو ما يقرّر متى يحتاج إغلاق الوردية اعتماد مدير - يطبّقه السيرفر وحده."
                                    Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
@@ -104,15 +129,15 @@
                                   IsChecked="{Binding HoldPreparationUntilPaymentConfirmed, Mode=TwoWay}">
                             <TextBlock Text="استنى تأكيد التحويل الإلكتروني قبل ما تذكرة التحضير تطلع" FontSize="13" TextWrapping="Wrap"/>
                         </CheckBox>
-                        <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionText}" Foreground="{StaticResource TextMutedBrush}"
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionText}" Foreground="{ThemeResource TextMutedBrush}"
                                    Text="لو مقفولة، المطبخ بيبدأ الطلب فورًا حتى لو التحويل لسه متأكدش - وده اللي بيحصل دلوقتي. إيصال العميل بيطبع في الحالتين."/>
                     </StackPanel>
                 </Border>
 
-                <TextBlock Text="{Binding SaveError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                <TextBlock Text="{Binding SaveError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                            TextWrapping="Wrap" TextAlignment="Center"
                            Visibility="{Binding SaveError, Converter={StaticResource NullToCollapsedConverter}}"/>
-                <TextBlock Text="{Binding SavedNote}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"
+                <TextBlock Text="{Binding SavedNote}" Foreground="{ThemeResource SuccessBrush}" FontWeight="SemiBold"
                            TextWrapping="Wrap" TextAlignment="Center"
                            Visibility="{Binding SavedNote, Converter={StaticResource NullToCollapsedConverter}}"/>
             </StackPanel>

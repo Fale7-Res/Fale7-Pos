@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Customers;
 using Falah.Application.Orders;
@@ -251,6 +251,16 @@ public partial class CallCenterViewModel
     [ObservableProperty] private string _lookupOrderNumber = "";
     [ObservableProperty] private OrderDetailsDto? _lookedUpOrder;
 
+    /// <summary>An operator taking a follow-up call about a pickup needs to know when the customer
+    /// said they were coming. Cairo wall clock - the clock the counter and the customer agreed on.
+    /// The Call Center itself only ever creates delivery orders, but it looks up every order.</summary>
+    public string LookedUpRequestedPickupLine =>
+        LookedUpOrder?.RequestedPickupAtUtc is { } at
+            ? TimeZoneInfo.ConvertTime(at, Falah.Domain.Common.BusinessClock.CairoTimeZone).ToString("yyyy-MM-dd HH:mm")
+            : "";
+
+    public bool HasLookedUpRequestedPickup => LookedUpRequestedPickupLine.Length > 0;
+
     /// <summary>Whether the money for a looked-up order is settled - which an operator taking a
     /// follow-up call has to know before promising anything. Three states, not two: an electronic
     /// transfer nobody has confirmed is neither paid nor collect-on-delivery.</summary>
@@ -276,6 +286,8 @@ public partial class CallCenterViewModel
         OnPropertyChanged(nameof(LookedUpPaymentLine));
         OnPropertyChanged(nameof(HasLookedUpPaymentLine));
         OnPropertyChanged(nameof(IsLookedUpPaymentUnconfirmed));
+        OnPropertyChanged(nameof(LookedUpRequestedPickupLine));
+        OnPropertyChanged(nameof(HasLookedUpRequestedPickup));
     }
     [ObservableProperty] private string? _lookupError;
     [ObservableProperty] private bool _isLookingUpOrder;

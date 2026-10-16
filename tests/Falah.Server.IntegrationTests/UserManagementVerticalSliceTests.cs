@@ -1,7 +1,8 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
+using Falah.Domain.Authorization;
 using Falah.Application.BusinessDay;
 using Falah.Application.Users;
 using Microsoft.EntityFrameworkCore;
@@ -81,11 +82,43 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
         Assert.True(entity.PinIterations > 0);
     }
 
+    /// <summary>The shared fixture already seeds an owner, so this is the SECOND one - still
+    /// refused. Exactly one owner, ever.</summary>
     [Fact]
-    public async Task Creating_a_user_with_role_owner_is_rejected()
+    public async Task Creating_a_second_owner_is_rejected()
     {
         var response = await CreateUserAsync("مالك آخر", "owner", "5813", new[] { "all" }, _managerId);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    /// <summary>An installation with no owner has no protected emergency account at all - the owner
+    /// is the one account that can never be deactivated or stripped. It used to be uncreatable
+    /// through any command in the system, which left such a till permanently without one. The FIRST
+    /// owner may now be created; the test above proves a second still cannot.</summary>
+    [Fact]
+    public async Task The_first_owner_can_be_created_when_the_installation_has_none()
+    {
+        using var setup = new NoOwnerSetup();
+        var admin = await setup.Factory.SeedUserAsync("المدير", "manager", "all");
+
+        var created = await setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "المالك", "owner", "7351", new[] { "all" }, admin));
+        created.EnsureSuccessStatusCode();
+
+        var again = await setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "مالك ثانٍ", "owner", "7362", new[] { "all" }, admin));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, again.StatusCode);
+    }
+
+    /// <summary>And once it exists it is untouchable: neither deactivated nor stripped, by anyone.</summary>
+    [Fact]
+    public async Task The_owner_can_be_neither_deactivated_nor_stripped()
+    {
+        var deactivate = await SetActiveAsync(_ownerId, false, _managerId, "اختبار");
+        Assert.False(deactivate.IsSuccessStatusCode);
+
+        var strip = await UpdatePermissionsAsync(_ownerId, Array.Empty<string>(), new[] { "all" }, _managerId);
+        Assert.False(strip.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -402,5 +435,121 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
 
         var limited = await rateLimitClient.PostAsJsonAsync("/api/auth/login-by-pin", new LoginByPinRequest("9999"));
         Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
+    }
+
+    // ---- Administrative lockout ----
+
+    /// <summary>These run on their own factory with NO owner account, because the shared fixture
+    /// seeds one and an owner makes this lockout structurally impossible: the owner always holds
+    /// "all" and can never be deactivated or stripped, so administration always survives through
+    /// them. That is worth stating plainly - an owner account IS the break-glass. The guard below
+    /// exists for the installation that has no owner, which is what a real till looks like when the
+    /// staff accounts were created without one.</summary>
+    private sealed class NoOwnerSetup : IDisposable
+    {
+        public FalahApiFactory Factory { get; } = new();
+        public HttpClient Client { get; }
+        public NoOwnerSetup() { Client = Factory.CreateAuthenticatedClient(); }
+        public void Dispose() => Factory.Dispose();
+    }
+
+    /// <summary>The way a restaurant locks itself out of its own till: one manager tidying
+    /// permissions revokes users_manage from the only account that had it. Nothing in the product
+    /// could undo that - there is no break-glass path without an owner, so the database would have
+    /// to be edited by hand. Revocation is deliberately exempt from the privilege-escalation check
+    /// (taking a permission away is never an escalation), which is why it needs its own guard.</summary>
+    /// <summary>Stands down every other active account that can administer users, so the named one
+    /// really is the last. A fresh database is never empty of administrators - the demo seed writes
+    /// a manager holding "all" - and the guard is only reachable once they are out of the way.</summary>
+    private static async Task LeaveOnlyOneAdministratorAsync(HttpClient client, string keepUserId)
+    {
+        var everyone = await client.GetFromJsonAsync<List<UserDetailsDto>>($"/api/users/all?actorUserId={keepUserId}");
+        foreach (var other in everyone!.Where(u => u.Id != keepUserId && u.Active
+                                                   && UserManagementRules.CanManageUsers(u.Permissions.ToHashSet())))
+        {
+            (await client.PostAsJsonAsync($"/api/users/{other.Id}/active",
+                new SetUserActiveRequest(other.Id, false, "إخلاء الساحة للاختبار", keepUserId)))
+                .EnsureSuccessStatusCode();
+        }
+    }
+
+    [Fact]
+    public async Task The_last_administrator_cannot_revoke_their_own_user_management()
+    {
+        using var setup = new NoOwnerSetup();
+        var admin = await setup.Factory.SeedUserAsync("المدير", "manager", "users_manage", "pos");
+        await LeaveOnlyOneAdministratorAsync(setup.Client, admin);
+
+        var response = await setup.Client.PostAsJsonAsync(
+            $"/api/users/{admin}/permissions",
+            new UpdateUserPermissionsRequest(admin, Array.Empty<string>(), new[] { "users_manage" }, admin));
+
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Contains("إدارة المستخدمين", await response.Content.ReadAsStringAsync());
+
+        // And the door is still open afterwards.
+        var stillWorks = await setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "كاشير بعد المحاولة", "cashier", "4726", new[] { "pos" }, admin));
+        stillWorks.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task Concurrent_self_revocations_leave_an_active_administrator()
+    {
+        using var setup = new NoOwnerSetup();
+        var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
+        var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+        var responses = await Task.WhenAll(new[] { first, second }.Select(id =>
+            setup.Client.PostAsJsonAsync($"/api/users/{id}/permissions",
+                new UpdateUserPermissionsRequest(id, Array.Empty<string>(), new[] { "users_manage" }, id))));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        var permissions = await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Active).Select(u => u.Permissions).ToListAsync());
+        Assert.Contains(permissions, p => UserManagementRules.CanManageUsers(p.Split(',')));
+    }
+
+    /// <summary>Revoking it from one of two administrators is ordinary housekeeping and must keep
+    /// working - the guard refuses the last one, not any one.</summary>
+    [Fact]
+    public async Task Revoking_user_management_from_one_of_two_administrators_is_allowed()
+    {
+        using var setup = new NoOwnerSetup();
+        var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
+        var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+
+        var response = await setup.Client.PostAsJsonAsync(
+            $"/api/users/{second}/permissions",
+            new UpdateUserPermissionsRequest(second, Array.Empty<string>(), new[] { "users_manage" }, first));
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>Same door, the other handle: deactivating the last administrator instead of
+    /// stripping their permission.</summary>
+    [Fact]
+    public async Task Deactivating_the_last_administrator_is_refused()
+    {
+        using var setup = new NoOwnerSetup();
+        var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
+        var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+        await LeaveOnlyOneAdministratorAsync(setup.Client, first);
+
+        // Two administrators again, deliberately: standing one of them down is ordinary and allowed.
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
+            new SetUserActiveRequest(second, true, "اختبار", first))).EnsureSuccessStatusCode();
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
+            new SetUserActiveRequest(second, false, "اختبار", first))).EnsureSuccessStatusCode();
+
+        // "first" is now the last administrator. Self-deactivation was already refused before this
+        // guard existed, so the case that needed covering is a colleague doing it - here the
+        // stood-down administrator is brought back solely to aim at the last one.
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
+            new SetUserActiveRequest(second, true, "اختبار", first))).EnsureSuccessStatusCode();
+        (await setup.Client.PostAsJsonAsync($"/api/users/{first}/active",
+            new SetUserActiveRequest(first, false, "اختبار", second))).EnsureSuccessStatusCode();
+
+        var response = await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
+            new SetUserActiveRequest(second, false, "اختبار", second));
+
+        Assert.False(response.IsSuccessStatusCode);
     }
 }

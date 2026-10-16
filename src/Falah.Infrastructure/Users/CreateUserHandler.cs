@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Users;
+﻿namespace Falah.Infrastructure.Users;
 
 using Falah.Application.Users;
 using Falah.Domain.Authorization;
@@ -34,9 +34,16 @@ public sealed class CreateUserHandler
 
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم المستخدم مطلوب.");
         if (string.IsNullOrWhiteSpace(request.Role)) throw new DomainException("دور المستخدم مطلوب.");
-        // The owner account is provisioned once, outside this API - see CreateUserRequest's own doc
-        // comment for why this is not merely an owner-immutability check but a hard exclusion.
-        if (request.Role == UserManagementRules.OwnerRole) throw new DomainException("لا يمكن إنشاء مستخدم بدور المالك عبر هذا الإجراء.");
+        // "Provisioned once" is now enforced as exactly that rather than as "never": an installation
+        // with no owner at all has no protected emergency account, and the owner is the ONE account
+        // that cannot be deactivated or stripped of its permissions. A till whose only administrator
+        // is an ordinary manager has no way back if that manager is lost. So the first owner may be
+        // created here - and only the first. Every later attempt is refused exactly as before.
+        if (request.Role == UserManagementRules.OwnerRole
+            && await _db.Users.AsNoTracking().AnyAsync(u => u.Role == UserManagementRules.OwnerRole, ct))
+        {
+            throw new DomainException("يوجد حساب مالك بالفعل - لا يمكن إنشاء حساب مالك ثانٍ.");
+        }
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");

@@ -1,4 +1,4 @@
-namespace Falah.Application.Reports;
+﻿namespace Falah.Application.Reports;
 
 /// <summary>Read-only projections over already-persisted transactions. Every figure here is derived
 /// at query time from Orders/Shifts/Expenses/TreasuryMovements/Deliveries/StockMovements - nothing
@@ -13,7 +13,7 @@ public sealed record SalesReportDto(
     long OffersValuePiastres, long CompsValuePiastres, long ManualDiscountsPiastres, long PendingElectronicSalesPiastres,
     long CashWithDriversPiastres, long CollectedSalesPiastres, long AverageOrderValuePiastres,
     long CashPiastres, long CardPiastres, long InstaPayPiastres, long WalletPiastres,
-    long DineInPiastres, long TakeawayPiastres, long DeliveryPiastres);
+    long PickupPiastres, long TakeawayPiastres, long DeliveryPiastres);
 
 public sealed record ExpenseReportDto(long TotalPiastres, IReadOnlyList<Falah.Application.Expenses.ExpenseDto> Expenses);
 
@@ -35,7 +35,32 @@ public sealed record BusinessDayReconciliationDto(
     int ShiftCount, long ShiftsExpectedCashPiastres, long ShiftsActualCashPiastres, long ShiftsShortagePiastres, long ShiftsOveragePiastres,
     long PurchasingPaidPiastres = 0);
 
+/// <summary>Employee-ledger side of the reference's DailySummaryScreen, summed across every employee
+/// for one business day. DailyWage/Overtime are money owed to staff (their Credit side); Advance/
+/// Withdrawal are cash already paid out against that balance (their Debit side) - the same asymmetry
+/// EmployeesViewModel's own cash-out already surfaces rather than nets away.</summary>
+public sealed record EmployeeLedgerTotalsDto(long DailyWagePiastres, long OvertimePiastres, long AdvancePiastres, long WithdrawalPiastres);
+
+/// <summary>Ported from DailySummaryScreen.tsx - the printable end-of-day sheet. Reuses
+/// GetBusinessDayReconciliationAsync's own sales/expenses/shift-discrepancy figures rather than
+/// re-deriving them, and adds only what that reconciliation doesn't already carry: employee-ledger
+/// totals and the names of whoever actually worked a shift that day (for the signature block).</summary>
+public sealed record DailySummaryDto(
+    string BusinessDayId, string BusinessDate, SalesReportDto Sales, long ExpensesTotalPiastres,
+    long ShiftsShortagePiastres, long ShiftsOveragePiastres, EmployeeLedgerTotalsDto EmployeeLedger,
+    IReadOnlyList<string> CashierNames);
+
 public sealed record TopSellingItemDto(string ProductName, int Quantity, long TotalPiastres);
+
+/// <summary>One product's sales inside one hour of the Cairo clock. The two questions the reports
+/// screen could already answer separately - what sold, and when the day was busy - only cross here:
+/// TopSellingItemDto has no time in it and the dashboard's hourly trend has no product in it, so
+/// neither could say that the kofta goes at nine and the pastries go at eight.
+/// <para>Hour is 0-23 on a Cairo wall clock, the same bucketing the dashboard trend uses. Only
+/// hours that actually sold something appear - the view fills the rest with zero, because an
+/// absent row and a zero row mean the same thing here and one of them costs nothing to send.</para>
+/// </summary>
+public sealed record ProductHourlySalesDto(string ProductName, int Hour, int Quantity, long TotalPiastres);
 
 public sealed record CategorySalesDto(string CategoryId, string CategoryName, int Quantity, long TotalPiastres);
 
@@ -54,7 +79,14 @@ public sealed record SignificantActionDto(
 public sealed record ShiftSummaryDto(
     string ShiftId, string ShiftName, string OpenedByUserId, string Status, long OpeningCashPiastres,
     long? ExpectedCashPiastres, long? ActualCashPiastres, long? CashDifferencePiastres,
-    SalesReportDto Sales, long ExpensesTotalPiastres);
+    SalesReportDto Sales, long ExpensesTotalPiastres,
+    /// <summary>Added for the Shifts history screen, which - unlike the single-shift report this
+    /// DTO originally served - has no other way to show "who opened it" / "who closed it" or when.
+    /// Trailing and optional so the one existing caller (GetShiftSummaryAsync's own single-shift
+    /// report) keeps compiling unchanged.</summary>
+    string? OpenedByUserName = null, string? ClosedByUserName = null,
+    DateTimeOffset OpenedAtUtc = default, DateTimeOffset? ClosedAtUtc = default,
+    string? DifferenceReason = null);
 
 /// <summary>Ported from deliveryReport in lib/delivery-domain.mjs. SettlementCount replaces
 /// legacy's own `trips` count - this system's per-order delivery model has no separate "trip"

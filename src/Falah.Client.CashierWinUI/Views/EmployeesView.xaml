@@ -1,11 +1,11 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.EmployeesView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.EmployeesView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
              xmlns:views="using:Falah.Client.CashierWinUI.Views"
              FlowDirection="RightToLeft">
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -24,6 +24,10 @@
                 <CheckBox MinHeight="44" IsChecked="{Binding ShowInactive, Mode=TwoWay}">
                     <TextBlock Text="إظهار غير النشطين" FontSize="13"/>
                 </CheckBox>
+                <Button Content="التقرير المالي" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                        ToolTipService.ToolTip="أرباح وسلف ومدفوعات ورصيد كل موظف خلال فترة"
+                        Visibility="{Binding CanSeeReport, Converter={StaticResource BoolToVisibleConverter}}"
+                        Command="{Binding OpenReportCommand}"/>
                 <Button Content="بيانات الموظفين" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
                         Visibility="{Binding CanOpenEditor, Converter={StaticResource BoolToVisibleConverter}}"
                         Command="{Binding OpenEditorCommand}"/>
@@ -46,12 +50,12 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="272"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="الموظف" Style="{StaticResource TableHeaderText}"/>
                         <TextBlock Grid.Column="1" Text="الوظيفة" Style="{StaticResource TableHeaderText}"/>
                         <TextBlock Grid.Column="2" Text="الرصيد" Style="{StaticResource TableHeaderText}"/>
-                        <TextBlock Grid.Column="3" Text="إجراء" Style="{StaticResource TableHeaderText}"/>
+                        <TextBlock Grid.Column="3" Text="الإجراءات السريعة" Style="{StaticResource TableHeaderText}" HorizontalAlignment="Center"/>
                     </Grid>
                 </Grid>
 
@@ -59,19 +63,19 @@
                     <ItemsControl ItemsSource="{Binding Employees}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
+                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,8">
                                     <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="130"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="272"/>
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Employee.Name}" Style="{StaticResource TableCellText}"
                                                        FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <Border Background="{StaticResource NeutralPillBrush}" CornerRadius="7" Padding="7,2"
+                                            <Border Background="{ThemeResource NeutralPillBrush}" CornerRadius="7" Padding="7,2"
                                                     VerticalAlignment="Center"
                                                     Visibility="{Binding Employee.IsActive, Converter={StaticResource InverseBoolToVisibleConverter}}">
                                                 <TextBlock Text="غير نشط" Style="{StaticResource StatusPillText}"/>
@@ -79,14 +83,35 @@
                                         </StackPanel>
 
                                         <TextBlock Grid.Column="1" Text="{Binding Employee.JobTitle}" Style="{StaticResource TableCellText}"
-                                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                   Foreground="{ThemeResource TextMutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <TextBlock Grid.Column="2" Text="{Binding BalanceDisplay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
 
-                                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <Button Content="كشف الحساب" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
-                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenLedgerCommand}" CommandParameter="{Binding}"/>
-                                            <Button Content="صرف" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
-                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenCashOutCommand}" CommandParameter="{Binding}"/>
+                                        <StackPanel Grid.Column="3" Spacing="5" VerticalAlignment="Center" Width="272">
+                                            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+                                                <Button Content="كشف الحساب" Padding="10,6" MinHeight="36" FontSize="11" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenLedgerCommand}" CommandParameter="{Binding}"/>
+                                                <Button Content="+يومية" Padding="10,6" MinHeight="36" FontSize="11" Style="{StaticResource SuccessOutlineButtonStyle}"
+                                                        ToolTipService.ToolTip="تسجيل يومية عمل كاملة"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenDailyWageCommand}" CommandParameter="{Binding}"/>
+                                                <Button Content="+إضافي" Padding="10,6" MinHeight="36" FontSize="11" Style="{StaticResource InfoOutlineButtonStyle}"
+                                                        ToolTipService.ToolTip="تسجيل ساعات عمل إضافية"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenOvertimeCommand}" CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+                                                <Button Content="+تطبيق" Padding="10,6" MinHeight="36" FontSize="11" Style="{StaticResource SecondaryButtonStyle}"
+                                                        ToolTipService.ToolTip="تسجيل تطبيق وردية ثانية كاملة"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenExtraShiftCommand}" CommandParameter="{Binding}"/>
+                                                <Button Content="-سلفة" Padding="10,6" MinHeight="36" FontSize="11" Style="{StaticResource WarningOutlineButtonStyle}"
+                                                        ToolTipService.ToolTip="صرف سلفة نقدية من الخزنة"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenAdvanceCommand}" CommandParameter="{Binding}"/>
+                                                <Button Content="-سحب" Padding="10,6" MinHeight="36" FontSize="11" Style="{StaticResource DangerOutlineButtonStyle}"
+                                                        ToolTipService.ToolTip="سحب من رصيد الموظف"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenWithdrawalCommand}" CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                            <Button Content="دفع للموظف" Padding="10,6" MinHeight="36" FontSize="11" HorizontalAlignment="Stretch"
+                                                    Style="{StaticResource CtaButtonStyle}"
+                                                    ToolTipService.ToolTip="دفع مستحقات من رصيد الموظف - في أي وقت، جزئي أو كامل، بلا حاجة لمسيّر رواتب"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenPayCommand}" CommandParameter="{Binding}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -116,15 +141,15 @@
         </Border>
 
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
-                Background="{StaticResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
+                Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
             <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
         </Border>
 
         <!-- ================= LEDGER ================= -->
-        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#66313D35"
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"
               Visibility="{Binding IsLedgerOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="720" MaxHeight="700"
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="720" MaxHeight="700"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -142,7 +167,7 @@
                         <ItemsControl ItemsSource="{Binding Ledger}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -152,11 +177,11 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Spacing="2">
                                                 <TextBlock Text="{Binding Description}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
-                                                <TextBlock Text="{Binding Type}" Style="{StaticResource CaptionText}"/>
+                                                <TextBlock Text="{Binding Type, Converter={StaticResource EmployeeLedgerTypeLabelConverter}}" Style="{StaticResource CaptionText}"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource DangerBrush}"
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{ThemeResource DangerBrush}"
                                                        Text="{Binding DebitPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{StaticResource SuccessBrush}"
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{ThemeResource SuccessBrush}"
                                                        Text="{Binding CreditPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                             <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold"
                                                        Text="{Binding BalanceAfterPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
@@ -171,7 +196,7 @@
                                   Visibility="{Binding IsLoadingLedger, Converter={StaticResource BoolToVisibleConverter}}"/>
                     <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"
                                 Visibility="{Binding LedgerError, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding LedgerError}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{StaticResource DangerBrush}"/>
+                        <TextBlock Text="{Binding LedgerError}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ThemeResource DangerBrush}"/>
                         <Button Content="إعادة المحاولة" MinHeight="44" HorizontalAlignment="Center" Style="{StaticResource PrimaryButtonStyle}"
                                 Command="{Binding RetryLedgerCommand}"/>
                     </StackPanel>
@@ -182,60 +207,235 @@
         </Grid>
 
         <!-- ================= CASH OUT ================= -->
-        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#66313D35"
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"
               Visibility="{Binding IsCashOutOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="24" Width="440" MaxHeight="640"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+            <!-- Centred, not stretched: these dialogs size to their content, and a short one (the
+                 pay dialog when nothing is due) stretched to the full window left most of the card
+                 empty. MaxHeight + the ScrollViewer still cap a long one. -->
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="440" MaxHeight="640"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
-                        <controls:ModalHeaderView Title="صرف نقدي للموظف" CloseCommand="{Binding CloseCashOutCommand}"/>
+                        <controls:ModalHeaderView Title="{Binding ActionTitle}" CloseCommand="{Binding CloseCashOutCommand}"/>
                         <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
                             <Run Text="{Binding CashOutEmployee.Employee.Name}" FontWeight="Bold"/>
                             <Run Text=" — الرصيد الحالي "/><Run Text="{Binding CashOutEmployee.BalanceDisplay}"/>
                         </TextBlock>
-
-                        <Grid ColumnSpacing="6" Background="#F0F3EF" CornerRadius="12" Padding="4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="سلفة" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
-                                    Command="{Binding SetCashOutKindCommand}" CommandParameter="advance"
-                                    Background="{Binding CashOutKind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=advance|WhiteBrush|TransparentBrush}"
-                                    Foreground="{Binding CashOutKind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=advance|BrandPrimaryBrush|TextMutedBrush}"/>
-                            <Button Grid.Column="1" Content="سحب من الرصيد" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
-                                    Command="{Binding SetCashOutKindCommand}" CommandParameter="withdrawal"
-                                    Background="{Binding CashOutKind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=withdrawal|WhiteBrush|TransparentBrush}"
-                                    Foreground="{Binding CashOutKind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=withdrawal|BrandPrimaryBrush|TextMutedBrush}"/>
-                        </Grid>
 
                         <TextBlock Text="السحب محدود برصيد الموظف الحالي؛ السلفة تُصرف مقابل عمل قادم."
                                    Style="{StaticResource CaptionText}" TextWrapping="Wrap"
                                    Visibility="{Binding IsWithdrawal, Converter={StaticResource BoolToVisibleConverter}}"/>
 
                         <Border Style="{StaticResource AlertBannerStyle}"
-                                Visibility="{Binding HasOpenShift, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                                Visibility="{Binding ShowNoShiftAlert, Converter={StaticResource BoolToVisibleConverter}}">
                             <TextBlock Text="لا توجد وردية مفتوحة - الصرف من الدرج يتطلب وردية مفتوحة." TextWrapping="Wrap"/>
                         </Border>
 
+                        <!-- Overtime: hours picker 1-5, amount is rate x hours (server-computed, shown read-only). -->
+                        <StackPanel Spacing="8" Visibility="{Binding IsOvertime, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="عدد الساعات الإضافية" Style="{StaticResource CaptionText}" FontWeight="Bold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="1" FontSize="12" MinWidth="48" Style="{StaticResource SegmentButtonStyle}" Command="{Binding SetOvertimeHoursCommand}" CommandParameter="1"
+                                        Background="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=1|BrandPrimaryBrush|TransparentBrush}"
+                                        Foreground="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=1|TextOnDarkBrush|TextMutedBrush}"/>
+                                <Button Content="2" FontSize="12" MinWidth="48" Style="{StaticResource SegmentButtonStyle}" Command="{Binding SetOvertimeHoursCommand}" CommandParameter="2"
+                                        Background="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=2|BrandPrimaryBrush|TransparentBrush}"
+                                        Foreground="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=2|TextOnDarkBrush|TextMutedBrush}"/>
+                                <Button Content="3" FontSize="12" MinWidth="48" Style="{StaticResource SegmentButtonStyle}" Command="{Binding SetOvertimeHoursCommand}" CommandParameter="3"
+                                        Background="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=3|BrandPrimaryBrush|TransparentBrush}"
+                                        Foreground="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=3|TextOnDarkBrush|TextMutedBrush}"/>
+                                <Button Content="4" FontSize="12" MinWidth="48" Style="{StaticResource SegmentButtonStyle}" Command="{Binding SetOvertimeHoursCommand}" CommandParameter="4"
+                                        Background="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=4|BrandPrimaryBrush|TransparentBrush}"
+                                        Foreground="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=4|TextOnDarkBrush|TextMutedBrush}"/>
+                                <Button Content="5" FontSize="12" MinWidth="48" Style="{StaticResource SegmentButtonStyle}" Command="{Binding SetOvertimeHoursCommand}" CommandParameter="5"
+                                        Background="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=5|BrandPrimaryBrush|TransparentBrush}"
+                                        Foreground="{Binding OvertimeHours, Converter={StaticResource IntEqualsToBrushConverter}, ConverterParameter=5|TextOnDarkBrush|TextMutedBrush}"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource MutedText}">
+                                <Run Text="المبلغ المستحق: "/><Run Text="{Binding OvertimePreviewAmount}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- Extra shift: fixed one full shift value, amount is server-computed (shown read-only). -->
+                        <TextBlock Style="{StaticResource MutedText}" Visibility="{Binding IsExtraShift, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Run Text="قيمة الوردية الإضافية: "/><Run Text="{Binding ExtraShiftPreviewAmount}" FontWeight="Bold"/>
+                        </TextBlock>
+
+                        <!-- Daily wage / advance / withdrawal: a real editable amount. -->
                         <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
-                                 Text="{Binding CashOutAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox IsEnabled="{Binding CanEditAction}" Header="السبب (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                 Text="{Binding CashOutAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Visibility="{Binding ShowAmountInput, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <TextBox IsEnabled="{Binding CanEditAction}" TextWrapping="Wrap" MinHeight="44"
+                                 Header="{Binding ReasonHeader}"
                                  Text="{Binding CashOutReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <StackPanel Spacing="6" Visibility="{Binding CashOutNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
-                            <TextBlock Text="صلاحيتك لا تسمح بالصرف - أدخل رمز المدير المخوّل."
+                            <TextBlock Text="صلاحيتك لا تسمح بهذا الإجراء - أدخل رمز المدير المخوّل."
                                        Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                             <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
                                          Password="{Binding CashOutManagerPin, Mode=TwoWay}"/>
                         </StackPanel>
 
-                        <TextBlock Text="{Binding CashOutError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding CashOutError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding CashOutError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
-                        <Button Content="تنفيذ الصرف" MinHeight="52" HorizontalAlignment="Stretch"
+                        <Button Content="حفظ الحركة فوراً" MinHeight="52" HorizontalAlignment="Stretch"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitCashOutCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ================= EMPLOYEE FINANCIAL REPORT ================= -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"
+              Visibility="{Binding IsReportOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="1000" MaxHeight="720"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <controls:ModalHeaderView Title="التقرير المالي للموظفين" CloseCommand="{Binding CloseReportCommand}"/>
+
+                    <StackPanel Grid.Row="1" Spacing="10" Margin="0,10,0,12">
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox MinWidth="170" MinHeight="44" ItemsSource="{Binding ReportPeriods}" DisplayMemberPath="Label"
+                                      SelectedItem="{Binding SelectedReportPeriod, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ReportRangeLabel}" VerticalAlignment="Center"
+                                       Style="{StaticResource MutedText}" Margin="10,0,0,0"/>
+                            <Button Grid.Column="2" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadReportCommand}">
+                                <FontIcon Glyph="&#xE72C;" FontSize="13"/>
+                            </Button>
+                        </Grid>
+
+                        <Grid ColumnSpacing="10" Visibility="{Binding IsCustomReportPeriod, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <DatePicker Header="من" MinHeight="44" Date="{Binding ReportFromDate, Mode=TwoWay}"/>
+                            <DatePicker Grid.Column="1" Header="إلى" MinHeight="44" Date="{Binding ReportToDate, Mode=TwoWay}"/>
+                        </Grid>
+
+                        <TextBlock Text="السلف معروضة في عمود مستقل عن المدفوعات؛ الرصيد المتبقي هو رصيد كشف حساب الموظف الجاري (ليس مجموع الفترة)."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+
+                        <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="12,8" ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="الموظف" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="1" Text="الأجور" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="2" Text="إضافات" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="3" Text="خصومات" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="4" Text="سلف" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="5" Text="مدفوعات" Style="{StaticResource TableHeaderText}"/>
+                            <TextBlock Grid.Column="6" Text="الرصيد المتبقي" Style="{StaticResource TableHeaderText}"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ReportLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding EmployeeName}" Style="{StaticResource TableCellText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding EarningsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding AdditionsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource SuccessBrush}"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding DeductionsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource DangerBrush}"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding AdvancesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource WarningBrush}"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding PaymentsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding RemainingBalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <ProgressRing Grid.Row="2" IsActive="True" Width="32" Height="32" VerticalAlignment="Center"
+                                  Visibility="{Binding IsLoadingReport, Converter={StaticResource BoolToVisibleConverter}}"/>
+                    <TextBlock Grid.Row="2" Text="{Binding ReportError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" TextAlignment="Center"
+                               Visibility="{Binding ReportError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <TextBlock Grid.Row="2" Text="لا توجد بيانات موظفين لهذه الفترة" Style="{StaticResource MutedText}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="{Binding HasNoReportLines, Converter={StaticResource BoolToVisibleConverter}}"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ================= PAY EMPLOYEE (standalone - never merged with advance/withdrawal) ================= -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"
+              Visibility="{Binding IsPayOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <!-- Centred, not stretched: these dialogs size to their content, and a short one (the
+                 pay dialog when nothing is due) stretched to the full window left most of the card
+                 empty. MaxHeight + the ScrollViewer still cap a long one. -->
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="440" MaxHeight="640"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <controls:ModalHeaderView Title="دفع مستحقات للموظف" CloseCommand="{Binding ClosePayCommand}"/>
+                        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                            <Run Text="{Binding PayEmployee.Employee.Name}" FontWeight="Bold"/>
+                            <Run Text=" — الرصيد الحالي "/><Run Text="{Binding PayEmployee.BalanceDisplay}"/>
+                        </TextBlock>
+                        <TextBlock Text="يمكن الدفع في أي وقت وبأي مبلغ حتى الرصيد الحالي - جزئيًا أو كاملاً، بلا حاجة لمسيّر رواتب. المتبقي يستمر في التراكم مع الأجور القادمة."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                   Visibility="{Binding PayHasNothingDue, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+
+                        <!-- Nothing payable: the server rejects any amount against a balance of zero
+                             or less, so say it here rather than let the operator type a number that
+                             can only fail. -->
+                        <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="12" Padding="14"
+                                Visibility="{Binding PayHasNothingDue, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="لا توجد مستحقات للدفع حاليًا - الموظف استلم بالفعل كل ما استحقه. ستظهر مستحقات جديدة مع تسجيل الأجور القادمة."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المدفوع بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                 Visibility="{Binding PayHasNothingDue, Converter={StaticResource InverseBoolToVisibleConverter}}"
+                                 Text="{Binding PayAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <StackPanel Spacing="8"
+                                    Visibility="{Binding PayHasNothingDue, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                            <TextBlock Text="الحساب المصدر" Style="{StaticResource CaptionText}" FontWeight="Bold"/>
+                            <ComboBox IsEnabled="{Binding CanEditAction}" MinHeight="44" HorizontalAlignment="Stretch"
+                                      ItemsSource="{Binding PayAccounts}" DisplayMemberPath="Label" SelectedValuePath="Id"
+                                      SelectedValue="{Binding PayAccount, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <TextBox IsEnabled="{Binding CanEditAction}" TextWrapping="Wrap" MinHeight="44"
+                                 Header="ملاحظة (اختياري)"
+                                 Visibility="{Binding PayHasNothingDue, Converter={StaticResource InverseBoolToVisibleConverter}}"
+                                 Text="{Binding PayReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <StackPanel Spacing="14"
+                                    Visibility="{Binding PayHasNothingDue, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                            <StackPanel Spacing="6" Visibility="{Binding PayNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                                <TextBlock Text="صلاحيتك لا تسمح بهذا الإجراء - أدخل رمز المدير المخوّل."
+                                           Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                             Password="{Binding PayManagerPin, Mode=TwoWay}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding PayError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" TextAlignment="Center"
+                                       Visibility="{Binding PayError, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                            <Button Content="تأكيد الدفع" MinHeight="52" HorizontalAlignment="Stretch"
+                                    Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitPayCommand}"/>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

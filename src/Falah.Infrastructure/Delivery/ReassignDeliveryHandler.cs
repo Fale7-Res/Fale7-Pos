@@ -5,6 +5,7 @@ using Falah.Domain.Audit;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Falah.Domain.Delivery;
+using Falah.Domain.Printing;
 using Falah.Infrastructure.Orders;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
@@ -86,6 +87,8 @@ public sealed class ReassignDeliveryHandler
 
             var oldDriverId = delivery.DriverId;
             var oldDriver = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == oldDriverId, ct);
+            var order = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == delivery.OrderId, ct)
+                ?? throw new InvalidOperationException("الطلب المرتبط بالدليفري غير موجود.");
             var now = DateTimeOffset.UtcNow;
 
             var custody = await _db.DriverCustodies.FirstOrDefaultAsync(c => c.DeliveryId == delivery.Id, ct);
@@ -109,6 +112,19 @@ public sealed class ReassignDeliveryHandler
                 Id = $"delivery-event-{Guid.NewGuid():N}", DeliveryId = delivery.Id, OrderId = delivery.OrderId,
                 DriverId = newDriver.Id, TripId = delivery.TripId, Type = "reassignment", Reason = request.Reason.Trim(),
                 Actor = actorUser.Name, Approver = approval?.ApproverName, CreatedAtUtc = now,
+            });
+
+            // A fresh dispatch ticket for the NEW driver - ComposeTicketContentAsync marks it
+            // "إعادة إسناد" by detecting an earlier DriverDispatch job already exists for this
+            // order, so the driver holding it can never mistake it for the original dispatch.
+            // Keyed on this reassignment's own RequestId - the same idempotency the reassignment
+            // itself already has, so a retried/duplicate reassignment never prints twice.
+            _db.PrintJobs.Add(new PrintJobEntity
+            {
+                Id = $"printjob-{request.RequestId}-{PrintRoute.DriverDispatch}", CreateRequestId = request.RequestId,
+                OrderId = order.Id, OrderNumber = order.OrderNumber, Route = nameof(PrintRoute.DriverDispatch),
+                Status = nameof(PrintJobStatus.Pending), AttemptCount = 0, IsReprint = false,
+                CreatedBy = actorUser.Name, CreatedAtUtc = now,
             });
 
             _auditLog.Append(new AuditEvent(

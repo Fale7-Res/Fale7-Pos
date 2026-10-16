@@ -1,4 +1,4 @@
-using Falah.Domain.Authorization;
+﻿using Falah.Domain.Authorization;
 using Falah.Infrastructure.Approvals;
 using Falah.Infrastructure.Audit;
 using Falah.Infrastructure.Backup;
@@ -27,6 +27,13 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Lets this same executable run as a Windows service, so the till's back end comes up with the
+// machine and is restarted by Windows if it ever dies mid-shift - a cashier cannot ring up a sale
+// while it is down, and nobody in a kitchen is going to notice a console window has closed.
+// A no-op when launched normally (dotnet run, or double-clicking the exe), so development and the
+// installed service run the exact same build. See tools/install-falah-service.ps1.
+builder.Host.UseWindowsService(options => options.ServiceName = "FalahServer");
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -90,6 +97,7 @@ builder.Services.AddScoped<UpdateEmployeeHandler>();
 builder.Services.AddScoped<EmployeeQueryService>();
 builder.Services.AddScoped<RecordManualLedgerEntryHandler>();
 builder.Services.AddScoped<RecordEmployeeCashOutHandler>();
+builder.Services.AddScoped<PayEmployeeHandler>();
 builder.Services.AddScoped<RecordDailyWageHandler>();
 builder.Services.AddScoped<RecordOvertimeHandler>();
 builder.Services.AddScoped<RecordExtraShiftHandler>();
@@ -102,6 +110,12 @@ builder.Services.AddScoped<PayPayrollHandler>();
 builder.Services.AddScoped<PayrollQueryService>();
 builder.Services.AddScoped<CreateBackupHandler>();
 builder.Services.AddScoped<VerifyBackupHandler>();
+
+// The backup nobody remembers to take. Before this, a backup only ever happened when an operator
+// opened the Backup screen and pressed the button, and the owner dashboard's "last backup was N
+// hours ago" warning was the entire safety net. See ScheduledBackupService for why it is an age
+// check on an interval rather than a nightly alarm - a till is switched off at night.
+builder.Services.AddHostedService<ScheduledBackupService>();
 builder.Services.AddScoped<RestoreBackupHandler>();
 builder.Services.AddScoped<BackupQueryService>();
 builder.Services.AddScoped<ExpenseQueryService>();
@@ -128,7 +142,9 @@ builder.Services.AddScoped<UpsertCustomerHandler>();
 builder.Services.AddScoped<CustomerQueryService>();
 builder.Services.AddScoped<ReportingQueryService>();
 builder.Services.AddScoped<OwnerDashboardQueryService>();
+builder.Services.AddScoped<DailyStatementQueryService>();
 builder.Services.AddScoped<CreatePrintJobsHandler>();
+builder.Services.AddScoped<Falah.Infrastructure.Printing.ReprintDocumentHandler>();
 builder.Services.AddScoped<OrderAutoPrintService>();
 builder.Services.AddScoped<Falah.Infrastructure.Authorization.SessionService>();
 builder.Services.AddScoped<ReportPrintJobResultHandler>();
@@ -179,8 +195,13 @@ var app = builder.Build();
 app.UseCors();
 app.UseRateLimiter();
 
-using (var scope = app.Services.CreateScope())
+// Wrapped so a startup failure says WHAT failed and WHERE it was pointing. Running as a Windows
+// service there is no console to read: the service simply refuses to start, and without this the
+// only trace is a generic "service terminated unexpectedly" in the event log. Nothing is swallowed -
+// the exception is rethrown after it has been logged, so the service still fails to start.
+try
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
     db.Database.Migrate();
     // READ_COMMITTED_SNAPSHOT is the SQL Server equivalent of what WAL gave the SQLite version of
@@ -192,6 +213,23 @@ using (var scope = app.Services.CreateScope())
         "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE database_id = DB_ID() AND is_read_committed_snapshot_on = 1) " +
         "ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;");
     await DemoDataSeeder.SeedIfEmptyAsync(db);
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Falah.Server.Startup");
+    // The server name and database, never the credentials - this line lands in the Windows event
+    // log, which is read by whoever is standing at the till, not only by a developer.
+    var target = app.Configuration.GetConnectionString("Falah") is { } cs
+        ? string.Join("; ", cs.Split(';').Where(part =>
+            part.TrimStart().StartsWith("Server", StringComparison.OrdinalIgnoreCase)
+            || part.TrimStart().StartsWith("Database", StringComparison.OrdinalIgnoreCase)))
+        : "(الاتصال الافتراضي)";
+
+    logger.LogCritical(ex,
+        "فشل بدء تشغيل خادم فالح: تعذر تهيئة قاعدة البيانات [{Target}]. "
+        + "تأكد أن خدمة SQL Server تعمل وأن الخادم يملك صلاحية الوصول لقاعدة البيانات، ثم أعد تشغيل خدمة FalahServer.",
+        target);
+    throw;
 }
 
 if (app.Environment.IsDevelopment())
@@ -216,6 +254,24 @@ app.UseExceptionHandler(branch => branch.Run(async context =>
 {
     var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
     var reference = context.TraceIdentifier;
+
+    // A request the framework could not bind (a required query value missing, a body that is not
+    // valid JSON) is the caller's mistake, not a server fault: answer 400 and log it as a warning,
+    // so it neither alarms the operator with "unexpected error" nor hides real 500s in the log.
+    if (feature?.Error is BadHttpRequestException badRequest)
+    {
+        app.Logger.LogWarning("Rejected malformed {Method} {Path}: {Message} (reference {Reference})",
+            context.Request.Method, context.Request.Path, badRequest.Message, reference);
+        context.Response.StatusCode = badRequest.StatusCode;
+        context.Response.ContentType = "application/json; charset=utf-8";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = "الطلب ناقص أو غير صالح. حدّث البرنامج وأعد المحاولة، وإن تكرر أبلغ الدعم بالرقم المرجعي.",
+            reference,
+        });
+        return;
+    }
+
     app.Logger.LogError(feature?.Error,
         "Unhandled exception on {Method} {Path} (reference {Reference})",
         context.Request.Method, context.Request.Path, reference);
@@ -255,9 +311,10 @@ app.MapPost("/api/shifts/open", async (Falah.Application.Shifts.OpenShiftRequest
 app.MapGet("/api/shifts/current", async (FalahDbContext db, CancellationToken ct) =>
 {
     var shift = await db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == "Open", ct);
-    return shift is null
-        ? Results.NotFound(new { error = "لا توجد وردية مفتوحة حاليًا." })
-        : Results.Ok(new Falah.Application.Shifts.CurrentShiftDto(shift.Id, shift.ShiftName, shift.OpenedByUserId, shift.OpeningCashPiastres, shift.OpenedAtUtc));
+    if (shift is null) return Results.NotFound(new { error = "لا توجد وردية مفتوحة حاليًا." });
+    var openedByName = (await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == shift.OpenedByUserId, ct))?.Name;
+    return Results.Ok(new Falah.Application.Shifts.CurrentShiftDto(
+        shift.Id, shift.ShiftName, shift.OpenedByUserId, shift.OpeningCashPiastres, shift.OpenedAtUtc, openedByName));
 });
 
 app.MapPost("/api/shifts/prepare-close", async (Falah.Application.Shifts.PrepareShiftCloseRequest request, PrepareShiftCloseHandler handler, CancellationToken ct) =>
@@ -465,7 +522,7 @@ app.MapPost("/api/control-exceptions/{exceptionId}/status", async (string except
 });
 
 app.MapGet("/api/control-center/audit-events", async (int? limit, ControlCenterQueryService query, CancellationToken ct) =>
-    Results.Ok(await query.ListAuditEventsAsync(limit ?? 100, ct)));
+    Results.Ok(await query.ListAuditEventsAsync(limit ?? 100, ct: ct)));
 
 // The general-purpose audit trail (orders/cash/shifts/menu/inventory/delivery) - distinct from
 // /api/control-center/audit-events above, which is the narrower business-day/user-management trail.
@@ -639,6 +696,16 @@ app.MapGet("/api/employees/{employeeId}/ledger", async (string employeeId, Emplo
 app.MapGet("/api/employees/{employeeId}/balance", async (string employeeId, EmployeeQueryService query, CancellationToken ct) =>
     Results.Ok(new { employeeId, balancePiastres = await query.GetBalanceAsync(employeeId, ct) }));
 
+// Payroll/employee financial reporting by today/last-7/last-10/month/custom range - the reporting
+// side of the final business rule, now that payment is not tied to a payroll period. Gated on
+// reports_view like every other report.
+app.MapGet("/api/employees/financial-report", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, EmployeeQueryService query, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await query.GetFinancialReportAsync(from, to, ct));
+});
+
 app.MapPost("/api/employees/{employeeId}/ledger-entries", async (string employeeId, Falah.Application.Employees.RecordManualLedgerEntryRequest body, RecordManualLedgerEntryHandler handler, CancellationToken ct) =>
 {
     try
@@ -651,6 +718,22 @@ app.MapPost("/api/employees/{employeeId}/ledger-entries", async (string employee
 });
 
 app.MapPost("/api/employees/{employeeId}/cash-out", async (string employeeId, Falah.Application.Employees.RecordEmployeeCashOutRequest body, RecordEmployeeCashOutHandler handler, CancellationToken ct) =>
+{
+    try
+    {
+        var request = body with { EmployeeId = employeeId };
+        return Results.Ok(await handler.HandleAsync(request, ct));
+    }
+    catch (Falah.Application.Treasury.TreasuryConflictException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// The standalone "PAY EMPLOYEE" flow - final pre-go-live business rule: pays down the running
+// ledger balance at any time, any amount up to that balance, no payroll run required. See
+// PayEmployeeHandler's own doc comment for exactly how this differs from cash-out's "withdrawal"
+// kind (drawer-sourced, shift-scoped) and from Payroll's own bulk pay (period-run-gated).
+app.MapPost("/api/employees/{employeeId}/pay", async (string employeeId, Falah.Application.Employees.PayEmployeeRequest body, PayEmployeeHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1261,6 +1344,14 @@ app.MapGet("/api/delivery/drivers/{driverId}/account", async (string driverId, D
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
+// Driver statistics by today/last-7/month/custom period - reuses the same delivery/custody/
+// settlement rows GetDriverAccountAsync already reads, scoped to a date range.
+app.MapGet("/api/delivery/drivers/{driverId}/statistics", async (string driverId, DateTimeOffset? from, DateTimeOffset? to, DeliveryQueryService query, CancellationToken ct) =>
+{
+    try { return Results.Ok(await query.GetDriverStatisticsAsync(driverId, from, to, ct)); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
 app.MapGet("/api/delivery/{id}", async (string id, DeliveryQueryService query, CancellationToken ct) =>
 {
     try
@@ -1709,7 +1800,10 @@ app.MapGet("/api/treasury/position", async (string actorUserId, FalahDbContext d
 
 // The treasury ledger itself - the posted movements behind those balances. Read-only over the same
 // rows every financial command writes, so the ledger and the balances can never disagree.
-app.MapGet("/api/treasury/movements", async (string actorUserId, string? accountId, int? limit, FalahDbContext db, CancellationToken ct) =>
+// businessDate is optional and additive - the Treasury screen itself keeps asking for "the most
+// recent N movements, all accounts" exactly as before; the daily statement is the first caller to
+// pass a Cairo business date, so it can show only that day's movements without a second endpoint.
+app.MapGet("/api/treasury/movements", async (string actorUserId, string? accountId, int? limit, DateOnly? businessDate, FalahDbContext db, CancellationToken ct) =>
 {
     var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
     if (denied is not null) return denied;
@@ -1717,11 +1811,18 @@ app.MapGet("/api/treasury/movements", async (string actorUserId, string? account
     var query = db.TreasuryMovements.AsNoTracking().AsQueryable();
     if (!string.IsNullOrWhiteSpace(accountId))
         query = query.Where(m => m.SourceAccountId == accountId || m.DestinationAccountId == accountId);
+    if (businessDate is { } day)
+    {
+        var (dayStart, dayEnd) = Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(day);
+        query = query.Where(m => m.CreatedAtUtc >= dayStart && m.CreatedAtUtc < dayEnd);
+    }
 
     var rows = await query.OrderByDescending(m => m.CreatedAtUtc).Take(limit is > 0 and <= 500 ? limit.Value : 100).ToListAsync(ct);
+    var orderNumbers = await ResolveOrderNumbersAsync(db, rows.Select(m => (m.ReferenceType, m.ReferenceId)), ct);
     return Results.Ok(rows.Select(m => new Falah.Application.Treasury.TreasuryMovementDto(
         m.Id, m.Type, m.SourceAccountId, m.DestinationAccountId, m.AmountPiastres, m.ReferenceType,
-        m.ReferenceId, m.ShiftId, m.Reason, m.CreatedBy, m.ApprovedBy, m.CreatedAtUtc)).ToList());
+        m.ReferenceId, m.ShiftId, m.Reason, m.CreatedBy, m.ApprovedBy, m.CreatedAtUtc,
+        orderNumbers.GetValueOrDefault(m.ReferenceId))).ToList());
 });
 
 app.MapGet("/api/treasury/handovers", async (int limit, FalahDbContext db, CancellationToken ct) =>
@@ -1881,6 +1982,18 @@ app.MapGet("/api/reports/owner-dashboard", async (string actorUserId, DateOnly? 
     return Results.Ok(await dashboard.GetAsync(range, ct));
 });
 
+// "كشف اليوم" - the owner's single "what happened today" statement, one Cairo business date at a
+// time (unlike owner-dashboard above, this never widens to a range - a daily statement is a daily
+// statement). Composed entirely from DailyStatementQueryService, which itself composes the same
+// queries every other report/screen already reads - see that class's own doc comment. Gated on
+// reports_view like every other report.
+app.MapGet("/api/reports/daily-statement", async (string actorUserId, DateOnly? businessDate, FalahDbContext db, DailyStatementQueryService statement, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await statement.GetAsync(businessDate ?? Falah.Domain.Common.BusinessClock.Today(), ct));
+});
+
 app.MapGet("/api/reports/sales", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, string? shiftId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetSalesReportAsync(
         Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate), shiftId, ct)));
@@ -1905,17 +2018,35 @@ app.MapGet("/api/reports/business-day/{id}", async (string id, string actorUserI
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
+app.MapGet("/api/reports/daily-summary/{id}", async (string id, string actorUserId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    try { return Results.Ok(await reports.GetDailySummaryAsync(id, ct)); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
 app.MapGet("/api/reports/top-items", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetTopSellingItemsAsync(from, to, ct)));
 
 app.MapGet("/api/reports/category-sales", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetCategorySalesAsync(from, to, ct)));
 
+app.MapGet("/api/reports/product-hourly", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetProductHourlySalesAsync(from, to, ct)));
+
 app.MapGet("/api/reports/food-cost", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetFoodCostReportAsync(from, to, ct)));
 
 app.MapGet("/api/reports/significant-actions", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
     await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetSignificantActionsAsync(from, to, ct)));
+
+// The Shifts screen's history table - gated the same as the single-shift report below (reports_view),
+// since every row carries the same sales/cash figures that report does. A cashier without reports_view
+// reaches this same screen (it also opens/closes their own shift, which needs no report at all) but the
+// client simply does not call this endpoint for them - see ShiftsViewModel.
+app.MapGet("/api/reports/shifts", async (string actorUserId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
+    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetShiftsHistoryAsync(ct: ct)));
 
 app.MapGet("/api/reports/shifts/{id}", async (string id, string actorUserId, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>
 {
@@ -1931,6 +2062,30 @@ app.MapGet("/api/reports/delivery-outcomes", async (string actorUserId, DateOnly
 // ---- Printing: station-based print job routing/tracking. Creating or reporting on a job NEVER
 // touches the order/payment/inventory it describes - see CreatePrintJobsHandler's own doc comment
 // for the critical invariant this whole feature exists to preserve. ----
+
+// Reprints a slip that belongs to no order (shift opening/handover, expense voucher). Creates a
+// print job and an audit entry; it never re-posts the document it reproduces.
+app.MapPost("/api/print-jobs/reprint-document", async (
+    Falah.Application.Printing.ReprintDocumentRequest body,
+    Falah.Infrastructure.Printing.ReprintDocumentHandler handler, CancellationToken ct) =>
+{
+    try
+    {
+        return Results.Ok(await handler.HandleAsync(body, ct));
+    }
+    catch (Falah.Application.Printing.PrintingConflictException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+    catch (Falah.Domain.Common.DomainException ex)
+    {
+        return Results.UnprocessableEntity(new { error = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.NotFound(new { error = ex.Message });
+    }
+});
 
 app.MapPost("/api/orders/{id}/print-jobs", async (string id, Falah.Application.Printing.CreatePrintJobsRequest body, CreatePrintJobsHandler handler, CancellationToken ct) =>
 {
@@ -2108,6 +2263,22 @@ static Falah.Application.Users.UserSummaryDto ToUserSummary(UserEntity user) => 
 // ONE permission, checked here server-side rather than only hiding the number client-side. Gated
 // by permission (or "all"), never by role name, matching every other authorization check in this
 // codebase.
+/// <summary>Order id -> order NUMBER, for the treasury ledger's own reference column. One batched
+/// lookup for a whole page of movements, never one query per row, and only for the references that
+/// actually point at an order - everything else keeps its raw id, which is still the honest answer
+/// for a reference that has no human-facing name.</summary>
+static async Task<Dictionary<string, string>> ResolveOrderNumbersAsync(
+    FalahDbContext db, IEnumerable<(string ReferenceType, string ReferenceId)> references, CancellationToken ct)
+{
+    var orderIds = references
+        .Where(r => r.ReferenceType == "order" && !string.IsNullOrEmpty(r.ReferenceId))
+        .Select(r => r.ReferenceId).Distinct().ToList();
+    if (orderIds.Count == 0) return new Dictionary<string, string>();
+    return await db.Orders.AsNoTracking()
+        .Where(o => orderIds.Contains(o.Id))
+        .ToDictionaryAsync(o => o.Id, o => o.OrderNumber, ct);
+}
+
 static async Task<IResult?> RequireReportsAccessAsync(FalahDbContext db, string actorUserId, CancellationToken ct)
 {
     var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorUserId, ct);

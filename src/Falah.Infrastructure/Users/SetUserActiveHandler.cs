@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Users;
+﻿namespace Falah.Infrastructure.Users;
 
 using Falah.Application.Users;
 using Falah.Domain.Authorization;
@@ -26,6 +26,8 @@ public sealed class SetUserActiveHandler
 
     public async Task HandleAsync(SetUserActiveRequest request, CancellationToken ct = default)
     {
+        // Keep the surviving-administrator check and the update in one serializable transaction.
+        await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);
@@ -41,6 +43,22 @@ public sealed class SetUserActiveHandler
 
         if (target.Active == request.Active) return; // idempotent no-op - already in the requested state
 
+        // The self-deactivation guard above covers the common case, but an actor acting on a one-off
+        // manager approval rather than on a permission of their own can still deactivate the last
+        // real administrator and close the door behind them.
+        if (!request.Active && UserManagementRules.CanManageUsers(
+                target.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
+        {
+            var othersWhoCanAdminister = await _db.Users.AsNoTracking()
+                .Where(u => u.Active && u.Id != target.Id)
+                .Select(u => u.Permissions)
+                .ToListAsync(ct);
+
+            UserManagementRules.AssertUserAdministrationSurvives(
+                othersWhoCanAdminister.Count(permissions => UserManagementRules.CanManageUsers(
+                    permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))));
+        }
+
         target.Active = request.Active;
         _db.ControlAuditEvents.Add(new Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity
         {
@@ -48,5 +66,6 @@ public sealed class SetUserActiveHandler
             Actor = actorUser.Name, EntityId = target.Id, Reason = request.Reason, CreatedAtUtc = DateTimeOffset.UtcNow,
         });
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }

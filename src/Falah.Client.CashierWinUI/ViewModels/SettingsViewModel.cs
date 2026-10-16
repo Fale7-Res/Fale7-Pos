@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Settings;
 using Falah.Client.CashierWinUI.Services;
@@ -26,7 +26,12 @@ public partial class SettingsViewModel : ObservableObject
     {
         _session = session;
         _header = header;
+        InitializeAppearance();
     }
+
+    /// <summary>Implemented in SettingsViewModel.Appearance.cs - the local, non-server theme
+    /// preference this screen also exposes.</summary>
+    partial void InitializeAppearance();
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isSaving;
@@ -42,7 +47,11 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _phoneLandline = "";
     [ObservableProperty] private string _complaintsPhone = "";
     [ObservableProperty] private string _receiptFooter = "";
+    [ObservableProperty] private string _menuUrl = "";
     [ObservableProperty] private string _deliveryFeeText = "";
+    /// <summary>The float the open-shift dialog starts from. Only a suggestion: each shift stores
+    /// what the cashier actually entered, and changing this never touches a shift already opened.</summary>
+    [ObservableProperty] private string _defaultOpeningCashText = "";
     [ObservableProperty] private string _cashDiscrepancyThresholdText = "";
     [ObservableProperty] private string _overtimeHourlyRateText = "";
     [ObservableProperty] private string _autoLockMinutesText = "";
@@ -82,9 +91,11 @@ public partial class SettingsViewModel : ObservableObject
             PhoneLandline = s.PhoneLandline;
             ComplaintsPhone = s.ComplaintsPhone;
             ReceiptFooter = s.ReceiptFooter;
+            MenuUrl = s.MenuUrl ?? "";
             DeliveryFeeText = CashInput.Format(s.DeliveryFeePiastres);
             CashDiscrepancyThresholdText = CashInput.Format(s.CashDiscrepancyThresholdPiastres);
             OvertimeHourlyRateText = CashInput.Format(s.OvertimeHourlyRatePiastres);
+            DefaultOpeningCashText = CashInput.Format(s.DefaultOpeningCashPiastres);
             AutoLockMinutesText = s.AutoLockMinutes.ToString();
             NumberOfReceiptCopiesText = s.NumberOfReceiptCopies.ToString();
             AutoPrintReceipt = s.AutoPrintReceipt;
@@ -102,6 +113,11 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (IsSaving || _loaded is null) return;
 
+        if (!CashInput.TryParse(DefaultOpeningCashText, out var defaultOpeningCash) || defaultOpeningCash < 0)
+        {
+            SaveError = "أدخل رصيدًا افتتاحيًا افتراضيًا صحيحًا (صفر أو أكثر).";
+            return;
+        }
         if (!CashInput.TryParse(DeliveryFeeText, out var deliveryFee)
             || !CashInput.TryParse(CashDiscrepancyThresholdText, out var threshold)
             || !CashInput.TryParse(OvertimeHourlyRateText, out var overtimeRate))
@@ -131,8 +147,11 @@ public partial class SettingsViewModel : ObservableObject
                 PhoneLandline: PhoneLandline,
                 ComplaintsPhone: ComplaintsPhone,
                 ReceiptFooter: ReceiptFooter,
+                // Always sent: an empty box is a deliberate "no menu link", which clears it.
+                MenuUrl: MenuUrl,
                 OvertimeHourlyRatePiastres: overtimeRate,
                 DeliveryFeePiastres: deliveryFee,
+                DefaultOpeningCashPiastres: defaultOpeningCash,
                 CashDiscrepancyThresholdPiastres: threshold,
                 AutoLockMinutes: autoLock,
                 NumberOfReceiptCopies: copies,
