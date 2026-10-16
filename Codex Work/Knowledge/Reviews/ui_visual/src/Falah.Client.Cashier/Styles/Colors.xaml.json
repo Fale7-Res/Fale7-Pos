@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Styles/Colors.xaml",
+  "source_git_blob_sha256": "164c2ac381d620a4fb24eb339e106e83c0a0682876cce35db79607eeee60995a",
+  "worktree_sha256": "164c2ac381d620a4fb24eb339e106e83c0a0682876cce35db79607eeee60995a",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:58.504006+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Legacy WPF blue palette with dark cart and header.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "BrandPrimaryColor",
+      "reasoning": "Primary#0F52BA and action#0866E8 actualblue distinguishes active green WinUI clients; no runtime theme dictionary."
+    },
+    {
+      "anchor": "CartBackgroundColor",
+      "reasoning": "Dark cart#151C24/footer#11171E paired intended white/gray text. Surface/card remain light; consumers must choose correct text token."
+    },
+    {
+      "anchor": "WarningColor",
+      "reasoning": "Semantic warning#D97706/success#059669/danger#DC2626 with dedicated hover colors. Numeric color definition alone not uservisible state without consumer."
+    },
+    {
+      "anchor": "TextPrimaryBrush",
+      "reasoning": "Each brush references preceding Color, no dynamic SystemColors/highcontrast resources. TextPrimarydark on light and TextOnDarkwhite separate responsibilities."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED; resource definitions no callable symbols, DB/printing transactions NOT_APPLICABLE. Need consumer-specific contrast/highcontrast and legacy layout tests.",
+  "recommendations": "Keep legacy palette findings separate from active WinUI UI002; no global resource edits authorized.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

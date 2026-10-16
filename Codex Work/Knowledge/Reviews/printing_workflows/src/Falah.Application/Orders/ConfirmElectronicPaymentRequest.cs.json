@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Orders/ConfirmElectronicPaymentRequest.cs",
+  "source_git_blob_sha256": "68e0c3ba5b014d60604f18bc199befd9e4210ef7f6b858fdbfbf73dd03849747",
+  "worktree_sha256": "68e0c3ba5b014d60604f18bc199befd9e4210ef7f6b858fdbfbf73dd03849747",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.482674+00:00",
+  "scope": "Explicit tiny exception constructor/accessor contracts individually inspected; no inference of downstream handler correctness",
+  "symbols": [
+    {
+      "stable_id": "sym-2631641b08b58ccd05a5c9c09610ecf5a25ecfcbdafcb84048707c030c88fd67",
+      "status": "ANALYZED",
+      "reasoning": "ConfirmConflictException constructor forwards supplied message to Exception unchanged; it introduces no inner exception, HTTP status, identity validation or retry behavior. The distinct exception type selects electronic confirm409 in endpoint catches. Throwing it is not by itself proof a transaction rolled back or operation never committed.",
+      "inputs": "string message",
+      "outputs": "ConfirmConflictException instance",
+      "side_effects": "Exception message allocation only",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "Operator message can carry caller/DB-derived details; callers must avoid secrets. The type does not make arbitrary retries safe.",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "electronic confirm409",
+        "System.Exception(message)",
+        "Program explicit typed catch when present"
+      ],
+      "evidence_source_span": [
+        14,
+        14
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

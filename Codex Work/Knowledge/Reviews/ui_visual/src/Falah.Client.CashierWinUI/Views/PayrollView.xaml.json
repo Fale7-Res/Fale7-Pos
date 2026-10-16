@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/PayrollView.xaml",
+  "source_git_blob_sha256": "aa4ff8884875a9052c1fb8dad6c6666cc41b80c9fd1513f712480944c6a7cb89",
+  "worktree_sha256": "4842e9bfbd64f181656205f57c2e8787dea17d8f62f7c1f035141b31f123f5de",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:34:58.795246+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Monthly payroll run selection, lines, transition and pay overlay.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "CreateRunCommand",
+      "reasoning": "Period input disabled CanEditAction and creation visibility CanManage; refresh icon lacks accessible name. No generic recovered-operation retry button outside live run context."
+    },
+    {
+      "anchor": "Lines",
+      "reasoning": "Line table shows employee paid status, base, additions/subtractions breakdown and net. Fixed470px amount columns plus320px run pane squeezes name at narrow workspace. Eager rows, vertical-only scrolling."
+    },
+    {
+      "anchor": "AdvanceRunCommand",
+      "reasoning": "Next action visible only NextStatusLabel and enabled CanAdvance, both transient selected-run derived. This markup corroborates UI017 recovered transition cannot reach independent retry action when selection absent."
+    },
+    {
+      "anchor": "OpenPayCommand",
+      "reasoning": "Pay button gated approved/unpaid + CanOpenPay; dialog only IsPayOpen, SelectedRun period and account. No automatic markup hydration from retained pay DTO; UI017 persistence recovery remains source-confirmed risk."
+    },
+    {
+      "anchor": "PayRunCommand",
+      "reasoning": "Payment account disabled CanEditAction, submit static confirmation caption. Server debits and employee settlements promised explicitly, so financial write context is visible. No actual payout executed."
+    },
+    {
+      "anchor": "ActionNote",
+      "reasoning": "Literal white on TextPrimaryBrush toast repeats dark-theme contrast root; action error separate danger toast. No native focus trap or live announcement declared."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need new-process retained transition/pay UI recovery, reverse completion selected-line loads, wide monetary values, dark toast and narrow viewport. No callable XAML symbols.",
+  "recommendations": "Expose pending operation reconciliation independent of selected run/dialog; retain exact original target/account and semantic toast colors.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

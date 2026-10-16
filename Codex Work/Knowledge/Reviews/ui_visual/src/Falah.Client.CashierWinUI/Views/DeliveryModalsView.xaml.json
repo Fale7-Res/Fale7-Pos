@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml",
+  "source_git_blob_sha256": "bcafbba25a3ff7f1a83314feee487cbbece5ad59c49fa84b17cc6787aa0f99a0",
+  "worktree_sha256": "31281118fdd01405b6d84a897d70499c3b879fab73c882c27a3c8158972f066f",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:37:58.297704+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Delivery assignment, result, driver account/statistics and settlement overlays.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "ConfirmAssignCommand",
+      "reasoning": "Assignment explicitly states physical handoff/custody creation, not draft reservation. Driver selection disabledCanEditAction, submit command guards. Fixed440 centered stack has no vertical scroll/maxheight, long errors/scaling can exceed viewport."
+    },
+    {
+      "anchor": "SetOutcomeResultCommand",
+      "reasoning": "Delivered/failed/returned categories distinct; failed fixed-code reasons root command, delivered actual collection/reason fields, generic note. Numeric text disabledCanEditAction but segment/reason buttons rely model guards."
+    },
+    {
+      "anchor": "ConfirmOutcomeCommand",
+      "reasoning": "460max640 full scroll covers error/submit. Error labels static action rather than explicit retry. Model retained exact decision tested same-process independently."
+    },
+    {
+      "anchor": "AccountDriver.Name",
+      "reasoning": "Account title identity separate DriverAccount payload and statistics. Async VM must ensure both match current driver after every await; markup cannot verify identity and shows no IDs."
+    },
+    {
+      "anchor": "SelectedStatsPeriod",
+      "reasoning": "Stats period and custom stacked DatePickers remain editable during settlement pending because no CanEditAction gate; purely read filters should not alter immutable settlement request. Account statistics currency/counts/averaged time real DTO labels."
+    },
+    {
+      "anchor": "DriverAccount.BlockingOrders",
+      "reasoning": "Blocking orders listed explicitly, custody/active/unsettled counts distinct. Account/state visible independently of loadingspinner; stale read clearing belongs VM."
+    },
+    {
+      "anchor": "SettleDriverCommand",
+      "reasoning": "Actual delivered cash, required variance reason, conditional managerPIN and error/success all scroll before settlementbutton.480max700 dialog bounded, static submit label; no physical printer action."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test reverse account/stat results, actual status legality, retained restart overlays, long blockers/custom date ranges and focus. No callable XAML declarations.",
+  "recommendations": "Keep driver identity snapshot coherent and expose pending action retry independently of transient dialog state. Verify nonfinancial stats filters cannot disrupt pending financial target.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

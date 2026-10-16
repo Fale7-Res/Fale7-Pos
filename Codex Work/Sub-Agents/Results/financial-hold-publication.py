@@ -1,0 +1,5 @@
+import sys,json
+from pathlib import Path
+sys.path.insert(0,str(Path('Codex Work/Verification-Tools').resolve()));import knowledge_store as k
+p=k.WORK/'Sub-Agents/Checkpoints/financial_integrity.json';cp=json.loads(p.read_text(encoding='utf8'));cp['state']='HOLD_FOR_PARENT_PUBLICATION';cp['last_completed_file']='tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs';cp['partial_file']=None;cp['partial_symbol']=None;cp['unsaved_reasoning']='NONE: Treasury51 callable records and legacy file report/ledger now reconciled.';cp['blocker']='Parent requested HOLD writes until safe audit publication complete';cp['next_action']='Await parent release, then continue remaining48 original files; do not commit/push';cp['updated_at_utc']=k.now();k.atomic_json(p,cp)
+print('HOLD checkpoint saved')

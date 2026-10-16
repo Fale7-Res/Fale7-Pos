@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+  "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+  "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:31.970626+00:00",
+  "scope": "Every listed callable individually source-reasoned; interface declarations reviewed as contracts, not implementations",
+  "symbols": [
+    {
+      "stable_id": "sym-c3d20bee2f6443c45b625babea6a6b49d16818336bdbeb5ad85ee21d3bd99164",
+      "status": "ANALYZED",
+      "reasoning": "Retains exact Windows printer queue name. No queue existence/access check occurs until Send; construction alone neither prints nor proves availability. OS platform annotation is static tooling metadata, not a native-call runtime guard.",
+      "inputs": "printerName",
+      "outputs": "Windows transport instance",
+      "side_effects": "Field assignment",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Factory normally guards OS, direct callers still must use Windows",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "AgentOptions.CreateTransport",
+        "SendAsync"
+      ],
+      "evidence_source_span": [
+        25,
+        25
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9114822493844d1924a79aa791c565f0a69e35f74434b151df2159160e751eb5",
+      "status": "ANALYZED",
+      "reasoning": "Calls synchronous Send immediately, then returns completed Task. Cancellation argument is unused and no timeout wraps native calls. A blocking spooler/driver blocks agent poll and graceful stop; success only reports submission acceptance.",
+      "inputs": "payload,ct unused",
+      "outputs": "Completed Task or synchronous exception",
+      "side_effects": "Native spooler submission through Send",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-002/003; asynchronous signature does not make I/O nonblocking",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ProcessAsync",
+        "Windows Send"
+      ],
+      "evidence_source_span": [
+        29,
+        33
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-c40794494c662b82f9b6f4492b4339a70d03b9b3112e666e5fb95a91e200bbc7",
+      "status": "ANALYZED",
+      "reasoning": "Opens queue, starts RAW document/page, allocates/copies payload and checks WritePrinter boolean and exact byte count. Frees unmanaged buffer and closes page/document/printer in finally. Discards returned spooler job ID and all EndPage/EndDoc/Close results, so finalization failure may report success. Partial write can already produce paper despite thrown failure.",
+      "inputs": "queue name and rendered bytes",
+      "outputs": "void or descriptive exception",
+      "side_effects": "Native queue job submission; unmanaged allocation",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-002/003. RAW protects bytes from document rendering but not driver/hardware status; no physical acknowledgement",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "SendAsync",
+        "OpenPrinter",
+        "StartDocPrinter",
+        "StartPagePrinter",
+        "WritePrinter",
+        "EndPagePrinter",
+        "EndDocPrinter",
+        "ClosePrinter"
+      ],
+      "evidence_source_span": [
+        37,
+        83
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-b6148fd73881575bccc4bd94af2f2c93b033c119a2de40a57c622cd3d1915339",
+      "status": "ANALYZED",
+      "reasoning": "Reads last captured Win32 error and formats message via Win32Exception. P/Invokes declare SetLastError so runtime preserves the error immediately after failed calls. The helper does not identify actual printer state and may expose machine-specific detail in logged error.",
+      "inputs": "Thread last Win32 error",
+      "outputs": "error message string",
+      "side_effects": "No printer operation",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Must call before unrelated native calls alter error; current failure branches call immediately",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send failure branches",
+        "Marshal.GetLastWin32Error",
+        "Win32Exception.Message"
+      ],
+      "evidence_source_span": [
+        85,
+        85
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-2350bbe5045d0dccca23581b7f4a7bf9871483d95f1734808e6f9d58c7cbb9fe",
+      "status": "ANALYZED",
+      "reasoning": "Unicode OpenPrinterW import marshals queue string and outputs native handle; return bool is checked by Send before using handle. Ownership belongs finally ClosePrinter only after successful open. A true return means queue handle, not online device.",
+      "inputs": "LPWStr queue name,out handle,defaults pointer",
+      "outputs": "bool + handle",
+      "side_effects": "Native handle open if executed",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Can block; ct/timeout not passed. Permission/access errors propagate through LastErrorMessage",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send OpenPrinter branch",
+        "winspool.drv OpenPrinterW"
+      ],
+      "evidence_source_span": [
+        95,
+        96
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-8761f478d39b07f83253788423476602c05b42e89183fbc0e05a9861a92e0633",
+      "status": "ANALYZED",
+      "reasoning": "ClosePrinter import returns bool and captures native error, but Send finally ignores return. Handle release failure is not observable in job report; this cannot be treated as physical print confirmation.",
+      "inputs": "native handle",
+      "outputs": "bool",
+      "side_effects": "Releases spooler handle if invoked",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Potential native resource diagnostic gap; no separate leak measurement",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send finally",
+        "winspool.drv ClosePrinter"
+      ],
+      "evidence_source_span": [
+        98,
+        99
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-b44508feb848fffbb991eae19459eeaa4a51e010c32c27980f39ae8147a26a20",
+      "status": "ANALYZED",
+      "reasoning": "Unicode StartDocPrinterW accepts level1 DocInfo containing RAW datatype and returns nonzero spooler job ID on success. Caller checks zero but discards useful ID; cannot later correlate or monitor exact submission, also limiting safe printer test cleanup.",
+      "inputs": "handle,level1,DocInfo",
+      "outputs": "job ID integer or0",
+      "side_effects": "Starts spooler document job",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-002 and PRT-005 exact job ownership missing",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send",
+        "DocInfo LPWStr fields",
+        "winspool.drv StartDocPrinterW"
+      ],
+      "evidence_source_span": [
+        101,
+        102
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-2212bb2a84950dfdc98be34f9a3a0164f0387b0f7eafb84adf55855436dad291",
+      "status": "ANALYZED",
+      "reasoning": "EndDocPrinter signals document completion to spooler and returns boolean. Caller invokes in finally even if page/write throws and ignores returned failure. Thus successful WritePrinter followed by failed finalization can still return normally.",
+      "inputs": "handle",
+      "outputs": "bool",
+      "side_effects": "Finalizes submitted document",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-003 unchecked finalization; failed prior send may still leave accepted partial job",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send finally",
+        "winspool.drv EndDocPrinter"
+      ],
+      "evidence_source_span": [
+        104,
+        105
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-bab4eb932c5d400ec86022a97caea9f98a8beb47c0fbed4c32e2a677f6c7402a",
+      "status": "ANALYZED",
+      "reasoning": "StartPagePrinter starts spooler page; caller checks boolean and throws on false, while finally still ends document. No page number/status feedback or physical paper position is established.",
+      "inputs": "handle",
+      "outputs": "bool",
+      "side_effects": "Starts page within native document",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No cancellation/timeout; start failure could leave document cleanup uncertainty",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send",
+        "winspool.drv StartPagePrinter"
+      ],
+      "evidence_source_span": [
+        107,
+        108
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9b1184bfae970f31283be63fbb27ffa74844512ddf23169e3bbaba2b26622f9e",
+      "status": "ANALYZED",
+      "reasoning": "EndPagePrinter ends current page and returns boolean but caller ignores it. Unlike checked StartPage/Write this failure is invisible to processor and can be mislabeled successful submission.",
+      "inputs": "handle",
+      "outputs": "bool",
+      "side_effects": "Native page finalization",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-003 result must be checked while preserving original exceptions",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send finally",
+        "winspool.drv EndPagePrinter"
+      ],
+      "evidence_source_span": [
+        110,
+        111
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-530d276b90b52191092229231e273963e6245e9c456b76587f8cd72fde42ec52",
+      "status": "ANALYZED",
+      "reasoning": "WritePrinter native import receives unmanaged payload pointer and count, returns bool plus written count. Caller pins via allocated copy and validates short write. Buffer remains valid until native call returns and is freed afterward. Written count is spooler acceptance, not paper count.",
+      "inputs": "handle,pointer,length,out written",
+      "outputs": "bool and accepted byte count",
+      "side_effects": "Native RAW payload write",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Partial send can occur before reported false/short count; requires uncertain outcome handling",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Send unmanaged copy/try/finally",
+        "winspool.drv WritePrinter"
+      ],
+      "evidence_source_span": [
+        113,
+        114
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

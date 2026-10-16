@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+  "source_git_blob_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+  "worktree_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.137030+00:00",
+  "scope": "Explicit tiny exception constructor/accessor contracts individually inspected; no inference of downstream handler correctness",
+  "symbols": [
+    {
+      "stable_id": "sym-bc9f7606a8058a5a37e3165a770a5042af7d642fa7cd0cdde5a2681064496f53",
+      "status": "ANALYZED",
+      "reasoning": "Blockers getter returns the list reference assigned by the exception constructor. IReadOnlyList prevents mutation through this API but does not clone the underlying collection, so another owner can still change it before response serialization. It contains business blockers, not database commands.",
+      "inputs": "stored blockers reference",
+      "outputs": "IReadOnlyList<CloseBlockerDto>",
+      "side_effects": "None",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "Collection snapshot not guaranteed; caller presently builds result then throws",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "BusinessDayCloseBlockedException constructor",
+        "Program business-day close422 blockers serialization"
+      ],
+      "evidence_source_span": [
+        62,
+        62
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-586f3d7655c67391f6321d5f2ef675d24ae8a3254a58bf7e472f332079f9b450",
+      "status": "ANALYZED",
+      "reasoning": "Constructor fixes operator-facing Arabic message and retains supplied blockers list for typed close rejection. It does not rerun close validation, copy collection or execute SQL. Endpoint catches this type before generic DomainException and includes blockers in422 response.",
+      "inputs": "blocker list",
+      "outputs": "exception with message/list",
+      "side_effects": "Assigns list reference",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "List contents may expose entity IDs/reasons; underlying collection mutable",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "CloseBusinessDayHandler",
+        "Program close endpoint catch"
+      ],
+      "evidence_source_span": [
+        63,
+        64
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

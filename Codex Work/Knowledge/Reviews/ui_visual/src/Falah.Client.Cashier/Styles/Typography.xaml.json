@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Styles/Typography.xaml",
+  "source_git_blob_sha256": "7811af162cc08decd013a7af16e5a2ba435bfd5465ccbf6b2f75418fd103db06",
+  "worktree_sha256": "7811af162cc08decd013a7af16e5a2ba435bfd5465ccbf6b2f75418fd103db06",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:58.604167+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Legacy WPF keyed Segoe UI Arabic typography.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "TextBase",
+      "reasoning": "Base fixesRTL and dark foreground. Total24Black/title20Black/section14ExtraBold reflect explicit nominal sizes, not independent rendering evidence."
+    },
+    {
+      "anchor": "ProductNameText",
+      "reasoning": "15ExtraBold wraps; price16Blackbrand, category12Boldcenter, badge11Bold. Muted11 smaller user text may need scale review."
+    },
+    {
+      "anchor": "CartItemNameText",
+      "reasoning": "13Boldwhite specifically dark cart. Different from active and CallCenter16dark styles; do not assume interchangeable shared resource behavior."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED; no callable declarations. Arabic glyph fallback/native DPI, contrast and reading order remain unobserved.",
+  "recommendations": "Validate only if legacy client deployed; preserve active frontend distinction.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

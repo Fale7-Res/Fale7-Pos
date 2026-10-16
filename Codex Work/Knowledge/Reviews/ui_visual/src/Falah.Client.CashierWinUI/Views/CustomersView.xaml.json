@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/CustomersView.xaml",
+  "source_git_blob_sha256": "4d204d42de6e180722e2639e6bd6424a4ea1d54514ee6519d12289e483591477",
+  "worktree_sha256": "6473eea3e9456dd17a7c42a7045722f5e10f15f2f4c0d02d6049beed952bc007",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:33:14.300199+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Phone identity lookup and saved customer address read.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "PhoneQuery",
+      "reasoning": "Immediate two-way phone search, input remains editable during IsSearching; VM generation check required to prevent stale customer under new query. Search input TelephoneNumber helps keypad, not normalization."
+    },
+    {
+      "anchor": "Customer.Phone",
+      "reasoning": "Result card displays actual result phone and name, allowing operator to detect mismatch, unlike only query heading. No write buttons or list-all invented API."
+    },
+    {
+      "anchor": "Addresses",
+      "reasoning": "Area150, address star, service160; address concatenates street/building/landmark but omits floor/apartment and notes despite saved delivery address having them. Read view is incomplete for distinguishing units, not database loss."
+    },
+    {
+      "anchor": "ZeroCountToVisibleConverter",
+      "reasoning": "Empty address binds Count for updates correctly. HasCustomer gates both card/table; loading/error/notfound/initial instructions separately bound."
+    },
+    {
+      "anchor": "AwaitingFirstSearch",
+      "reasoning": "Instruction promises saved addresses and order history, but no order history section or binding exists in this file. Source UI copy promises unavailable content; backend history may exist elsewhere, not proof missing system component."
+    },
+    {
+      "anchor": "SearchCommand",
+      "reasoning": "Retry explicit and error wraps. Vertical scroll accommodates long results; eager addresses bounded by one customer but unbounded count contract unknown."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need delayed phone query race, same-building multiple unit records, unavailable customer, empty addresses and native screen reader field names. No callable declarations.",
+  "recommendations": "Show full address identity and align instructional promise with visible functionality; guard async query result in VM.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

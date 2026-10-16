@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/PrintingView.xaml",
+  "source_git_blob_sha256": "641baeb22fbefd88a07b53020f928952e499280d7ebf5aec0f63a958a1db40fa",
+  "worktree_sha256": "27d2860676346f2a6c2e7d8f0f30fe9d583174ecc20a52c07353f480cbdc4f57",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:34:58.940235+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Read-only logical print queue/status and attention panel.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "HeadlineState",
+      "reasoning": "Explicitly distinguishes queued software command from actual paper printed. No reprint, retry, test print or physical printer submission command in this view."
+    },
+    {
+      "anchor": "Queues",
+      "reasoning": "Horizontal StackPanel with each route min230px plus12gap, no wrap/horizontal ScrollViewer. Four current routes already require956px before card padding; native overflow at narrow workspace likely but unobserved. Six-route VM omission UI009 separate."
+    },
+    {
+      "anchor": "SelectRouteCommand",
+      "reasoning": "Route ID passed to root command; button displays pending/state/waiting/last success, combining textual state with color rather than color alone."
+    },
+    {
+      "anchor": "RouteJobs",
+      "reasoning": "Order/status/age/error list uses fixed410px columns plus error star alongside fixed380px attention pane. Source layout width pressure severe at small terminal sizes; native measurement needed."
+    },
+    {
+      "anchor": "HasNoPending",
+      "reasoning": "Empty queue text says all tickets were pulled, which is narrower than confirmed physical paper success and must be interpreted using banner. Failure/attention list remains independently visible."
+    },
+    {
+      "anchor": "NeedsAttention",
+      "reasoning": "Cross-route list shows logical route, age and errors, no automatic recovery action. Counts bound via Count for empty state. Loading/error overlays only selected jobs, route and attention areas may retain stale data on failure."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No physical tickets. Need all6 routes,4route narrow width, stale error data, logical delivered versus physical success wording and accessible refresh icon tests. No callable declarations.",
+  "recommendations": "Use adaptive/wrapping route cards and queue widths; preserve explicit queue-versus-paper distinction and inspect PrintAgent independently.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

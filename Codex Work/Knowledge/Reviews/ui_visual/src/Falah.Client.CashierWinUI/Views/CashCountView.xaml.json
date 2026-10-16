@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/CashCountView.xaml",
+  "source_git_blob_sha256": "fdff24543c12481850d000b35f23422e46bf56717cd7a49ff23f0e25461b76b0",
+  "worktree_sha256": "806baf939a784987a0ba222702bed49c9a0dd272791e9d52608fe6b8b9a5dfb3",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:33:14.733678+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Physical denomination count entry and same-day count history overlay.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "Rows",
+      "reasoning": "Denomination label130 and total140 around quantity star; root CanAct disables quantity. Forty-eight pixel input and numeric scope aid touch. No automatic cash/ledger mutation in markup."
+    },
+    {
+      "anchor": "CountedTotalDisplay",
+      "reasoning": "Explicitly labels local sum a counting aid; ExpectedText remains operator input. Server calculation of difference must not be confused with independently measured expected ledger balance."
+    },
+    {
+      "anchor": "History",
+      "reasoning": "Shows counted/expected/difference only, without count time or operator. Multiple same-day entries indistinguishable beyond amounts; result identity/date context supplied by VM/server not shown."
+    },
+    {
+      "anchor": "IsLoading",
+      "reasoning": "Loading/error overlays denomination pane only; total/history pane still present and can retain stale data during refresh. Native VM flag sequencing needed before claiming stale actual behavior."
+    },
+    {
+      "anchor": "SaveLabel",
+      "reasoning": "Caption supports retry, action error/note pinned with save while body scrolls. Max1020, fixed330 side pane plus left minimum columns requires width validation on smaller terminals."
+    },
+    {
+      "anchor": "CloseCommand",
+      "reasoning": "Header uses VM close guard; Grid overlay contains no standalone focus confinement. Draft/recovered context control belongs VM retained request handling."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test physical count arithmetic boundaries, zero quantities, expected source clarity, restart retry, stale reload, history identification and narrow/scaled layout. No callable declarations.",
+  "recommendations": "Expose time/operator for count history and explain expected balance provenance; verify atomic snapshot/retry without writing actual counts during audit.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

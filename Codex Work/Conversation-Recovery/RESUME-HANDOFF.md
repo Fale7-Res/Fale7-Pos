@@ -1,3 +1,18 @@
+# CURRENT VERIFIED RECOVERY — 2026-10-16 after 08f1fad
+
+This top section supersedes older counts/instructions retained below as historical evidence. HEAD/reference publication08f1fadc9b31d6cd4a90fe7b0db5086dfd511471; source baselinec35816ecae49633674775dd32061c6ee92f94aaf remains hash-identical. Latest user explicitly authorizes normal safe Codex Work commit/push, no application changes or force/history rewrite.
+
+Current on-disk receipts:610 files,80 remaining(48financial,14UI,18parent). Knowledge743 exact stable callable author receipts:317financial,38UI,388printing;10910 indexed IDs remain without such receipts. Parent flagged130 route receipts in17 repeated-reasoning groups for deeper validation. Do not call743 independently approved function audits. Legacy507 heading matches stay separate/unpromoted. Ten non-C# functions have saved manual reasoning but no parent stable map yet.
+
+Canonical registry: Deep-Audit/MASTER_FINDINGS.json,42 preserved source finding/candidate records. SEC00121-case matrix saved in Sub-Agents/Results/SEC001-printing-entrypoints.json; full MinimalAPI harness has NOT run, only earlier3 parser/middleware cases. All original agents recovered; no replacement or hidden-context claim. Their files/checkpoints are current; all holding writes for publication. Financial Treasury unsaved-ledger gap was reconciled.
+
+Next: finish safe publication checks and normal commit/push; then release original agents to remaining assignments, require atomic checkpoints, address exact130-symbol quality queue, map10 non-C# functions and continue SEC001 defensive boundary verification without live sessions/DB. Parent retains dependency/SBOM, performance,18 parent files, canonical merges and global validation. Never run initial reset generators.
+
+Detailed recovery: Recovery-After-08f1fad.json. Stable schema/coverage: Knowledge/README.md and Knowledge/coverage-index.json (paths relative to Codex Work). No database or printer operations were performed.
+
+---
+# HISTORICAL HANDOFFS — retained verbatim
+
 # Resume handoff
 
 Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`, main. Re-run Git and verified-baseline-hashes checks before relying on findings. Application source unchanged; only Codex Work is newly untracked. Audit only, no application fixes or state-changing tests.

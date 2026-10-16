@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/DeliveryDirectoryView.xaml",
+  "source_git_blob_sha256": "464ee93909bc32a6d92cb354e677b356b53ac23ef32e19b32ab3b912f0bf117b",
+  "worktree_sha256": "f05e5df544b463bc1d35f5a16765a3ffaa3916df31747c4a1b4bdc9c1b2ca5c1",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:35:38.204109+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Driver and delivery service add/edit/retire overlay.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SetTabCommand",
+      "reasoning": "Drivers/services segmented tabs pass explicit keys. Selected white/brand versus neutral/muted; converter theme refresh risk UI004 shared. CanAct guards input/actions, tab command must preserve unresolved state."
+    },
+    {
+      "anchor": "ToggleDriverCommand",
+      "reasoning": "Driver name add and active toggle, no harddelete. Text+pill shows active/inactive. Actual relationship to Employee/CanDeliver must be verified backend; this markup alone does not prove duplicate identity model."
+    },
+    {
+      "anchor": "SelectServiceCommand",
+      "reasoning": "Service list shows nullable fee as unvalued rather than0, selected root command target explicit; empty Count updates bound correctly. Fixed330px form beside list may constrain narrow viewport."
+    },
+    {
+      "anchor": "ServiceFeeText",
+      "reasoning": "Fee optional and active only existing service, two-way fields gatedCanAct. Note promises old orders retain snapshot name/fee; backend transaction/domain review determines truth."
+    },
+    {
+      "anchor": "ManagerPin",
+      "reasoning": "Conditional manager approval PasswordBox6, footer errors/success/load-retry. No actual PIN read. Retry-aware SaveLabel for service, but driveradd/toggle labels remain static even if retained outcome unknown."
+    },
+    {
+      "anchor": "CloseCommand",
+      "reasoning": "Max980x860 stretched margin24, body lists/form scroll independently, footer outside. No loading spinner despite LoadError; no generic recovered action panel in markup."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test nullfee versus0, old order snapshots, active driver links, permission approval and fresh-process retained action UI. XAML has no callable declarations.",
+  "recommendations": "Expose explicit retry context for every retained action, maintain historical snapshot contract, verify focus and narrow viewports.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

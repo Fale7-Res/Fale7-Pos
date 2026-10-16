@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/PurchasingView.xaml",
+  "source_git_blob_sha256": "2d10e37764373122269320bc697876bd1d1d7705b5f0b39b1761d0eb1feff4e9",
+  "worktree_sha256": "2a99b6deed643babf93ac4d39e883db2ac73ec2c9d297c04296c99c242e3c2c9",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:38:43.361278+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Supplier balances, payable aging and invoice settlement navigation.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "Suppliers",
+      "reasoning": "380px supplier pane with names/outstanding server amount and receive command. No supplier select needed for invoices list; no search/paging in markup. Current supplier balance not recomputed in view."
+    },
+    {
+      "anchor": "PayableBuckets",
+      "reasoning": "Horizontal nonwrapping aging buckets plus worst-overdue rows, explicitly separates unspecified due date from overdue. Entire summary autoheight can push invoice table below usable viewport; no outer summary scroll."
+    },
+    {
+      "anchor": "Purchases",
+      "reasoning": "Fixed620px invoice columns plus action beside380px supplier pane; width pressure at1366/largeDPI. Vertical-only ItemsControl eager rows, large amount fields do not wrap."
+    },
+    {
+      "anchor": "OpenDueDateCommand",
+      "reasoning": "Date button shows actual date or explicit no-date text and CanManage gate. Surrendering date has dedicated modal, not accidental blank formatting."
+    },
+    {
+      "anchor": "OpenPayCommand",
+      "reasoning": "Pay visible positive remaining; model must authorize and retain actual payment identity. Loading/error overlay only invoice list, stale supplier/aging snapshot can remain during refresh."
+    },
+    {
+      "anchor": "ActionNote",
+      "reasoning": "White toast on themed TextPrimary repeats dark contrast root. PurchasingModals declared last inherit sameVM and overlay page. No actual supplier/stock/treasury write executed."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need aged buckets plus long invoice list under small viewport, null due date, pending payment restart, partial read failure and dark feedback. No callable declarations.",
+  "recommendations": "Adapt columns/aging layout and show snapshot freshness. Preserve unspecified date versus real overdue semantics.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

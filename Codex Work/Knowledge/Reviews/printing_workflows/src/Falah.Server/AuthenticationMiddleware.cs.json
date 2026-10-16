@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+  "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+  "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:28:13.261643+00:00",
+  "scope": "All six actual callables individually reconciled; noncallable declarations remain indexed",
+  "symbols": [
+    {
+      "stable_id": "sym-a9fc70956750424a3976b1f001a9a407bd71be9f3efa5d4398d5357dad32ecd7",
+      "status": "ANALYZED",
+      "reasoning": "Stores exactly the supplied downstream RequestDelegate in _next; this constructor does not authenticate, rewrite a DTO or add a policy. Later InvokeAsync controls whether this delegate is reached. A null delegate would fail only on invocation, but ASP.NET middleware construction supplies it.",
+      "inputs": "RequestDelegate next",
+      "outputs": "Middleware instance retaining next delegate",
+      "side_effects": "Assigns private field only",
+      "trust_boundaries": "Framework middleware composition, not caller JSON",
+      "database": "NOT_APPLICABLE: no database operation",
+      "printing_ui": "NOT_APPLICABLE: no UI/printer access",
+      "performance": "Constant time reference assignment",
+      "duplicates_conflicts": "No duplicate registration enforced here",
+      "issues_hypotheses": "No constructor-specific vulnerability established; does not cure downstream actor trust",
+      "tests_missing": "Framework composition/registration smoke test; no new test executed",
+      "verified_callers_callees": [
+        "Program.cs:251 UseMiddleware registers this class",
+        "InvokeAsync calls retained _next"
+      ],
+      "evidence_source_span": [
+        20,
+        20
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+      "status": "ANALYZED",
+      "reasoning": "Separates anonymous/non-API paths from authenticated API; ResolveAsync supplies genuine user, then actor is stored in Items and body/query mismatch check controls403. It never overwrites body DTO actor. Therefore successful token resolution plus casing-skipped claim can reach a handler under a different body identity. Response401/403 returns before next; malformed body check is delegated.",
+      "inputs": "HttpContext path, Authorization header, request body/query; injected SessionService",
+      "outputs": "401 invalid session,403 mismatched recognized actor, or downstream pipeline continuation",
+      "side_effects": "Sets HttpContext.Items; writes error JSON; SessionService may update session LastSeen",
+      "trust_boundaries": "Bearer->genuine principal is authoritative only inside this middleware; body identity is separately checked incompletely",
+      "database": "ResolveAsync reads session/user and may SaveChanges for sliding expiry, so invoking this on live server would not be strictly read-only",
+      "printing_ui": "All clients and print agents traverse this boundary; no physical print here",
+      "performance": "One session/user lookup plus buffered body parse; session write throttled by service",
+      "duplicates_conflicts": "No endpoint-specific permission checks; bypassed request can later independently authorize wrong DB row",
+      "issues_hypotheses": "SEC001 source-traced parser differential; no real DB exploit executed",
+      "tests_missing": "Compare exactcamel/Pascal/mixed duplicate actor keys; valid/invalid session; anonymous health/login; downstream DTO actor equality",
+      "verified_callers_callees": [
+        "Program.cs:251 middleware registration",
+        "SessionService.ResolveAsync",
+        "FindActorMismatchAsync",
+        "_next(context)"
+      ],
+      "evidence_source_span": [
+        30,
+        82
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-0f9ed05c595e559bcd74e7f95ddd900021d7c02ee3b647dca160bff19200bf76",
+      "status": "ANALYZED",
+      "reasoning": "For each constant AnonymousPaths entry this predicate compares request path with OrdinalIgnoreCase. Only exact path equality passes; it does not use prefix matching, so adding a suffix cannot become anonymous through this predicate. Non-API paths use the separate surrounding branch.",
+      "inputs": "One anonymous path p captured request path",
+      "outputs": "Boolean exact case-insensitive equality",
+      "side_effects": "None",
+      "trust_boundaries": "Controls anonymous exception list only, not JSON actor names",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Health/login exemption affects clients before auth; no hardware",
+      "performance": "At most two small string comparisons",
+      "duplicates_conflicts": "No wildcard or startswith within this lambda",
+      "issues_hypotheses": "No bypass demonstrated for suffix paths; path normalization elsewhere not tested",
+      "tests_missing": "Exactpaths, casing, trailing slash and suffix fixture tests",
+      "verified_callers_callees": [
+        "AuthenticationMiddleware.InvokeAsync anonymous branch line36",
+        "AnonymousPaths constant array"
+      ],
+      "evidence_source_span": [
+        36,
+        36
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-c2203c2325345c8a3ae81ec81d90d07ed4ff5b2a0369643f51a2c6065761c4a8",
+      "status": "ANALYZED",
+      "reasoning": "Checks five actor aliases in query then parses JSON object and calls exact TryGetProperty for each camelCase alias. It compares only string/nonempty values and always rewinds buffered body. Alternate-cased JSON keys are not normalized, while default web DTO binding can accept them. ManagerApprover fields deliberately excluded; closedByUserId missing entirely is separate exposure. JsonException returns no mismatch rather than proving request valid.",
+      "inputs": "HttpContext query/body/content type; genuine authenticatedUserId",
+      "outputs": "First mismatched recognized field name or null",
+      "side_effects": "Enables buffering, consumes then resets body.Position; may spool large body through framework",
+      "trust_boundaries": "Untrusted JSON syntax identity compared separately from downstream model binder; SEC001 central mismatch",
+      "database": "NOT_APPLICABLE: no own DB calls",
+      "printing_ui": "Authentication gateway for all API clients; no renderer/printer",
+      "performance": "Double JSON parse for writes; buffer allocation/disk threshold; no own size ceiling",
+      "duplicates_conflicts": "Duplicate-case properties and last-value DTO semantics must be tested; query dictionary semantics differ",
+      "issues_hypotheses": "SEC001 alternate casing source trace. Missing closedByUserId not just casing; malformed/null actor cases need independent binder validation",
+      "tests_missing": "Real Http.Json options harness; Pascal/uppercase/duplicate casing/null/missing actor; malformed JSON; nonJSON content",
+      "verified_callers_callees": [
+        "InvokeAsync line69",
+        "JsonDocument.ParseAsync",
+        "JsonElement.TryGetProperty",
+        "request.Body.Position reset"
+      ],
+      "evidence_source_span": [
+        91,
+        133
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-6390359d72b7bfd8b681e6cf487c41c61ebc3e775d011437504533e941871452",
+      "status": "ANALYZED",
+      "reasoning": "Returns UserEntity from Items using exact ActorItemKey, or throws if missing/wrong type. This would provide authenticated identity if used, but repository search found no real endpoint/handler call sites. Its existence and XML comment do not establish bodyactor replacement.",
+      "inputs": "HttpContext.Items",
+      "outputs": "Genuine UserEntity or InvalidOperationException",
+      "side_effects": "None",
+      "trust_boundaries": "Items set by middleware would be server-owned; unused at current sinks",
+      "database": "NOT_APPLICABLE: returns entity reference but no query",
+      "printing_ui": "NOT_APPLICABLE",
+      "performance": "Constant dictionary/type check",
+      "duplicates_conflicts": "Method name Actor distinct from OrderMapper.ToActor; searched actual extension call sites",
+      "issues_hypotheses": "Unused authoritative extension leaves handlers body-authorized; SEC001 chain",
+      "tests_missing": "Test present/missing/wrongtype Items; route integration proving commands actually derive it after future fix",
+      "verified_callers_callees": [
+        "AuthenticationMiddleware.InvokeAsync sets Items line59",
+        "ActorId extension calls this method",
+        "No production consumer found by source search"
+      ],
+      "evidence_source_span": [
+        140,
+        142
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-6e92eae8659b13c0bf366d0164cb1f532a7e3a6b5a35dcf589d04a529669ddb9",
+      "status": "ANALYZED",
+      "reasoning": "Delegates to Actor(context).Id and therefore shares its throw behavior. It does not inspect request actor fields or rebind incoming DTOs. Search found no real command entrypoint invoking it, so it is not counterevidence to the casing vulnerability.",
+      "inputs": "HttpContext",
+      "outputs": "Authenticated user ID or propagated exception",
+      "side_effects": "None",
+      "trust_boundaries": "Would cross authenticated context into command identity if actually used",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "NOT_APPLICABLE",
+      "performance": "Constant after Items lookup",
+      "duplicates_conflicts": "No body identity overwrite by defining extension",
+      "issues_hypotheses": "Unused helper; source search scope src/**/*.cs",
+      "tests_missing": "Test delegation and actual route use after remediation",
+      "verified_callers_callees": [
+        "HttpContextActorExtensions.Actor",
+        "No endpoint production call found"
+      ],
+      "evidence_source_span": [
+        144,
+        144
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

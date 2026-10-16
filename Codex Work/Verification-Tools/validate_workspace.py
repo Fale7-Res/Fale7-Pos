@@ -31,7 +31,8 @@ eligible=[f['path'] for f in files]
 ignored=subprocess.run(['git','check-ignore','--stdin'],input='\n'.join(eligible)+'\n',text=True,cwd=ROOT,capture_output=True).stdout.splitlines()
 artifact_ignored=subprocess.run(['git','check-ignore','artifacts/local-runtime/data/placeholder.mdf'],cwd=ROOT,capture_output=True,text=True).returncode==0
 assert artifact_ignored
-assert not subprocess.check_output(['git','diff','--name-only'],cwd=ROOT)
+changed=subprocess.check_output(['git','diff','--name-only'],cwd=ROOT,text=True).splitlines()
+assert all(p.startswith('Codex Work/') for p in changed), 'Unexpected application-source change; stop publication'
 for e in m['entries']:
  if e.get('destination_path'):
   p=ROOT/e['destination_path'];e['current_workspace_sha256']=sha(p.read_bytes())

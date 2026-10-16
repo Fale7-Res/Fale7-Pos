@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+  "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+  "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.683504+00:00",
+  "scope": "Explicit tiny exception constructor/accessor contracts individually inspected; no inference of downstream handler correctness",
+  "symbols": [
+    {
+      "stable_id": "sym-e411002c61bb87d8d1d2ae0689e9e8b8817b310258cf5e339534b19127050fb3",
+      "status": "ANALYZED",
+      "reasoning": "PurchasingConflictException constructor forwards supplied message to Exception unchanged; it introduces no inner exception, HTTP status, identity validation or retry behavior. The distinct exception type selects purchasing409 in endpoint catches. Throwing it is not by itself proof a transaction rolled back or operation never committed.",
+      "inputs": "string message",
+      "outputs": "PurchasingConflictException instance",
+      "side_effects": "Exception message allocation only",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "Operator message can carry caller/DB-derived details; callers must avoid secrets. The type does not make arbitrary retries safe.",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "purchasing409",
+        "System.Exception(message)",
+        "Program explicit typed catch when present"
+      ],
+      "evidence_source_span": [
+        84,
+        84
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

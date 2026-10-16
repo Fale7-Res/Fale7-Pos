@@ -2,8 +2,8 @@
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "reviewer": "ui_visual",
   "counts": {
-    "REVIEWED_SOURCE": 224,
-    "NOT_ANALYZED": 50
+    "REVIEWED_SOURCE": 260,
+    "NOT_ANALYZED": 14
   },
   "files": [
     {
@@ -1099,10 +1099,72 @@
       "worktree_sha256": "155d8d02b6154f775b185637791b04ee4621a964b1781fa19a7ed89766a17e5d",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "BrandPrimaryColor",
+        "CartBackgroundColor",
+        "SuccessPillBrush",
+        "ShellNavSelectedColor",
+        "ProductImageGrillGradientBrush",
+        "CategoryBadgeBrush"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "BrandPrimaryColor",
+          "matchingSourceLines": [
+            12,
+            50
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CartBackgroundColor",
+          "matchingSourceLines": [
+            27,
+            60
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SuccessPillBrush",
+          "matchingSourceLines": [
+            121
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ShellNavSelectedColor",
+          "matchingSourceLines": [
+            95,
+            109
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ProductImageGrillGradientBrush",
+          "matchingSourceLines": [
+            135
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CategoryBadgeBrush",
+          "matchingSourceLines": [
+            147
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Styles/Colors.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Styles/Controls.xaml",
@@ -1112,10 +1174,125 @@
       "worktree_sha256": "3e0e132d15c7a74ba685af1057eb1f33b63d874bfe691ba1fef1bf0464e489c0",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "BaseButtonStyle",
+        "CtaButtonStyle",
+        "PaymentMethodButtonStyle",
+        "CategoryButtonStyle",
+        "NoteChipButtonStyle",
+        "SearchBoxStyle",
+        "IconButtonStyle",
+        "PageCardStyle",
+        "ShellNavViewStyle",
+        "DialogDestructiveButtonStyle"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "BaseButtonStyle",
+          "matchingSourceLines": [
+            19,
+            67,
+            74,
+            82,
+            87,
+            92,
+            100,
+            116,
+            130,
+            144,
+            167,
+            186,
+            216,
+            225,
+            332,
+            349,
+            451
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CtaButtonStyle",
+          "matchingSourceLines": [
+            74
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PaymentMethodButtonStyle",
+          "matchingSourceLines": [
+            116
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CategoryButtonStyle",
+          "matchingSourceLines": [
+            167,
+            178
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "NoteChipButtonStyle",
+          "matchingSourceLines": [
+            225
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SearchBoxStyle",
+          "matchingSourceLines": [
+            308
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IconButtonStyle",
+          "matchingSourceLines": [
+            332,
+            343
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PageCardStyle",
+          "matchingSourceLines": [
+            378,
+            387
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ShellNavViewStyle",
+          "matchingSourceLines": [
+            436
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DialogDestructiveButtonStyle",
+          "matchingSourceLines": [
+            444,
+            451
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Styles/Controls.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Styles/Typography.xaml",
@@ -1125,10 +1302,89 @@
       "worktree_sha256": "200dbee7a7909b23d5758585eee485830744037c5e17a9970878c49721bd3ecc",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "TextBase",
+        "TotalAmountText",
+        "ProductNameText",
+        "CartItemNameText",
+        "MetricValueText",
+        "StatusPillText"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "TextBase",
+          "matchingSourceLines": [
+            12,
+            19,
+            24,
+            29,
+            34,
+            38,
+            44,
+            51,
+            58,
+            65,
+            71,
+            81,
+            86,
+            91,
+            98,
+            103,
+            109,
+            113,
+            118,
+            124
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "TotalAmountText",
+          "matchingSourceLines": [
+            19,
+            78
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ProductNameText",
+          "matchingSourceLines": [
+            44
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CartItemNameText",
+          "matchingSourceLines": [
+            71
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "MetricValueText",
+          "matchingSourceLines": [
+            98
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "StatusPillText",
+          "matchingSourceLines": [
+            118
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Styles/Typography.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
@@ -1471,10 +1727,73 @@
       "worktree_sha256": "fa6fe4684602329cfc44514c3f1d957cfcd3858704c7320883752ce2886d7067",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsDeliveryEditorOpen",
+        "CustomerPhone",
+        "SavedAddresses",
+        "DeliveryServices",
+        "DeliveryBuilding",
+        "SaveDeliveryDetailsCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsDeliveryEditorOpen",
+          "matchingSourceLines": [
+            15
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CustomerPhone",
+          "matchingSourceLines": [
+            36
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SavedAddresses",
+          "matchingSourceLines": [
+            49,
+            50
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DeliveryServices",
+          "matchingSourceLines": [
+            66,
+            94,
+            95,
+            97
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DeliveryBuilding",
+          "matchingSourceLines": [
+            82
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SaveDeliveryDetailsCommand",
+          "matchingSourceLines": [
+            107
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml.cs",
@@ -1501,10 +1820,81 @@
       "worktree_sha256": "9e47e3d9fde09da74c2a2126485412d0e2b29243f1638661540cdfbe2b3c54be",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsHitTestVisible",
+        "DeliverySummary",
+        "EmptyCartHint",
+        "RemoveLineCommand",
+        "OnNoteChipClicked",
+        "WalletProvider",
+        "SubmitCallCenterOrderButton"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsHitTestVisible",
+          "matchingSourceLines": [
+            26,
+            76,
+            154
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DeliverySummary",
+          "matchingSourceLines": [
+            62
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "EmptyCartHint",
+          "matchingSourceLines": [
+            77
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RemoveLineCommand",
+          "matchingSourceLines": [
+            106
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OnNoteChipClicked",
+          "matchingSourceLines": [
+            135,
+            136
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "WalletProvider",
+          "matchingSourceLines": [
+            174
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SubmitCallCenterOrderButton",
+          "matchingSourceLines": [
+            201
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs",
@@ -1562,10 +1952,70 @@
       "worktree_sha256": "67022609cfa8b4a82b59f2b225725d921e8596defeda694af4a1a47bfef79eea",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsShiftOpen",
+        "CallCenterDeliveryEditorView",
+        "VariantPickerProduct.Variants",
+        "HasCheckoutResult",
+        "IsOrderLookupOpen",
+        "IsLookedUpPaymentUnconfirmed"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsShiftOpen",
+          "matchingSourceLines": [
+            16,
+            30
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CallCenterDeliveryEditorView",
+          "matchingSourceLines": [
+            59
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "VariantPickerProduct.Variants",
+          "matchingSourceLines": [
+            73
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasCheckoutResult",
+          "matchingSourceLines": [
+            97
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsOrderLookupOpen",
+          "matchingSourceLines": [
+            129
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsLookedUpPaymentUnconfirmed",
+          "matchingSourceLines": [
+            168
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml.cs",
@@ -1755,10 +2205,70 @@
       "worktree_sha256": "ba6bc3675c0037ac87cea8e12fbcdde86d2d52eae64dd522f8769a11a5b46f4a",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "ProductsGridView",
+        "FallbackIcon",
+        "StartingPriceDisplay",
+        "OnOfferTapped",
+        "Offer.FixedPricePiastres",
+        "RetryLoadMenuCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "ProductsGridView",
+          "matchingSourceLines": [
+            12
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FallbackIcon",
+          "matchingSourceLines": [
+            28
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "StartingPriceDisplay",
+          "matchingSourceLines": [
+            52
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OnOfferTapped",
+          "matchingSourceLines": [
+            69,
+            72
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Offer.FixedPricePiastres",
+          "matchingSourceLines": [
+            85
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RetryLoadMenuCommand",
+          "matchingSourceLines": [
+            111
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.cs",
@@ -2231,10 +2741,54 @@
       "worktree_sha256": "164c2ac381d620a4fb24eb339e106e83c0a0682876cce35db79607eeee60995a",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "BrandPrimaryColor",
+        "CartBackgroundColor",
+        "WarningColor",
+        "TextPrimaryBrush"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "BrandPrimaryColor",
+          "matchingSourceLines": [
+            11,
+            49
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CartBackgroundColor",
+          "matchingSourceLines": [
+            26,
+            59
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "WarningColor",
+          "matchingSourceLines": [
+            36,
+            67
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "TextPrimaryBrush",
+          "matchingSourceLines": [
+            74
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Styles/Colors.xaml.md"
     },
     {
       "path": "src/Falah.Client.Cashier/Styles/Controls.xaml",
@@ -2244,10 +2798,90 @@
       "worktree_sha256": "def517b56505b14025d5631195a2e74a85492e9f999dc7131674971ca2230e75",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "BaseButtonStyle",
+        "CtaButtonStyle",
+        "SegmentButtonStyle",
+        "CategoryButtonStyle",
+        "QuantityButtonStyle",
+        "CartItemCardStyle",
+        "PART_ContentHost"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "BaseButtonStyle",
+          "matchingSourceLines": [
+            13,
+            49,
+            56,
+            64,
+            69,
+            74,
+            82,
+            92,
+            113,
+            132,
+            162,
+            171
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CtaButtonStyle",
+          "matchingSourceLines": [
+            56
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SegmentButtonStyle",
+          "matchingSourceLines": [
+            82
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CategoryButtonStyle",
+          "matchingSourceLines": [
+            113,
+            124
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "QuantityButtonStyle",
+          "matchingSourceLines": [
+            162
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CartItemCardStyle",
+          "matchingSourceLines": [
+            153
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PART_ContentHost",
+          "matchingSourceLines": [
+            208
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Styles/Controls.xaml.md"
     },
     {
       "path": "src/Falah.Client.Cashier/Styles/Typography.xaml",
@@ -2257,10 +2891,52 @@
       "worktree_sha256": "7811af162cc08decd013a7af16e5a2ba435bfd5465ccbf6b2f75418fd103db06",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "TextBase",
+        "ProductNameText",
+        "CartItemNameText"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "TextBase",
+          "matchingSourceLines": [
+            12,
+            19,
+            24,
+            29,
+            34,
+            38,
+            44,
+            51,
+            58,
+            65,
+            71
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ProductNameText",
+          "matchingSourceLines": [
+            44
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CartItemNameText",
+          "matchingSourceLines": [
+            71
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Styles/Typography.xaml.md"
     },
     {
       "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
@@ -2678,10 +3354,51 @@
       "worktree_sha256": "bce17007bbd937253de6376da46eee1a93b4633e68e025f4e76198b08a25e305",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsShiftOpen",
+        "TimeText",
+        "LockCommand",
+        "UserName[0]"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsShiftOpen",
+          "matchingSourceLines": [
+            30
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "TimeText",
+          "matchingSourceLines": [
+            45
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "LockCommand",
+          "matchingSourceLines": [
+            50
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "UserName[0]",
+          "matchingSourceLines": [
+            60
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Views/AppHeaderView.xaml.md"
     },
     {
       "path": "src/Falah.Client.Cashier/Views/AppHeaderView.xaml.cs",
@@ -2738,10 +3455,52 @@
       "worktree_sha256": "ee6949eb110557636be5379d335094cc863e3537dc7fc7b937dba13ae4e4fb61",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "PinDisplay",
+        "UniformGrid",
+        "BoolToLoginLabelConverter",
+        "Width=\"440\""
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "PinDisplay",
+          "matchingSourceLines": [
+            20
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "UniformGrid",
+          "matchingSourceLines": [
+            27,
+            40
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "BoolToLoginLabelConverter",
+          "matchingSourceLines": [
+            42
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Width=\"440\"",
+          "matchingSourceLines": [
+            12
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Views/LoginView.xaml.md"
     },
     {
       "path": "src/Falah.Client.Cashier/Views/LoginView.xaml.cs",
@@ -3794,10 +4553,117 @@
       "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
       "normalized_lf_equivalent": true,
       "file_type": ".cs",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "MANUAL_FLOW_REVIEW",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "ReadResultAsync",
+        "GetOrdersAsync",
+        "GetCurrentBusinessDayAsync",
+        "GetAllUsersAsync",
+        "GetEmployeeFinancialReportAsync",
+        "GetRecipeCostDetailAsync",
+        "SetPurchaseDueDateAsync",
+        "GetTreasuryMovementsAsync",
+        "GetSalesReportAsync",
+        "GetDriverStatisticsAsync",
+        "CreatePrintJobsAsync"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "ReadResultAsync",
+          "matchingSourceLines": [
+            58,
+            97,
+            117,
+            131
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetOrdersAsync",
+          "matchingSourceLines": [
+            231
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetCurrentBusinessDayAsync",
+          "matchingSourceLines": [
+            261
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetAllUsersAsync",
+          "matchingSourceLines": [
+            341
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetEmployeeFinancialReportAsync",
+          "matchingSourceLines": [
+            381
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetRecipeCostDetailAsync",
+          "matchingSourceLines": [
+            460
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SetPurchaseDueDateAsync",
+          "matchingSourceLines": [
+            496
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetTreasuryMovementsAsync",
+          "matchingSourceLines": [
+            510
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetSalesReportAsync",
+          "matchingSourceLines": [
+            566
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "GetDriverStatisticsAsync",
+          "matchingSourceLines": [
+            656
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "CreatePrintJobsAsync",
+          "matchingSourceLines": [
+            711
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Services/ApiClient.cs.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
@@ -7315,10 +8181,71 @@
       "worktree_sha256": "8edc260f015677a3adbf7ebcc0d692e1333624f61c88b5843c61aea8d05b3594",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CanBrowse",
+        "OpenCorrectionCommand",
+        "AttendanceCorrectionCard",
+        "CorrectionRecord.Date",
+        "ActionNote",
+        "HasNoRecords"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CanBrowse",
+          "matchingSourceLines": [
+            27,
+            36
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenCorrectionCommand",
+          "matchingSourceLines": [
+            102
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "AttendanceCorrectionCard",
+          "matchingSourceLines": [
+            140
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CorrectionRecord.Date",
+          "matchingSourceLines": [
+            152
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            134,
+            135
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasNoRecords",
+          "matchingSourceLines": [
+            125
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/AttendanceView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/AttendanceView.xaml.cs",
@@ -7345,10 +8272,74 @@
       "worktree_sha256": "08ede66e41202c7c4823b988a653729671f0cf204916007aab57c873bbf8ac86",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "LoadCommand",
+        "SelectedCategory",
+        "TimestampUtc",
+        "Events",
+        "Severity",
+        "HasNoEvents"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "LoadCommand",
+          "matchingSourceLines": [
+            24,
+            107
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectedCategory",
+          "matchingSourceLines": [
+            31
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "TimestampUtc",
+          "matchingSourceLines": [
+            76
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Events",
+          "matchingSourceLines": [
+            63,
+            64,
+            111
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Severity",
+          "matchingSourceLines": [
+            33,
+            87,
+            88
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasNoEvents",
+          "matchingSourceLines": [
+            111
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/AuditView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/AuditView.xaml.cs",
@@ -7375,10 +8366,79 @@
       "worktree_sha256": "c6093c396f78cdb2533a94d86a2f2bb60af5d110a34166bddb7e369612357486",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CanManage",
+        "Grid.Row=\"2\"",
+        "FileNameConverter",
+        "ActionNote",
+        "IsRestoreOpen",
+        "MaxWidth=\"620\"",
+        "RestoreManagerPin"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CanManage",
+          "matchingSourceLines": [
+            26
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Grid.Row=\"2\"",
+          "matchingSourceLines": [
+            50
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FileNameConverter",
+          "matchingSourceLines": [
+            91
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            142,
+            143
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsRestoreOpen",
+          "matchingSourceLines": [
+            154
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "MaxWidth=\"620\"",
+          "matchingSourceLines": [
+            155
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RestoreManagerPin",
+          "matchingSourceLines": [
+            176
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/BackupView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/BackupView.xaml.cs",
@@ -7405,10 +8465,69 @@
       "worktree_sha256": "a076edb7603af83d2c463e3d75ae3f7ffd75a9b70669e8ce4769fb12dc12b309",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CompactOrderTypeButton",
+        "OpenPickupEditorCommand",
+        "RemoveLineCommand",
+        "OrderFooter",
+        "FooterCheckoutReason",
+        "FooterTotalAmount"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CompactOrderTypeButton",
+          "matchingSourceLines": [
+            11
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenPickupEditorCommand",
+          "matchingSourceLines": [
+            32
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RemoveLineCommand",
+          "matchingSourceLines": [
+            58
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OrderFooter",
+          "matchingSourceLines": [
+            84
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FooterCheckoutReason",
+          "matchingSourceLines": [
+            107
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FooterTotalAmount",
+          "matchingSourceLines": [
+            103
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs",
@@ -7438,10 +8557,70 @@
       "worktree_sha256": "806baf939a784987a0ba222702bed49c9a0dd272791e9d52608fe6b8b9a5dfb3",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "Rows",
+        "CountedTotalDisplay",
+        "History",
+        "IsLoading",
+        "SaveLabel",
+        "CloseCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "Rows",
+          "matchingSourceLines": [
+            47
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CountedTotalDisplay",
+          "matchingSourceLines": [
+            97
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "History",
+          "matchingSourceLines": [
+            108,
+            111
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsLoading",
+          "matchingSourceLines": [
+            76
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SaveLabel",
+          "matchingSourceLines": [
+            147
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CloseCommand",
+          "matchingSourceLines": [
+            20
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/CashCountView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/CashCountView.xaml.cs",
@@ -7768,10 +8947,71 @@
       "worktree_sha256": "6473eea3e9456dd17a7c42a7045722f5e10f15f2f4c0d02d6049beed952bc007",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "PhoneQuery",
+        "Customer.Phone",
+        "Addresses",
+        "ZeroCountToVisibleConverter",
+        "AwaitingFirstSearch",
+        "SearchCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "PhoneQuery",
+          "matchingSourceLines": [
+            29
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Customer.Phone",
+          "matchingSourceLines": [
+            41
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Addresses",
+          "matchingSourceLines": [
+            60,
+            85
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ZeroCountToVisibleConverter",
+          "matchingSourceLines": [
+            85
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "AwaitingFirstSearch",
+          "matchingSourceLines": [
+            105
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SearchCommand",
+          "matchingSourceLines": [
+            31,
+            99
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/CustomersView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/CustomersView.xaml.cs",
@@ -7920,10 +9160,70 @@
       "worktree_sha256": "f05e5df544b463bc1d35f5a16765a3ffaa3916df31747c4a1b4bdc9c1b2ca5c1",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SetTabCommand",
+        "ToggleDriverCommand",
+        "SelectServiceCommand",
+        "ServiceFeeText",
+        "ManagerPin",
+        "CloseCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SetTabCommand",
+          "matchingSourceLines": [
+            29,
+            33
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ToggleDriverCommand",
+          "matchingSourceLines": [
+            78
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectServiceCommand",
+          "matchingSourceLines": [
+            113
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ServiceFeeText",
+          "matchingSourceLines": [
+            165
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ManagerPin",
+          "matchingSourceLines": [
+            183
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CloseCommand",
+          "matchingSourceLines": [
+            21
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/DeliveryDirectoryView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/DeliveryDirectoryView.xaml.cs",
@@ -7950,10 +9250,81 @@
       "worktree_sha256": "31281118fdd01405b6d84a897d70499c3b879fab73c882c27a3c8158972f066f",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "ConfirmAssignCommand",
+        "SetOutcomeResultCommand",
+        "ConfirmOutcomeCommand",
+        "AccountDriver.Name",
+        "SelectedStatsPeriod",
+        "DriverAccount.BlockingOrders",
+        "SettleDriverCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "ConfirmAssignCommand",
+          "matchingSourceLines": [
+            37
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SetOutcomeResultCommand",
+          "matchingSourceLines": [
+            61,
+            65,
+            69
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ConfirmOutcomeCommand",
+          "matchingSourceLines": [
+            106
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "AccountDriver.Name",
+          "matchingSourceLines": [
+            118
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectedStatsPeriod",
+          "matchingSourceLines": [
+            157
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DriverAccount.BlockingOrders",
+          "matchingSourceLines": [
+            212,
+            215
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SettleDriverCommand",
+          "matchingSourceLines": [
+            246
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml.cs",
@@ -7980,10 +9351,73 @@
       "worktree_sha256": "1800c3471c45c7b83b202ef9db923007b2df099aa894dbbb5b2f8a1b7d772a1b",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "BoardSummary",
+        "Board",
+        "MarkReadyCommand",
+        "IsPaymentUnconfirmed",
+        "OpenDriverAccountCommand",
+        "ActionNote"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "BoardSummary",
+          "matchingSourceLines": [
+            28,
+            29
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Board",
+          "matchingSourceLines": [
+            28,
+            29,
+            78
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "MarkReadyCommand",
+          "matchingSourceLines": [
+            134
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsPaymentUnconfirmed",
+          "matchingSourceLines": [
+            124
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenDriverAccountCommand",
+          "matchingSourceLines": [
+            191
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            212,
+            213
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml.cs",
@@ -8010,10 +9444,73 @@
       "worktree_sha256": "c210c522ba356a0473873c57eb968b237b785ae4fcf9460bac17d8219bc0bbe0",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SelectCommand",
+        "HasForm",
+        "CompensationType",
+        "LifecycleStatus",
+        "NationalId",
+        "SaveLabel"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SelectCommand",
+          "matchingSourceLines": [
+            53
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasForm",
+          "matchingSourceLines": [
+            72,
+            191,
+            207
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CompensationType",
+          "matchingSourceLines": [
+            108,
+            109
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "LifecycleStatus",
+          "matchingSourceLines": [
+            149,
+            150
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "NationalId",
+          "matchingSourceLines": [
+            169
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SaveLabel",
+          "matchingSourceLines": [
+            205
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/EmployeeEditorView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/EmployeeEditorView.xaml.cs",
@@ -8070,10 +9567,71 @@
       "worktree_sha256": "e7524b5b22394f018518b97f1179dd84b32bffc72c665de11c7b1ef4ff268202",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsCountOpen",
+        "CountManagerPin",
+        "SubmitCountCommand",
+        "SetWasteTypeCommand",
+        "WasteQuantityText",
+        "IsWasteOpen"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsCountOpen",
+          "matchingSourceLines": [
+            10
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CountManagerPin",
+          "matchingSourceLines": [
+            39
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SubmitCountCommand",
+          "matchingSourceLines": [
+            47
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SetWasteTypeCommand",
+          "matchingSourceLines": [
+            78,
+            82,
+            86
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "WasteQuantityText",
+          "matchingSourceLines": [
+            92
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsWasteOpen",
+          "matchingSourceLines": [
+            54
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/InventoryModalsView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/InventoryModalsView.xaml.cs",
@@ -8335,10 +9893,75 @@
       "worktree_sha256": "c8ad0b49ce13bf745cfc62a555c0bdb5081ba7d44ddc89099194fe275a55da28",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CanOpenEditor",
+        "Products",
+        "TaxRules",
+        "PriceRules",
+        "ActionNote",
+        "ZeroCountToVisibleConverter"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CanOpenEditor",
+          "matchingSourceLines": [
+            28
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Products",
+          "matchingSourceLines": [
+            48,
+            73,
+            125
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "TaxRules",
+          "matchingSourceLines": [
+            137,
+            162
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PriceRules",
+          "matchingSourceLines": [
+            169,
+            184
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            193,
+            194
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ZeroCountToVisibleConverter",
+          "matchingSourceLines": [
+            162,
+            184
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/MenuView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/MenuView.xaml.cs",
@@ -8365,10 +9988,69 @@
       "worktree_sha256": "26442911aded9d8ccafb02f4c4b4f9e46d377ea60f85364ff63fc2e24197d81b",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SearchQuery",
+        "OpenOrderCommand",
+        "SelectedOrder.Items",
+        "SelectedOrder.PaymentMethod",
+        "IsDetailOpen",
+        "HasNoOrders"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SearchQuery",
+          "matchingSourceLines": [
+            32
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenOrderCommand",
+          "matchingSourceLines": [
+            90
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectedOrder.Items",
+          "matchingSourceLines": [
+            143
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectedOrder.PaymentMethod",
+          "matchingSourceLines": [
+            181
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsDetailOpen",
+          "matchingSourceLines": [
+            120
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasNoOrders",
+          "matchingSourceLines": [
+            112
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/OrdersView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/OrdersView.xaml.cs",
@@ -8425,10 +10107,72 @@
       "worktree_sha256": "4842e9bfbd64f181656205f57c2e8787dea17d8f62f7c1f035141b31f123f5de",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CreateRunCommand",
+        "Lines",
+        "AdvanceRunCommand",
+        "OpenPayCommand",
+        "PayRunCommand",
+        "ActionNote"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CreateRunCommand",
+          "matchingSourceLines": [
+            29
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Lines",
+          "matchingSourceLines": [
+            42,
+            69,
+            110
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "AdvanceRunCommand",
+          "matchingSourceLines": [
+            133
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenPayCommand",
+          "matchingSourceLines": [
+            137
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PayRunCommand",
+          "matchingSourceLines": [
+            218
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            191,
+            192
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/PayrollView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/PayrollView.xaml.cs",
@@ -8490,10 +10234,73 @@
       "worktree_sha256": "27d2860676346f2a6c2e7d8f0f30fe9d583174ecc20a52c07353f480cbdc4f57",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "HeadlineState",
+        "Queues",
+        "SelectRouteCommand",
+        "RouteJobs",
+        "HasNoPending",
+        "NeedsAttention"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "HeadlineState",
+          "matchingSourceLines": [
+            39
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Queues",
+          "matchingSourceLines": [
+            40
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectRouteCommand",
+          "matchingSourceLines": [
+            50
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RouteJobs",
+          "matchingSourceLines": [
+            113
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasNoPending",
+          "matchingSourceLines": [
+            163
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "NeedsAttention",
+          "matchingSourceLines": [
+            61,
+            63,
+            68,
+            188,
+            218
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/PrintingView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/PrintingView.xaml.cs",
@@ -8520,10 +10327,80 @@
       "worktree_sha256": "b871ffc43c860f736353206caa0e147a9f2fb5a9d7c691166c8d2fc34cb9264a",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "ProductsGridView",
+        "IsBestSeller",
+        "FallbackIcon",
+        "StationLabel",
+        "OnOfferTapped",
+        "Offer.FixedPricePiastres",
+        "RetryLoadMenuCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "ProductsGridView",
+          "matchingSourceLines": [
+            12
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsBestSeller",
+          "matchingSourceLines": [
+            36
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FallbackIcon",
+          "matchingSourceLines": [
+            28
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "StationLabel",
+          "matchingSourceLines": [
+            50,
+            51
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OnOfferTapped",
+          "matchingSourceLines": [
+            77,
+            80
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Offer.FixedPricePiastres",
+          "matchingSourceLines": [
+            93
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RetryLoadMenuCommand",
+          "matchingSourceLines": [
+            119
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs",
@@ -8591,10 +10468,81 @@
       "worktree_sha256": "b9018817d7b00c831bc050ee8bf4696b183711e1a3b3da2a03f251a3a0ca508f",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsSupplierOpen",
+        "ReceiveLines",
+        "SetReceivePaymentMethodCommand",
+        "ReceiveDueDateText",
+        "CostShiftAcknowledged",
+        "SubmitPayCommand",
+        "SubmitDueDateCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsSupplierOpen",
+          "matchingSourceLines": [
+            10
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ReceiveLines",
+          "matchingSourceLines": [
+            65
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SetReceivePaymentMethodCommand",
+          "matchingSourceLines": [
+            117,
+            121,
+            125,
+            129
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ReceiveDueDateText",
+          "matchingSourceLines": [
+            148
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CostShiftAcknowledged",
+          "matchingSourceLines": [
+            172
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SubmitPayCommand",
+          "matchingSourceLines": [
+            228
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SubmitDueDateCommand",
+          "matchingSourceLines": [
+            253
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/PurchasingModalsView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/PurchasingModalsView.xaml.cs",
@@ -8621,10 +10569,74 @@
       "worktree_sha256": "2a99b6deed643babf93ac4d39e883db2ac73ec2c9d297c04296c99c242e3c2c9",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "Suppliers",
+        "PayableBuckets",
+        "Purchases",
+        "OpenDueDateCommand",
+        "OpenPayCommand",
+        "ActionNote"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "Suppliers",
+          "matchingSourceLines": [
+            7,
+            39,
+            50,
+            78
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PayableBuckets",
+          "matchingSourceLines": [
+            100
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Purchases",
+          "matchingSourceLines": [
+            86,
+            177
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenDueDateCommand",
+          "matchingSourceLines": [
+            205
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenPayCommand",
+          "matchingSourceLines": [
+            209
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            236,
+            237
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/PurchasingView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/PurchasingView.xaml.cs",
@@ -8746,10 +10758,100 @@
       "worktree_sha256": "bd092a0d6f5c32d7ab025ea9d81cc23cb74ba120ac542ea4e2a84f633d647d55",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SelectedTheme",
+        "CanEdit",
+        "MenuUrl",
+        "DefaultOpeningCashText",
+        "HoldPreparationUntilPaymentConfirmed",
+        "SaveError",
+        "LoadError"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SelectedTheme",
+          "matchingSourceLines": [
+            43
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CanEdit",
+          "matchingSourceLines": [
+            22,
+            29,
+            35,
+            57,
+            59,
+            62,
+            70,
+            72,
+            74,
+            77,
+            79,
+            84,
+            99,
+            101,
+            103,
+            106,
+            112,
+            120,
+            122,
+            125,
+            128
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "MenuUrl",
+          "matchingSourceLines": [
+            85
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DefaultOpeningCashText",
+          "matchingSourceLines": [
+            108
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HoldPreparationUntilPaymentConfirmed",
+          "matchingSourceLines": [
+            129
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SaveError",
+          "matchingSourceLines": [
+            137,
+            139
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "LoadError",
+          "matchingSourceLines": [
+            153,
+            154
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/SettingsView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/SettingsView.xaml.cs",
@@ -8996,10 +11098,72 @@
       "worktree_sha256": "c527f98477b8576bc04336c4dc87d79145b168ea79ea815e7d0cfc9a8bfe2c12",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CanEditSelected",
+        "RetryUserActionCommand",
+        "SelectUserCommand",
+        "CreateUserCard",
+        "IsPinChangeOpen",
+        "ActionNote"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CanEditSelected",
+          "matchingSourceLines": [
+            63,
+            98,
+            170
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RetryUserActionCommand",
+          "matchingSourceLines": [
+            172
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectUserCommand",
+          "matchingSourceLines": [
+            140
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CreateUserCard",
+          "matchingSourceLines": [
+            188
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsPinChangeOpen",
+          "matchingSourceLines": [
+            232
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            182,
+            183
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/UsersView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/UsersView.xaml.cs",
@@ -9026,10 +11190,69 @@
       "worktree_sha256": "c63ecabc62fcae31e0a6d100538c5f41aa4352f7712a9de287ed8f82f1170d3a",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "BusinessDateLabel",
+        "Summary.TotalLossValuePiastres",
+        "Movements",
+        "NullablePiastresToDisplayConverter",
+        "HasNoLoss",
+        "LoadCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "BusinessDateLabel",
+          "matchingSourceLines": [
+            31
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Summary.TotalLossValuePiastres",
+          "matchingSourceLines": [
+            51
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Movements",
+          "matchingSourceLines": [
+            95
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "NullablePiastresToDisplayConverter",
+          "matchingSourceLines": [
+            112
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasNoLoss",
+          "matchingSourceLines": [
+            136
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "LoadCommand",
+          "matchingSourceLines": [
+            132
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/WasteView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/WasteView.xaml.cs",
@@ -9261,10 +11484,195 @@
       "worktree_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
       "normalized_lf_equivalent": true,
       "file_type": ".cs",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "MANUAL_FLOW_REVIEW",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "Money_entry_preserves_piastre_units(string input, long expected)",
+        "Ambiguous_or_unrepresentable_money_is_rejected(string input)",
+        "Exact_tender_and_change_use_egp_to_piastre_conversion()",
+        "SimpleLambdaExpression",
+        "Touch_keypad_replaces_the_initial_exact_amount()",
+        "SimpleLambdaExpression",
+        "Lost_checkout_response_retries_identical_payload_despite_changed_fields()",
+        "SimpleLambdaExpression",
+        "Lost_cash_movement_response_retries_even_if_form_is_now_invalid()",
+        "SimpleLambdaExpression",
+        "Malformed_success_response_is_unresolved(string body)",
+        "SimpleLambdaExpression",
+        "Draft_is_retained_per_user_across_navigation()",
+        "SimpleLambdaExpression",
+        "Tax_snapshot_uses_existing_domain_rounding_for_exact_tender()",
+        "SimpleLambdaExpression",
+        "Lost_refund_response_preserves_id_amount_and_reason()",
+        "SimpleLambdaExpression",
+        "Unauthorized_discount_never_reaches_checkout_api()",
+        "SimpleLambdaExpression",
+        "Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+        "SendAsync(HttpRequestMessage request, CancellationToken ct)"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "Money_entry_preserves_piastre_units(string input, long expected)",
+          "matchingSourceLines": [
+            15
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Ambiguous_or_unrepresentable_money_is_rejected(string input)",
+          "matchingSourceLines": [
+            21
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Exact_tender_and_change_use_egp_to_piastre_conversion()",
+          "matchingSourceLines": [
+            25
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Touch_keypad_replaces_the_initial_exact_amount()",
+          "matchingSourceLines": [
+            38
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Lost_checkout_response_retries_identical_payload_despite_changed_fields()",
+          "matchingSourceLines": [
+            48
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Lost_cash_movement_response_retries_even_if_form_is_now_invalid()",
+          "matchingSourceLines": [
+            71
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Malformed_success_response_is_unresolved(string body)",
+          "matchingSourceLines": [
+            85
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Draft_is_retained_per_user_across_navigation()",
+          "matchingSourceLines": [
+            94
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Tax_snapshot_uses_existing_domain_rounding_for_exact_tender()",
+          "matchingSourceLines": [
+            104
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Lost_refund_response_preserves_id_amount_and_reason()",
+          "matchingSourceLines": [
+            118
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Unauthorized_discount_never_reaches_checkout_api()",
+          "matchingSourceLines": [
+            134
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+          "matchingSourceLines": [
+            145
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+          "matchingSourceLines": [
+            153
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/CashierCorrectnessTests.cs.md"
     },
     {
       "path": "tests/Falah.Client.Tests/CloseoutRegressionTests.cs",
@@ -9567,10 +11975,58 @@
       "worktree_sha256": "3019f6a0484cce30ba52d22fc784451075fd7bb985af7375b91d4a1ff57af04d",
       "normalized_lf_equivalent": true,
       "file_type": ".cs",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "MANUAL_FLOW_REVIEW",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "Start(Window window)",
+        "ParenthesizedLambdaExpression",
+        "RunAsync(Window window, Grid host)",
+        "Bounds(string name)",
+        "SendAsync(HttpRequestMessage request, CancellationToken ct)"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "Start(Window window)",
+          "matchingSourceLines": [
+            24
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ParenthesizedLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "RunAsync(Window window, Grid host)",
+          "matchingSourceLines": [
+            33
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Bounds(string name)",
+          "matchingSourceLines": [
+            70
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+          "matchingSourceLines": [
+            130
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs.md"
     },
     {
       "path": "tests/Falah.Client.Tests/NativeManagementLayoutProbe.cs",

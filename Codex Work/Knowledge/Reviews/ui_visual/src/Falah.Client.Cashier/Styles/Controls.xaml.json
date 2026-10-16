@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Styles/Controls.xaml",
+  "source_git_blob_sha256": "def517b56505b14025d5631195a2e74a85492e9f999dc7131674971ca2230e75",
+  "worktree_sha256": "def517b56505b14025d5631195a2e74a85492e9f999dc7131674971ca2230e75",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:31:54.829635+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Legacy WPF control templates and POS resource styles.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "BaseButtonStyle",
+      "reasoning": "WPF Border uses Tag as CornerRadius, ContentPresenter hardcodescenteralignment despite ProductCard horizontalstretch setter. Mouseover/pressed/disabled opacity triggers .92/.82/.45; no custom focus trigger, default FocusVisualStyle may still render."
+    },
+    {
+      "anchor": "CtaButtonStyle",
+      "reasoning": "52fixedheight16Black whiteonactionblue. Primary/success/danger all share template; button keyboard command behavior remains WPF Button implementation."
+    },
+    {
+      "anchor": "SegmentButtonStyle",
+      "reasoning": "34height conflicts inherited48minimum; actual arrangedminimum wins dependingconstraints. Keypad64minimum. Explicit Width/Height are not sufficient measured hit targets."
+    },
+    {
+      "anchor": "CategoryButtonStyle",
+      "reasoning": "114x80white/dark and selectedactionwhite; product145x180fixed despite older comment208. Fixedheights can clip names/offers attextscale."
+    },
+    {
+      "anchor": "QuantityButtonStyle",
+      "reasoning": "Width30Height30 but inheritedMinHeight48 means narrow30 and at least48high; no backgroundforeground defined here so relies consumers/defaults. Notechip9px resetsMinHeight0, very small nominal hit target."
+    },
+    {
+      "anchor": "CartItemCardStyle",
+      "reasoning": "Darkcartcard with.8border and12padding. Light variant/offer pills independent. No runtime theme/highcontrast overrides."
+    },
+    {
+      "anchor": "PART_ContentHost",
+      "reasoning": "Implicit TextBox template supplies required named ScrollViewer host inside rounded Border. Replaces standard chrome without focused/error/read-only visual states; validationadorner may exist externally. Multilineverticalscroll behavior notexplicit."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No callable declarations. Need effective geometry/focus/validation/scaling tests if legacy deployed; activeWinUI separate.",
+  "recommendations": "Respect alignment TemplateBindings and explicit minsize choices in approvedfix; validate focus/error visibility natively.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

@@ -1,3 +1,5 @@
+> Latest recovery checkpoint: **610 file reports;80 files remaining**. Persistent stable callable receipts743, with130 awaiting depth-quality challenge; independently certified global function total remainsUNKNOWN. Canonical MASTER_FINDINGS.json now exists with42 preserved records. See [current recovery](../Conversation-Recovery/Recovery-After-08f1fad.json) and [knowledge coverage](../Knowledge/coverage-index.json). The original dated15-phase assessment below is preserved, not silently rewritten.
+
 # FALE7 POS — progress against the original 15 audit phases
 
 Assessment checkpoint: 2026-10-16, based on the saved evidence snapshot [latest evidence snapshot](phase-progress-evidence.latest.json) (the earlier snapshot is retained as phase-progress-evidence.json). This is an interim assessment, **not a completed audit**. Subsequent audit work can increase the counts; it does not retroactively change this checkpoint.

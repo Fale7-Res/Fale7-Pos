@@ -1,0 +1,18 @@
+from ui_persistent import *
+record(C+'Views/CallCenterView.xaml','CallCenter workspace composition and order/reprint overlays.',[
+ ('IsShiftOpen','No-shift pane offers refresh only; this client intentionally cannot open shift. Active workspace fixed420px intake plus remaining catalogue; no responsive breakpoint in markup.'),
+ ('CallCenterDeliveryEditorView','Shared VM inherited by nested address component. Later overlays stack variant, result, lookup, so VM exclusive flags essential; no native modal focus isolation defined.'),
+ ('VariantPickerProduct.Variants','Variant buttons root-command bind correctly; pending offer shown explicitly. MaxHeight500 stack has no ScrollViewer, many sizes/large text may clip; native unobserved.'),
+ ('HasCheckoutResult','Confirmation reports recorded order and conditional print warning with separate RetryPrint. Order success never equated with successful physical print. StartNewOrder gates CanEditOperation, supporting unresolved print blocking.'),
+ ('IsOrderLookupOpen','MaxHeight560 fixed420 stack lacks scroll. Long errors/customer/address/payment lines can exceed it. Shows subtotal total and status, not full items/receipt preview.'),
+ ('IsLookedUpPaymentUnconfirmed','Warning versus muted brush and explicit LookedUpPaymentLine communicate unconfirmed electronic money. Reprint button routes ReprintLookedUpOrderCommand, source UI012 kitchen-route issue remains outside markup.')
+ ],'NOT_EXECUTED. Test short viewport, many variants/long lookup, payment warning, print rejection versus ambiguity and one active overlay. No XAML callable symbols.','Use bounded scroll in variant/lookup overlays; preserve real-order versus print status distinction and native focus validation.')
+record(C+'Views/CallCenterOrderPanelView.xaml','CallCenter phone-order draft, cart and payment footer.',[
+ ('IsHitTestVisible','Header/cart/payment regions use CanEditOperation as hit-test flag rather than IsEnabled; keyboard focus may still interact, so command/model gates remain necessary. Phone field immediately updates and lookup is asynchronous UI007 context.'),
+ ('DeliverySummary','Summary wraps3lines, check/warning icons use actual details flag, user can open full address editor. No independent text describes icon state, but summary may convey fields.'),
+ ('EmptyCartHint','Named empty/cart scroll visibility controlled in codebehind, not static binding. External Cart event unsubscribe risk UI015 belongs codebehind.'),
+ ('RemoveLineCommand','Nested root binds row operations correctly; delete and plus/minus have explicit accessible Arabic names. Quantity30px may be narrow for large numbers.'),
+ ('OnNoteChipClicked','Flyout has two-way Notes and chip Click with44px menu opener. Popup DataContext inheritance and current line targeting require native test. Text is a real draft and no physical print sent here.'),
+ ('WalletProvider','Wallet textbox lacks CanEditOperation disabling even where payment segments hit-test gated; immutable pending DTO protects retry but editable draft can diverge visually. VM server validation authoritative.'),
+ ('SubmitCallCenterOrderButton','Submit uses IsShiftOpen enablement and command; no busy caption in markup. Clear explicitly uses CanEditOperation. Footer includes subtotal and total delivery but no tax/breakdown or estimated qualifier; authoritative amount returned by server.')
+ ],'NOT_EXECUTED. Verify keyboard edits during unresolved operation, wallet fields, many lines/scaled footer, note flyout binding, exact retry and totals after server repricing. No callable symbols in XAML.','Prefer actual enabled states plus model guards and explicit busy/retry feedback. Keep command immutability and process recovery tests distinct from pointer disable.')

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Styles/Controls.xaml",
+  "source_git_blob_sha256": "0761c09ac64ba8268499d368e4a2ee82607f9565198f281ecb3581b59f84ac2d",
+  "worktree_sha256": "3e0e132d15c7a74ba685af1057eb1f33b63d874bfe691ba1fef1bf0464e489c0",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:31:54.727730+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "CallCenter WinUI button templates, input and management resources.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "BaseButtonStyle",
+      "reasoning": "Border template binds content/template/alignment/padding; Normal/PointerOver/Pressed/Disabled opacity1/.92/.8/.45. No explicit focus visual state in template; platform system focus visuals may still apply, native verification required."
+    },
+    {
+      "anchor": "CtaButtonStyle",
+      "reasoning": "Primary/CTA/success/danger white foreground, fixedCTA52 plus inheritedMinHeight48; long/scaled labels may clip. Secondary literal lightgray. Segment gray foreground on pale background defaults may be weak unless instance overrides (actual payment/order segments do)."
+    },
+    {
+      "anchor": "PaymentMethodButtonStyle",
+      "reasoning": "White/darkprimary border2,72height; selected colors applied per-instance. Keypad min60x52 stretched; close min44x44. Actual hit target governed by constraints; nominal styles alone not usability proof."
+    },
+    {
+      "anchor": "CategoryButtonStyle",
+      "reasoning": "Fixed114x80 category and150x190 product, selected style blue/action white; actual catalogue uses bespoke grid cards rather than ProductCardStyle. Cart Quantity44height inherits48minimum so effective height may be48, unlike comment square44."
+    },
+    {
+      "anchor": "NoteChipButtonStyle",
+      "reasoning": "Note min44 and pale background; variant/offer border styles use fixed light colors. Implicit MenuFlyout48, TextBox/Password/Combo48 withRTL and14px; URL/phone callers must override flow where needed."
+    },
+    {
+      "anchor": "SearchBoxStyle",
+      "reasoning": "Keyed TextBox style independently restatesfont/RTL/padding and42minimum; implicit style not automatically inherited. NumberBox compact spin uses48minimum, quantity/money precision still VM responsibility."
+    },
+    {
+      "anchor": "IconButtonStyle",
+      "reasoning": "40x40 withMinHeight0; Ghost36 and toolbar38 smaller than44touch target, may be desktop choice. Accessible icon names must be instance-specific, not supplied here."
+    },
+    {
+      "anchor": "PageCardStyle",
+      "reasoning": "White static cards, summarymin180, tablemin48, pill10x4padding and alertborder. No theme dictionaries/highcontrast substitutions in file; use actual resource consumers."
+    },
+    {
+      "anchor": "ShellNavViewStyle",
+      "reasoning": "Only open248/compact56 sizes; no PaneBackground setter. Historicalcompilercrash comment not independently reproduced and is not active defect evidence."
+    },
+    {
+      "anchor": "DialogDestructiveButtonStyle",
+      "reasoning": "Dangerwhite button label/body remain callerresponsibility; no permission/confirmation/business write logic implemented by style."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No callable declarations. Native focused/disabled/highcontrast state, longlabels/RTL and effective min-height conflicts require measured geometry. Historical render/compiler claims not accepted as our observation.",
+  "recommendations": "Preserve focus/accessible names, semantic brush pairs and consistent touch targets if deployment hardware requires; no source changes performed.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

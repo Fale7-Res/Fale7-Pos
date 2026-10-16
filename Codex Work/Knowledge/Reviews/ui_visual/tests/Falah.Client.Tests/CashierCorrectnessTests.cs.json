@@ -1,0 +1,613 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+  "source_git_blob_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+  "worktree_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:29:24.457390+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Cashier correctness tests using actual VM/parser with synthetic HTTP.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "Money_entry_preserves_piastre_units(string input, long expected)",
+      "reasoning": "Theory checks Arabic/Persian digits, decimal separators and whitespace against integer piastres. It exercises actual CashInput.TryParse rather than formatting imitation. Missing/limit: No round-trip, all localized separators or maximum valid boundary in this method."
+    },
+    {
+      "anchor": "Ambiguous_or_unrepresentable_money_is_rejected(string input)",
+      "reasoning": "Rejects fractional piastre, negative, currency suffix, grouping comma and long overflow; false result asserted without accepting partial parse. Missing/limit: Add zero/business-context distinction and exact max valid value."
+    },
+    {
+      "anchor": "Exact_tender_and_change_use_egp_to_piastre_conversion()",
+      "reasoning": "Creates synthetic current shift,12550 piastre line, opens checkout and verifies exact125.50 then Arabic200 yields7450change and exact quick key zeros change. Does not submit transaction. Missing/limit: Actual backend repricing/tax could change final tender; real settlement excluded."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Unused HTTP fixture immediately returns404 completed task; protects this tender-only test from requiring a live backend but no assertion of request absence. Missing/limit: Could additionally assert no dispatch."
+    },
+    {
+      "anchor": "Touch_keypad_replaces_the_initial_exact_amount()",
+      "reasoning": "Three command key presses replace initial exact amount rather than append; asserts200EGP and correct change. No native key routing tested. Missing/limit: Decimal/backspace/native touch input missing."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Completed404 fixture for keypad-only test; no network side effect outside fake handler. Missing/limit: Request count not asserted."
+    },
+    {
+      "anchor": "Lost_checkout_response_retries_identical_payload_despite_changed_fields()",
+      "reasoning": "Captures two checkout bodies on one VM with thrown HTTP each time. Corrupt amount after unknown then exact equality verifies immutable snapshot. Close/clear refused while pending. Does not restart process or confirm real backend committed. Missing/limit: UI001 process-death identity remains uncovered."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Awaits serialization capture before throwing simulated lost response; no stateful server commit exists despite exception wording. Missing/limit: Need commit-aware backend fixture/integration for duplicate effects."
+    },
+    {
+      "anchor": "Lost_cash_movement_response_retries_even_if_form_is_now_invalid()",
+      "reasoning": "Cash-out25EGP with reason, unknown first result, invalidated form, second send identical. One VM retained context only, no proof of durable journal. Missing/limit: No success cleanup/restart/global navigation assertion."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Captures fake request body then throws loss, never contacts HTTP network. Called twice by cash movement submissions. Missing/limit: Cannot prove server commit/idempotency."
+    },
+    {
+      "anchor": "Malformed_success_response_is_unresolved(string body)",
+      "reasoning": "200 null and invalid JSON from GetCurrentShift classify failure+OutcomeUnknown. This is a read contract test, not evidence every mutation endpoint handles malformed success. Missing/limit: Add actual mutation malformed-response and truncated-body cases."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Builds200 application/json response with provided malformed body; synchronous completedTask. No backend write. Missing/limit: No streaming timeout/partial content simulation."
+    },
+    {
+      "anchor": "Draft_is_retained_per_user_across_navigation()",
+      "reasoning": "Changes session.CurrentUser to other and back, asserting cachedVM separation/reuse. Tests in-memory identity keyed draft only, no actual navigation/login or token changes. Missing/limit: Permission changes sameID and cross-process recovery absent."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Completed404 used while retrieving cached drafts; no live API authentication. Missing/limit: Does not verify token/header isolation."
+    },
+    {
+      "anchor": "Tax_snapshot_uses_existing_domain_rounding_for_exact_tender()",
+      "reasoning": "Loads fake empty menu+14percent exclusive tax, adds10001piastre line, verifies11401rounded estimate and114.01tender. Uses real VM/domain logic, no write. Missing/limit: Multiple inclusive/exclusive rates and changed-tax-after-checkout absent."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Path menu returns empty categories; every other request returns enabled VAT1400 Exclusive array. Broad fallback could hide unintended endpoint calls; still isolated. Missing/limit: Assert exact expected routes to avoid false fixture coverage."
+    },
+    {
+      "anchor": "Lost_refund_response_preserves_id_amount_and_reason()",
+      "reasoning": "Injects paid completed cash order, refunds25withreason, corrupts live fields after loss and compares2 bodies; cancel refused. Real refund state and process restart untested. Missing/limit: No backend refund cap/idempotency transaction proof."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Captures refund body before simulated HttpRequestException. Does not create restaurant record. Missing/limit: Commit/loss is assumed fixture label only."
+    },
+    {
+      "anchor": "Unauthorized_discount_never_reaches_checkout_api()",
+      "reasoning": "Synthetic pos-only account attempts enabled10discount; asserts no handler calls and CheckoutError. Validates client gating, not server authorization. Missing/limit: Server forged request/role mutation independent review required."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Counts any HTTP call then returns400; expected unreachable and zero count asserted by caller. Missing/limit: No real financial write."
+    },
+    {
+      "anchor": "Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+      "reasoning": "Builds fake HttpClient at http://test with synthetic all-permission cashier and shift, returns session cached VM. Creates no actual account or authentication. Missing/limit: Shared durable stores/default configuration isolation requires harness review; not run."
+    },
+    {
+      "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+      "reasoning": "Forwards request to injected delegate; cancellation ignored. This creates deterministic isolated responses while excluding real transport/token/server behavior. Missing/limit: Cancellation/native transport not simulated."
+    }
+  ],
+  "tests_and_limits": "SOURCE_REVIEW_ONLY; all22 immutable callable spans explicitly inspected, no tests executed. Fixture assertions do not prove native/server/process durability.",
+  "recommendations": "Add isolated-process recovery and real token/transport contracts without production data.",
+  "symbols": [
+    {
+      "stable_id": "sym-e42e4d96fb648494260ef2e82da1aa6c13dc49f77610d4e78e2d18c157317872",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Money_entry_preserves_piastre_units(string, long)",
+      "exact_span": [
+        12,
+        5,
+        16,
+        94
+      ],
+      "reasoning": "Theory checks Arabic/Persian digits, decimal separators and whitespace against integer piastres. It exercises actual CashInput.TryParse rather than formatting imitation.",
+      "inputs": "input string and expected long",
+      "outputs": "assert parsed value equals expected",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "No round-trip, all localized separators or maximum valid boundary in this method.",
+      "tests_missing": "No round-trip, all localized separators or maximum valid boundary in this method.",
+      "verified_callers_callees": "CashInput.TryParse; Xunit runner attributes"
+    },
+    {
+      "stable_id": "sym-8a50cfd18fbc553bc0fca0411166088962426d15ea713ccf53fcfe3b6ac23f60",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Ambiguous_or_unrepresentable_money_is_rejected(string)",
+      "exact_span": [
+        18,
+        5,
+        22,
+        59
+      ],
+      "reasoning": "Rejects fractional piastre, negative, currency suffix, grouping comma and long overflow; false result asserted without accepting partial parse.",
+      "inputs": "five invalid input strings",
+      "outputs": "assert false",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Add zero/business-context distinction and exact max valid value.",
+      "tests_missing": "Add zero/business-context distinction and exact max valid value.",
+      "verified_callers_callees": "CashInput.TryParse; Xunit Theory"
+    },
+    {
+      "stable_id": "sym-4622bbbfd20e7955d645086e0c2b16967a2fc0ec7537f22e148bfc713121c592",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Exact_tender_and_change_use_egp_to_piastre_conversion()",
+      "exact_span": [
+        24,
+        5,
+        35,
+        6
+      ],
+      "reasoning": "Creates synthetic current shift,12550 piastre line, opens checkout and verifies exact125.50 then Arabic200 yields7450change and exact quick key zeros change. Does not submit transaction.",
+      "inputs": "fixed synthetic cart and tender",
+      "outputs": "VM estimate/amount/change assertions",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Actual backend repricing/tax could change final tender; real settlement excluded.",
+      "tests_missing": "Actual backend repricing/tax could change final tender; real settlement excluded.",
+      "verified_callers_callees": "Create; OpenCheckoutCommand; QuickCashCommand"
+    },
+    {
+      "stable_id": "sym-2d6c4094bf1aa90305d5d92f05b0c2bf0bc0613e6a2bddda7203638f49dadbbd",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        27,
+        30,
+        27,
+        100
+      ],
+      "reasoning": "Unused HTTP fixture immediately returns404 completed task; protects this tender-only test from requiring a live backend but no assertion of request absence.",
+      "inputs": "ignored HTTP request",
+      "outputs": "Task404 response",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Could additionally assert no dispatch.",
+      "tests_missing": "Could additionally assert no dispatch.",
+      "verified_callers_callees": "Create→Handler.SendAsync"
+    },
+    {
+      "stable_id": "sym-45e03642f912fafe1a75d7a24b6614dee8d5a046d65de1a80af11e9d0ff2d4ed",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Touch_keypad_replaces_the_initial_exact_amount()",
+      "exact_span": [
+        37,
+        5,
+        45,
+        6
+      ],
+      "reasoning": "Three command key presses replace initial exact amount rather than append; asserts200EGP and correct change. No native key routing tested.",
+      "inputs": "cart12550; keys2,0,0",
+      "outputs": "assert amount200/change7450",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Decimal/backspace/native touch input missing.",
+      "tests_missing": "Decimal/backspace/native touch input missing.",
+      "verified_callers_callees": "Create; OpenCheckoutCommand; PressAmountKeyCommand"
+    },
+    {
+      "stable_id": "sym-fb66615d9c63026f87535fabce2f5c86d0f3373cc5c7714280df0c42110d79f3",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        40,
+        30,
+        40,
+        100
+      ],
+      "reasoning": "Completed404 fixture for keypad-only test; no network side effect outside fake handler.",
+      "inputs": "ignored request",
+      "outputs": "completed404",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Request count not asserted.",
+      "tests_missing": "Request count not asserted.",
+      "verified_callers_callees": "Create→Handler.SendAsync"
+    },
+    {
+      "stable_id": "sym-2ba288c93a4c115c8e470bcd8af90334a502e4f3947ab701a990ed01490a9a86",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Lost_checkout_response_retries_identical_payload_despite_changed_fields()",
+      "exact_span": [
+        47,
+        5,
+        68,
+        6
+      ],
+      "reasoning": "Captures two checkout bodies on one VM with thrown HTTP each time. Corrupt amount after unknown then exact equality verifies immutable snapshot. Close/clear refused while pending. Does not restart process or confirm real backend committed.",
+      "inputs": "10000piastre cart; altered tender",
+      "outputs": "two equal bodies; pending and cart assertions",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "UI001 process-death identity remains uncovered.",
+      "tests_missing": "UI001 process-death identity remains uncovered.",
+      "verified_callers_callees": "Create; SubmitPaymentCommand; CloseCheckoutCommand; ClearCartCommand"
+    },
+    {
+      "stable_id": "sym-70f5f37cb429dc73808069b0ecf7ab73bc9fdfcd461de61885934bbf89cf24bf",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        51,
+        36,
+        54,
+        10
+      ],
+      "reasoning": "Awaits serialization capture before throwing simulated lost response; no stateful server commit exists despite exception wording.",
+      "inputs": "request.Content",
+      "outputs": "appends body then throws HttpRequestException",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Need commit-aware backend fixture/integration for duplicate effects.",
+      "tests_missing": "Need commit-aware backend fixture/integration for duplicate effects.",
+      "verified_callers_callees": "Handler.SendAsync→ReadAsStringAsync"
+    },
+    {
+      "stable_id": "sym-14aff062b503d75c1c9db29eea56cd57048f46449d785926d8ba25d624de5dfd",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Lost_cash_movement_response_retries_even_if_form_is_now_invalid()",
+      "exact_span": [
+        70,
+        5,
+        81,
+        6
+      ],
+      "reasoning": "Cash-out25EGP with reason, unknown first result, invalidated form, second send identical. One VM retained context only, no proof of durable journal.",
+      "inputs": "cashout type amount25 reason",
+      "outputs": "two equal bodies",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "No success cleanup/restart/global navigation assertion.",
+      "tests_missing": "No success cleanup/restart/global navigation assertion.",
+      "verified_callers_callees": "OpenCashMovementCommand; SubmitCashMovementCommand"
+    },
+    {
+      "stable_id": "sym-bcaa7885b1cdf9f3d44f5be9bca5b6496b1c079063c4f8fcd2f8348e616dc8ce",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        74,
+        30,
+        74,
+        140
+      ],
+      "reasoning": "Captures fake request body then throws loss, never contacts HTTP network. Called twice by cash movement submissions.",
+      "inputs": "request content",
+      "outputs": "body list mutation and exception",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Cannot prove server commit/idempotency.",
+      "tests_missing": "Cannot prove server commit/idempotency.",
+      "verified_callers_callees": "Handler.SendAsync; ReadAsStringAsync"
+    },
+    {
+      "stable_id": "sym-e87b38229e990fdd7f5baa04b63864efcdb1393b15020eefe8137568faf3e781",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Malformed_success_response_is_unresolved(string)",
+      "exact_span": [
+        83,
+        5,
+        91,
+        6
+      ],
+      "reasoning": "200 null and invalid JSON from GetCurrentShift classify failure+OutcomeUnknown. This is a read contract test, not evidence every mutation endpoint handles malformed success.",
+      "inputs": "null/not-json theory strings",
+      "outputs": "ApiResult false/unknown",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Add actual mutation malformed-response and truncated-body cases.",
+      "tests_missing": "Add actual mutation malformed-response and truncated-body cases.",
+      "verified_callers_callees": "ApiClient.GetCurrentShiftAsync"
+    },
+    {
+      "stable_id": "sym-9c4fa84f7788afe966fab2869e9f328b9dd5343ffd7872ca7f7d474dc823b943",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        87,
+        60,
+        88,
+        96
+      ],
+      "reasoning": "Builds200 application/json response with provided malformed body; synchronous completedTask. No backend write.",
+      "inputs": "captured body,ignored request",
+      "outputs": "fake200 response",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "No streaming timeout/partial content simulation.",
+      "tests_missing": "No streaming timeout/partial content simulation.",
+      "verified_callers_callees": "HttpClient fake handler"
+    },
+    {
+      "stable_id": "sym-c606a8bbaa81a3987ab15fc602498f92f4849d59eaeedf2fd956dfe6b0b00d01",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Draft_is_retained_per_user_across_navigation()",
+      "exact_span": [
+        93,
+        5,
+        101,
+        6
+      ],
+      "reasoning": "Changes session.CurrentUser to other and back, asserting cachedVM separation/reuse. Tests in-memory identity keyed draft only, no actual navigation/login or token changes.",
+      "inputs": "two synthetic accountIDs",
+      "outputs": "VM identity assertions",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Permission changes sameID and cross-process recovery absent.",
+      "tests_missing": "Permission changes sameID and cross-process recovery absent.",
+      "verified_callers_callees": "session.GetCashier; Create"
+    },
+    {
+      "stable_id": "sym-b0139c7c0d5c4f01e1c05a8182758b5d026d18bc29019fe1cedc25ca376acebf",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        96,
+        36,
+        96,
+        106
+      ],
+      "reasoning": "Completed404 used while retrieving cached drafts; no live API authentication.",
+      "inputs": "ignored request",
+      "outputs": "fake404",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Does not verify token/header isolation.",
+      "tests_missing": "Does not verify token/header isolation.",
+      "verified_callers_callees": "Create→Handler.SendAsync"
+    },
+    {
+      "stable_id": "sym-793a0afdce439b8eda27fb14b19be95a89850ca9a5051c1e422f2cc192ddf21c",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Tax_snapshot_uses_existing_domain_rounding_for_exact_tender()",
+      "exact_span": [
+        103,
+        5,
+        115,
+        6
+      ],
+      "reasoning": "Loads fake empty menu+14percent exclusive tax, adds10001piastre line, verifies11401rounded estimate and114.01tender. Uses real VM/domain logic, no write.",
+      "inputs": "fixed tax DTO and cart",
+      "outputs": "amount assertions",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Multiple inclusive/exclusive rates and changed-tax-after-checkout absent.",
+      "tests_missing": "Multiple inclusive/exclusive rates and changed-tax-after-checkout absent.",
+      "verified_callers_callees": "LoadMenuAsync; OpenCheckoutCommand"
+    },
+    {
+      "stable_id": "sym-fece57e4b608a43a9ba41e8be86618f111b910099a51f4ce28deccbc64515a0c",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        106,
+        30,
+        109,
+        144
+      ],
+      "reasoning": "Path menu returns empty categories; every other request returns enabled VAT1400 Exclusive array. Broad fallback could hide unintended endpoint calls; still isolated.",
+      "inputs": "request absolute path",
+      "outputs": "synthetic200 menu or tax response",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Assert exact expected routes to avoid false fixture coverage.",
+      "tests_missing": "Assert exact expected routes to avoid false fixture coverage.",
+      "verified_callers_callees": "Handler.SendAsync; JsonContent.Create"
+    },
+    {
+      "stable_id": "sym-7f8d8976e7b3e0e3ee4e8a09d8b18aea286dfb351116b2527f0af0a4e791ca9b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Lost_refund_response_preserves_id_amount_and_reason()",
+      "exact_span": [
+        117,
+        5,
+        131,
+        6
+      ],
+      "reasoning": "Injects paid completed cash order, refunds25withreason, corrupts live fields after loss and compares2 bodies; cancel refused. Real refund state and process restart untested.",
+      "inputs": "synthetic order and refund draft",
+      "outputs": "equal bodies; modal staysopen",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "No backend refund cap/idempotency transaction proof.",
+      "tests_missing": "No backend refund cap/idempotency transaction proof.",
+      "verified_callers_callees": "OpenRefundCommand; SubmitRefundCommand; CancelRefundCommand"
+    },
+    {
+      "stable_id": "sym-8c73062292f9247f29fbdb92476f287272f318db97a1b6e564785d1d2afab069",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        121,
+        30,
+        121,
+        140
+      ],
+      "reasoning": "Captures refund body before simulated HttpRequestException. Does not create restaurant record.",
+      "inputs": "request.Content",
+      "outputs": "body append+throw",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Commit/loss is assumed fixture label only.",
+      "tests_missing": "Commit/loss is assumed fixture label only.",
+      "verified_callers_callees": "Handler.SendAsync; ReadAsStringAsync"
+    },
+    {
+      "stable_id": "sym-8057e0f5c70a00f58e0a19b890bf5ed97987377d74124e40fca1d16cbaf4476b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Unauthorized_discount_never_reaches_checkout_api()",
+      "exact_span": [
+        133,
+        5,
+        143,
+        6
+      ],
+      "reasoning": "Synthetic pos-only account attempts enabled10discount; asserts no handler calls and CheckoutError. Validates client gating, not server authorization.",
+      "inputs": "pos-only session and discount",
+      "outputs": "zero dispatch+error assertion",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Server forged request/role mutation independent review required.",
+      "tests_missing": "Server forged request/role mutation independent review required.",
+      "verified_callers_callees": "SubmitPaymentCommand; Create"
+    },
+    {
+      "stable_id": "sym-139db2ba9568b67d099e197646c95d60c3cfd49d22ecd29260aaba1982b13dc1",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        137,
+        36,
+        137,
+        129
+      ],
+      "reasoning": "Counts any HTTP call then returns400; expected unreachable and zero count asserted by caller.",
+      "inputs": "request ignored",
+      "outputs": "calls increment+fake400",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "No real financial write.",
+      "tests_missing": "No real financial write.",
+      "verified_callers_callees": "Handler.SendAsync"
+    },
+    {
+      "stable_id": "sym-276e502ee5e40bb4ab5429e4b34aaf443439bad7382f3c99aa46813aee0d09fb",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Create(Func<HttpRequestMessage, Task<HttpResponseMessage>>)",
+      "exact_span": [
+        145,
+        5,
+        150,
+        6
+      ],
+      "reasoning": "Builds fake HttpClient at http://test with synthetic all-permission cashier and shift, returns session cached VM. Creates no actual account or authentication.",
+      "inputs": "fixture send delegate",
+      "outputs": "CashierVM/session tuple",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Shared durable stores/default configuration isolation requires harness review; not run.",
+      "tests_missing": "Shared durable stores/default configuration isolation requires harness review; not run.",
+      "verified_callers_callees": "AppSession; ApiClient; GetCashier"
+    },
+    {
+      "stable_id": "sym-709e0a5533f8ffd8aabb51eb57025a4acb0ff027193edf99a57a2a3dbfe18be7",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CashierCorrectnessTests.Handler.SendAsync(HttpRequestMessage, CancellationToken)",
+      "exact_span": [
+        153,
+        9,
+        153,
+        131
+      ],
+      "reasoning": "Forwards request to injected delegate; cancellation ignored. This creates deterministic isolated responses while excluding real transport/token/server behavior.",
+      "inputs": "HTTPrequest and ignored ct",
+      "outputs": "delegate task result",
+      "side_effects": "Synthetic fixture/VM/assertions only; NOT_EXECUTED by reviewer",
+      "trust_boundaries": "Fake HTTP contracts cannot establish server security",
+      "database": "NOT_APPLICABLE direct DB; no live DB access",
+      "printing_ui": "No physical printing/native UI; VM command exercise only",
+      "performance": "Small bounded fixture data; real latency/scale UNKNOWN",
+      "duplicates_conflicts": "No automatic inheritance from legacy heading review; each span verified",
+      "issues_hypotheses": "Cancellation/native transport not simulated.",
+      "tests_missing": "Cancellation/native transport not simulated.",
+      "verified_callers_callees": "HttpClient invokes; send(request)"
+    }
+  ],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

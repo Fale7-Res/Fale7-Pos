@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tools/ReceiptPreview/Program.cs",
+  "source_git_blob_sha256": "c484d32e941af42d914cc6644dccc41b064c2bbd38746e472a075db661cd98f1",
+  "worktree_sha256": "c484d32e941af42d914cc6644dccc41b064c2bbd38746e472a075db661cd98f1",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:39:35.204244+00:00",
+  "scope": "All9 offline preview callables individually reasoned; synthetic fixture execution not performed",
+  "symbols": [
+    {
+      "stable_id": "sym-6f186d0f369dccb7fc03c7475cd568028fde35da7274db43d66522b6bbeb6348",
+      "status": "ANALYZED",
+      "reasoning": "Uses production BitmapTicketRenderer on synthetic ticket fixture, saves ESC/POS, scans GS v raster sections, decodes monochrome bytes to Bitmap, writes PNG and reports bounds/QR. Enforces expected QR count/payload and disposes pieces on normal completion. Parser assumes trusted production byte stream and lacks length checks before indexing raster payload; truncated arbitrary file could throw.",
+      "inputs": "fixture name,ComposedTicket,expectQr",
+      "outputs": "saved .escpos/PNG plus diagnostics or exception",
+      "side_effects": "Writes selected output directory files; no DB/network/printer",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Synthetic receipt/shift/expense fixtures are not real saved-order preview. Exception before cleanup leaks bitmap objects until finalization",
+      "tests_missing": "Truncated raster, all routes/pickup/delivery fixtures, exact cut/page geometry and QR decode",
+      "verified_callers_callees": [
+        "Production Render",
+        "DecodeQr",
+        "CountCuts",
+        "InkBounds",
+        "QrBounds",
+        "Mm"
+      ],
+      "evidence_source_span": [
+        71,
+        116
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-7ecf686762f03a785e148e7dccde516ac76fbd4176a7c4709a3bb3228d581cbc",
+      "status": "ANALYZED",
+      "reasoning": "Counts decoded nonnull QR results to enforce exactly one expected menuQR per receipt fixture. It does not verify payload equality; later separate predicate does that. Zero or multiple triggers exception in caller.",
+      "inputs": "decoded string? entry",
+      "outputs": "bool nonnull",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Successful decode count not physical camera-read proof",
+      "tests_missing": "Zero/one/multiple QR fixture",
+      "verified_callers_callees": [
+        "Save QR count check"
+      ],
+      "evidence_source_span": [
+        111,
+        111
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-8c7b48a58dcd03aa8b3606f6f04b41d9eabb3747820e0bb440b840e42a5e278f",
+      "status": "ANALYZED",
+      "reasoning": "Flags any decoded nonnull payload differing from exact configured menu constant. Ordinal string inequality preserves exact target; does not fetch URL or normalize equivalent URLs. Null results ignored here but count assertion catches missing expected code.",
+      "inputs": "decoded payload",
+      "outputs": "bool mismatch",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Exact link correctness only for fixed synthetic sample; no live settings/read",
+      "tests_missing": "Correct/incorrect/empty decode fixture",
+      "verified_callers_callees": [
+        "Save payload assertion"
+      ],
+      "evidence_source_span": [
+        114,
+        114
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-8db875288edf0165369e9bde5db0d99bdea960ac0bb5942cc6347245973b8a00",
+      "status": "ANALYZED",
+      "reasoning": "Builds ZXing luminance/binarizer from decoded raster gray bytes and attempts QR decode with TryHarder. ReaderException becomes null; other allocation/argument exceptions propagate. Independent library checks output bits but not actual printer darkness or camera environment.",
+      "inputs": "gray bytes,width,height",
+      "outputs": "decoded string or null",
+      "side_effects": "Managed QR decode allocations",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Bytearray/dimension consistency trusted; broader exception not swallowed",
+      "tests_missing": "Known QR, noisy/corrupt/noQR and invalid dimensions fixtures",
+      "verified_callers_callees": [
+        "Save",
+        "QRCodeReader.decode",
+        "RGBLuminanceSource",
+        "HybridBinarizer"
+      ],
+      "evidence_source_span": [
+        118,
+        127
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-d3d509c2abecc6f510bcb1275e35862b9f9f6883351fba49a8b6e8a1592ccd9d",
+      "status": "ANALYZED",
+      "reasoning": "Converts dots to rounded millimeters using fixed203dpi. It is diagnostic arithmetic, not measurement from actual printer driver or image DPI metadata. Another device resolution makes stated length inaccurate.",
+      "inputs": "dot count",
+      "outputs": "double millimeters rounded1decimal",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Physical dimensions conditional on203dpi; no negativeinputguard",
+      "tests_missing": "203dpi conversion exact samples and alternateDPI label test",
+      "verified_callers_callees": [
+        "Save diagnostics"
+      ],
+      "evidence_source_span": [
+        129,
+        129
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-99f04ab5bce9490a57fbe57a6e033c36a3144d717f82afe3a4c74b06a257a20d",
+      "status": "ANALYZED",
+      "reasoning": "Scans byte stream for exact GS V0 triplet and counts occurrences, advancing one byte each position. It is not an ESC/POS parser and can count command-looking bytes inside raster payload as cuts, overstating physical cut count. No output mutation.",
+      "inputs": "rendered bytes",
+      "outputs": "int pattern count",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "False cut count possible from binary pixel data; use command-aware decoder for faithful segmentation",
+      "tests_missing": "Raster payload containing1D5600 and actualmultiplecut fixture",
+      "verified_callers_callees": [
+        "Save diagnostics"
+      ],
+      "evidence_source_span": [
+        131,
+        137
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-d56c282795d592a3305f5a63ca5f806d555f526d6f32971d6d144ae56d748ba6",
+      "status": "ANALYZED",
+      "reasoning": "Scans all bitmap pixels and expands extrema for black pixels using threshold128. Blank image returns sentinel left=width,top=height,right/bottom=-1, so reported ink width can be negative; caller does not normalize blank. GetPixel per pixel expensive.",
+      "inputs": "Bitmap",
+      "outputs": "ink bounding tuple",
+      "side_effects": "Read pixels only",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Empty segment diagnostics misleading; not actualpaper marginmeasurement",
+      "tests_missing": "Blank/onepixel/edgeink fixtures and bounds expected values",
+      "verified_callers_callees": [
+        "Save diagnostics",
+        "Bitmap.GetPixel"
+      ],
+      "evidence_source_span": [
+        139,
+        150
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-21f3ba1c257cd722996440408bd444ee6e60083959e7247b78267a596e763a55",
+      "status": "ANALYZED",
+      "reasoning": "Heuristically locates a QR finder-like square by solid run multiple7 and edge checks, derives module size, scans rightmost dark pixel and whitespace above. It may identify nonQR graphic blocks or neighboring text and does not prove standards-compliant quiet zone; actual ZXing decode is separate.",
+      "inputs": "Bitmap",
+      "outputs": "estimated QR side/quiet dots or0",
+      "side_effects": "Read pixels only",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Can be expensive nested image scans and false heuristic match; diagnostic estimate not authoritative QR geometry",
+      "tests_missing": "Decorativeboxes/textfalsepositives, QR nearneighbor and blank fixtures",
+      "verified_callers_callees": [
+        "Save QR diagnostics",
+        "AllWhite"
+      ],
+      "evidence_source_span": [
+        154,
+        184
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-e22c681c8b76d97f63624095f3c60420635ccb2fa0e8ed18d2193b3cc651c670",
+      "status": "ANALYZED",
+      "reasoning": "Checks inclusive x-range in one bitmap row for pixels under128, returning false on first ink. Caller supplies bounded coordinates; no clipping inside helper. Used only to estimate vertical quiet rows above found symbol.",
+      "inputs": "bitmap,left,right,row",
+      "outputs": "bool allwhite",
+      "side_effects": "Read pixels only",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Out-of-range caller would throw; whitespace test doesnot validate horizontal/four-side QR quiet zone",
+      "tests_missing": "Boundary/blank/oneblackpixel row fixtures",
+      "verified_callers_callees": [
+        "QrBounds while scan"
+      ],
+      "evidence_source_span": [
+        186,
+        190
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,9 @@
+from ui_persistent import *
+record(C+'Views/ProductCatalogueView.xaml','CallCenter RTL live menu grid with product/photo/offer presentation.',[
+ ('ProductsGridView','Real VisibleProducts collection, item click enabled and selection none; CanEditOperation gates entire grid including nested offers. Grid hidden during menu load; error and empty overlays independent VM flags.'),
+ ('FallbackIcon','Photo/fallback share104px band; photo visibility based HasImage, not BitmapImage download success. Failed image may cover fallback depending image transparency, native behavior unobserved.'),
+ ('StartingPriceDisplay','Uses product-tile starting price, name wraps3lines, variant badge only for >1 variants. Station label reports actual VM routing; not evidence printer is reachable.'),
+ ('OnOfferTapped','Offer button uses Tapped event rather than ICommand, expected code-behind handles event to stop parent base-product click. Native keyboard Invoke/Space may raise Click without Tapped: keyboard accessibility remains unverified and no Command/Click exists here.'),
+ ('Offer.FixedPricePiastres','Offer name star column wraps while fixed-price auto column retains amount; hardcoded green pill/light white card rather than theme-aware colors.'),
+ ('RetryLoadMenuCommand','Error shows wrapped text and explicit real-menu retry; no fabricated fallback rows. HasNoResults text appears independently and must be mutually coherent with VM load/error states.')
+ ],'NOT_EXECUTED. Need native pointer versus keyboard offer invocation, long names/offer height, no image/download error, scaling and read-error overlay tests. No callable declarations exist in immutable XAML symbol map.', 'Provide accessible offer command activation across keyboard/pointer paths and image-failed fallback; confirm generated resources and contrast at native render.')

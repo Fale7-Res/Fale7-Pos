@@ -1,8 +1,8 @@
 {
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "scope_count": 327,
-  "reviewed_count": 269,
-  "remaining_count": 58,
+  "reviewed_count": 279,
+  "remaining_count": 48,
   "coverage_complete": false,
   "records": [
     {
@@ -6026,6 +6026,237 @@
       "tests_and_evidence": "179 lines fully read; URLs are literal fixture strings, none fetched; no render/test execution.",
       "recommendations": "Add encoded payload length/Unicode boundaries and fallback text assertion; keep decoded-raster evidence distinct from physical paper validation.",
       "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CustomerVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "0f899776bbe0896d46369919825417596d4d4739cc34f20a549a940c63108b50",
+      "git_blob_sha256": "a9cdc09c311eb34751f796504476e91b667b29ea1f463f6c8d9f7e0858cc8182",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          182
+        ]
+      ],
+      "functionality_and_reasoning": "Tests normalized phone identity, name refresh, geographic address append versus service/landmark refresh, required fields, read-only unknown lookup, ID retrieval and six concurrent same-address upserts. First response often unchecked; some names broader than assertions (full record compares ID/phone; never modifies only unknown empty lookup). Concurrent count uses area not CustomerId, adequate current empty fixture but fragile expansion. No unicode/country normalization, deterministic overlap or concurrent different-address merge tests.",
+      "significant_methods": "InitializeAsync; DisposeAsync; MakeRequest; fourteen customer upsert/lookup/concurrency facts and eleven lambdas individually identified in Knowledge shard",
+      "interactions_and_risks": "Tests normalized phone identity, name refresh, geographic address append versus service/landmark refresh, required fields, read-only unknown lookup, ID retrieval and six concurrent same-address upserts. First response often unchecked; some names broader than assertions (full record compares ID/phone; never modifies only unknown empty lookup). Concurrent count uses area not CustomerId, adequate current empty fixture but fragile expansion. No unicode/country normalization, deterministic overlap or concurrent different-address merge tests.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "182 lines fully read. All28 callable stable IDs reasoned individually in Knowledge/Reviews/financial_integrity exact file shard. No tests executed.",
+      "recommendations": "Add persisted rejection rollback, stable address ID, all-field readback and barrier-controlled normalization races.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ManagerApprovalTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "23f69492d7f55e7c17a53f85ed0638a1aeb3f14e7c5086d94f49d63504c63470",
+      "git_blob_sha256": "23f69492d7f55e7c17a53f85ed0638a1aeb3f14e7c5086d94f49d63504c63470",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          196
+        ]
+      ],
+      "functionality_and_reasoning": "Tests approval single-use via two prevalidated DbContexts, delegated comp/refund, wrong-action/nonexistent evidence rejected even with comp permission, persistence across separate host and second-use denial with distinct checkout keys. Lifecycle writes funded SQL day/shift. Direct concurrency exception test does not establish complete HTTP sale rollback. Refund fixture is already collected cash so does not refute FIN-003. Same-key original sale replay after consumed approval, expiry and mismatched approver still absent.",
+      "significant_methods": "All16 actual callable declarations individually mapped in Knowledge shard including local MakeRequest and three lambdas",
+      "interactions_and_risks": "Tests approval single-use via two prevalidated DbContexts, delegated comp/refund, wrong-action/nonexistent evidence rejected even with comp permission, persistence across separate host and second-use denial with distinct checkout keys. Lifecycle writes funded SQL day/shift. Direct concurrency exception test does not establish complete HTTP sale rollback. Refund fixture is already collected cash so does not refute FIN-003. Same-key original sale replay after consumed approval, expiry and mismatched approver still absent.",
+      "findings": [
+        "FIN-003"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "196 lines fully read;16 stable callable IDs individually reasoned and atomically saved; no tests run.",
+      "recommendations": "Add transaction-conservation assertions and same-request approved sale replay across process restart.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AuditWiringCoverageTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "953e67177ca67de0b5a1e40924f29a32fc9f418bbebbf5c8b7a4cf99b565d7fe",
+      "git_blob_sha256": "2f159d1801a07b3d26192c40a6c1eada961ac0b5ff191356a3c19b1a088313d2",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          181
+        ]
+      ],
+      "functionality_and_reasoning": "Exercises unified audit events for comp, delivery, inventory, supplier receive/pay and reprint. Mostly action substring plus reference assertions, so actor, money, reason, operation count/rollback and immutable snapshots not established. Delivery full happy path10000 expected/actual, purchase sequential5000 paid2000+3000 and inventory500-200 are source facts but conservation not asserted. Original/reprint POST statuses unchecked, possibly weakening no-original-audit proof.",
+      "significant_methods": "All22 callable spans individually reasoned in Knowledge shard",
+      "interactions_and_risks": "Exercises unified audit events for comp, delivery, inventory, supplier receive/pay and reprint. Mostly action substring plus reference assertions, so actor, money, reason, operation count/rollback and immutable snapshots not established. Delivery full happy path10000 expected/actual, purchase sequential5000 paid2000+3000 and inventory500-200 are source facts but conservation not asserted. Original/reprint POST statuses unchecked, possibly weakening no-original-audit proof.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "181 lines fully read;22 stable callable records saved atomically; no tests executed.",
+      "recommendations": "Correlate exact operation keys/amounts/actors and assert queue request status; add rejected/retried/concurrent transaction audit consistency.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/EmployeeVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "b3fee1d79bc1f607001471d543bd0f24985056dfe84b80aa6257009c97d23882",
+      "git_blob_sha256": "582f1333b04594dae58c3bad6b20d0f0669978376d001dfcfe1ce163ab1e8f10",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          244
+        ]
+      ],
+      "functionality_and_reasoning": "Covers employee create/update, ledger arithmetic, advance/withdraw permissions and liquidity, sequential/concurrent samekey replay including delegated approval and depleted drawer. Some names stronger than setup: user-link preservation tests null only; manage-versus-ledger denial actor lacks both; advance source drawer not asserted. ID-count query guarantees existence rather than excludes distinct duplicate movement IDs. Distinct-key payout races, manual entry retries and payroll interaction absent.",
+      "significant_methods": "All28 callable spans individually reasoned in Knowledge shard",
+      "interactions_and_risks": "Covers employee create/update, ledger arithmetic, advance/withdraw permissions and liquidity, sequential/concurrent samekey replay including delegated approval and depleted drawer. Some names stronger than setup: user-link preservation tests null only; manage-versus-ledger denial actor lacks both; advance source drawer not asserted. ID-count query guarantees existence rather than excludes distinct duplicate movement IDs. Distinct-key payout races, manual entry retries and payroll interaction absent.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "244lines read;28exact callable receipts persisted; no execution.",
+      "recommendations": "Add linked-user fixture, manage-only actor, cross-table conservation and distinct-command races.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "d045dc58b7e1c82985a1270a9a33128b0cd262aba1a89773997bd495967a9bd6",
+      "git_blob_sha256": "2383839c7d82f439330c5181fb81453115eca114eb7545baea3528e27f4d8537",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          227
+        ]
+      ],
+      "functionality_and_reasoning": "Validates null due versus overdue,40day bucket,future term, full settlement exclusion, late agreement/clearing and past-term intake. Dashboard equality verifies two views agree but not independent supplier ledger truth; concurrent invoice cache corruption FIN005 not exercised. GET aging helper uses implicit authenticated fallback actor so cannot establish report permission policy. Repeated current date calls can cross midnight.",
+      "significant_methods": "All15callables individually mapped and reasoned",
+      "interactions_and_risks": "Validates null due versus overdue,40day bucket,future term, full settlement exclusion, late agreement/clearing and past-term intake. Dashboard equality verifies two views agree but not independent supplier ledger truth; concurrent invoice cache corruption FIN005 not exercised. GET aging helper uses implicit authenticated fallback actor so cannot establish report permission policy. Repeated current date calls can cross midnight.",
+      "findings": [
+        "FIN-005"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "227lines fully read;15stable callable receipts persisted atomically; no runtime tests.",
+      "recommendations": "Add independent ledger amount oracle, partial settlements, clock-controlled boundaries, old due-request replay and denied edit state invariance.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ExpenseVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "baa07522fd8dd1dfb0f2e1dd6961482351d90dc36fa51bbe85f522aa510a314c",
+      "git_blob_sha256": "b8f5cea4e051974133ab07b31a12960fc368d9ea526c99d6dda0ac4885334d16",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          247
+        ]
+      ],
+      "functionality_and_reasoning": "Tests direct drawer/Main authority versus restricted approval fallback, open shift/day, overbalance and replay, expense visibility and reconciliation. Zero-float/no-day test also lacksdrawer funds so422does not isolate daygate. Own-shift visibility comment claims foreignshift isolation but no foreignshift record seeded. Concurrent samekey ensures oneExpense and onefirstresponse, not fullmoney row count. Cairodate query can crossmidnight.",
+      "significant_methods": "All34actualcallable spans individually reasoned",
+      "interactions_and_risks": "Tests direct drawer/Main authority versus restricted approval fallback, open shift/day, overbalance and replay, expense visibility and reconciliation. Zero-float/no-day test also lacksdrawer funds so422does not isolate daygate. Own-shift visibility comment claims foreignshift isolation but no foreignshift record seeded. Concurrent samekey ensures oneExpense and onefirstresponse, not fullmoney row count. Cairodate query can crossmidnight.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "247lines read;34exactcallable receipts saved; noexecution.",
+      "recommendations": "Add orthogonal precondition fixtures, foreignshift row, exact movement conservation and deniedoperation state snapshots.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AuditLogVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "d09936e48067c576386a254fce9a7a298f7171a27892d29aab82b9d7e2d5bfe8",
+      "git_blob_sha256": "14c08d440ec95a6dc0f5c9b5515063caf991b768e1a2120c3eb242b542ea4662",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          222
+        ]
+      ],
+      "functionality_and_reasoning": "Covers refund/expense severity,refund replay audit dedup,close/deposit/withdraw/transfer/safe-drop wiring and audit_view denial/allow. Most checks text/action presence, no exact operation identity or financial snapshot. Deposit test broad event may match initial funding; category All can pass empty; transaction atomicity claimed by class comment never fault-injected. Details substring money brittle.",
+      "significant_methods": "All29actualcallable spans individually mapped",
+      "interactions_and_risks": "Covers refund/expense severity,refund replay audit dedup,close/deposit/withdraw/transfer/safe-drop wiring and audit_view denial/allow. Most checks text/action presence, no exact operation identity or financial snapshot. Deposit test broad event may match initial funding; category All can pass empty; transaction atomicity claimed by class comment never fault-injected. Details substring money brittle.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "222lines fully read;29stablecallable receipts saved; no tests run.",
+      "recommendations": "Add nonempty correlated events,typed money,combinedfilter/paging and induced business rollback no-orphan audit tests.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "bfce384120a53119d0cfe3574a2c0780ba61e65f7aeca6fbf6978e4c54489dc3",
+      "git_blob_sha256": "22c34ee767445893b62f4a58b60118b8643f832597c8579d8254d454dab81e91",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          268
+        ]
+      ],
+      "functionality_and_reasoning": "Tests server product/variant/rule pricing, inactive fallback and unavailable/productassociation rejection, recipe usage multiplication, samekey replay and distinct-key concurrent stock/order sequence conservation. Persisted snapshots survive live price/name/rule/recipe edits; checks mostly direct SQL and do not establish historical API/ticket/costing behavior. Concurrent two devices uses same HTTPclient/actor/shift with independentrequestIDs. Raw quantity sum deliberate usage-only fixture, not signed stockbalance proof. Sequential replay ignoresstatuses.",
+      "significant_methods": "All55callable identities individually mapped in Knowledge shard",
+      "interactions_and_risks": "Tests server product/variant/rule pricing, inactive fallback and unavailable/productassociation rejection, recipe usage multiplication, samekey replay and distinct-key concurrent stock/order sequence conservation. Persisted snapshots survive live price/name/rule/recipe edits; checks mostly direct SQL and do not establish historical API/ticket/costing behavior. Concurrent two devices uses same HTTPclient/actor/shift with independentrequestIDs. Raw quantity sum deliberate usage-only fixture, not signed stockbalance proof. Sequential replay ignoresstatuses.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "268lines fully read;55stable callable receipts saved atomically; no execution.",
+      "recommendations": "Assert response identity/status, perorder200/300 movementpartition and DirectionOut; inspect actual API/ticket historicalsnapshots and faultrollback conservation.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "git_blob_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          385
+        ]
+      ],
+      "functionality_and_reasoning": "Report composition tests cover product grouping,expense identity,shift summaries,treasury datefilter,employee accrual and payout,COD custody,single electronic cancellation,refund net,discount/audit union and fixedwinter Cairo lossboundary. Two same-name products actually have distinct IDs, test expects merged label. Completeness/category and dedicated delivery comparison claims not fully asserted. Both logcounts onlyafter read do not prove read immutability. Mixed electronic FIN002010 and crossshift FIN004 not covered.",
+      "significant_methods": "All39actual callable identities individually mapped",
+      "interactions_and_risks": "Report composition tests cover product grouping,expense identity,shift summaries,treasury datefilter,employee accrual and payout,COD custody,single electronic cancellation,refund net,discount/audit union and fixedwinter Cairo lossboundary. Two same-name products actually have distinct IDs, test expects merged label. Completeness/category and dedicated delivery comparison claims not fully asserted. Both logcounts onlyafter read do not prove read immutability. Mixed electronic FIN002010 and crossshift FIN004 not covered.",
+      "findings": [
+        "FIN-002",
+        "FIN-004",
+        "FIN-010"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "385lines fully read;39symbol receipts saved; no runtime actions.",
+      "recommendations": "Add explicit output identity,large productcatalog,persection dated fixtures,beforeafter audit snapshot and mixed/crossshift financial cases.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "415f68db1d53ef7cbbbea80dc15cca48bf2562025b0b6596a964b0eb71966686",
+      "git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          395
+        ]
+      ],
+      "functionality_and_reasoning": "Covers day-open replay/sequential guard, deposits, withdrawals, transfers, safe drops, handover and permission delegation. Distinct withdrawal and transfer keys test pooled liquidity with independent source/destination balances; these do not include opening float or purchase receipt paths FIN011. Day opening concurrency FIN009 absent. Several guard tests have competing reasons (unfunded drawer/self-transfer also insufficient funds); wallet ban named but not exercised. Position pending/custody distinction tested only zero owed case. Same-key concurrent replay checks flags plus balances. Handover query limit50 and amount-only retry predicate not exact operation correlation.",
+      "significant_methods": "All51 actual callable identities individually reasoned in Knowledge shard",
+      "interactions_and_risks": "Covers day-open replay/sequential guard, deposits, withdrawals, transfers, safe drops, handover and permission delegation. Distinct withdrawal and transfer keys test pooled liquidity with independent source/destination balances; these do not include opening float or purchase receipt paths FIN011. Day opening concurrency FIN009 absent. Several guard tests have competing reasons (unfunded drawer/self-transfer also insufficient funds); wallet ban named but not exercised. Position pending/custody distinction tested only zero owed case. Same-key concurrent replay checks flags plus balances. Handover query limit50 and amount-only retry predicate not exact operation correlation.",
+      "findings": [
+        "FIN-009",
+        "FIN-011"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "395 lines fully read in two bounded chunks;51 stable callable receipts already saved with current verified source hash; no execution.",
+      "recommendations": "Add controlled cross-handler liquidity race, concurrent distinct business-day opening, funded invalid-account guards, nonzero pending/custody position and exact handover movement identity.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
     }
   ],
   "remaining": [
@@ -6174,14 +6405,6 @@
       "status": "NOT_ANALYZED"
     },
     {
-      "path": "tests/Falah.Server.IntegrationTests/AuditLogVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/AuditWiringCoverageTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
       "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
       "status": "NOT_ANALYZED"
     },
@@ -6190,23 +6413,7 @@
       "status": "NOT_ANALYZED"
     },
     {
-      "path": "tests/Falah.Server.IntegrationTests/CustomerVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
       "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/EmployeeVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/ExpenseVerticalSliceTests.cs",
       "status": "NOT_ANALYZED"
     },
     {
@@ -6214,23 +6421,11 @@
       "status": "NOT_ANALYZED"
     },
     {
-      "path": "tests/Falah.Server.IntegrationTests/ManagerApprovalTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
       "path": "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs",
       "status": "NOT_ANALYZED"
     },
     {
-      "path": "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
       "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs",
       "status": "NOT_ANALYZED"
     },
     {
@@ -6251,10 +6446,6 @@
     },
     {
       "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
       "status": "NOT_ANALYZED"
     },
     {

@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+  "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+  "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:39:35.139924+00:00",
+  "scope": "All21 rendering callables individually reasoned; font/pixel/QR/header risks static only",
+  "symbols": [
+    {
+      "stable_id": "sym-8c50884e47ae50bf8bcc5e8fcac748674d9aba387068bd6e33874e2de1ced661",
+      "status": "ANALYZED",
+      "reasoning": "Initializes one ESC/POS stream, splits on explicit ticket cuts, renders each segment separately, writes raster plus five feeds/full cut, then returns bytes. It does not send to a printer or honor central PrinterWidth automatically. Full stream and per-segment bitmap coexist, so long tickets increase memory; cut is a command boundary rather than an image gap.",
+      "inputs": "ComposedTicket,width,stroke flag,margin",
+      "outputs": "ESC/POS byte[]",
+      "side_effects": "Managed/GDI allocations only if executed",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "No image geometry/content bounds; no physical raster/feeds compatibility proof in audit",
+      "tests_missing": "Golden byte/decode tests for multiple/trailing cuts, empty content, long ticket, invalid geometry",
+      "verified_callers_callees": [
+        "SplitOnCuts",
+        "RenderSegment",
+        "WriteRaster",
+        "FeedBeforeCut"
+      ],
+      "evidence_source_span": [
+        83,
+        101
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-4b32e3150a78238f45e719ef97c99df63e3c583b81121501b10d3268a547b55b",
+      "status": "ANALYZED",
+      "reasoning": "Partitions elements on TicketCut, omits empty segments caused by adjacent/trailing cuts, and emits one empty segment when no content exists. It preserves element order and references. Thus consecutive cuts do not intentionally produce blank paper pieces; caller always cuts each returned segment.",
+      "inputs": "element list",
+      "outputs": "List of segment lists",
+      "side_effects": "Allocates lists only",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Empty ticket still yields minimal raster/cut; confirm intended behavior rather than assuming no output",
+      "tests_missing": "No-cut/trailing/consecutive/all-cut/empty fixtures",
+      "verified_callers_callees": [
+        "Render",
+        "TicketCut checks"
+      ],
+      "evidence_source_span": [
+        106,
+        123
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-c283876eabdb571070b69914cba6d64fe973d08cf4af0c031d237eac9560dd71",
+      "status": "ANALYZED",
+      "reasoning": "Maps Display88,Huge64,Title40,Large26, otherwise18 pixels. Sizes are device-dot choices rather than typographic points because fonts use GraphicsUnit.Pixel. Unknown enum collapses to normal size and does not throw.",
+      "inputs": "TicketTextSize",
+      "outputs": "float pixel size",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Printer DPI/width changes alter physical scale; unknownenum not rejected",
+      "tests_missing": "Exact enum mapping and physical size assumptions tests",
+      "verified_callers_callees": [
+        "CreateFont"
+      ],
+      "evidence_source_span": [
+        125,
+        132
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-56c23e7be7241ae3249ca974b43279bd2bf08d0f666f3414af3a06ddcd0ecd7f",
+      "status": "ANALYZED",
+      "reasoning": "Inspects installed font families for exact Segoe UI Semibold and returns family name or null; exceptions fall back null. It is cached by static initializer. This checks availability but not font version or Arabic shaping equivalence.",
+      "inputs": "Installed Windows fonts",
+      "outputs": "optional family name",
+      "side_effects": "Reads font metadata via GDI; no file modification",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "GDI environment dependent; fallback can change glyph width and wrap",
+      "tests_missing": "Semibold present/absent/font API failure fixtures",
+      "verified_callers_callees": [
+        "SemiBoldFamily static initializer",
+        "InstalledFontCollection",
+        "lambda146"
+      ],
+      "evidence_source_span": [
+        141,
+        152
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-1b71880d523da33c3ae6ee950d32a729cd2299ffa73cd8b9644619f6895a6771",
+      "status": "ANALYZED",
+      "reasoning": "Exact-name predicate selects Segoe UI Semibold family, case-sensitive equality. It does not test glyph/script support, weight availability or rendering quality. A family with different casing/name returns false and chooses fallback.",
+      "inputs": "FontFamily f",
+      "outputs": "bool",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Name match cannot prove Arabic/font-version behavior",
+      "tests_missing": "Installed-font-independent predicate fixtures and fallback render",
+      "verified_callers_callees": [
+        "ResolveSemiBoldFamily",
+        "FontFamily.Name"
+      ],
+      "evidence_source_span": [
+        146,
+        146
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-c1ff6795182df4029b8f08859b626aaf0ac02842c5810ad81215947865f01b22",
+      "status": "ANALYZED",
+      "reasoning": "Creates Bold Segoe UI when requested; otherwise cached Semibold family Regular, falling back Segoe UI Bold. Fonts use fixed pixel size, not printer point/DPI scaling. Caller owns Font disposal; exception paths in measurement can leak allocated fonts until finalization.",
+      "inputs": "size,bold",
+      "outputs": "Font",
+      "side_effects": "Allocates native GDI font",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Unavailable fallback font silently substituted by GDI; thermal darkness not proved",
+      "tests_missing": "Font selection/disposal failure tests; Arabic mixed-digit image QA",
+      "verified_callers_callees": [
+        "PixelSize",
+        "SemiBoldFamily",
+        "RenderSegment"
+      ],
+      "evidence_source_span": [
+        161,
+        168
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-e7098cf52b6e11d1ab9db9cef0e74d37de1e930dca098e0e09c5d91d003d99e5",
+      "status": "ANALYZED",
+      "reasoning": "Maps Center to Center, End to Far, default Near. Combined with DirectionRightToLeft in actual DrawString, Near means right side of text box. This helper alone does not reverse column order, which DrawRow handles separately.",
+      "inputs": "TicketAlign",
+      "outputs": "StringAlignment",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Unknown enums degrade Near; test RTL and mixed numbers not just enum equality",
+      "tests_missing": "Known/unknown align and visual RTL placement fixtures",
+      "verified_callers_callees": [
+        "DrawPill",
+        "DrawRow",
+        "RenderSegment text drawing"
+      ],
+      "evidence_source_span": [
+        170,
+        175
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-46f3c6c2140937b25730bff69dd4500b792141d57cad0b9d254af3b01e0aba38",
+      "status": "ANALYZED",
+      "reasoning": "Trims payload and generates ECC Q module matrix, strips QRCoder quiet zone, sizes integer modules toward224-dot symbol with minimum3 and capped symbol width. Returns null for blank/encoding error or too-wide quiet-zone-inclusive code. Caller then prints text link instead of silently omitting content. No URL fetch or validation occurs here.",
+      "inputs": "QR payload,content width",
+      "outputs": "QrSymbol?",
+      "side_effects": "QR allocations only",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Module target and max refer symbol excluding quiet zone; long payload can cost QR computation; fallback is not camera-readable QR",
+      "tests_missing": "Independent decoder exact payload, oversized/blank/Unicode/quiet zone fixtures",
+      "verified_callers_callees": [
+        "QRCodeGenerator.GenerateQrCode",
+        "RenderSegment QR branch"
+      ],
+      "evidence_source_span": [
+        200,
+        227
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-7b05af5c9538e1be72cfebcb98dbf20fc06aecc498ea87143e2fd398ca4d47fa",
+      "status": "ANALYZED",
+      "reasoning": "Converts null/empty text to one space for measurement only. Whitespace strings remain unchanged. This avoids zero-sized measurement but actual draw still uses original string, so reserved line height can exist without visible ink.",
+      "inputs": "text string",
+      "outputs": "nonempty measurement string",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Does not sanitize ESC/POS control text; this image path draws glyphs but text renderer separate",
+      "tests_missing": "Null/empty/space/newline measurement fixtures",
+      "verified_callers_callees": [
+        "RenderSegment MeasureString"
+      ],
+      "evidence_source_span": [
+        229,
+        229
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-1e38754db763ca6cc6e04718efccfd17d534c5aca49e69dd6a5d833ff62e49a2",
+      "status": "ANALYZED",
+      "reasoning": "Returns twice box horizontal padding for boxed rows, otherwise plain CellGap. It computes lost measurement width, not outer paper margins. DrawRow applies corresponding rectangle insets; consistency is needed to prevent wrapping/clipping differences.",
+      "inputs": "TicketRow.Boxed",
+      "outputs": "int inset",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "If very narrow cell width, measured width clamps1 but drawing rectangle can still be negative",
+      "tests_missing": "Narrow boxed/plain rows and padding consistency fixtures",
+      "verified_callers_callees": [
+        "RenderSegment cell measurement",
+        "DrawRow"
+      ],
+      "evidence_source_span": [
+        233,
+        233
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-be80d9574daa6d49fbfd8e4f90055888a64c630b7660c612d25969433a2a5b05",
+      "status": "ANALYZED",
+      "reasoning": "Returns BoxPadY for boxed rows first, otherwise BandPadY for inverted, otherwise0. A row with both Boxed and Inverted uses box padding rather than band padding. This determines reserved height and text vertical centering, not printed line-gap color.",
+      "inputs": "TicketRow flags",
+      "outputs": "int vertical padding",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Boolean combinations need visual QA; no geometry validation",
+      "tests_missing": "All boxed/inverted combinations height tests",
+      "verified_callers_callees": [
+        "RenderSegment",
+        "DrawRow"
+      ],
+      "evidence_source_span": [
+        235,
+        235
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-dd54cfcab95a55cf58acb1517afffa97a80d13d932e9a511527972527f68a66c",
+      "status": "ANALYZED",
+      "reasoning": "Measures every element, fonts and wrapped cell maximum height, reserves QR positions, creates full-width bitmap, then draws RTL text/rules/rows. It records inverse regions and QR placements for raster stage. Normal completion disposes fonts/Graphics; exceptions before final disposal loop can retain fonts. Width/margin and totalheight unbounded can produce negative drawing widths, giant allocations or invalid bitmap.",
+      "inputs": "segment,width,margin; output region/code lists",
+      "outputs": "Bitmap plus populated inverse/QR lists",
+      "side_effects": "GDI allocations/drawing and list mutation",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "MeasureString lacks same explicit RTL StringFormat as draw; long mixed scripts need visual tests. No totalheight/raster cap",
+      "tests_missing": "Long Arabic/Latin/notes, narrow widths, all element styles and exception cleanup QA",
+      "verified_callers_callees": [
+        "EncodeQr",
+        "CreateFont",
+        "EmptyToSpace",
+        "CellWidth/Inset/PadY",
+        "DrawPill",
+        "DrawRow"
+      ],
+      "evidence_source_span": [
+        244,
+        395
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-57d98baf02d90cd46a8442cf28ef5b42cfa83c85ecf45511bb13ca1172f1be2d",
+      "status": "ANALYZED",
+      "reasoning": "Centers a rounded black pill sized to measured content plus padding and capped to contentwidth, draws bold white RTL text centered inside, and stores rounded rectangle as inverse mask. It reuses measurement font/height and does not reflow independently.",
+      "inputs": "Graphics,TicketText,Measured,y,bounds,inverse list",
+      "outputs": "void drawn pill and mask entry",
+      "side_effects": "Mutates bitmap Graphics and inverse list",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Very narrow dimensions/rounding may clip; mask rounding must align actual white stroke region",
+      "tests_missing": "Long wrapped pill, narrow width and inverse thickening fixtures",
+      "verified_callers_callees": [
+        "RenderSegment inverted text branch",
+        "RoundedRectangle",
+        "ToAlignment concept fixedCenter"
+      ],
+      "evidence_source_span": [
+        400,
+        412
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-dcb0eb425804c03a14b5f97e0ef27c7c23c5ef9a3bf19b2d6929a4d2787e628d",
+      "status": "ANALYZED",
+      "reasoning": "Lays cells right-to-left using width percentage, draws text with individual alignment, fills inverse band and optional shared grid edges. Continuation rows suppress separating top line and prior dividers stop before note row; next boxed row controls shared bottom edge. It does not normalize percentages to sum100.",
+      "inputs": "row,measured fonts,next row,y/content bounds",
+      "outputs": "void row pixels and inverse mask",
+      "side_effects": "Draws Graphics; appends mask",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Rounding percentages can exceed/leave gaps at content edge; negative drawing width possible despite measurement clamp",
+      "tests_missing": "Boxed/inverted/continuation table images, wrapped notes, percentage sums and mixed numerals",
+      "verified_callers_callees": [
+        "RenderSegment",
+        "CellWidth",
+        "RowPadY",
+        "ToAlignment"
+      ],
+      "evidence_source_span": [
+        424,
+        479
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-4712d0ec691cce2423ca9e9b3d135df42fab55cb485e4b2cc24102205a357fe6",
+      "status": "ANALYZED",
+      "reasoning": "Builds four-arc rounded rectangle GraphicsPath with diameter bounded by twice radius and rectangle width/height. Caller disposes returned path. It does not validate negative dimensions before AddArc; invalid input can throw during rendering.",
+      "inputs": "RectangleF,radius",
+      "outputs": "GraphicsPath",
+      "side_effects": "Native path allocation",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Invalid geometry can throw and trigger segment font-cleanup gap",
+      "tests_missing": "Zero/narrow/negative rectangle and disposal tests",
+      "verified_callers_callees": [
+        "DrawPill using path",
+        "GraphicsPath.AddArc"
+      ],
+      "evidence_source_span": [
+        481,
+        491
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9fbdc014ef38b301533a1913b4764fadb77bad46231a5229f2661cb75020ecac",
+      "status": "ANALYZED",
+      "reasoning": "Rounds contentWidth*WidthPercent/100 to integer, clamping each cell to at least1. It does not allocate remainder or validate negative/over100 widths. Independently rounded cells may not sum to contentwidth, so row can overrun safe margin.",
+      "inputs": "cell percent,content width",
+      "outputs": "int cell width",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Very narrow or malformed percentages break table layout; wire mapper passes them unchanged",
+      "tests_missing": "Percent partitions100, pathological negative/oversized and narrow content fixtures",
+      "verified_callers_callees": [
+        "RenderSegment measurement",
+        "DrawRow"
+      ],
+      "evidence_source_span": [
+        495,
+        496
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-c797c5e95434c232507c17c75d48da7837299c4f6ee1920d706f9ad0f0e875c0",
+      "status": "ANALYZED",
+      "reasoning": "Thresholds every GDI pixel to monochrome, optionally thickens with protected mask, stamps QR after dilation, then packs rows MSB-first with byte padding and GS v0 header. Multiple full pixel arrays plus GetPixel loops are costly; header height/width are truncated to16 bits without chunking. Returns only stream bytes, not hardware proof.",
+      "inputs": "stream,bitmap,stroke flag,inverse regions,QR placements",
+      "outputs": "Appended raster command/payload",
+      "side_effects": "Memory allocation and stream mutation",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Huge heights65536+ produce invalid header/payload mismatch; memory scaleswidth*height several buffers",
+      "tests_missing": "Decode bytes exact pixels, dimensions limit/chunking, non-byte-alignedwidth, threshold and QR isolation tests",
+      "verified_callers_callees": [
+        "Render",
+        "ProtectedMask",
+        "Thicken",
+        "StampQr",
+        "Bitmap.GetPixel"
+      ],
+      "evidence_source_span": [
+        500,
+        535
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-3c6d999496e6d8c8efabe381b17a265f9b5191686b0cf0ad0e780f6c1d89bd64",
+      "status": "ANALYZED",
+      "reasoning": "Writes exact QR symbol modules and four-module white quiet zone into target ink bitmap after thickening. Destination bounds checked each pixel; inSymbol guard prevents negative module lookup from quiet zone arithmetic. It overwrites any adjacent thickened ink within QR area to preserve decoding.",
+      "inputs": "ink,width,height,QrPlacement",
+      "outputs": "mutated ink pixels",
+      "side_effects": "Array writes only",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Placement clipping can produce undecodable code; no rescaling to recover clipped symbol",
+      "tests_missing": "Independent QR decode, quiet zone/edge clipping and neighboringtext tests",
+      "verified_callers_callees": [
+        "WriteRaster",
+        "QrSymbol module matrix"
+      ],
+      "evidence_source_span": [
+        537,
+        550
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-62c20dc68e9bb66db1cb0b5c47df5462ba05234315074520930677086d1fde09",
+      "status": "ANALYZED",
+      "reasoning": "Allocates mask width*height and marks clipped rectangular inverse regions true. Only pixels inside both region and canvas are protected; overlapping regions merge. Mask is region approximation, not exact rounded pill foreground shape.",
+      "inputs": "inverse rectangles,canvas dimensions",
+      "outputs": "bool[,] mask",
+      "side_effects": "Allocates/fills array",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Large canvas extra fullbuffer; rounded rectangle bounding box protects white corners too",
+      "tests_missing": "Bounds clipping/overlap/empty regions and pill edge visual tests",
+      "verified_callers_callees": [
+        "WriteRaster",
+        "Thicken"
+      ],
+      "evidence_source_span": [
+        552,
+        560
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-a267869737dd95db38e04d128534315967b5d56fcd9339402e2695cfec939b0a",
+      "status": "ANALYZED",
+      "reasoning": "Creates separate output same dimensions. Outside protected inverse regions, black grows to four-connected neighbors; inside protected regions white grows instead, restricted to same protected mask. Source remains unchanged and bounds checks precede neighbor access. QR stamped later avoids dilation damage.",
+      "inputs": "source ink,width,height,protected mask",
+      "outputs": "grown bool[,]",
+      "side_effects": "Array allocation/writes",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Thickening improves certain hardware strokes but can close small Arabic counters; not universal ink calibration",
+      "tests_missing": "Pixel neighborhood golden tests, inverseboundary and Arabic thermal QA after authorization",
+      "verified_callers_callees": [
+        "WriteRaster",
+        "WhiteInside local helper"
+      ],
+      "evidence_source_span": [
+        584,
+        606
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-52e6984389d976cbd360811937b789b6e974068a0680911b99e44d6221b17984",
+      "status": "ANALYZED",
+      "reasoning": "Returns true only for a protected neighbor that is white in source. This local helper itself does not bounds-check; all surrounding calls are guarded by x/y edge conditions. It deliberately refuses unprotected white neighbors so inverse band edge does not expand.",
+      "inputs": "neighbor coordinates captured source/mask",
+      "outputs": "bool",
+      "side_effects": "None",
+      "trust_boundaries": "Production domain ticket->GDI bitmap->ESC/POS bytes or offline preview decode; no live server trust assumed",
+      "database": "NOT_APPLICABLE: these functions have no SQL/auth/session calls",
+      "printing_ui": "Rendering pixels/preview is distinct from transport acceptance and actual paper; no physical action performed",
+      "performance": "Per-function layout/pixel/QR complexity described; no benchmark executed",
+      "duplicates_conflicts": "Exact stable source syntax distinguishes nested helper and lambdas; no duplicated business/payment logic here",
+      "issues_hypotheses": "Future unguarded caller would index out-of-range; maintain caller bounds discipline",
+      "tests_missing": "Protected edge/corner and neighbor eligibility fixtures",
+      "verified_callers_callees": [
+        "Thicken calls four neighbors with bounds checks"
+      ],
+      "evidence_source_span": [
+        586,
+        586
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

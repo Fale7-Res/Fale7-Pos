@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/AttendanceView.xaml",
+  "source_git_blob_sha256": "5b4ee88ddfff2cf2cdaa7daf8f5b9c379a46a7c56a800be361989831145742ae",
+  "worktree_sha256": "8edc260f015677a3adbf7ebcc0d692e1333624f61c88b5843c61aea8d05b3594",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:34:12.611839+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Dated attendance read and authorized correction overlay.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "CanBrowse",
+      "reasoning": "Previous/next actual enabled gate and accessible day names. Table lists employee, times, hours, late minutes, textual attendance status and manual correction marker; no invented desktop check-in action."
+    },
+    {
+      "anchor": "OpenCorrectionCommand",
+      "reasoning": "Row correction command binds root and record; button not permission-hidden, so VM gate must explain refusal. Fixed110x4+120 columns leave employee star narrow; vertical-only table scroll cannot expand horizontally."
+    },
+    {
+      "anchor": "AttendanceCorrectionCard",
+      "reasoning": "Correction overlay max640x730 stretched with24margin, header/scroll/footer named for isolated geometry probe. Four numeric fields/status/reason disabledCanEditCorrection; save command uses retry-aware caption."
+    },
+    {
+      "anchor": "CorrectionRecord.Date",
+      "reasoning": "Employee/date context displayed, warning says correction can affect wage ledger. No biometric device behavior or pay difference validated from markup."
+    },
+    {
+      "anchor": "ActionNote",
+      "reasoning": "Toast backgroundTextPrimaryBrush with literalwhite foreground: dark theme primary#E6E9EE can create very low contrast, same root semantic-pair misuse as UI002. No rendered screenshot. Positioned before modal so modal overlays it."
+    },
+    {
+      "anchor": "HasNoRecords",
+      "reasoning": "Read loading/error/no-record states distinct, empty text attributes attendance to biometric feed. It does not prove current device integration working."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Existing optional probe measures this modal but was not executed by reviewer. Need permission refusal, missing fingerprint, retained restart, wage impacts in isolated fixture and dark toast contrast. No callable XAML symbols.",
+  "recommendations": "Use paired toast foreground/background tokens, keep correction financial context, verify focus and geometry natively.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

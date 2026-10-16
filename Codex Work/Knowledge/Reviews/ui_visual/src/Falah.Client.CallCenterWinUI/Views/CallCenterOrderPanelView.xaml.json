@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml",
+  "source_git_blob_sha256": "9e47e3d9fde09da74c2a2126485412d0e2b29243f1638661540cdfbe2b3c54be",
+  "worktree_sha256": "9e47e3d9fde09da74c2a2126485412d0e2b29243f1638661540cdfbe2b3c54be",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:28:00.308574+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "CallCenter phone-order draft, cart and payment footer.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "IsHitTestVisible",
+      "reasoning": "Header/cart/payment regions use CanEditOperation as hit-test flag rather than IsEnabled; keyboard focus may still interact, so command/model gates remain necessary. Phone field immediately updates and lookup is asynchronous UI007 context."
+    },
+    {
+      "anchor": "DeliverySummary",
+      "reasoning": "Summary wraps3lines, check/warning icons use actual details flag, user can open full address editor. No independent text describes icon state, but summary may convey fields."
+    },
+    {
+      "anchor": "EmptyCartHint",
+      "reasoning": "Named empty/cart scroll visibility controlled in codebehind, not static binding. External Cart event unsubscribe risk UI015 belongs codebehind."
+    },
+    {
+      "anchor": "RemoveLineCommand",
+      "reasoning": "Nested root binds row operations correctly; delete and plus/minus have explicit accessible Arabic names. Quantity30px may be narrow for large numbers."
+    },
+    {
+      "anchor": "OnNoteChipClicked",
+      "reasoning": "Flyout has two-way Notes and chip Click with44px menu opener. Popup DataContext inheritance and current line targeting require native test. Text is a real draft and no physical print sent here."
+    },
+    {
+      "anchor": "WalletProvider",
+      "reasoning": "Wallet textbox lacks CanEditOperation disabling even where payment segments hit-test gated; immutable pending DTO protects retry but editable draft can diverge visually. VM server validation authoritative."
+    },
+    {
+      "anchor": "SubmitCallCenterOrderButton",
+      "reasoning": "Submit uses IsShiftOpen enablement and command; no busy caption in markup. Clear explicitly uses CanEditOperation. Footer includes subtotal and total delivery but no tax/breakdown or estimated qualifier; authoritative amount returned by server."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Verify keyboard edits during unresolved operation, wallet fields, many lines/scaled footer, note flyout binding, exact retry and totals after server repricing. No callable symbols in XAML.",
+  "recommendations": "Prefer actual enabled states plus model guards and explicit busy/retry feedback. Keep command immutability and process recovery tests distinct from pointer disable.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

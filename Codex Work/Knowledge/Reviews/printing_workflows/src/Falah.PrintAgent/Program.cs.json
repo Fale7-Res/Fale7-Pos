@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/Program.cs",
+  "source_git_blob_sha256": "3d2abe5009bb8b4de474f8d85d90bbc30e23d80874d947feee45b76e6cb249da",
+  "worktree_sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.058095+00:00",
+  "scope": "Every listed callable individually source-reasoned; interface declarations reviewed as contracts, not implementations",
+  "symbols": [
+    {
+      "stable_id": "sym-86f95ca0e000c82d2806b7afef3e73592f0609c9d2c7a12e5b4c73a855c840b4",
+      "status": "ANALYZED",
+      "reasoning": "Selects first argument not starting -- as configuration path; --test-print is separately detected. It is not a general CLI parser: unknown long flags ignored for config selection while any other positional string becomes path. Missing file falls back through loader, so typo can load defaults.",
+      "inputs": "one command-line argument",
+      "outputs": "bool usable as config path candidate",
+      "side_effects": "Pure predicate",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No path existence or extension validation here; test mode can physically send via chosen config",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "args.FirstOrDefault",
+        "AgentOptions.Load"
+      ],
+      "evidence_source_span": [
+        6,
+        6
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-0cdcd32bacb568b2c90c8e6117a495bca927aeee335528801b7db7b9de84a175",
+      "status": "ANALYZED",
+      "reasoning": "Writes supplied operational message with local DateTimeOffset timestamp to console. Does not persist structured logs or force Cairo timezone; diagnostic time follows host. Current messages include IDs/destinations but not explicit PIN/token. A URL configured with secret material could leak through text.",
+      "inputs": "message string",
+      "outputs": "void console output",
+      "side_effects": "Console.WriteLine only",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No centralized retention/redaction; no physical action",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Processor logging delegate",
+        "Program start/poll/test messages"
+      ],
+      "evidence_source_span": [
+        18,
+        18
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-de8f75574af3b292da45939525d927d6ecbc8d50d236799d1a7e289ec4033be4",
+      "status": "ANALYZED",
+      "reasoning": "Console CancelKeyPress callback sets e.Cancel true and cancels shutdown token, enabling normal loop exit/disposal instead of immediate default termination. Synchronous native spooler/serial operations ignore token, so graceful cancellation may still wait; uncertain journal protects interrupted sends only once reached.",
+      "inputs": "Console sender and ConsoleCancelEventArgs",
+      "outputs": "void; cancelled shutdown source",
+      "side_effects": "Changes cancel event/token state",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Does not terminate SQL/service or revoke session; test-print path uses None and bypasses this callback registration",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Console.CancelKeyPress",
+        "Program poll loop",
+        "PrintJobProcessor cancellation handling"
+      ],
+      "evidence_source_span": [
+        128,
+        128
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

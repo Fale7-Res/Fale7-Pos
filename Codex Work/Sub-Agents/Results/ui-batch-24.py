@@ -1,0 +1,25 @@
+from ui_persistent import *
+record(P+'Views/CustomersView.xaml','Phone identity lookup and saved customer address read.',[
+ ('PhoneQuery','Immediate two-way phone search, input remains editable during IsSearching; VM generation check required to prevent stale customer under new query. Search input TelephoneNumber helps keypad, not normalization.'),
+ ('Customer.Phone','Result card displays actual result phone and name, allowing operator to detect mismatch, unlike only query heading. No write buttons or list-all invented API.'),
+ ('Addresses','Area150, address star, service160; address concatenates street/building/landmark but omits floor/apartment and notes despite saved delivery address having them. Read view is incomplete for distinguishing units, not database loss.'),
+ ('ZeroCountToVisibleConverter','Empty address binds Count for updates correctly. HasCustomer gates both card/table; loading/error/notfound/initial instructions separately bound.'),
+ ('AwaitingFirstSearch','Instruction promises saved addresses and order history, but no order history section or binding exists in this file. Source UI copy promises unavailable content; backend history may exist elsewhere, not proof missing system component.'),
+ ('SearchCommand','Retry explicit and error wraps. Vertical scroll accommodates long results; eager addresses bounded by one customer but unbounded count contract unknown.')
+ ],'NOT_EXECUTED. Need delayed phone query race, same-building multiple unit records, unavailable customer, empty addresses and native screen reader field names. No callable declarations.', 'Show full address identity and align instructional promise with visible functionality; guard async query result in VM.')
+record(P+'Views/EmployeeEditorView.xaml','Employee roster editor for identity, compensation, lifecycle and delivery eligibility.',[
+ ('SelectCommand','Root explicit nested selection command,330px roster plus remaining editor; rows have name/number/job. No search filter in this view; large roster navigation requires manual scrolling.'),
+ ('HasForm','Form or empty instruction exclusive. Middle editor ScrollViewer and pinned save/footer support many fields; header/footer reduce available middle area with long errors.'),
+ ('CompensationType','All wage types remain visible, optional salary/overtime distinct from required daily/shift values. Numeric InputScope alone does not validate; all server fields disabled CanEdit.'),
+ ('LifecycleStatus','Work arrangement, lifecycle, active and can-deliver independent two-way controls. Potential contradictory combinations must be validated by VM/domain, not hidden in UI.'),
+ ('NationalId','National ID and biometric ID treated ordinary editable text; no real records inspected. UI authorization inherited CanEdit only, permission enforcement independently backend-reviewed.'),
+ ('SaveLabel','Retry-aware caption and CanEdit gating; errors/success wrap. No loading/error empty state over roster in this markup, so initial read failure presentation depends ActionError/VM; native not observed.')
+ ],'NOT_EXECUTED. Test retained create/update restart, all compensation values roundtrip, long field headers/narrow widths, roster read failure and native focus trap. No callable declarations.', 'Keep compensation fields independent and validate lifecycle coherence server-side; expose roster load state and accessible action feedback.')
+record(P+'Views/CashCountView.xaml','Physical denomination count entry and same-day count history overlay.',[
+ ('Rows','Denomination label130 and total140 around quantity star; root CanAct disables quantity. Forty-eight pixel input and numeric scope aid touch. No automatic cash/ledger mutation in markup.'),
+ ('CountedTotalDisplay','Explicitly labels local sum a counting aid; ExpectedText remains operator input. Server calculation of difference must not be confused with independently measured expected ledger balance.'),
+ ('History','Shows counted/expected/difference only, without count time or operator. Multiple same-day entries indistinguishable beyond amounts; result identity/date context supplied by VM/server not shown.'),
+ ('IsLoading','Loading/error overlays denomination pane only; total/history pane still present and can retain stale data during refresh. Native VM flag sequencing needed before claiming stale actual behavior.'),
+ ('SaveLabel','Caption supports retry, action error/note pinned with save while body scrolls. Max1020, fixed330 side pane plus left minimum columns requires width validation on smaller terminals.'),
+ ('CloseCommand','Header uses VM close guard; Grid overlay contains no standalone focus confinement. Draft/recovered context control belongs VM retained request handling.')
+ ],'NOT_EXECUTED. Test physical count arithmetic boundaries, zero quantities, expected source clarity, restart retry, stale reload, history identification and narrow/scaled layout. No callable declarations.', 'Expose time/operator for count history and explain expected balance provenance; verify atomic snapshot/retry without writing actual counts during audit.')

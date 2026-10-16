@@ -2,7 +2,7 @@
 
 Baseline: `c35816ecae49633674775dd32061c6ee92f94aaf`. Audit only; no source/config/database modifications or tests executed.
 
-Coverage: 269 complete files statically reviewed of 327 assigned; 58 explicitly NOT_ANALYZED. This is incomplete exhaustive coverage. Full remaining paths and per-file SHA256/line spans: [ledger](../../Sub-Agents/Results/financial-ledger.json). Worktree hashes and Git-blob hashes differ only CRLF/LF, verified normalized source equality for every reviewed file.
+Coverage: 279 complete files statically reviewed of 327 assigned; 48 explicitly NOT_ANALYZED. This is incomplete exhaustive coverage. Full remaining paths and per-file SHA256/line spans: [ledger](../../Sub-Agents/Results/financial-ledger.json). Worktree hashes and Git-blob hashes differ only CRLF/LF, verified normalized source equality for every reviewed file.
 
 - **FIN-001 HIGH**: Mixed cash/electronic checkout cannot confirm its electronic leg — CONFIRMED_STATIC_INDEPENDENT_REVIEW
 - **FIN-002 HIGH**: Cancelling pending mixed electronic payment hides collected cash without reversal — CONFIRMED_STATIC_INDEPENDENT_REVIEW

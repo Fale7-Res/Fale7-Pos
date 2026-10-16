@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Styles/Typography.xaml",
+  "source_git_blob_sha256": "c8ce6475aa4042f73a358c9a8f6b90ecea378be0bf9c79e28ab8aabcc0f7e92a",
+  "worktree_sha256": "200dbee7a7909b23d5758585eee485830744037c5e17a9970878c49721bd3ecc",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:58.397095+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "CallCenter explicit keyed Arabic text hierarchy.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "TextBase",
+      "reasoning": "Segoe UI, static TextPrimary, RTL common base; explicit keys not implicit default for all TextBlocks. Local overrides may differ."
+    },
+    {
+      "anchor": "TotalAmountText",
+      "reasoning": "Total24Black/title20Black and section14ExtraBold; body13 and muted11. Source sizes do not prove actual physical readability at DPI."
+    },
+    {
+      "anchor": "ProductNameText",
+      "reasoning": "Product15ExtraBold wraps; Price16Black brand; category12Bold center and badge11Bold. Caller catalogue explicitly overrides many sizes, so these are not universal metrics."
+    },
+    {
+      "anchor": "CartItemNameText",
+      "reasoning": "Actual16Bold dark primary contradict white-on-dark comment, correct for current white card palette."
+    },
+    {
+      "anchor": "MetricValueText",
+      "reasoning": "Management26Black and page22Bold, subtitle/body13; caption11 and tableheader12 muted. Dense text requires scaling checks."
+    },
+    {
+      "anchor": "StatusPillText",
+      "reasoning": "White11SemiBold forces light glyph on any semantic pill; neutral/warning contrast and high contrast mode need native check. Nav13SemiBold white."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. XAML no callable declarations; screenreader reading order, fallback Arabic glyph shaping, OS text scale and contrast not observed. Source comment reference credentials were not copied into report.",
+  "recommendations": "Use theme/high contrast semantic text styles and test all style consumers; do not claim current native accessibility from nominal font sizes.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

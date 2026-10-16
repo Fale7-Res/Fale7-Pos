@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+  "source_git_blob_sha256": "31051c0c991f43c10d1ab5335195e82db8b7f03a2b59f42707b35831a4d5d979",
+  "worktree_sha256": "2ef3ef9c1d54c7a16bfe506d95e2803aa1970a09e4fbecdf473a1b82fc3ea640",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:31.652643+00:00",
+  "scope": "Every listed callable individually source-reasoned; interface declarations reviewed as contracts, not implementations",
+  "symbols": [
+    {
+      "stable_id": "sym-c439566c26cdf49541d8e77b71488bb1805bbc5f77e5420ab8a9556e2ba13332",
+      "status": "ANALYZED",
+      "reasoning": "Captures server, transport, encoding, user/log and rendering options; creates default journal beneath AppContext.BaseDirectory if none supplied. It does not perform authentication or validate all image geometry. Constructing default journal reads its file and can fail closed before processing.",
+      "inputs": "Dependencies and station render/identity options",
+      "outputs": "Initialized processor",
+      "side_effects": "May read existing local journal via default store construction",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Nullable dependencies not checked; unwritable install directory fails on later persistence; route-specific store supplied by Program avoids shared default",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Program processor construction",
+        "UnreportedAttemptStore constructor"
+      ],
+      "evidence_source_span": [
+        46,
+        63
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-80fc0cbc5120e72a6e394ee37ee0bfc998ab85da179de2ffa2208abd7cee395d",
+      "status": "ANALYZED",
+      "reasoning": "Fetches Pending jobs once, then processes each in server-returned order with a cancellation check before each. It trusts route filtering/order from server rather than sorting or claiming itself. A snapshot can become stale or be concurrently drained by another machine. Return count counts attempted ProcessAsync completions, not physical successes.",
+      "inputs": "route and cancellation",
+      "outputs": "Number of processed jobs",
+      "side_effects": "HTTP pending read and per-job downstream output/report effects",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-001 unclaimed snapshot; stop/error aborts remaining backlog until next poll; no pagination cap",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Program poll loop",
+        "IPrintServerClient.GetPendingAsync",
+        "ProcessAsync"
+      ],
+      "evidence_source_span": [
+        68,
+        79
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-f88d78f9acd00be3317a0a316fa0024fb487f9146eded2adad7b935ac98d8aa9",
+      "status": "ANALYZED",
+      "reasoning": "If journal already has job outcome, only re-report it. Otherwise mint one attempt ID, fetch/map/render ticket, persist uncertain outcome before bytes leave, send, then persist observed success/failure and report using same key. Cancellation during send leaves uncertain record for later manual reconciliation. This prevents ordinary same-station report-failure reprints but cannot fence other machines.",
+      "inputs": "PrintJobDto, cancellation",
+      "outputs": "Task completion; reported success/failure or exception",
+      "side_effects": "HTTP fetch/report, local durable journal, actual selected transport output if run",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-001/002. Disk failure after send can leave uncertain persisted state; pre-send failure sends no bytes. Reported count is not paper proof. Test every crash window with fakes",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "DrainAsync",
+        "GetTicketAsync",
+        "ToDomain",
+        "Bitmap/EscPos Render",
+        "UnreportedAttemptStore.Remember",
+        "ITicketTransport.SendAsync",
+        "ReportAsync"
+      ],
+      "evidence_source_span": [
+        81,
+        129
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-61be486321709002c5aac91293edc95e8eec2f50ff8b66c1cef466d68ee73e51",
+      "status": "ANALYZED",
+      "reasoning": "Offers same report request up to three times. Success removes local journal record; nonfinal failures delay400ms then800ms; final failure re-persists outcome and logs. Cancellation propagates. If local Forget fails after accepted server report, retry uses same request ID; server replay should remain idempotent.",
+      "inputs": "ReportPrintJobResultRequest and cancellation",
+      "outputs": "Task; successful acknowledgement or outcome left on disk",
+      "side_effects": "HTTP attempt-report writes, journal deletion/update, bounded waits/logs",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Server acknowledgement is not physical proof. File system failure in final Remember can escape, so recovery visibility needs tests. Reusing ID protects report, not independent send",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "ProcessAsync",
+        "PrintServerClient.ReportResultAsync",
+        "UnreportedAttemptStore.Forget/Remember"
+      ],
+      "evidence_source_span": [
+        131,
+        161
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-dd6e8b7c8845e38dab46dcfbe4aee4adb42e71c5aef7d0d30948a7cdfed5665a",
+      "status": "ANALYZED",
+      "reasoning": "Parses route with case-insensitive Enum.Parse and maps each ticket element through shared mapper in order. Unrecognized route throws before transport; malformed elements are mostly permissively mapped. No physical bytes are generated here, so caller rendering geometry and station configuration remain separate.",
+      "inputs": "ComposedTicketDto",
+      "outputs": "ComposedTicket Domain record",
+      "side_effects": "Allocation only",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Enum.Parse accepts numeric undefined values; route is server-controlled but contract validation absent. Test route and every element mapping",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "ProcessAsync",
+        "TicketElementMapping.ToDomain"
+      ],
+      "evidence_source_span": [
+        165,
+        169
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,22 @@
+from ui_persistent import *
+record(C+'Styles/Controls.xaml','CallCenter WinUI button templates, input and management resources.',[
+ ('BaseButtonStyle','Border template binds content/template/alignment/padding; Normal/PointerOver/Pressed/Disabled opacity1/.92/.8/.45. No explicit focus visual state in template; platform system focus visuals may still apply, native verification required.'),
+ ('CtaButtonStyle','Primary/CTA/success/danger white foreground, fixedCTA52 plus inheritedMinHeight48; long/scaled labels may clip. Secondary literal lightgray. Segment gray foreground on pale background defaults may be weak unless instance overrides (actual payment/order segments do).'),
+ ('PaymentMethodButtonStyle','White/darkprimary border2,72height; selected colors applied per-instance. Keypad min60x52 stretched; close min44x44. Actual hit target governed by constraints; nominal styles alone not usability proof.'),
+ ('CategoryButtonStyle','Fixed114x80 category and150x190 product, selected style blue/action white; actual catalogue uses bespoke grid cards rather than ProductCardStyle. Cart Quantity44height inherits48minimum so effective height may be48, unlike comment square44.'),
+ ('NoteChipButtonStyle','Note min44 and pale background; variant/offer border styles use fixed light colors. Implicit MenuFlyout48, TextBox/Password/Combo48 withRTL and14px; URL/phone callers must override flow where needed.'),
+ ('SearchBoxStyle','Keyed TextBox style independently restatesfont/RTL/padding and42minimum; implicit style not automatically inherited. NumberBox compact spin uses48minimum, quantity/money precision still VM responsibility.'),
+ ('IconButtonStyle','40x40 withMinHeight0; Ghost36 and toolbar38 smaller than44touch target, may be desktop choice. Accessible icon names must be instance-specific, not supplied here.'),
+ ('PageCardStyle','White static cards, summarymin180, tablemin48, pill10x4padding and alertborder. No theme dictionaries/highcontrast substitutions in file; use actual resource consumers.'),
+ ('ShellNavViewStyle','Only open248/compact56 sizes; no PaneBackground setter. Historicalcompilercrash comment not independently reproduced and is not active defect evidence.'),
+ ('DialogDestructiveButtonStyle','Dangerwhite button label/body remain callerresponsibility; no permission/confirmation/business write logic implemented by style.')
+ ],'NOT_EXECUTED. No callable declarations. Native focused/disabled/highcontrast state, longlabels/RTL and effective min-height conflicts require measured geometry. Historical render/compiler claims not accepted as our observation.','Preserve focus/accessible names, semantic brush pairs and consistent touch targets if deployment hardware requires; no source changes performed.')
+record(W+'Styles/Controls.xaml','Legacy WPF control templates and POS resource styles.',[
+ ('BaseButtonStyle','WPF Border uses Tag as CornerRadius, ContentPresenter hardcodescenteralignment despite ProductCard horizontalstretch setter. Mouseover/pressed/disabled opacity triggers .92/.82/.45; no custom focus trigger, default FocusVisualStyle may still render.'),
+ ('CtaButtonStyle','52fixedheight16Black whiteonactionblue. Primary/success/danger all share template; button keyboard command behavior remains WPF Button implementation.'),
+ ('SegmentButtonStyle','34height conflicts inherited48minimum; actual arrangedminimum wins dependingconstraints. Keypad64minimum. Explicit Width/Height are not sufficient measured hit targets.'),
+ ('CategoryButtonStyle','114x80white/dark and selectedactionwhite; product145x180fixed despite older comment208. Fixedheights can clip names/offers attextscale.'),
+ ('QuantityButtonStyle','Width30Height30 but inheritedMinHeight48 means narrow30 and at least48high; no backgroundforeground defined here so relies consumers/defaults. Notechip9px resetsMinHeight0, very small nominal hit target.'),
+ ('CartItemCardStyle','Darkcartcard with.8border and12padding. Light variant/offer pills independent. No runtime theme/highcontrast overrides.'),
+ ('PART_ContentHost','Implicit TextBox template supplies required named ScrollViewer host inside rounded Border. Replaces standard chrome without focused/error/read-only visual states; validationadorner may exist externally. Multilineverticalscroll behavior notexplicit.')
+ ],'NOT_EXECUTED. No callable declarations. Need effective geometry/focus/validation/scaling tests if legacy deployed; activeWinUI separate.','Respect alignment TemplateBindings and explicit minsize choices in approvedfix; validate focus/error visibility natively.')

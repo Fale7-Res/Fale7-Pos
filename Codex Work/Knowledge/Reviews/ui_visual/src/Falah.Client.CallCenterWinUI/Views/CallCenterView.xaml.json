@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml",
+  "source_git_blob_sha256": "16e9dba5bd2305650d309c15a2ac58848e15e2d3820ae05ff1473b2ee02a06ed",
+  "worktree_sha256": "67022609cfa8b4a82b59f2b225725d921e8596defeda694af4a1a47bfef79eea",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:28:00.015239+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "CallCenter workspace composition and order/reprint overlays.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "IsShiftOpen",
+      "reasoning": "No-shift pane offers refresh only; this client intentionally cannot open shift. Active workspace fixed420px intake plus remaining catalogue; no responsive breakpoint in markup."
+    },
+    {
+      "anchor": "CallCenterDeliveryEditorView",
+      "reasoning": "Shared VM inherited by nested address component. Later overlays stack variant, result, lookup, so VM exclusive flags essential; no native modal focus isolation defined."
+    },
+    {
+      "anchor": "VariantPickerProduct.Variants",
+      "reasoning": "Variant buttons root-command bind correctly; pending offer shown explicitly. MaxHeight500 stack has no ScrollViewer, many sizes/large text may clip; native unobserved."
+    },
+    {
+      "anchor": "HasCheckoutResult",
+      "reasoning": "Confirmation reports recorded order and conditional print warning with separate RetryPrint. Order success never equated with successful physical print. StartNewOrder gates CanEditOperation, supporting unresolved print blocking."
+    },
+    {
+      "anchor": "IsOrderLookupOpen",
+      "reasoning": "MaxHeight560 fixed420 stack lacks scroll. Long errors/customer/address/payment lines can exceed it. Shows subtotal total and status, not full items/receipt preview."
+    },
+    {
+      "anchor": "IsLookedUpPaymentUnconfirmed",
+      "reasoning": "Warning versus muted brush and explicit LookedUpPaymentLine communicate unconfirmed electronic money. Reprint button routes ReprintLookedUpOrderCommand, source UI012 kitchen-route issue remains outside markup."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test short viewport, many variants/long lookup, payment warning, print rejection versus ambiguity and one active overlay. No XAML callable symbols.",
+  "recommendations": "Use bounded scroll in variant/lookup overlays; preserve real-order versus print status distinction and native focus validation.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

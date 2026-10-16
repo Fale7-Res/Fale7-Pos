@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Views/AppHeaderView.xaml",
+  "source_git_blob_sha256": "bce17007bbd937253de6376da46eee1a93b4633e68e025f4e76198b08a25e305",
+  "worktree_sha256": "bce17007bbd937253de6376da46eee1a93b4633e68e025f4e76198b08a25e305",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:58.699694+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Legacy WPF64px header with restaurant, shift, time, lock and operator badge.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "IsShiftOpen",
+      "reasoning": "WPF DataTrigger dot emerald/slate plus explicit ShiftLabel text, so not sole-color state. Right logo group and left time/user groups float without shared columns, longnames/narrowwindow can overlap."
+    },
+    {
+      "anchor": "TimeText",
+      "reasoning": "Clock/dateLTR insideRTL header; VM determines timezone. Fixed64height plus9/10px secondarytext may clip atOStextscale."
+    },
+    {
+      "anchor": "LockCommand",
+      "reasoning": "RelativeSource ancestorWindow.DataContext correctly finds main shell command beyond HeaderVM. No bearer revocation behavior in markup; coordinator tracks lock/session separately."
+    },
+    {
+      "anchor": "UserName[0]",
+      "reasoning": "Initial index binding may fail for emptyusername, WPF binding fallback rather than checked glyph. Full name/role remain visible in text; no photo/credentialread."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED; no native window interaction. No callable declarations. Need longArabicname/emptyuser/smallwidth/lockpending tests.",
+  "recommendations": "Use grid columns/trimming and safe initial converter if legacy maintained; do not infer app security from lock icon.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

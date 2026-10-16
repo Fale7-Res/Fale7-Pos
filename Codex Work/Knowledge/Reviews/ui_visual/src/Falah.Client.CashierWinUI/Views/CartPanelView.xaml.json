@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml",
+  "source_git_blob_sha256": "7aa2906e0fdfc7b1693c763cfaeef899478b1ca2bdf00eb7d4a8681a07e0e12f",
+  "worktree_sha256": "a076edb7603af83d2c463e3d75ae3f7ffd75a9b70669e8ce4769fb12dc12b309",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:29:24.666892+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Cashier current cart with estimated total and checkout action.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "CompactOrderTypeButton",
+      "reasoning": "Collapsed initial compact flyout versus full three-segment order choices delegated codebehind responsive switch. All order type options explicit string contracts; thematic converters return concrete brush resources."
+    },
+    {
+      "anchor": "OpenPickupEditorCommand",
+      "reasoning": "Pickup/delivery summaries show current draft, two-line bound label; OpenDeliveryEditor separate. Header and cart use hit-test gating, which does not itself disable keyboard focus."
+    },
+    {
+      "anchor": "RemoveLineCommand",
+      "reasoning": "Nested root command paths preserve item parameter; delete/increment/decrement have Arabic automation names. Notes flyout actual two-way row text/chips; codebehind must maintain correct line context."
+    },
+    {
+      "anchor": "OrderFooter",
+      "reasoning": "Fixed auto footer beside star cart shows subtotal/delivery/discount/comp/tax conditional rows and explicit estimated total, not authoritative receipt. Many visible rows shrink available cart space; named elements support native probes but no probe run here."
+    },
+    {
+      "anchor": "FooterCheckoutReason",
+      "reasoning": "Wrapped reason explains blocked checkout. Real command plus CanOpenCheckout gates. Cancel uses request-clear confirmation command and CanEditOperation, rather than unconditional clear."
+    },
+    {
+      "anchor": "FooterTotalAmount",
+      "reasoning": "Amount wraps and MinHeight52 rather than fixed narrow row, helping large sums. ThemeResource text/background pairs follow active theme except converter-selected white segments. No full receipt preview or print invocation here."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Native focus during pending, compact flyout, note popup binding, all footer rows at1366/150percent and large amounts need validation. XAML has no callable declarations.",
+  "recommendations": "Keep estimated versus authoritative distinction; enforce model guards as well as native IsEnabled and verify pinned footer usability.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

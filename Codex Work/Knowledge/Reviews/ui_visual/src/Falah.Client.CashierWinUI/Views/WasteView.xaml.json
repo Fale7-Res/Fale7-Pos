@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/WasteView.xaml",
+  "source_git_blob_sha256": "d604a1c80f258d4f4dfbf22ad718153c1cbf95eb5101f8c186f1fa8f91632d1f",
+  "worktree_sha256": "c63ecabc62fcae31e0a6d100538c5f41aa4352f7712a9de287ed8f82f1170d3a",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:32:29.258040+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Read-only dated waste/loss summary and movement list.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "BusinessDateLabel",
+      "reasoning": "Prev/nextbuttons have Arabicaccessible names andalways-enabled markup; VMmustqueue/coalesce dates. Summarytitle explicitlyonebusinessdate."
+    },
+    {
+      "anchor": "Summary.TotalLossValuePiastres",
+      "reasoning": "Summary metric alwaysvisible regardlessIsLoading/error; stale/nullsummariesmayread olddate with newheading. ByTypehorizontalmin140percategory plus170total needs substantialwidth; no horizontalwrapping."
+    },
+    {
+      "anchor": "Movements",
+      "reasoning": "Rows showtype/quantity/value/reason but noitemname, timestamp orbusinessdate. Therefore VMglobalrecentmovementdate mismatch cannot be detectedfromtable itself; priorWasteVMsource candidate requires endpoint/datechallenge."
+    },
+    {
+      "anchor": "NullablePiastresToDisplayConverter",
+      "reasoning": "Individualnullcost explicitlyunvaluednot0. SummarytotalusesnonnullablePiastresconverter andcannotaloneconvey unknownlosscoverage; backendDTOsemanticsmustbechecked."
+    },
+    {
+      "anchor": "HasNoLoss",
+      "reasoning": "Empty statesays no lossinthisday, whiletableunconditionallyboundMovements. Differentdate-filtersemanticscanyieldcontradictoryemptybanner/list; nativecasesnotobserved."
+    },
+    {
+      "anchor": "LoadCommand",
+      "reasoning": "Spinner/error/retryoverlay tableonly, nottopsummaries; fixed140/120/130columns plusreasonstar potentialnarrowviewportpressure. EagerItemsControlnotvirtualized."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Needrapiddatechanges, serverrecentlistversusdatedsummary, unknowncostcoverage andlongreason/narrowlayout. No callabledeclarations.",
+  "recommendations": "Exposemovementitem/timeanddate-consistentloadingdata; neverclaimdatedsummaryandglobalrecentrowsreconcilewithoutqueryevidence.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}
