@@ -1,0 +1,65 @@
+{
+  "artifact_kind": "Ordinary manual audit findings; NOT plugin canonical output",
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "Authentication/authorization identity binding",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH",
+      "confidence": "CONFIRMED_MECHANISM_AND_INDEPENDENT_STATIC_TRACE",
+      "live_privileged_operation_executed": false,
+      "status": "PARTIAL_AUDIT_VALIDATED_FINDING",
+      "sources": [
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "symbol": "FindActorMismatchAsync",
+          "start_line": 91,
+          "end_line": 124,
+          "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+          "excerpt": "    private static async Task<string?> FindActorMismatchAsync(HttpContext context, string authenticatedUserId)\n    {\n        foreach (var field in ActorFields)\n        {\n            if (context.Request.Query.TryGetValue(field, out var values))\n            {\n                var claimed = values.ToString();\n                if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;\n            }\n        }\n\n        if (!context.Request.HasJsonContentType()) return null;\n\n        // Buffered so the endpoint's own model binding can still read the body afterwards.\n        context.Request.EnableBuffering();\n        try\n        {\n            using var document = await System.Text.Json.JsonDocument.ParseAsync(\n                context.Request.Body, cancellationToken: context.RequestAborted);\n            if (document.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object) return null;\n\n            foreach (var field in ActorFields)\n            {\n                if (document.RootElement.TryGetProperty(field, out var value)\n                    && value.ValueKind == System.Text.Json.JsonValueKind.String)\n                {\n                    var claimed = value.GetString();\n                    if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;\n                }\n            }\n        }\n        catch (System.Text.Json.JsonException)\n        {\n            // Malformed JSON is the endpoint's problem to report, not this middleware's."
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "symbol": "POST /api/users/{id}/permissions",
+          "start_line": 1951,
+          "end_line": 1957,
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "excerpt": "app.MapPost(\"/api/users/{id}/permissions\", async (string id, Falah.Application.Users.UpdateUserPermissionsRequest body, UpdateUserPermissionsHandler handler, CancellationToken ct) =>\n{\n    try\n    {\n        var request = body with { UserId = id };\n        await handler.HandleAsync(request, ct);\n        return Results.Ok();"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+          "symbol": "HandleAsync",
+          "start_line": 28,
+          "end_line": 44,
+          "worktree_sha256": "796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55",
+          "excerpt": "    public async Task HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)\n    {\n        // Concurrent revocations must not each count the other administrator as a survivor.\n        await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        var actor = OrderMapper.ToActor(actorUser);\n        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, \"users_manage\");\n\n        var target = await _db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم المستهدف غير موجود.\");\n        UserManagementRules.AssertTargetIsNotOwner(target.Role, \"تعديل صلاحيات\");\n\n        var grant = request.Grant.Distinct().ToList();\n        var revoke = request.Revoke.Distinct().ToList();\n        UserManagementRules.AssertKnownPermissions(grant.Concat(revoke));\n        UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, grant);"
+        },
+        {
+          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+          "symbol": "UpdateUserPermissionsRequest",
+          "start_line": 28,
+          "end_line": 29,
+          "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "excerpt": "public sealed record UpdateUserPermissionsRequest(\n    string UserId, IReadOnlyList<string> Grant, IReadOnlyList<string> Revoke, string ActorUserId);"
+        }
+      ],
+      "trigger": "Valid restricted bearer, known active privileged actor ID, alternate casing of JSON ActorUserId field on body-authorized route.",
+      "root_cause": "Case-sensitive JsonElement field check disagrees with web case-insensitive DTO binding; handlers authorize request actor instead of bearer actor.",
+      "impact": "Possible privileged permission grants and false actor attribution within target/permission constraints; no anonymous bypass asserted.",
+      "independent_evidence": "Codex Work/Sub-Agents/Handoffs/security-casing-challenge.md",
+      "executed_safe_validation": "Codex Work/Deep-Audit/Security/middleware-case-harness-results.json",
+      "recommendation": "Bind command actor exclusively to authenticated context; reject inconsistent/duplicate actor representations as defense in depth. No fix applied.",
+      "required_regression_tests": [
+        "Restricted versus privileged real fixture actors through full Minimal API pipeline",
+        "camel/Pascal/upper/duplicate JSON actor keys",
+        "Normal same-actor requests",
+        "No writable live database used for validation"
+      ],
+      "remaining_uncertainty": "Full HTTP model-binding and database permission mutation not executed. Broader affected route count not yet audited.",
+      "related_findings": [
+        "UI-020"
+      ],
+      "report": "Codex Work/Deep-Audit/Security/SECURITY_AND_BACKDOOR_AUDIT.md"
+    }
+  ]
+}

@@ -1,0 +1,518 @@
+"""Audit documentation writer. Does not execute application code or change source."""
+from pathlib import Path
+import hashlib, json, subprocess, collections
+
+ROOT=Path(__file__).resolve().parents[3]
+OUT=ROOT/'artifacts/deep-audit-c35816e-20261016'
+SHA='c35816ecae49633674775dd32061c6ee92f94aaf'
+reviews={}
+def add(path, role, analysis, tests, recommendations, status='REVIEWED_SOURCE'):
+    reviews[path]=dict(role=role, analysis=analysis, tests=tests, recommendations=recommendations,status=status)
+
+P='src/Falah.Client.CashierWinUI/'
+C='src/Falah.Client.CallCenterWinUI/'
+T='tests/Falah.Client.Tests/'
+add(P+'ViewModels/CashierViewModel.Checkout.cs','Payment form, checkout command, electronic payment resolution.',[
+('DiscountAmountPiastres','Discount values parse through CashInput; positive discounts require orders_discount before transmission. Local totals are estimates; request sends discount, item identities, quantities, offer identities, not client unit prices.'),
+('CompAmountPiastres','Comp is always manager-approved even for privileged users; ResolveManagerApprovalIfNeededAsync sends PIN to the existing approval endpoint. Reason text is required when enabled; reason taxonomy exposes actual CLR record properties suitable for reflection binding.'),
+('ConfirmElectronicPaymentAsync','A durable request can be recovered without LastCheckoutResult, but this command and CanConfirmPendingPayment require that transient result. Source-confirmed recovery dead end UI-005. Success updates paid/electronic status from server.'),
+('CancelPendingElectronicPaymentAsync','Same recovery dead end; cancellation requires reason for a fresh attempt and retains the exact cancellation DTO after ambiguity. Durable owner keys lack per-user suffixes.'),
+('OpenCheckout','Rejects empty/unloaded menu and missing delivery/pickup fields; sets default cash tender and one request ID. It does not persist a preparation order. All order types proceed toward the same checkout UI, conflicting with requested pickup Stage A (UI-003).'),
+('PressAmountKey','Tender guard prevents editing cash-on-delivery and pending commands. Replacement-on-first-key works through OnAmountPaidTextChanged resetting the flag; decimal/amount validity is deferred to CashInput at submission.'),
+('SubmitPaymentAsync','Synchronous busy guard plus generated CanExecute limit double-click concurrency. Validation and manager approval precede immutable request construction; payment split, wallet and customer/address/pickup values are transmitted. CustomerPrintRoute Receipt delegates automatic ticket creation to the server; no kitchen-before-payment call occurs.'),
+('CompleteCheckoutAsync','Freezes exact DTO in a private field and reuses it during same-process retries. Clears only on success or definite first rejection; retains after ambiguous history followed by rejection. This field is never persisted, producing UI-001 across termination. Success clears cart and flags, but does not clear PickupDate/Time (UI-006).'),
+('StartNewOrder','Resets result/error and shared delivery details only; no durable checkout recovery or pickup schedule reset.')],
+'CashierCorrectnessTests/FinalVerificationTests are candidate same-session coverage; RetainedRequestDurabilityTests test a helper this checkout does not use. No process reconstruction assertion for this concrete checkout or electronic-recovery UI found in reviewed tests.',
+'Adopt durable operator-scoped checkout state before send; recover electronic actions from retained DTO order identity independently of transient result; design pickup preparation/pay stages explicitly; clear all order-scoped pickup values only after resolved order completion.')
+add(P+'ViewModels/CashierViewModel.Expense.cs','Drawer-only petty cash expense dialog.',[
+('OpenAddExpense','Resets category/amount/description/PIN, refuses while another command is busy or unresolved. Category strings intentionally differ from some labels; avoid renaming historic grouping keys.'),
+('SetExpenseCategory','Assigns caller string without busy guard; actual category buttons also remain enabled in XAML. Pending DTO remains immutable, but displayed selection can diverge from frozen payload.'),
+('CancelAddExpense','Prevents closing during busy/unresolved send. Does not clear a previously entered manager PIN on cancellation.'),
+('SubmitExpenseAsync','Requires positive parsed amount and description; approval path exchanges PIN once with permission expenses_add_drawer. Uses tre-drawer and current shift/user. finally restores busy state even validation returns after approval decision.'),
+('CompleteExpenseAsync','Uses one request identity until success and retains ambiguous DTO only in memory (UI-001). No direct SQL or printer access; successful return closes dialog.')],
+'Missing concrete expense restart-after-commit/lost-response test; missing busy category/UI consistency test and theme contrast screenshot assertions.',
+'Persist exact expense DTO before send; freeze every editable category control with operation state; clear sensitive PIN state after resolved/cancelled dialog. Theme defect belongs to CashierView.xaml, not this category business value.')
+add(P+'ViewModels/CashierViewModel.Operations.cs','Safe drop, drawer transfer/open, live balance, order lookup, receipt reprint and manager approval.',[
+('SubmitSafeDropAsync','Validates positive money and reason, obtains server approval when permission absent; CompleteSafeDropAsync retains request/ID only in memory. Source-side no arithmetic ledger mutation.'),
+('SubmitCashMovementAsync','Uses current movement type, positive amount, current actor/shift and approval token. CompleteCashMovementAsync rotates ID only on success and shares UI-001 durability gap.'),
+('SubmitCashDrawerAsync','Records request to open drawer with reason/approval; code explicitly does not claim physical drawer opened. CompleteCashDrawerAsync uses in-memory retention. Real agent outcome must be checked elsewhere.'),
+('OpenCashCountAsync','Read-only treasury balance fetch resets nullable value first; permission guard uses CanViewDrawerBalance. No epoch/cancellation guard prevents late read updating a closed modal, though it does not move money.'),
+('SearchOrderAsync','Requires lookup number and no unresolved reprint; clears result, fetches details, displays server errors. IsSearchingOrder is not included in IsOperationBusy, so concurrent repeated searches can return out of order.'),
+('ReprintOrderAsync','Receipt only with IncludeKitchenRoutes false, correct avoidance of duplicate cooking. Stable request on ambiguous retry but memory-only across termination. Result says queued, not printed. Guards only own IsReprinting and lookup context.'),
+('ResolveManagerApprovalIfNeededAsync','Uses real approval issue endpoint; never trusts a typed approver ID as proof. Comment above still describes obsolete two-step login, while implementation is one call.'),
+('CompleteSafeDropAsync','Analogous completion helpers preserve ambiguity after later rejection and only close on successful DTO; calls RefreshOperationState before/after API. No disk persistence in any completion helper.')],
+'Missing crash recovery for concrete operations and late order lookup ordering. No physical printer tests executed.',
+'Unify durable typed operation storage and per-owner recovery. Introduce read epochs/cancellation for lookup, and whole-operation guards where concurrent modal actions can overlap.')
+add(P+'ViewModels/CashierViewModel.Refund.cs','Lookup payment summary, partial refund, review existing pending electronic payment.',[
+('CanRefundOrder','Allows only paid non-multi non-cancelled order with positive remaining amount. Split refund is deliberately unavailable, not silently implemented.'),
+('LookupPaymentBreakdown','Uses recorded split amounts with Arabic method labels, avoiding misleading multi-only display; unknown method preserved visibly.'),
+('OpenRefund','Prefills maximum refundable amount and requires editable valid order. CancelRefund refuses while unknown, clears manager PIN only after permitted close.'),
+('SubmitRefundAsync','Validates positive amount within recorded remaining ceiling, reason, and server manager approval if required. Real server must independently enforce final remaining ceiling under concurrency.'),
+('CompleteRefundAsync','Retains immutable request only in memory until resolved (UI-001), rotates key on success, updates lookup details from authoritative response and clears PIN.'),
+('ReviewPendingOrder','Builds transient LastCheckoutResult from lookup and sets PrintJobsQueued false unconditionally. This causes HasPrintWarning to report missing tickets for an existing order without querying actual print state: plausible misleading warning, not proof of lost tickets.'),
+('DismissCheckoutResult','Preserves live cart customer details while reviewing historic order; ordinary completed checkout resets shared delivery fields but not optional pickup time (UI-006).')],
+'Missing restart refund test, concurrent server remaining-balance integration evidence, and existing pending-order false print-warning test.',
+'Persist refund DTO before send; model unknown historic print state separately from false; reset optional pickup schedule with other order-owned fields.')
+add(P+'ViewModels/CashierViewModel.Shift.cs','Cashier shift opening.',[
+('OpenShiftAsync','Requires permission, not initializing/busy, and nonnegative money. Shift label derives host local DateTime.Now hour rather than explicit Cairo clock; cosmetic mismatch possible on differently configured workstation.'),
+('CompleteOpenShiftAsync','Memory-only immutable pending request UI-001; on success updates session ID/name and loads menu. A menu load failure is distinct from successful shift opening and should remain recoverable.')],
+'Missing concrete process-restart opening test; local timezone edge coverage not established.',
+'Persist open request and use explicit business timezone for suggested shift label.')
+add(P+'ViewModels/CashierViewModel.ShiftClose.cs','Two-step blind counted-cash close with manager discrepancy approval.',[
+('OpenCloseShift','Requires shifts_blind_close, editable state and empty cart. Resets prior count/preview/approval state.'),
+('PrepareCloseShiftAsync','Requires nonnegative count; server returns expected/actual/difference and manager requirement. Count visible only after prepare, as designed. Prepare can be repeated through returning to count; this is business behavior to confirm, not automatic security finding.'),
+('ConfirmCloseShiftAsync','Requires preview; freezes preview actual cash; requires reason and manager approval when preview requests it. Server must re-evaluate freshness/threshold if ledger changed after preview.'),
+('CompleteCloseShiftAsync','Preserves ambiguous in-memory DTO with fixed ID, but loses it on process restart UI-001. On success clears session shift/name and closes overlay; no direct printer calls.')],
+'CloseoutRegressionTests is relevant name but contents not yet fully reviewed in this checkpoint; explicit stale-preview and restart recovery tests required.',
+'Persist close DTO before API send; distinguish successful financial close from print completion; recheck server expected values atomically.')
+add(P+'ViewModels/CashierViewModel.Pickup.cs','Pickup name/phone and optional Cairo scheduled collection time.',[
+('RequestedPickupAtUtc','Requires both date/time, treats entered wall clock as Cairo and converts once to UTC. Conversion can throw ArgumentException for DST-invalid wall time before DomainException handler; property also evaluated from PickupSummary after each picker change. Candidate robustness issue requiring boundary repro.'),
+('PickupSummary','Composes customer and converted Cairo schedule. Depends on cross-partial notifications from customer and pickers; direct conversion is not guarded against invalid local time.'),
+('ClearRequestedPickupTime','Clears both nullable pickers, but only called when changing order type away from pickup, not when completing/resetting one pickup (UI-006).'),
+('SavePickupDetails','Validates shared DeliveryRules pickup fields, enforces date/time pair, invokes domain timing rule and trims name/phone; catches DomainException only. No persisted preparation stage exists in this file.')],
+'Missing successive pickup schedule isolation and DST gap property evaluation test; source-only review, no order writes.',
+'Reset schedule with new order lifecycle; catch or prevalidate timezone-invalid wall times; design kitchen preparation separately from payment.')
+add(P+'ViewModels/CashierViewModel.Delivery.cs','Shared customer fields, delivery service lookup/address editor and order reset.',[
+('OnOrderTypeChanged','Notifies order type/totals, clears identity for takeaway, clears pickup schedule only when moving away from pickup. Opens corresponding editor immediately.'),
+('OnCustomerPhoneChanged','Clears saved-address choice and lookup message; updates pickup summary; does not clear customer name. Phone edit can retain previous name until lookup/explicit edit.'),
+('LoadDeliveryServicesAsync','One busy guard preserves service by ID across reload. Fetches existing server service fee; failure keeps previous list and sets error.'),
+('LookupCustomerAsync','Snapshots trimmed phone, discards response if current phone changed. This correct race guard is absent from CallCenter equivalent UI-007. Does not cancel transport; same-phone repeated requests may still reorder.'),
+('SaveDeliveryDetailsAsync','Requires all mandatory details and selected service; upserts customer before checkout, so saving details writes customer even when order is later cancelled. Uses session backend only; no mock record.'),
+('ResetDelivery','Clears customer/address/service fields and summary, omits PickupDate/Time (UI-006) and OrderType intentionally persists.'),
+('SelectDeliveryService','Direct setter without CanEditOperation guard; XAML/input scope needs full keyboard freeze verification.')],
+'Missing order lifecycle reset time isolation; stale-phone guard should have intentional delayed HTTP tests; customer upsert side effect should be documented.',
+'Clear all order-specific pickup values on resolved new-order reset; consistently enforce CanEditOperation in callable mutation handlers.')
+add(P+'ViewModels/CashierViewModel.State.cs','Cross-partial busy gates, displayed financial estimates, session initialization.',[
+('IsOperationBusy','Includes all financial writes, excludes read-only order search/cash count/customer lookup. UI busy/read overlap is possible but does not itself prove ledger corruption.'),
+('CanEditOperation','Blocks for every unresolved private field and both durable electronic requests. Combining durable requests with absent result context makes electronic recovery dead end UI-005.'),
+('NotifyTotals','Notifies tax/fees/discount/comp/tender and checkout availability; noncash/COD amount follows new total only while editable.'),
+('InitializeAsync','Discovers real active shift; tolerates 404, reports other failure. Settings failure is silently ignored; when shift open loads menu. No database access or auto-created mock data.'),
+('RefreshOperationState','Raises edit/tender/confirm/cancel/checkout signals and header refresh; does not notify IsOperationBusy itself, a potential binding freshness concern where directly bound.'),
+('ConfirmClearCart','Only clears editable order after confirmation. Cart draft and pending operations are distinct concepts.')],
+'Missing durable electronic startup reconstruction test and IsOperationBusy binding notification assertions.',
+'Separate retry availability from transient visible order result; notify every bound derived state consistently.')
+add(P+'ViewModels/CashierViewModel.cs','Menu, categories/offers/variants, cart estimates and order type.',[
+('CashierViewModel','Binds session/header and cart collection callback; no recovery of primary checkout/expense/etc. Constructor itself has no database side effects.'),
+('BuildBestSellers','Joins server-ranked IDs to actual menu, omits missing IDs/empty shortcut. Category remains outside real categories to avoid duplicate product search.'),
+('RefreshVisibleProducts','Rebuilds full tiles and product-to-icon dictionary per keystroke; no debounce or virtualization decision here. O(menu + result) work on UI thread can be noticeable with large catalogues.'),
+('LoadMenuAsync','Fetches menu then tax rules sequentially, replaces categories and selects best-sellers/first. No busy guard/epoch/cancellation; concurrent reloads may race, and existing cart unit prices are not refreshed. Server remains pricing authority but stale estimate/tender can disagree.'),
+('SelectProduct','Checks CanEditOperation; unlike CallCenter version lacks explicit IsAvailable check at this method. Actual catalogue disabled state and server validation are separate controls, so no unauthorized sale claim made here.'),
+('SelectOffer','Checks editable and handles variant choice; PendingOffer persists until variant resolved/closed. AddToCart derives estimate from fixed offer or variant/base price.'),
+('RecomputeCartTotals','Recomputes sum/item count and all derived estimates; quantity commands trigger this explicitly. No collection-item subscriptions for arbitrary external quantity changes.'),
+('GrandTotalPiastres','Uses domain TaxEngine on subtotal less discount, adds delivery and subtracts comp, clamps at zero. Domain/server must validate discount/comp relationships independently.'),
+('IncreaseQuantity','Unbounded integer increment and unchecked unitprice*quantity can overflow in extreme programmatic use; normal POS use not reproduced. Decrease removes at one; RemoveLine and AppendNote obey edit guard.'),
+('ClearCart','Clears lines and discount/comp/split; resets shared delivery but leaves pickup schedule UI-006; resets checkout ID only for genuinely new cart.')],
+'CashierCorrectnessTests relevant but not fully inspected here. Missing large-catalogue UI timing, concurrent reload ordering, concrete crash recovery and successive pickup schedule cases.',
+'Guard/cancel overlapping menu reads; bind estimates honestly and recover exact write identity; keep optional schedule lifecycle consistent.')
+add(P+'Services/RetainedRequest.cs','Generic durable request retention helper.',[
+('RetainedRequest','Owner key optionally enables ambient store and restores typed payload. WasRecovered set only if cast succeeds; wrong typed object appears absent, though disk may remain.'),
+('SendAsync','Retains first immutable request, saves before sending; first definite failure clears, ambiguous then later rejection remains. Success nonnull clears; generic primitive T result nullability differs from reference values. Send exceptions outside ApiClient allowed set Value but not normalize error.'),
+('FailureMessage','Unknown outstanding state takes precedence over newer rejection, appropriately avoids pretending earlier commit impossible. No cancellation token parameter beyond caller delegate.')],
+'RetainedRequestDurabilityTests covers helper process reconstruction, ambiguous retry and basic error storage. Does not prove each concrete screen adopts helper or can reach retry after recovery.',
+'Require trustworthy persistence result for money commands or clearly surface degraded recovery; add concrete screen reconstruction tests; namespace owner keys by operator where context matters.')
+for pp in [P,C]:
+ add(pp+'Services/RetainedRequestStore.cs','Station-local pending operation JSON journal.',[
+ ('FileRetainedRequestStore','Constructor creates directory immediately. App passes no error callback, so failures in subsequent Save/Load/Clear are silent to operator; constructor failure can still abort startup.'),
+ ('PathFor','Replaces invalid filename chars; collisions possible between owner strings differing only by invalid character. Current stable literal/ID owner keys constrain this, no exploitable path traversal asserted.'),
+ ('Save','Writes serialized type, UTC time and payload to .tmp then move overwrite. Atomic rename reduces partial JSON exposure but no flush-to-disk guarantee; same owner concurrent processes share same .tmp/path without interprocess locking. Exceptions swallowed; financial request can still be sent with no recoverable journal.'),
+ ('Clear','Deletes known journal file; failure swallowed so successful operation may recover again next launch. Server idempotency is necessary to keep replay safe.'),
+ ('Load','Resolves assembly-qualified Type then deserializes payload. Unknown types trigger actual deletion of original journal; corrupt/unreadable envelope returns null without durable quarantine/report. No allow-list, version migration, authentication/integrity or encryption; local-user tampering is a trust boundary to assess, not proven RCE.'),
+ ('List','Reads all JSON envelopes inside one catch; single malformed entry makes whole list empty, hiding even valid pending operations. No per-record error recovery; fresh UI notices can be falsely absent.'),
+ ('RetainedRequestStorage','Mutable process ambient hook configured before view models; no lock/per-user context. Cashier and CallCenter use separate station directories but duplicate implementation will drift.')],
+ 'RetainedRequestDurabilityTests tests corrupt file as no pending and unwritable store still current-session protected. That verifies fail-open design, not money durability. Missing corruption alongside valid record, type version migration, interprocess collision and durable write failure UI tests.',
+ 'Fail safely or prominently expose unavailable financial journal; retain/quarantine unreadable evidence; add per-record list handling and explicit versioned allow-listed DTO schema; prevent same-station concurrent writers.')
+add(P+'Services/AppSession.cs','Logged-in user, shared shift and per-user in-memory cashier drafts.',[
+('AppSession','Uses FALAH_SERVER_URL with localhost:5151 fallback, no secret connection string; HttpClient behind ApiClient is process lifetime.'),
+('GetCashier','Caches one view model per user ID, preserving drafts through locking within same process. All cached VMs read mutable shared session.CurrentUser dynamically, so async callbacks spanning login boundaries require guards.'),
+('HasUnresolvedOperation','Combines management owner set and draft gates; blocks close/lock for unresolved financial states but not ordinary unsaved drafts. No persisted primary financial DTO retrieval.'),
+('SetManagementOperationPending','HashSet owner registration plus event; UI-thread assumption, no synchronization. Correct removal requires every management code path finally refresh.'),
+('HasPermission','Exact permission or all from login summary; client UI filtering is not a security authority. Server must bind actor authorization independently.')],
+'WindowClosingSafetyTests directly toggles busy booleans/management pending; does not reconstruct all concrete recovered screens.',
+'Use explicit operation owner and immutable logged-in identity across awaits; bind recovered financial state to correct operator.')
+add(P+'Services/CashInput.cs','Strict localized EGP to integer piastre parsing.',[
+('TryParse','Normalizes Arabic/Persian digits and Arabic decimal separator, invariant decimal without signs/exponents/group separators. Rejects negative, >long/100 and >2 effective fractional decimals; initializes out to zero before parse. Trailing zeros allowed when decimal value rounds identically, sensible for money.'),
+('Format','Invariant two decimals from long/100m, avoids binary float loss. Formatting negatives possible for balances even though input parser rejects negative entry.')],
+'Boundary tests should include long.MaxValue, huge normalized strings, Arabic/Persian digits, decimal rounding rejection, empty and grouping separators. Existing exact assertions not yet inventoried.',
+'Retain integer financial units and explicit parse contract; no immediate correctness defect established.')
+add(P+'Services/MilliUnits.cs','Localized inventory quantity parser/formatter.',[
+('TryParse','Same normalization as CashInput at 1000 units, rejects sign/exponent/grouping and effective >3 decimals. Safe pre-multiplication long bound.'),
+('Format','Uses decimal division and trims zeros to 0.###, correct for milli-unit precision; unknown unit semantic remains caller responsibility.')],
+'Missing independently verified inventory boundary/Arabic digit coverage in this checkpoint.',
+'Share tested normalization intentionally if later refactoring authorized; no change during audit.')
+add(P+'Services/ThemeService.cs','Persisted process-wide Light/Dark/System appearance preference.',[
+('ThemeService','Loads LocalApplicationData/Falah/preferences/cashier-appearance.json. No database or printer side effects.'),
+('Set','Serializes preference changes under lock; applies memory state even if disk save fails. Changed runs outside lock, subscriber thread is caller thread, MainWindow dispatches safely.'),
+('ToElementTheme','Maps unknown enum to Default; supports system preference via root inheritance.'),
+('Load','Falls back on corrupt file, but Enum.TryParse accepts undefined numeric values. SettingsViewModel.InitializeAppearance First() then can throw for undefined persisted enum; plausible local corruption bug.'),
+('Save','Temp/move protects JSON whole-write, swallows all exceptions with no logging; preference persistence degrades silently. No interprocess coordination.')],
+'Excluded from net8.0 headless tests by project file. Live theme/resource verification needed; no screen images supplied to this reviewer.',
+'Validate Enum.IsDefined and expose persistence failures only if material; verify converted brushes after live theme switches.')
+add(P+'Services/ThemeResources.cs','Imperative brush lookup for binding converters.',[
+('Get','Reads root ActualTheme but inspects only app.Resources.ThemeDictionaries. Actual Colors.xaml theme dictionaries are nested under a merged dictionary in App.xaml, so explicit-theme selection path does not reach them. Fallback app resource lookup is not element-bound and converter results are plain Brush values. No notification makes a converter rerun when theme changes but input remains same. Source-confirmed wiring concern UI-004; exact runtime fallback result unverified.')],
+'Excluded from headless client tests; missing live per-root-theme resource and unchanged-binding reevaluation tests.',
+'Resolve recursively within merged dictionaries or use direct ThemeResource visual-state resources; ensure theme change refreshes converted selections.')
+add(P+'ViewModels/OrdersViewModel.cs','Read-only server-scoped order history and detail selection.',[
+('ApplyFilter','Filters already-authorized loaded records by number/name/phone CurrentCultureIgnoreCase. Clears/repopulates observable list per search; no server query/pagination.'),
+('LoadAsync','Single IsLoading guard reads actual server list with current actor ID; retains old rows on failed refresh and exposes LoadError. No cancellation/epoch if view abandoned; no ledger writes.'),
+('OpenOrder','Selects passed DTO for details; CloseOrder clears it. This is history, not an active pickup queue and has no stage/payment transition UI-003.')],
+'Missing large history paging and stale refresh-after-navigation tests; screenshot layout not observed.',
+'Preserve history independently from a future operational pending pickup list; add bounded/paginated history for scale.')
+add(P+'ViewModels/PrintingViewModel.cs','Read-only route/job status overview.',[
+('RouteQueue','Formats pending/failed/stuck counts and age, uses local machine time for last success. Describes recorded agent success, not proof paper physically emerged.'),
+('JobRow','Recognizes six routes including DeliveryOrder and DriverDispatch, displays error/attempts/status; LastError may contain sensitive backend details and needs server redaction check.'),
+('Routes','Only four routes are selectable/displayed as queue cards, omitting DeliveryOrder and DriverDispatch despite JobRow understanding them. UI-009 requires server cross-check for actual emitted route usage.'),
+('LoadAsync','Busy reload flag coalesces changes, loads overview then route jobs; finally triggers pending reload. State properties update after completion. Infinite reload not intrinsically present; repeated external selection can schedule successive loads.'),
+('LoadJobsAsync','Snapshots selected route and refuses stale response, correctly prevents race. No writes/retry printing function in this status VM.')],
+'Missing six-route overview/filter assertions; no printer or HTTP runtime checks by this reviewer.',
+'Include every real route and test failed/stuck visibility by actual route enum; keep queued vs printed distinction.')
+add(P+'ViewModels/SettingsViewModel.Appearance.cs','Immediate local theme preference binding.',[
+('InitializeAppearance','Matches persisted theme against three ThemeOptions using First. Undefined parsed numeric AppTheme would throw; see ThemeService candidate.'),
+('OnSelectedThemeChanged','Applies ThemeService.Set immediately independent of server-save workflow. It is still reachable through settings management screen; no current direct kiosk appearance selector identified.')],
+'Excluded from headless test build; native appearance fixtures needed.',
+'Validate persisted theme robustly; verify dark/light unselected buttons and already-realized converter brushes.')
+add(P+'ViewModels/LoginViewModel.cs','PIN-only login screen.',[
+('PressDigit','Limits string length to six but accepts arbitrary parameter string from command caller; ordinary keypad supplies digits. Does not block during IsBusy, so display PIN can change while request awaits; request string already captured.'),
+('CanSubmit','Requires 4+ chars and !IsBusy; generated notifications on PIN/busy update button.'),
+('SubmitAsync','Real login endpoint returns UserSummaryDto, sets shared session then event. All ApiResult failures are replaced by incorrect PIN message, including offline/network and 5xx, obscuring runtime diagnosis; catch exposes raw exception message. PIN cleared after success/failure but failed connection result misclassified.')],
+'Missing typed network failure UI test; login screens not automated and no credentials included in reports.',
+'Distinguish invalid credentials from server connectivity using safe ApiResult error/status; freeze keypad while sending and clear sensitive state on lock.')
+add(P+'ViewModels/MainViewModel.cs','Root login/shell navigation, health poll, close safety, recovered notice.',[
+('MainViewModel','Creates shared session/header, login, snapshots pending journal list, starts five-second DispatcherTimer and immediate health call. No overlap guard: 10-second HTTP timeout permits several health calls at once.'),
+('DescribeRecoveredOperations','Read-only notice uses owner keys/type metadata; corrupt journal List can hide valid notice, and generic instruction to open screen is not proof retry is reachable (UI-005).'),
+('CheckHealthNowAsync','Updates only if not stopped; overlapping health completions can reorder online status. No cancellation token to stop in-flight HTTP reads.'),
+('TryClose','Refuses unresolved operations, protects normal close only; power failure/process kill bypasses UI guard, requiring actual durability UI-001.'),
+('Stop','Stops timers/header and ignores late health result; does not dispose ApiClient HttpClient or cancel pending loads.'),
+('Lock','Only invokes ShowLogin if no unresolved op. Session CurrentUser remains until next success; view switch is lock UX, server request auth is elsewhere.'),
+('ShowMain','Filters shell by management permissions; creates reused cashier or role shell. CreateCashier starts InitializeAsync fire-and-forget; errors not mapped outside that method.')],
+'WindowClosingSafetyTests covers explicit close gate only with fake timer; no power-cut/restart proof. DispatcherTimer stub cannot test real scheduling.',
+'Single-flight cancellable health poll; concrete recovered-operation retry navigation; durable requests before money send.')
+add(P+'App.xaml.cs','WinUI application launch and journal initialization.',[
+('App','Initializes XAML resources then journal directory before view model field initializers; no onError handler means subsequent persistence degradation silent. Directory creation can throw on launch.'),
+('OnLaunched','Normal path creates/activates MainWindow and stores global handle. FOOTER_LAYOUT_PROBE/SCREEN_LAYOUT_PROBE compile-time paths replace actual app with verification fixture, not production hidden timer/backdoor.')],
+'Compile-time fixture paths are not normal runtime coverage. No global unhandled-exception recovery observed in this file.',
+'Add diagnostic startup path for journal unavailability; retain clear distinction native fixtures vs live runtime verification.')
+add(P+'App.xaml','Application merged style/resource and converter registration.',[
+('ResourceDictionary.MergedDictionaries','Loads Fluent resources before Colors/Typography/Controls; actual Light/Dark dictionaries live in merged Colors, relevant to imperative ThemeResources.Get UI-004.'),
+('BoolToVisibleConverter','Registers converter objects process-wide; no stateful view logic in this XAML. NavKeyToGlyphConverter not registered but ShellView instantiates directly, not missing resource defect.')],
+'Semantic XAML parsing needed separately; no visual state snapshot tests performed.',
+'Validate every StaticResource reference and all theme keys; avoid source comments that expose demo PINs (Typography comment) in publicly shared deployment materials.')
+add(P+'MainWindow.xaml.cs','Native window composition, lifecycle, root theme and login/view swaps.',[
+('MainWindow','Attaches close cancel to root TryClose, Closed unsubscribes root/appearance events and stops timers. Header data contexts assigned before maximizing.'),
+('OnThemeChanged','Dispatches root RequestedTheme update, but does not invalidate converter-backed brush bindings or StatusPill imperative backgrounds UI-004.'),
+('MaximizeOnTargetDisplay','Uses native presenter maximize so physical-pixel/DIP resize mismatch avoided. No guarantee narrow high-scale content fits all fixed modal widths.'),
+('OnViewModelPropertyChanged','Routes root IsLoggedIn/IsOnline/CurrentView updates, unsubscribed on close.'),
+('ApplyCurrentView','Creates new view per VM type; DataContext inherited through children. Unknown view nulls content visibly rather than fallback error. No direct DB/printing.')],
+'Headless tests do not compile native view. Real lifecycle/theme/modal/keyboard observations needed.',
+'Refresh all imperative theme visuals and ensure proper unloaded subscriptions in nested ShellView; maintain final authoritative checks server-side.')
+add(P+'MainWindow.xaml','RTL root, persistent header/connectivity/recovery info and content host.',[
+('RootGrid','Three-row root leaves content star height after header/banners. Recovery notice grows/shrinks workspace; short-screen modal viability needs observation.'),
+('RecoveredNotice','Uses NullToBool converter and command dismiss, reports journal presence only. Raw owner keys are technical strings rather than localized action names.')],
+'Native layout needed at 100/125/150/200% DPI; no screenshot asserted.',
+'Name recovered operations for operators and offer direct safe recovery navigation; test minimum working content height.')
+add(P+'Views/CashierView.xaml.cs','POS keyboard accelerators and adaptive cart width.',[
+('IsWorkspaceInteractive','Checks only CanEditOperation, result, variant picker and checkout flags. Omits expense/safe-drop/cash-movement/refund/pickup/delivery/lookup/close-shift modals; F2/F3/F12 can be accepted with those open if native accelerator routing reaches workspace. Source guard gap UI-010, exact native behavior unverified.'),
+('OnSearchAccelerator','Always marks handled then can focus search under omitted modal. OnOperationsAccelerator opens flyout; OnCheckoutAccelerator invokes same CanOpenCheckout guard but omitted modal remains true.'),
+('OnWorkspaceSizeChanged','Queues clamped cart column to 350..420 DIPs after current layout. Multiple size events can enqueue obsolete widths until later ticks; no narrow window alternative below min width.')],
+'Missing native keyboard through every modal and resize density tests.',
+'Central modal state/focus trapping; keyboard guards should include every open modal, with native regression checks.')
+add(P+'Views/CashierView.xaml','Main POS workspace and stacked custom modal overlays.',[
+('WorkspaceGrid','Actual F2/F3/F12 accelerators on workspace; overlays are sibling Grids, no ContentDialog focus trap/inert background semantics. No visual/keyboard proof presumed.'),
+('IsAddExpenseOpen','Seven expense category Buttons use unselected WhiteBrush and themed TextPrimaryBrush at lines 313-340, dark foreground #E6E9EE on #FFFFFF approximately 1.22:1. UI-002 source-confirmed. Selected state ActionBlue/White; none of category buttons bind IsEnabled to CanEditOperation.'),
+('IsCloseShiftOpen','Count and expected preview phases separated. PasswordBox for manager approval; custom overlay has fixed 420 width plus 48 outer margin.'),
+('HasCheckoutResult','Electronic actions only visible inside result overlay; result lost after process restart, preventing durable request retry UI-005. Print warning is queue failure, does not prove printed paper.'),
+('IsVariantPickerOpen','Variants use real star/auto columns and offered fixed-price banner. Offer banner literal light palette has mutually coherent pair, not same issue as WhiteBrush/themed foreground.')],
+'No actual screenshot supplied to reviewer; dark contrast calculated from source tokens, not measured pixels. Missing keyboard focus trap and every category state screenshot tests.',
+'Pair surface/text semantic tokens in unselected states; bind operation disablement consistently; use accessible modal/focus behavior. No XAML modified.')
+add(P+'Views/CheckoutView.xaml','Tender dialog, discounts/comp/split, keypad and submit footer.',[
+('IsCheckoutOpen','Pinned total/header/footer with scrolling two-column body. Total explicitly says estimate; backend response remains authoritative.'),
+('PaymentMethodButtonStyle','Four method buttons override base style with unselected WhiteBrush/TextPrimaryBrush, repeats dark contrast root UI-002 beyond expense. Changing theme with bound payment value unchanged also needs converter refresh UI-004.'),
+('IsHitTestVisible','Body blocked via hit-testing but keyboard focus behavior must be separately verified; individual inputs use IsEnabled, some keypad buttons rely on command guards.'),
+('Checkout_Submit','Visible fixed footer command; IsProcessingCheckout CanExecute controls command generated in VM. No prepayment kitchen stage UI-003.')],
+'Missing native dark/light payment method state test and per-DPI pinned-header/footer assertions. Constructor-only code-behind reviewed separately.',
+'Semantic unselected surface brush, theme-reactive visual states, native keyboard/RTL/high-scale verification.')
+add(P+'Views/CartPanelView.xaml.cs','Cart collection subscription, compact footer and note chip routing.',[
+('CartPanelView','DataContext/Loaded subscribe and Unloaded detaches collection callback correctly, avoiding retained draft event leak.'),
+('ApplyFooterDensity','Threshold 520 DIP changes segments to compact selector, total font/row heights and button grid positions. Both full/compact primary labels always payment, independent of pickup kitchen stage UI-003.'),
+('Subscribe','Unsubscribes prior VM then attaches current cart; no duplicate subscription across normal Loaded/DataContext transitions.'),
+('OnNoteChipClicked','Requires Button CartLine/Tag and delegates to VM edit guard; no arbitrary printing or money action.')],
+'NativeFooterLayoutProbe exists but not executed in this audit by reviewer. Need full nonempty/long-cart/short-screen cases.',
+'Implement pickup state-aware primary action only in approved future change; preserve explicit unsubscribe and test native compact threshold.')
+add(P+'Views/CashierOperationsModalsView.xaml.cs','Constructor for operation overlay UI.',[
+('CashierOperationsModalsView','InitializeComponent only; inherits parent CashierViewModel. No independent authorization, state, DB or printer work. Business guards in Operations/Expense/ShiftClose partials, not constructor.')],
+'Constructor alone is not behavioral coverage. XAML binding/native focus tests apply.',
+'Keep modal accessibility/focus centralized and test underlying VM command guards.')
+add(P+'Views/CheckoutView.xaml.cs','Checkout UserControl initialization.',[
+('CheckoutView','InitializeComponent only; all command/result state inherited from CashierViewModel. No cancellation, subscriptions or resource disposal owned here.')],
+'NOT_APPLICABLE for standalone business-unit test; native XAML integration needed.',
+'Do not mistake empty code-behind for missing behavior; inspect linked XAML/VM.')
+add(P+'Views/PickupDetailsView.xaml','Customer name/phone and optional date/time pickup overlay.',[
+('Pickup_Date','CalendarDatePicker bound nullable PickupDate; TimePicker SelectedTime bound nullable PickupTime; Cairo conversion belongs to VM. No explicit clear schedule action exposed.'),
+('Pickup_Save','Saves in-memory details only; no preparation order identity or kitchen print call. No ScrollViewer/MaxHeight around total form, so high DPI or short viewport can clip; plausible native layout risk, not screenshot-confirmed.')],
+'Missing high-DPI short-screen and DST invalid-time interaction tests; no user screenshot attached.',
+'Provide reachable schedule reset and scrollable constrained form; treat Stage A as persisted order workflow future design.')
+add(P+'Views/RefundView.xaml','Amount/reason/approval refund overlay.',[
+('IsRefundOpen','Shows actual lookup order and refundable remaining. Inputs bind CanEditOperation; commands remain callable so immutable retry can resolve unknown operation.'),
+('SubmitRefundCommand','Danger-styled explicit confirmation; return uses VM CancelRefund safety. No direct physical printing; no counterfeit data.')],
+'Native modal focus/keyboard and server concurrency tests needed; no physical print tests.',
+'Add accessible operation status and prevent background modal interaction; persistence recommendation in Refund.cs.')
+add(P+'Models/CartLine.cs','Observable client cart estimate model.',[
+('LineTotalPiastres','Multiplies long price by integer quantity unchecked; ordinary commands maintain minimum one but model itself imposes no upper/lower quantity validation. Server receives only identities/quantity, so this is presentation robustness not authoritative price tampering.'),
+('OnQuantityChanged','Notifies line total/display; parent totals rely on VM quantity commands rather than item property subscription. Notes are mutable strings without local length cap; server validation required.')],
+'Missing extreme quantity and external model setter parent-total notification tests.',
+'Keep server pricing authority; bound legitimate quantity and handle numeric overflow for predictable UI.')
+add(P+'Models/ProductTile.cs','Immutable menu tile/offer pairing and observable category selection.',[
+('ProductTile','Owns image URI rather than bitmap; source category icon fallback, minimum variant starting price, actual preparation station label. Does not claim image download success when HasImage true; failed image may leave blank without fallback event handling elsewhere.'),
+('OfferChoice','Pairs offer to actual product DTO to avoid fragile ancestor lookup; no authorization or persistent state.'),
+('CategoryTile','Exposes category plus generated observable IsSelected; VM maintains reference-based selected state.')],
+'Missing inaccessible-image fallback and multiple-variant starting-price tests.',
+'Verify failed image fallback in native catalogue; no immediate data integrity defect proven.')
+add(P+'Platform/ImageFilePicker.cs','Unpackaged WinUI product-photo file picker.',[
+('PickAsync','Parents Windows picker with actual window handle, restricts extensions, reads entire selected stream into MemoryStream then ToArray. All streams disposed; duplicates full image memory and has no pre-read size ceiling/cancellation. Very large file can consume significant memory before server limit rejection. MIME inferred from extension; server must validate bytes independently.')],
+'Native picker cannot be covered by current plain net8.0 tests; missing large file/cancel/read error UI behavior.',
+'Apply file size limit before full read, cancellation and safe error message; use content signatures server-side. No file picker invoked in audit.')
+add(P+'Controls/ModalHeaderView.xaml','RTL reusable title/close header.',[
+('TitleBlock','Star/auto columns reserve close width, wraps title to max two lines; may trim longer title but avoids collision. Close glyph has Arabic AutomationProperties.Name and 44 DIP minimum from shared style.')],
+'NOT_APPLICABLE business rules; native title length/screen reader focus required.',
+'Retain named close button and verify long title+RTL hit targets.')
+add(P+'Controls/ModalHeaderView.xaml.cs','Dependency properties bridging modal title/close command/automation ID.',[
+('ModalHeaderView','Initializes title; static DP callbacks update actual controls. Title callback assumes nonnull string; public property contract defaults empty. Close command property nullable intentionally.'),
+('OnCloseAutomationIdChanged','Sets stable per-dialog close AutomationId through WinUI automation API, useful for actual UI tests; no direct privileged action.')],
+'Native DP timing/null and command CanExecute propagation tests absent from headless project.',
+'Keep default initialized state and avoid credentials in automation names.')
+add(P+'Controls/StatusPillView.xaml','Shared status chip border/text.',[
+('Label','StatusPillText fixes foreground White while dark semantic backgrounds are bright Success #34D399/Warning #FBBF24/Danger #F87171; contrast can be low. Source contrast issue, rendered/screen-reader state not verified. Border receives imperative brush from code-behind.')],
+'Missing per-status/theme contrast checks; no native image supplied.',
+'Pair status text foreground with background theme tokens and accessible textual state.')
+add(P+'Controls/StatusPillView.xaml.cs','Status text DP and imperative status-color update.',[
+('OnTextChanged','Copies raw backend state string and computes brush only when Text changes; live theme change alone never recomputes Background UI-004. No localized state label mapping in this control: call sites may preconvert.'),
+('StatusPillView','Initializes components; default empty Text does not trigger callback, so no default background until actual value update.')],
+'Missing unchanged-status live-theme test; converter excluded from net8 headless build.',
+'Theme-aware visual state resources or ActualThemeChanged refresh; distinguish raw status vs localized label for color matching.')
+add(P+'Styles/Typography.xaml','Shared RTL typography, semantic text colors, fixed sizes.',[
+('TextBase','Segoe UI, RTL and themed TextPrimary inherited across named styles; explicit overrides exist for muted/nav/status. Most body text 13 DIP, captions/muted 11 DIP, important for touch-distance readability testing.'),
+('StatusPillText','Always White despite bright dark-theme semantic backgrounds, a source contrast risk. Title/price/metric resources use semantic brushes; static FontFamily independent of theme.'),
+('AppFontFamily','Comment contains a historical demo PIN; this report deliberately does not repeat it. Historical measurement assertions are unverified documentation, not evidence of current visual parity.')],
+'No text scale/high contrast screenshots reviewed. XML declaration/index not evidence all rendered combinations pass.',
+'Check all text/background pairs, text scaling and Arabic shaping; remove credentials from publicly shared comments in a later approved fix.')
+add(P+'Styles/Controls.xaml','Custom WinUI controls/design system and visual state template.',[
+('BaseButtonStyle','Rounded Border plus ContentPresenter; PointerOver/Pressed/Disabled vary opacity, inherited foreground via control resources. No explicit keyboard FocusStates or high-contrast theme in custom template; native focus behavior needs observation, cannot assert absent focus just from this.'),
+('SecondaryButtonStyle','Correct semantic NeutralBackground/TextPrimary pair, but many view instances override background to WhiteBrush while leaving themed text UI-002.'),
+('SegmentButtonStyle','48 DIP segment cells fill grid. Selected DangerBrush+White pairing becomes light-red/white in dark; text contrast must be checked.'),
+('IconButtonStyle','40x40 target with MinHeight zero, smaller than modal/quantity 44 DIP; touch ergonomics risk, not mathematical overlap proof.'),
+('SearchBoxStyle','42 DIP themed card search control, RTL. NumericBox/CalendarDatePicker MinHeight48 support ordinary touch usage.'),
+('StatusPillBorderStyle','Only shape/padding; text color in Typography and runtime brush converter determine contrast. No printing side effect in dictionary.')],
+'Native high contrast, keyboard focus and text-scale verification absent. File parsed by parent inventory separately; no semantic C# claims.',
+'Use paired semantic tokens for full visual states; verify accessible focus and every enabled/disabled/selected combination in actual WinUI.',status='PARTIALLY_REVIEWED')
+add(P+'Styles/Colors.xaml','Light/Dark semantic palette plus literal flat utility brushes.',[
+('ResourceDictionary.ThemeDictionaries','Two Light/Dark dictionaries intended same key set; actual full key equality validation belongs XML inventory. Explicit Dark TextPrimary #E6E9EE and card #1E232B form readable pair.'),
+('WhiteBrush','Literal #FFFFFF outside theme dictionaries by design; correct for paper/on-accent, wrong as unselected surface with Dark TextPrimary UI-002. Do not globally change WhiteBrush to dark, which would break receipt/on-accent consumers.'),
+('ActionBlueColor','Light #0866E8, Dark #5B9BF5. White text on bright dark accent can have reduced contrast; per-use contrast numeric table needed.'),
+('SuccessPillBrush','Dark bright success/warning/danger background colors paired with always-white StatusPillText produce low contrast. No actual pixels measured.')],
+'Source token math only, actual theme fallback/converter resolution unverified. Screenshots and high-contrast Windows theme absent.',
+'Fix consumers to paired background/foreground tokens; validate palette and merged resource resolution without replacing literal paper white.',status='PARTIALLY_REVIEWED')
+add(C+'ViewModels/CallCenterViewModel.Checkout.cs','Real delivery checkout, operator-scoped durable checkout/reprint and history lookup.',[
+('RecoverPendingOperations','Restores checkout ID/DTO per OwnerUserId; recovery retry does not require cart reconstruction. Print request restores _hasUnresolvedPrint and UI retry state, unlike cashier electronic dead end.'),
+('SubmitOrderAsync','Busy/result/print guards; pending checkout retries exact payload before validating blank recovery form. Fresh order validates cart/customer/service/address and rechecks actual active shift. Cash COD sends zero collected, electronic sends claim pending; CustomerPrintRoute CallCenter.'),
+('SendCheckoutAsync','Persists request before send, retains across unknown/rejection after unknown, clears on known first rejection/success. Success fire-and-forget upserts captured request customer details; result handling failure ignored. Journal Save errors swallowed by store can defeat promised durability.'),
+('LookupOrderAsync','CanEditOperation includes lookup busy; trims lookup number, clears prior result, exposes error. Pickup time displayed Cairo; payment breakdown raw method tokens rather than Arabic labels.'),
+('ReprintLookedUpOrderAsync','Creates CreatePrintJobsRequest without IncludeKitchenRoutes false unlike cashier receipt reprint; default flag must be cross-checked in shared DTO/handler. Potential duplicate kitchen work if default true.'),
+('SendPrintAsync','Stores exact request, handles unknown flag and pending replay; definite first failure retains DTO for retry. ClearResolvedPrint clears memory but not store, so stale definite-rejected print can reappear as unresolved after restart (UI-011).'),
+('StartNewOrder','Calls ClearResolvedPrint and clears result/error only when edit permitted. ClearOrderLookup likewise clears memory, still journal stale risk.')],
+'CallCenterDurabilityTests relevant, contents not fully reviewed yet. Missing rejected manual print followed by cancel/new-order/restart case; concrete lookup race in Customer partial separate UI-007.',
+'Pass explicit IncludeKitchenRoutes false for customer-only reprints if DTO default queues kitchen; clear journal when safely discarding definitively rejected print; maintain per-operator durable request scope.')
+add(C+'ViewModels/CallCenterViewModel.Customer.cs','Phone-first customer resolution and delivery form/address/service selection.',[
+('OnCustomerPhoneChanged','Auto starts direct async lookup at length>=11, no debounce, cancellation, epoch or operation guard. Changing phone below11 only resets ID/addresses, leaves name/address fields.'),
+('LookupCustomerCoreAsync','Sets _lastLookedUpPhone then awaits current-phone lookup; unconditionally assigns response to current form, with no request-phone equality check. Old response A can overwrite customer B or freshly cleared/new order UI-007. Failed lookup treats timeout/403 as new customer, hides transport error.'),
+('ResetResolvedCustomer','Clears ID/saved-address/note but leaves name and address, so edits can show mixed old/new identity until operator correction.'),
+('SaveDeliveryDetails','Validates mandatory fields locally then closes; unlike Cashier counterpart does not upsert immediately. Actual write occurs after successful checkout.'),
+('ApplySavedAddress','Copies structured address and optionally matches service ID. Does not verify address belongs current resolved CustomerId at invocation; stale list race is primary root.'),
+('LoadDeliveryServicesAsync','Loads real service list; preserves error but no read busy guard/epoch/selected service rebind. Selecting service notifies estimated totals.'),
+('ResetCustomerAndDelivery','Clears form and lookup key, but outstanding lookup not cancelled/version-invalidated, enabling post-clear repopulation UI-007.')],
+'Missing deterministic delayed lookup A/B and lookup-then-ClearOrder tests; no customer PII or DB writes used for audit.',
+'Snapshot normalized requested phone plus generation, discard stale completions, cancel pending lookup on clear/change, distinguish 404 from connectivity failure.')
+add(C+'ViewModels/CallCenterViewModel.State.cs','CallCenter busy/edit and owner state.',[
+('IsOperationBusy','Includes checkout/reprint/order lookup, excludes customer lookup and delivery service fetch; late customer response can mutate frozen checkout form UI-007.'),
+('CanEditOperation','Blocks unresolved checkout/print, appropriate protection against abandoning unknown order. This field gates visible controls but direct property/async completion writes can bypass.'),
+('RefreshOperationState','Raises own busy and edit state plus SubmitOrder CanExecute, refreshes header. OwnerUserId initialized from login and used in journal keys.')],
+'Missing customer async completion during checkout state and native focus tests.',
+'Apply owner/version gates to background completion paths; keep print retry reachable when journal restored.')
+add(C+'ViewModels/CallCenterViewModel.cs','Phone/delivery catalogue/cart and initialization.',[
+('CallCenterViewModel','Captures immutable operator owner and restores journal before any new order; cart collection recalculates local estimates.'),
+('InitializeAsync','Sequential actual shift, settings identity, menu/taxes and service loading. Shift availability distinct from menu failure; uses backend only.'),
+('RefreshVisibleProducts','Rebuilds tiles and icon index per search keystroke, same O(menu+matches) UI-thread cost as cashier. No best-seller duplicate products in real categories.'),
+('LoadMenuAsync','Loads real menu and enabled tax rule then sets best sellers; no epoch/cancellation. Existing cart prices are still snapshot estimates.'),
+('SelectProduct','Checks editable and product availability; AddToCart repeats this guard. SelectOffer opens picker without upfront guard but actual add guarded; potential modal state mutation while frozen, not financial bypass.'),
+('GrandTotalPiastres','Shared domain TaxEngine plus actual selected delivery fee, clamps zero. Submit sends identities/amount and server recalculates authority.'),
+('ClearOrder','Clears cart/form/key/result only if editable. Does not cancel outstanding customer lookup UI-007; direct lookup callback can repopulate new form.')],
+'Missing concrete clear-during-lookup/native catalogue large-data cases.',
+'Reuse correct phone-generation race protection; separate loading failure from no shift; bound repeated UI-thread rebuilding.')
+add(C+'Services/AppSession.cs','CallCenter session and per-user retained order desks.',[
+('AppSession','Uses FALAH_SERVER_URL fallback localhost:5151; no local DB connection or drawer owner. Permission values from real login DTO.'),
+('GetOrderDesk','Caches drafts per logged-in ID and captures owner at construction; preserves during lock in-process.'),
+('HasUnresolvedOperation','Checks draft edit gates, preventing normal lock/close with unknown order. Power failure still depends on journal integrity.'),
+('RefreshCurrentShiftAsync','Reads server active shift, clears state on any failure. Return false conflates no open shift with server connectivity/authorization failure, leads misleading no-shift UI.')],
+'CallCenterDurabilityTests relevant; explicit no-shift vs network failure test missing in reviewed set.',
+'Preserve API status/error for operator explanation while withholding checkout; safe durable owner scope already implemented.')
+add(T+'RetainedRequestDurabilityTests.cs','Unit tests for generic cashier retained helper and JSON store.',[
+('An_ambiguous_outcome_survives_the_process_that_submitted_it','Recreates helper with same store and equality-checks exact DTO, valid simulation of reconstructed helper state but not process kill/fsync or real cashier checkout adoption.'),
+('A_rejection_after_an_ambiguous_outcome_keeps_the_request_on_disk','Confirms later rejection does not erase earlier unknown request. Confirming/re-sent-byte-for-byte tests correctly verify identity semantics.'),
+('Owners_do_not_recover_each_others_requests','Uses arbitrary owner.a/owner.b; does not verify production owner keys actually include user ID. Electronic keys do not.'),
+('A_corrupt_pending_file_does_not_block_the_station','Asserts corrupt data returns no pending. This encodes recovery-evidence loss as accepted behavior rather than proving financial safety.'),
+('A_store_that_cannot_write_still_protects_the_current_session','Makes directory unwritable by replacing with ordinary file; confirms in-memory pending. Does not assert user warned about loss of crash protection; actual App supplies no callback.'),
+('Dispose','Deletes test temp folder only; tests themselves not run during this reviewer pass. Unknown mixed type and ownerless helper tests cover those documented contracts.')],
+'This is itself test source reviewed; runtime result NOT_TESTED by this reviewer. Missing concrete cashier checkout/expense/refund restart UI-001 and electronic retry reachability UI-005.',
+'Expand from helper invariants to real view-model/process lifecycle and corrupt-list/multi-process tests; do not label helper unit tests whole-app durability proof.')
+add(T+'WindowClosingSafetyTests.cs','Unit tests for normal cashier window-close decision.',[
+('Cashier_window_close_respects_both_pos_and_management_operations','Uses fake HTTP handler, admin-like test permissions and directly toggles busy/pending owner. Asserts TryClose and notice state, stops timers. Valid narrow close gate test; no actual native window, pending DTO, crash/restart or in-flight HTTP completion.')],
+'Runtime NOT_TESTED by reviewer; explicit distinction from forced termination required.',
+'Retain test and add durable request recovery checks; native AppWindow Closing event wiring separate integration test.')
+add(T+'DispatcherTimer.cs','Headless WinUI timer stub for source-linked view model tests.',[
+('Start','No-op; Stop also no-op. Tests do not exercise five-second recurring polling, real UI thread affinity or stop of an in-flight timer callback.'),
+('RaiseTick','Manual event dispatch can test handler logic but not scheduler semantics. No DB/network/printing side effects directly in stub.')],
+'NOT_APPLICABLE standalone business behavior; test infrastructure changes represent real scheduling incompleteness.',
+'Label source-linked tests headless and use native integration evidence for timing/focus/threading.')
+
+add(P+'ViewModels/TreasuryViewModel.cs','Owner treasury balance/position/ledger and deposit, withdrawal, transfer commands.',[
+('MovementRow','Presents stored movement type, date, actor/approver and document reference; replaces raw order ID only in display reason, does not rewrite historic financial data. Unknown labels remain visible.'),
+('ApplyMovementFilter','Client filters up to 200 loaded movements by account and text; history beyond 200 is not searchable from this page. Distinguishes no ledger data from no matching filtered data.'),
+('LoadAsync','Sequential real balances, outside-account position, and last200 movements. Error in position can coexist with valid balances; Position null displays dash rather than zero. Uses caller actor ID, server authorization separate.'),
+('OpenTreasuryAction','Opens only known command type when editable, creates one request ID and resets fields; valid funding account lists constrain normal UI.'),
+('SubmitTreasuryActionAsync','Positive amount, mandatory reason, distinct transfer account check; obtains server approval if needed. Captures immutable typed request in delegate _pendingCommit, not durable DTO; process restart loses retry identity UI-001.'),
+('SendPendingAsync','Retains delegate after ambiguity and later rejection; first definite rejection clears; success closes action and reloads. Session pending gate refreshed. No disk journal for any of three money commands.'),
+('ResolveApprovalAsync','Single server PIN approval issue; request actor snapshot taken after await from mutable session. Busy gate should prevent normal lock/navigation while resolving.')],
+'ManagementWriteSafetyTests relevant for same-session retention, not yet fully read here. Missing deposit/withdraw/transfer reconstructed-process durability, ledger pagination and read error tests.',
+'Persist typed operation before send; implement reachable recovery; add complete ledger query paging/filtering for reconciliation.')
+add(P+'ViewModels/BackupViewModel.cs','Backup creation/verification/history and actual restore UI command implementation.',[
+('LastGoodBackup','Finds latest Kind Backup Status Succeeded record and displays verification separately; does not equate successful file creation with verified restore.'),
+('LoadAsync','Fetches actual records, sorts descending and updates computed empty/headline/stale/history properties. No timer means age label/stale threshold only refreshes with load, acceptable snapshot if clear.'),
+('CreateBackupAsync','Requires backup_manage, busy guards, leaves destination server-configured; this is file/database backup operation, not executed in audit. No stable request ID in local construction visible.'),
+('VerifyBackupAsync','Requests real verify-only backend operation; reports Verified as sound/capable of restore, though actual restore remains stronger proof and environment compatibility unknown.'),
+('OpenRestore','Contradicts file summary saying restore not exposed: actual properties/commands and view implement it. Refuses open if durable pending restore, resets reason/phrase/PIN.'),
+('SubmitRestoreAsync','Reuses durable request first; fresh requires target, current user, reason, exact domain phrase and optional real manager approval. Busy registers session gate.'),
+('CompleteRestoreAsync','Recognizes success only when record.Status Completed; LastRestoreLine recognizes Succeeded. Actual backend restore status must be cross-checked; source vocabulary inconsistency alone not proven runtime failure. Retained restore can exist with RestoreTarget null after reconstruction, while IsRestoreOpen depends target; recovery UI visibility requires inspection.'),
+('ResolveRestoreApprovalAsync','Single server approval call when user lacks backup_manage. Normal shell page requires backup_manage, so fallback unreachable through ordinary nav unless role/context changes.')],
+'No backup/restore command run; mandatory dangerous operation tests must remain isolated. Missing confirmed cross-layer restore status vocabulary and recovered restore UI reachability tests.',
+'Reconcile docs with actual UI; use exact shared status contract and restore recovery panel; never test against real database without explicit isolated approval.')
+
+# These constructor-only files were individually read in full. A constructor report does not
+# claim its separately tracked XAML or view model has been reviewed.
+simple_views={
+ C+'Controls/PermissionDeniedStateView.xaml.cs':('PermissionDeniedStateView','CallCenter permission-denied presentation'),
+ C+'Views/CallCenterDeliveryEditorView.xaml.cs':('CallCenterDeliveryEditorView','CallCenter caller/address overlay'),
+ C+'Views/CallCenterView.xaml.cs':('CallCenterView','CallCenter main intake workspace'),
+ C+'Views/LoginView.xaml.cs':('LoginView','CallCenter PIN login presentation'),
+ P+'Controls/PermissionDeniedStateView.xaml.cs':('PermissionDeniedStateView','Cashier permission-denied presentation'),
+ P+'Views/AttendanceView.xaml.cs':('AttendanceView','employee attendance page'),
+ P+'Views/AuditView.xaml.cs':('AuditView','management audit-history page'),
+ P+'Views/BackupView.xaml.cs':('BackupView','backup and restore page'),
+ P+'Views/CashCountView.xaml.cs':('CashCountView','cash denomination count page'),
+ P+'Views/ControlCenterView.xaml.cs':('ControlCenterView','business-day control-center page'),
+ P+'Views/CustomersView.xaml.cs':('CustomersView','customer directory page'),
+ P+'Views/DailyStatementView.xaml.cs':('DailyStatementView','owner daily statement page'),
+ P+'Views/DailySummaryView.xaml.cs':('DailySummaryView','daily summary page'),
+ P+'Views/DeliveryDetailsView.xaml.cs':('DeliveryDetailsView','cashier structured delivery overlay'),
+ P+'Views/DeliveryDirectoryView.xaml.cs':('DeliveryDirectoryView','delivery service directory page'),
+ P+'Views/DeliveryModalsView.xaml.cs':('DeliveryModalsView','driver dispatch action overlays'),
+ P+'Views/DeliveryView.xaml.cs':('DeliveryView','delivery/driver board'),
+ P+'Views/EmployeeEditorView.xaml.cs':('EmployeeEditorView','employee details editor'),
+ P+'Views/EmployeesView.xaml.cs':('EmployeesView','employee directory/ledger page'),
+ P+'Views/InventoryModalsView.xaml.cs':('InventoryModalsView','inventory receipt/count overlays'),
+ P+'Views/InventoryView.xaml.cs':('InventoryView','inventory page'),
+ P+'Views/LoginView.xaml.cs':('LoginView','cashier PIN login presentation'),
+ P+'Views/MenuView.xaml.cs':('MenuView','management menu editor list'),
+ P+'Views/OrdersView.xaml.cs':('OrdersView','order history/detail page'),
+ P+'Views/OwnerDashboardView.xaml.cs':('OwnerDashboardView','owner KPI dashboard'),
+ P+'Views/PayrollView.xaml.cs':('PayrollView','payroll page'),
+ P+'Views/PickupDetailsView.xaml.cs':('PickupDetailsView','pickup customer/schedule overlay'),
+ P+'Views/PrintingView.xaml.cs':('PrintingView','recorded print status page'),
+ P+'Views/PurchasingModalsView.xaml.cs':('PurchasingModalsView','purchase entry/action overlays'),
+ P+'Views/PurchasingView.xaml.cs':('PurchasingView','purchase and supplier management'),
+ P+'Views/RecipesView.xaml.cs':('RecipesView','recipe composition/cost page'),
+ P+'Views/RefundView.xaml.cs':('RefundView','cashier refund overlay'),
+ P+'Views/ReportsView.xaml.cs':('ReportsView','management reports page'),
+ P+'Views/SettingsView.xaml.cs':('SettingsView','restaurant settings/appearance page'),
+ P+'Views/ShellPlaceholderView.xaml.cs':('ShellPlaceholderView','fallback module page'),
+ P+'Views/ShiftsView.xaml.cs':('ShiftsView','shift history and management'),
+ P+'Views/TreasuryView.xaml.cs':('TreasuryView','treasury position and money actions'),
+ P+'Views/UsersView.xaml.cs':('UsersView','user and permission management'),
+ P+'Views/WasteView.xaml.cs':('WasteView','inventory waste entry/history'),
+ 'src/Falah.Client.Cashier/Views/AppHeaderView.xaml.cs':('AppHeaderView','WPF technical-reference header'),
+ 'src/Falah.Client.Cashier/Views/CashierView.xaml.cs':('CashierView','WPF technical-reference cashier workspace'),
+ 'src/Falah.Client.Cashier/Views/LoginView.xaml.cs':('LoginView','WPF technical-reference login'),
+}
+for path,(constructor,role) in simple_views.items():
+ add(path,role+' constructor only.',[(constructor,f'Entire file is imports, namespace, partial UserControl and one InitializeComponent constructor for {role}. No business methods, event subscriptions, direct API calls, cancellation, data mutations, SQL, process launching or printing are implemented in this code-behind. Parent DataContext flows into its distinct XAML; source-level absence here does not establish behavior or authorization of that XAML/VM.')],
+ 'NOT_APPLICABLE standalone business logic tests; actual associated XAML resource/binding compilation and native integration are required separately. Constructor read in full; no rendered UI proof.',
+ 'No code-behind defect found in its limited responsibility. Review separately tracked XAML and bound view model before claiming the screen works.')
+for pp in [P,C]:
+ add(pp+'Views/AppHeaderView.xaml.cs','Header lock event bridge.',[
+ ('AppHeaderView','InitializeComponent only; header has HeaderViewModel DataContext, so cannot directly find root lock command.'),
+ ('OnLockClicked','Raises LockRequested to MainWindow where MainViewModel.LockCommand enforces unresolved-operation gate. Event notification itself does not authorize state change; current wire exists in MainWindow. No direct data or printing side effects.')],
+ 'Native event wiring and root lock gate tests separate; no credential automation executed.',
+ 'Maintain root authorization/unknown-operation gate and accessible lock name in paired XAML.')
+add(C+'Views/CategoryStripView.xaml.cs','CallCenter category item-click bridge.',[
+('OnCategoryClicked','Requires actual CategoryTile and typed DataContext then executes SelectCategoryCommand. No financial mutation; category selection may rebuild UI even while payment unresolved because VM selector itself lacks edit guard. Cart mutation still guarded.'),
+('CategoryStripView','InitializeComponent; ViewModel typed cast safely null on design-time/no session.')],
+'Native item-click and source VM filtering tests needed; no standalone DB/printing behavior.',
+'Keep edit permissions on actual mutation commands; make frozen presentation behavior consistent.')
+add(P+'Views/MenuEditorView.xaml.cs','Product image picker dependency handoff.',[
+('MenuEditorView','On DataContextChanged, assigns MenuEditorViewModel.PickImageAsync=ImageFilePicker.PickAsync, allowing VM to ask view/platform for picker without owning window. Static method delegate captures no control and no external event subscription; no disposal leak established. Native handle/path/memory risks in ImageFilePicker file.')],
+'Missing native DataContext setup and cancel/read-failure handling tests; no file picker was opened.',
+'Keep platform dependency boundary and enforce image size/error safeguards in platform/service.')
+
+W='src/Falah.Client.Cashier/'
+add(W+'ViewModels/CashierViewModel.Checkout.cs','Older WPF technical-reference checkout; distinguish from active WinUI.',[
+('ChangeDuePiastres','Parses AmountPaidText as integer long directly while OpenCheckout formats EGP decimal text. Default e.g. 10.00 fails long parse so change zero; quick cash 100 becomes100 piastres rather than10000 when compared to total. Source-confirmed display unit mismatch UI-013, affects WPF reference not active WinUI.'),
+('SubmitPaymentAsync','Uses current-culture decimal parse, silently substitutes zero if parse fails and rounds >2decimals; overflow can escape. Rebuilds request on retry from editable cart with same key, no frozen DTO/outcomeUnknown gate. CloseCheckout unconditional, unlike active WinUI safeguards.'),
+('OpenCheckout','Checks cart only, defaults cash and formats estimated total. No live menu/shift guard in this function. Data requirements for pickup/customer absent; this older client is functionally narrower.'),
+('SetPaymentMethod','Sets amount equal estimate for noncash; PressAmountKey/QuickCash alter amount and refresh computed change. No cross-partial amount setter notification found in this file.'),
+('StartNewOrder','Clears result/error only; no durable recovery. Active WinUI must remain deployment target until reference client officially retired or parity addressed.')],
+'Current client test project compiles WinUI sources, not WPF; WPF money display lacks coverage here.',
+'Do not deploy reference client accidentally. If maintained later, use CashInput integer units and immutable durable operations, but no source fixes during audit.')
+add(W+'ViewModels/CashierViewModel.ElectronicPayment.cs','WPF reference electronic confirmation.',[
+('ConfirmElectronicPaymentAsync','Requires transient LastCheckoutResult, calls actual server confirmation then updates from authoritative response. No explicit busy guard in method (generated AsyncRelayCommand normally serializes execution unless invoked directly); no durable request/result context across restart.'),
+('ShowConfirmElectronicPaymentButton','Visible only current result status pending, no historic pending lookup recovery path in this file.')],
+'WPF not linked in current client tests; no real financial actions performed.',
+'Clarify reference client support status; require same money safety as production if ever deployed.')
+add(W+'Services/AppSession.cs','WPF reference shared session.',[
+('Api','Constructs default ApiClient directly; unlike WinUI does not read FALAH_SERVER_URL at this session constructor. No per-user drafts or unresolved-operation owner gate.'),
+('HasPermission','Exact permission or all based on mutable login summary; server remains final authority. Shift/user properties in memory only.')],
+'No active-client tests cover WPF source in current csproj.',
+'Prevent accidental reference deployment; parameterize backend and operation state if reference remains supported.')
+add(W+'MainWindow.xaml.cs','WPF technical-reference window initialization.',[
+('MainWindow','InitializeComponent then new MainViewModel DataContext; no Closing gate, timer stop, or explicit event unsubscribe here. Actual WPF root model lifecycle requires separate review before leak/safety conclusions.')],
+'NOT_APPLICABLE business-unit test; actual WPF lifecycle not executed.',
+'Mark reference UI clearly in deployment docs; do not infer native WinUI behavior from WPF.')
+add(W+'App.xaml.cs','WPF Application class declaration.',[
+('App','Empty System.Windows.Application partial; startup URI/resources live in App.xaml. No code hooks, timers or hidden startup process in this file. Fully qualified base prevents namespace collision.')],
+'NOT_APPLICABLE application business logic; App.xaml/paired window separate.',
+'No immediate change required; preserve correct fully qualified base type.')
+add(W+'App.xaml','WPF startup and resource/converter registrations.',[
+('StartupUri','Creates MainWindow.xaml; merged Colors/Typography/Controls resources are WPF-specific, not active WinUI dictionaries.'),
+('NoteAppendPairConverter','Converters registered for WPF XAML including note pair, money and online status. Registration alone not evidence binding usage correct; no implicit SQL, DB migration or printing.')],
+'WPF not runtime-tested; separate XML parse by parent inventory.',
+'Separate reference/production deployment artifact names and smoke checks.')
+add(W+'AssemblyInfo.cs','WPF theme resource lookup metadata.',[
+('ThemeInfo','Declares no external theme-specific dictionaries and SourceAssembly generic resources. No code functions, mutable runtime state, native API calls or secret material.')],
+'NOT_APPLICABLE functions and business tests; build/resource compilation checks relevant.',
+'No finding in this limited metadata declaration.')
+
+tracked=subprocess.check_output(['git','ls-files',P.rstrip('/'),C.rstrip('/'),'src/Falah.Client.Cashier',T.rstrip('/')],cwd=ROOT,text=True).splitlines()
+ledger=[]
+for p in tracked:
+    raw=subprocess.check_output(['git','show',f'{SHA}:{p}'],cwd=ROOT)
+    source=raw.decode('utf-8-sig')
+    wt=(ROOT/p).read_bytes()
+    entry={'path':p,'baseline':SHA,'sha256':hashlib.sha256(raw).hexdigest(),'git_blob_sha256':hashlib.sha256(raw).hexdigest(),'worktree_sha256':hashlib.sha256(wt).hexdigest(),'normalized_lf_equivalent':wt.replace(b'\r\n',b'\n')==raw.replace(b'\r\n',b'\n'),'file_type':Path(p).suffix,'status':'NOT_ANALYZED','fileReviewed':False,'function_review':'NOT_ANALYZED','visual_verification':'NOT_TESTED'}
+    if p in reviews:
+        r=reviews[p]; entry.update(status=r['status'],fileReviewed=True,function_review='MANUAL_FLOW_REVIEW' if p.endswith('.cs') else 'NOT_APPLICABLE',functionReviewAnchors=[x[0] for x in r['analysis']],report='FILE_REPORTS/'+p+'.md')
+        lines=source.splitlines(); body=[f'# {p}',f'Baseline: `{SHA}`',f'SHA-256 (exact Git blob bytes): `{entry["sha256"]}`',f'Worktree SHA-256: `{entry["worktree_sha256"]}`; normalized LF equivalence: `{entry["normalized_lf_equivalent"]}`. EOL differences alone are not source tampering.',f'Type: `{entry["file_type"]}`; review: **{r["status"]}**; runtime/visual proof: **NOT_TESTED by this reviewer**.',f'Actual role: {r["role"]}','## Source paths and function/resource analysis']
+        for anchor,note in r['analysis']:
+            matches=[i+1 for i,l in enumerate(lines) if anchor in l]
+            loc=str(matches[0]) if matches else 'UNKNOWN'
+            body.append(f'- `{anchor}` at `{p}:{loc}`: {note}')
+        body.extend(['## Responsibilities and limits','Client source does not establish server authorization or database atomicity; cross-file backend review is separate. No application commands, database writes, printer actions, credential entry, source changes or dependency updates were executed by this reviewer. Static absence of a fault is not proof of correctness. Security exploitability is not inferred merely from a client-supplied actor ID.','## Tests and gaps',r['tests'],'## Recommendations (not implemented)',r['recommendations'],'## Coverage qualification','Anchored paragraphs describe actual manually traced functions/resources, not semantic declaration enumeration. Generated toolkit methods/properties are compiler-generated and must be accounted for by the parent inventory. Other applicable file dimensions without evidence remain UNKNOWN; printing and DB transaction implementation inside a pure view/resource file are NOT_APPLICABLE. A partial file report must not be counted as exhaustive.'])
+        target=OUT/entry['report'];target.parent.mkdir(parents=True,exist_ok=True); target.write_text('\n\n'.join(body)+'\n',encoding='utf-8')
+    ledger.append(entry)
+(OUT/'reviews/ui-ledger.json').write_text(json.dumps({'baseline':SHA,'reviewer':'ui_visual','counts':dict(collections.Counter(e['status'] for e in ledger)),'files':ledger},ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps({'scope':len(tracked),'reports':len(reviews),'counts':dict(collections.Counter(e['status'] for e in ledger))}))

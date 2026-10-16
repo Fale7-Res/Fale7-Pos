@@ -1,0 +1,32 @@
+$ErrorActionPreference = 'Stop'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$instanceName = 'Fale7CSharpDev'
+$databaseName = 'Fale7CSharp_Test'
+$markerPath = Join-Path $PSScriptRoot 'initialized-test-database.json'
+if (!(Test-Path -LiteralPath $markerPath)) { throw 'Approved isolated database has not been initialized.' }
+$marker = Get-Content -LiteralPath $markerPath -Raw | ConvertFrom-Json
+if ($marker.Instance -ne $instanceName -or $marker.Database -ne $databaseName) { throw 'Isolated database identity mismatch.' }
+$sqlTool = (Get-Command sqlcmd.exe -ErrorAction Stop).Source
+& $sqlTool -S "(localdb)\$instanceName" -E -d $databaseName -l 30 -b -Q "IF DB_NAME() <> N'$databaseName' THROW 51000, 'Wrong database target.', 1; SELECT DB_NAME() AS VerifiedTestDatabase;"
+if ($LASTEXITCODE -ne 0) { throw 'Test database verification failed; no server will start.' }
+if (Get-NetTCPConnection -LocalPort 5151 -State Listen -ErrorAction SilentlyContinue) { throw 'Port 5151 is occupied; inspect the existing listener before starting another server.' }
+$settings = @{
+    'ConnectionStrings__Falah' = "Server=(localdb)\$instanceName;Database=$databaseName;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=30;"
+    'Backup__Automatic__Enabled' = 'false'
+    'Backup__DefaultDirectory' = (Join-Path $PSScriptRoot 'backups')
+    'ASPNETCORE_URLS' = 'http://localhost:5151'
+    'ASPNETCORE_ENVIRONMENT' = 'Production'
+}
+$previous = @{}
+$oldLocation = Get-Location
+try {
+    foreach ($key in $settings.Keys) { $previous[$key] = [Environment]::GetEnvironmentVariable($key, 'Process'); [Environment]::SetEnvironmentVariable($key, $settings[$key], 'Process') }
+    $serverDirectory = Join-Path $repoRoot 'src\Falah.Server\bin\Release\net8.0'
+    Set-Location -LiteralPath $serverDirectory
+    Write-Output 'Starting real Falah.Server on loopback, using ONLY the verified isolated test database; automatic backups disabled. Ctrl+C stops the server.'
+    & (Join-Path $serverDirectory 'Falah.Server.exe') --urls http://localhost:5151 2>&1 |
+        Tee-Object -FilePath (Join-Path $PSScriptRoot 'server.log') -Append
+} finally {
+    Set-Location -LiteralPath $oldLocation
+    foreach ($key in $settings.Keys) { [Environment]::SetEnvironmentVariable($key, $previous[$key], 'Process') }
+}

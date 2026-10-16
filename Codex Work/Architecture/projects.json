@@ -1,0 +1,169 @@
+[
+  {
+    "Name": "Falah.Domain",
+    "Path": "src\\Falah.Domain\\Falah.Domain.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [],
+    "Packages": []
+  },
+  {
+    "Name": "Falah.Application",
+    "Path": "src\\Falah.Application\\Falah.Application.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "..\\Falah.Domain\\Falah.Domain.csproj"
+    ],
+    "Packages": []
+  },
+  {
+    "Name": "Falah.Infrastructure",
+    "Path": "src\\Falah.Infrastructure\\Falah.Infrastructure.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "..\\Falah.Domain\\Falah.Domain.csproj",
+      "..\\Falah.Application\\Falah.Application.csproj"
+    ],
+    "Packages": [
+      "Microsoft.EntityFrameworkCore.Design 8.0.11",
+      "Microsoft.EntityFrameworkCore.SqlServer 8.0.11",
+      "Microsoft.Extensions.Hosting.Abstractions 8.0.1"
+    ]
+  },
+  {
+    "Name": "Falah.Server",
+    "Path": "src\\Falah.Server\\Falah.Server.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "..\\Falah.Domain\\Falah.Domain.csproj",
+      "..\\Falah.Application\\Falah.Application.csproj",
+      "..\\Falah.Infrastructure\\Falah.Infrastructure.csproj"
+    ],
+    "Packages": [
+      "Microsoft.AspNetCore.OpenApi 8.0.30",
+      "Microsoft.EntityFrameworkCore.Design 8.0.11",
+      "Microsoft.Extensions.Hosting.WindowsServices 8.0.1",
+      "Swashbuckle.AspNetCore 6.6.2"
+    ]
+  },
+  {
+    "Name": "Falah.Domain.Tests",
+    "Path": "tests\\Falah.Domain.Tests\\Falah.Domain.Tests.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "..\\..\\src\\Falah.Domain\\Falah.Domain.csproj"
+    ],
+    "Packages": [
+      "coverlet.collector 6.0.0",
+      "Microsoft.NET.Test.Sdk 17.8.0",
+      "xunit 2.5.3",
+      "xunit.runner.visualstudio 2.5.3"
+    ]
+  },
+  {
+    "Name": "Falah.Server.IntegrationTests",
+    "Path": "tests\\Falah.Server.IntegrationTests\\Falah.Server.IntegrationTests.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "..\\..\\src\\Falah.Server\\Falah.Server.csproj",
+      "..\\..\\src\\Falah.Infrastructure\\Falah.Infrastructure.csproj",
+      "..\\..\\src\\Falah.Application\\Falah.Application.csproj",
+      "..\\..\\src\\Falah.Domain\\Falah.Domain.csproj",
+      "../../src/Falah.PrintAgent/Falah.PrintAgent.csproj"
+    ],
+    "Packages": [
+      "coverlet.collector 6.0.0",
+      "Microsoft.AspNetCore.Mvc.Testing 8.0.11",
+      "Microsoft.NET.Test.Sdk 17.8.0",
+      "xunit 2.5.3",
+      "xunit.runner.visualstudio 2.5.3",
+      "ZXing.Net 0.16.11"
+    ]
+  },
+  {
+    "Name": "Falah.Client.Cashier",
+    "Path": "src\\Falah.Client.Cashier\\Falah.Client.Cashier.csproj",
+    "Framework": [
+      "net8.0-windows"
+    ],
+    "References": [
+      "..\\Falah.Application\\Falah.Application.csproj"
+    ],
+    "Packages": [
+      "CommunityToolkit.Mvvm 8.3.2"
+    ]
+  },
+  {
+    "Name": "Falah.Client.CashierWinUI",
+    "Path": "src\\Falah.Client.CashierWinUI\\Falah.Client.CashierWinUI.csproj",
+    "Framework": [
+      "net8.0-windows10.0.19041.0"
+    ],
+    "References": [
+      "..\\Falah.Application\\Falah.Application.csproj"
+    ],
+    "Packages": [
+      "Microsoft.WindowsAppSDK 1.7.260224002",
+      "Microsoft.Windows.SDK.BuildTools 10.0.22621.3233",
+      "CommunityToolkit.Mvvm 8.3.2"
+    ]
+  },
+  {
+    "Name": "Falah.Client.CallCenterWinUI",
+    "Path": "src\\Falah.Client.CallCenterWinUI\\Falah.Client.CallCenterWinUI.csproj",
+    "Framework": [
+      "net8.0-windows10.0.19041.0"
+    ],
+    "References": [
+      "..\\Falah.Application\\Falah.Application.csproj"
+    ],
+    "Packages": [
+      "Microsoft.WindowsAppSDK 1.7.260224002",
+      "Microsoft.Windows.SDK.BuildTools 10.0.22621.3233",
+      "CommunityToolkit.Mvvm 8.3.2"
+    ]
+  },
+  {
+    "Name": "Falah.Client.Tests",
+    "Path": "tests\\Falah.Client.Tests\\Falah.Client.Tests.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "../../src/Falah.Application/Falah.Application.csproj"
+    ],
+    "Packages": [
+      "Microsoft.NET.Test.Sdk 17.8.0",
+      "xunit 2.5.3",
+      "xunit.runner.visualstudio 2.5.3",
+      "CommunityToolkit.Mvvm 8.3.2"
+    ]
+  },
+  {
+    "Name": "Falah.PrintAgent",
+    "Path": "src\\Falah.PrintAgent\\Falah.PrintAgent.csproj",
+    "Framework": [
+      "net8.0"
+    ],
+    "References": [
+      "..\\Falah.Application\\Falah.Application.csproj"
+    ],
+    "Packages": [
+      "QRCoder 1.8.0",
+      "System.IO.Ports 8.0.0",
+      "System.Text.Encoding.CodePages 8.0.0",
+      "System.Drawing.Common 8.0.0"
+    ]
+  }
+]

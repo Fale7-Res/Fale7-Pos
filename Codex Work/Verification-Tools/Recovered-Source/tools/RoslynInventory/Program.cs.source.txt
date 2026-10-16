@@ -1,0 +1,78 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Xml;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+if(args.Length!=2)throw new ArgumentException("repository root and audit output required");
+var root=Path.GetFullPath(args[0]);var output=Path.GetFullPath(args[1]);
+var paths=File.ReadAllLines(Path.Combine(output,"evidence","tracked-paths.txt")).Where(p=>p.Length>0).ToArray();
+var options=new JsonSerializerOptions{WriteIndented=true};
+var symbols=new List<object>();var files=new List<Dictionary<string,object?>>();
+var trees=new Dictionary<string,SyntaxTree>();
+var parseOptions=new CSharpParseOptions(LanguageVersion.Latest,preprocessorSymbols:new[]{"TRACE","RELEASE","NET","NET8_0","NETCOREAPP","NET8_0_OR_GREATER","NET7_0_OR_GREATER","NET6_0_OR_GREATER","NET5_0_OR_GREATER","WINDOWS"});
+foreach(var path in paths){
+ var bytes=File.ReadAllBytes(Path.Combine(root,path));var text=Encoding.UTF8.GetString(bytes);if(text.StartsWith("\uFEFF"))text=text[1..];var ext=Path.GetExtension(path).ToLowerInvariant();
+ var lines=text.Length==0?0: text.Count(c=>c=='\n')+(text.EndsWith('\n')?0:1);
+ var record=new Dictionary<string,object?>{{"path",path},{"baseline","c35816ecae49633674775dd32061c6ee92f94aaf"},{"sha256",Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()},{"bytes",bytes.Length},{"lines",lines},{"extension",ext},{"mappingStatus","MAPPED"},{"reviewStatus","NOT_ANALYZED"},{"functionReviewStatus","NOT_ANALYZED"}};
+ if(ext==".cs"){
+  var tree=CSharpSyntaxTree.ParseText(text,parseOptions,path);trees[path]=tree;
+  var errors=tree.GetDiagnostics().Where(d=>d.Severity==DiagnosticSeverity.Error).Select(d=>new {id=d.Id,message=d.GetMessage(),line=d.Location.GetLineSpan().StartLinePosition.Line+1}).ToArray();
+  record["parser"]="Roslyn CSharpSyntaxTree";record["parserStatus"]=errors.Length==0?"PARSED":"PARSER_ERROR";record["parserErrors"]=errors;
+  record["disabledRegions"]=tree.GetRoot().DescendantTrivia(descendIntoTrivia:true).Where(t=>t.IsKind(SyntaxKind.DisabledTextTrivia)).Select(t=>new{startLine=tree.GetLineSpan(t.Span).StartLinePosition.Line+1,endLine=tree.GetLineSpan(t.Span).EndLinePosition.Line+1,status="NOT_ANALYZED_IN_INACTIVE_CONFIGURATION"}).ToArray();
+ }else if(new[]{".xaml",".csproj",".config",".manifest"}.Contains(ext)){
+  try{var doc=new XmlDocument();doc.XmlResolver=null;using var reader=XmlReader.Create(new StringReader(text),new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null});doc.Load(reader);record["parser"]="System.Xml";record["parserStatus"]="PARSED";record["xmlElements"]=doc.SelectNodes("//*")!.Count;record["declarationCount"]="NOT_APPLICABLE";}
+  catch(Exception e){record["parserStatus"]="PARSER_ERROR";record["parserError"]=e.Message;record["declarationCount"]="UNKNOWN";}
+ }else if(ext==".json"){
+  try{using var doc=JsonDocument.Parse(text,new JsonDocumentOptions{CommentHandling=JsonCommentHandling.Skip,AllowTrailingCommas=true});record["parser"]="System.Text.Json";record["parserStatus"]="PARSED";}catch(Exception e){record["parserStatus"]="PARSER_ERROR";record["parserError"]=e.Message;}record["declarationCount"]="NOT_APPLICABLE";
+ }else{record["parserStatus"]="NOT_APPLICABLE";record["declarationCount"]="NOT_APPLICABLE";}
+ files.Add(record);
+}
+var projectFiles=paths.Where(p=>p.EndsWith(".csproj",StringComparison.OrdinalIgnoreCase)).ToArray();
+string ProjectFor(string path)=>projectFiles.Where(p=>path.StartsWith(p[..(p.LastIndexOf('/')+1)],StringComparison.Ordinal)).OrderByDescending(p=>p.Length).FirstOrDefault()??"UNASSIGNED";
+var semanticReports=new List<object>();
+foreach(var group in trees.GroupBy(p=>ProjectFor(p.Key))){
+ var refs=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+ void AddFolder(string folder){if(Directory.Exists(folder))foreach(var p in Directory.EnumerateFiles(folder,"*.dll",SearchOption.TopDirectoryOnly))refs.TryAdd(Path.GetFileName(p),p);}
+ AddFolder(@"C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.31\ref\net8.0");
+ if(group.Key.Contains("Server"))AddFolder(@"C:\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\8.0.31\ref\net8.0");
+ if(group.Key.Contains("Client.Cashier/"))AddFolder(@"C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\8.0.31\ref\net8.0");
+ if(group.Key!="UNASSIGNED"){
+  var folder=Path.GetDirectoryName(Path.Combine(root,group.Key))!;var assets=Path.Combine(folder,"obj","project.assets.json");
+  if(File.Exists(assets))try{
+   using var asset=JsonDocument.Parse(File.ReadAllText(assets));var packages=asset.RootElement.GetProperty("packageFolders").EnumerateObject().Select(p=>p.Name).ToArray();
+   foreach(var target in asset.RootElement.GetProperty("targets").EnumerateObject())foreach(var lib in target.Value.EnumerateObject()){
+    if(!lib.Value.TryGetProperty("compile",out var comp))continue;
+    if(!asset.RootElement.GetProperty("libraries").TryGetProperty(lib.Name,out var info)||!info.TryGetProperty("path",out var libpath))continue;
+    foreach(var item in comp.EnumerateObject().Where(p=>p.Name.EndsWith(".dll")))foreach(var pack in packages){var p=Path.Combine(pack,libpath.GetString()!,item.Name);if(File.Exists(p)){refs.TryAdd(Path.GetFileName(p),p);break;}}
+   }
+  }catch(Exception e){semanticReports.Add(new{project=group.Key,assetsStatus="PARSER_ERROR",detail=e.Message});}
+  // Baseline-built project/WinUI assembly references supplement package compile references.
+  var bin=Path.Combine(folder,"bin");if(Directory.Exists(bin))foreach(var p in Directory.EnumerateFiles(bin,"*.dll",SearchOption.AllDirectories).Where(p=>p.Contains(Path.DirectorySeparatorChar+"Release"+Path.DirectorySeparatorChar)&&!p.Contains(Path.DirectorySeparatorChar+"runtimes"+Path.DirectorySeparatorChar)))refs.TryAdd(Path.GetFileName(p),p);
+ }
+ var metadata=new List<MetadataReference>();foreach(var p in refs.Values)try{metadata.Add(MetadataReference.CreateFromFile(p));}catch{}
+ var compilation=CSharpCompilation.Create("Audit_"+group.Key.Replace('/','_').Replace('.','_'),group.Select(p=>p.Value),metadata,new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,allowUnsafe:true));
+ var diagnostics=compilation.GetDiagnostics();var errors=diagnostics.Where(d=>d.Severity==DiagnosticSeverity.Error).ToArray();
+ semanticReports.Add(new{project=group.Key,status=errors.Length==0?"RESOLVED_WITH_EXISTING_BASELINE_BUILD_REFERENCES":"PARTIAL_UNRESOLVED_REFERENCES_OR_GENERATED_SOURCE",referenceCount=metadata.Count,errorCount=errors.Length,errors=errors.Select(d=>new{id=d.Id,path=d.Location.SourceTree?.FilePath,line=d.Location.IsInSource?d.Location.GetLineSpan().StartLinePosition.Line+1:0,message=d.GetMessage()}).ToArray(),caveat="Inventory compilation only; not an MSBuildWorkspace production compilation. Existing generated sources/generators not executed; no clean semantic-analysis claim when errors exist."});
+ foreach(var pair in group){
+  var model=compilation.GetSemanticModel(pair.Value,ignoreAccessibility:true);var nodes=pair.Value.GetRoot().DescendantNodesAndSelf();var count=0;
+  foreach(var node in nodes){
+   var relevant=node is BaseNamespaceDeclarationSyntax or BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or BaseMethodDeclarationSyntax or BasePropertyDeclarationSyntax or LocalFunctionStatementSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax or EnumMemberDeclarationSyntax || node is VariableDeclaratorSyntax or ParameterSyntax or TypeParameterSyntax or SingleVariableDesignationSyntax or ForEachStatementSyntax or CatchDeclarationSyntax or LabeledStatementSyntax or FromClauseSyntax or LetClauseSyntax or JoinClauseSyntax or JoinIntoClauseSyntax or QueryContinuationSyntax;
+   if(!relevant)continue;
+   ISymbol? symbol=null;string? symbolError=null;try{symbol=model.GetDeclaredSymbol(node);if(symbol==null&&node is AnonymousFunctionExpressionSyntax)symbol=model.GetSymbolInfo(node).Symbol;}catch(Exception e){symbolError=e.GetType().Name+": "+e.Message;}
+   var span=node.GetLocation().GetLineSpan();var kind=node.Kind().ToString();var display=symbol?.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
+   var signature=node switch{MethodDeclarationSyntax m=>m.Identifier.Text+"("+m.ParameterList.Parameters.ToString()+")",ConstructorDeclarationSyntax c=>c.Identifier.Text+c.ParameterList,LocalFunctionStatementSyntax l=>l.Identifier.Text+l.ParameterList,PropertyDeclarationSyntax p=>p.Identifier.Text,VariableDeclaratorSyntax v2=>v2.Identifier.Text,BaseTypeDeclarationSyntax t=>t.Identifier.Text,BaseNamespaceDeclarationSyntax n=>n.Name.ToString(),AccessorDeclarationSyntax a=>a.Keyword.Text,_=>kind};
+   symbols.Add(new{id=$"{pair.Key}:{span.StartLinePosition.Line+1}:{span.StartLinePosition.Character+1}:{kind}",path=pair.Key,project=group.Key,kind,name=signature,qualifiedSymbol=display,semanticStatus=symbolError!=null?"PARSER_ERROR":symbol!=null?(errors.Length==0?"RESOLVED":"RESOLVED_IN_PARTIAL_COMPILATION"):"UNKNOWN",semanticError=symbolError,startLine=span.StartLinePosition.Line+1,endLine=span.EndLinePosition.Line+1,startColumn=span.StartLinePosition.Character+1,endColumn=span.EndLinePosition.Character+1,isCallable=node is BaseMethodDeclarationSyntax or LocalFunctionStatementSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax,reviewStatus="NOT_ANALYZED"});count++;
+  }
+  var record=files.Single(f=>(string)f["path"]! ==pair.Key);record["declarationCount"]=count;record["declarationCountStatus"]=count==0?"ZERO":"KNOWN";
+ }
+}
+File.WriteAllText(Path.Combine(output,"FUNCTION_INDEX.json"),JsonSerializer.Serialize(new{baseline="c35816ecae49633674775dd32061c6ee92f94aaf",parser="Roslyn",parseConfiguration="Release .NET8, WINDOWS; probe-only disabled regions separately recorded",semanticModelCaveat="Partial compilations are explicitly diagnosed; indexing is not function review.",declarations=symbols},options));
+File.WriteAllText(Path.Combine(output,"evidence","source-inventory.json"),JsonSerializer.Serialize(files,options));
+File.WriteAllText(Path.Combine(output,"evidence","semantic-diagnostics.json"),JsonSerializer.Serialize(semanticReports,options));
+string Csv(object? v)=>"\""+(v?.ToString()??"UNKNOWN").Replace("\"","\"\"")+"\"";
+var columns=new[]{"path","baseline","sha256","bytes","lines","extension","parser","parserStatus","declarationCount","reviewStatus","functionReviewStatus"};
+File.WriteAllLines(Path.Combine(output,"SOURCE_INVENTORY.csv"),new[]{string.Join(",",columns)}.Concat(files.Select(f=>string.Join(",",columns.Select(c=>Csv(f.GetValueOrDefault(c,c=="parser"?"NOT_APPLICABLE":"UNKNOWN")))))));
+Console.WriteLine(JsonSerializer.Serialize(new{trackedFiles=files.Count,csharpFiles=trees.Count,declarations=symbols.Count,parserErrors=files.Count(f=>Equals(f["parserStatus"],"PARSER_ERROR")),semanticProjects=semanticReports.Count,actuallyReviewedFiles=0,actuallyReviewedFunctions=0}));

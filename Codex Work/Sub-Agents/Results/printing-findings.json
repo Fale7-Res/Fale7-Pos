@@ -1,0 +1,179 @@
+[
+  {
+    "id": "PRT-001",
+    "severity": "HIGH",
+    "confidence": "high-static; independently source-challenged; physical reproduction NOT TESTED",
+    "title": "Two machines can submit the same pending kitchen job",
+    "existing_behavior": "GET pending is a read-only unclaimed snapshot; each processor sends every returned job. Global mutex protects only processes on one Windows machine.",
+    "repro": "In an isolated fake/server harness, let two agents with separate journals and machines request the same route before either reports. Both obtain the same Pending job, both send, then each reports with a different attempt ID. No physical reproduction performed.",
+    "evidence": [
+      "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs:42-47",
+      "src/Falah.PrintAgent/PrintJobProcessor.cs:68-78,87-108",
+      "src/Falah.PrintAgent/Program.cs:95-108",
+      "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:44-58"
+    ],
+    "root_cause": "No server-side atomic claim, station ownership, lease or fencing token exists. Report idempotency protects reporting replay, not independent physical attempts.",
+    "related_files": [
+      "src/Falah.Server/Program.cs:2138-2139",
+      "src/Falah.PrintAgent/UnreportedAttemptStore.cs"
+    ],
+    "tests": "Existing PrintAgentTests cover route selection and one-agent report retry only; add concurrent two-agent claim/fencing test, and replacement-agent unknown-outcome recovery.",
+    "recommendation": "Introduce server-side station/route registration and atomic claimed dispatch with fencing; require explicit operator handling for uncertain physical outcomes. Lease expiry alone cannot guarantee exactly-once paper.",
+    "uncertainty": "Duplicate deployment is the trigger; one machine mutex plus one correctly configured agent per route limits exposure. Physical exactly-once remains impossible without printer acknowledgement/operator reconciliation.",
+    "independent_challenge": {
+      "reviewer": "financial_integrity original session",
+      "evidence": "Codex Work/Sub-Agents/Handoffs/financial-printing-peer-challenges.md",
+      "disposition": "CONFIRMED STATIC with conditions; no live transport/script execution"
+    }
+  },
+  {
+    "id": "PRT-002",
+    "severity": "MEDIUM",
+    "confidence": "high-static",
+    "title": "Succeeded and print health collapse transport acceptance into physical completion",
+    "existing_behavior": "Processor sets Succeeded after SendAsync returns. File write, TCP buffer acceptance and Windows RAW submission all satisfy this. Server overview derives last success from that flag; owner DTO comment describes physical output.",
+    "repro": "With file transport, a ticket is written to .escpos and report Succeeded=true despite no printer. With paused/offline spooler, accepted RAW job remains queued while app reports success. Scenario not executed on live environment.",
+    "evidence": [
+      "src/Falah.PrintAgent/PrintJobProcessor.cs:108-112",
+      "src/Falah.PrintAgent/Transports.cs:23-33,82-86",
+      "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs:29-32,54-80",
+      "src/Falah.Application/Reports/OwnerDashboardDtos.cs:178-188"
+    ],
+    "root_cause": "Boolean transport contract has no acknowledgement level or spooler submission ID; job status has no accepted/unknown/confirmed distinction.",
+    "related_files": [
+      "src/Falah.Application/Printing/PrintingRequests.cs",
+      "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs:63-80",
+      "tools/pre-demo-check.ps1"
+    ],
+    "tests": "Existing success test verifies only fake transport Sent list. Add file-simulation status, paused spooler status under explicit authorization, and operator-confirmation tests.",
+    "recommendation": "Use distinct Simulated, Submitted, SpoolerQueued, Failed, OutcomeUnknown and PhysicallyConfirmed observations. Never drain real pending jobs to file as production completion.",
+    "uncertainty": "No hardware status protocol is currently implemented; even spooler completion is not definitive paper proof."
+  },
+  {
+    "id": "PRT-003",
+    "severity": "MEDIUM",
+    "confidence": "high-static",
+    "title": "Blocking spooler submission ignores cancellation and completion failures",
+    "existing_behavior": "Windows SendAsync calls blocking Send and discards cancellation. EndPagePrinter/EndDocPrinter results are ignored. Serial Open/Flush also block without cooperative cancellation.",
+    "repro": "Shim native APIs in isolated test: return false from EndDocPrinter after successful WritePrinter, or block OpenPrinter. Current method can return success or fail to shut down within configured timeout. Not run against real queue.",
+    "evidence": [
+      "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs:29-32,78-80",
+      "src/Falah.PrintAgent/Transports.cs:51-63",
+      "src/Falah.PrintAgent/AgentOptions.cs:47-48"
+    ],
+    "root_cause": "Timeout configuration applies to HTTP/TCP/serial write but not full native spooler lifecycle; unmanaged result handling is incomplete.",
+    "related_files": [
+      "src/Falah.PrintAgent/Program.cs:130-151"
+    ],
+    "tests": "Add injectable spooler API tests for failure and hang, short writes already checked in implementation; separate integration verification from physical output.",
+    "recommendation": "Check finalization results, retain submission job ID, move blocking native submission to a controlled worker with bounded shutdown/uncertain outcome semantics.",
+    "uncertainty": "Actual driver hang frequency was not measured; timeout must not cause automatic physical resend."
+  },
+  {
+    "id": "PRT-004",
+    "severity": "MEDIUM",
+    "confidence": "high-static",
+    "title": "Agent never authenticates again after session loss",
+    "existing_behavior": "Login occurs once before poll loop. All subsequent 401 failures are logged and retried with same token indefinitely.",
+    "repro": "Isolated server/session harness: start agent, invalidate its session or let it expire during downtime, restore server, observe 401 polls and undrained queue until process restarted. Not run on active server.",
+    "evidence": [
+      "src/Falah.PrintAgent/Program.cs:111-120,136-151",
+      "src/Falah.PrintAgent/PrintServerClient.cs:33-40,42-63"
+    ],
+    "root_cause": "No token-expiry or reauthentication recovery path; agent lifecycle assumes continuously sliding valid session.",
+    "related_files": [
+      "src/Falah.Server/AuthenticationMiddleware.cs:47-61"
+    ],
+    "tests": "Add 401-then-authenticate recovery, deactivated-account terminal failure, and queued outcome reporting across reauth tests.",
+    "recommendation": "Add controlled reauthentication and explicit offline/authentication alarm without losing attempt journal or blindly resending uncertain jobs.",
+    "uncertainty": "A continuously active sliding session avoids ordinary expiry; session invalidation or prolonged downtime triggers exposure."
+  },
+  {
+    "id": "PRT-005",
+    "severity": "HIGH",
+    "confidence": "high-static; independently source-challenged; physical reproduction NOT TESTED",
+    "title": "Printer verification tool can delete preexisting restaurant tickets",
+    "existing_behavior": "Tool pauses printer without checking success, sends generic Falah ticket, then removes every job with DocumentName Falah ticket and resumes queue.",
+    "repro": "Static fixture: prepopulate queue snapshot with a preexisting Falah ticket and new test Falah ticket; $mine selects both. Tool removes both. If pause returns failure, test can reach physical printer. No tool execution performed.",
+    "evidence": [
+      "tools/verify-windows-printer-transport.ps1:19-22,61-65,70-73",
+      "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs:47-50"
+    ],
+    "root_cause": "Generic document-name matching replaces exact submission ownership; ignored pause result invalidates no-paper guarantee.",
+    "related_files": [
+      "src/Falah.PrintAgent/Program.cs:14-94"
+    ],
+    "tests": "Add fake queue fixture preserving preexisting IDs, failure-to-pause abort, failed-cleanup no-resume policy. Only isolated queue integration after approval.",
+    "recommendation": "Use dedicated test queue and exact returned job ID, verify pause state, never delete by document name; keep all live printer operations gated.",
+    "uncertainty": "Current audit did not execute tool, submit any job or touch queues.",
+    "independent_challenge": {
+      "reviewer": "financial_integrity original session",
+      "evidence": "Codex Work/Sub-Agents/Handoffs/financial-printing-peer-challenges.md",
+      "disposition": "CONFIRMED STATIC with conditions; no live transport/script execution"
+    }
+  },
+  {
+    "id": "PRT-006",
+    "severity": "LOW",
+    "confidence": "high-static",
+    "title": "Saved printer width and receipt copy count do not control inspected print pipeline",
+    "existing_behavior": "Settings accepts PrinterWidth and NumberOfReceiptCopies, but auto-print creates one job per route and agent uses its own ImageWidthDots. Operators can save values that do not change output.",
+    "repro": "Static reachability: assignments exist in Settings handler; no usage in Infrastructure/Printing or PrintAgent. Changing setting then queuing remains one job per customer route. No settings changed.",
+    "evidence": [
+      "src/Falah.Application/Settings/SettingsRequests.cs:14-15,42-43",
+      "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs:77-82",
+      "src/Falah.PrintAgent/AgentOptions.cs:67-74",
+      "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:57-69"
+    ],
+    "root_cause": "Persistence/UI configuration has no mapped consumer in render/dispatch implementation.",
+    "related_files": [
+      "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:99-102"
+    ],
+    "tests": "Add intended copy/width contract tests or disable unsupported setting UI.",
+    "recommendation": "Define per-station paper capability and copy semantics; explicitly label unsupported settings until implemented. Copies must not multiply kitchen prep accidentally.",
+    "uncertainty": "Client preview/report exports may use own dimensions; this finding concerns actual inspected thermal pipeline."
+  },
+  {
+    "id": "FLOW-001",
+    "severity": "HIGH_REQUIREMENT_GAP",
+    "confidence": "high-static",
+    "title": "Requested two-stage pickup preparation and final payment lifecycle is absent",
+    "existing_behavior": "Pickup exists as OrderType plus customer/time metadata, but shares checkout BuildPlan. Cash pickup must provide full payable amount before order creation and automatic kitchen job enqueue. Electronic pickup can be pending, but that is unverified payment, not pay-on-collection.",
+    "repro": "Pure rules: Pickup+Cash+positive total+AmountPaid=0 hits amountPaid<payableTotal. There is no create-unpaid-pickup/settle-pickup/handover endpoint in server route inventory. No database/API write executed.",
+    "evidence": [
+      "src/Falah.Domain/Orders/CheckoutRules.cs:45-46,100-109",
+      "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:91-100,142-145,278-280",
+      "src/Falah.Server/Program.cs:1370-1380",
+      "src/Falah.Application/Orders/CheckoutOrderRequest.cs:77-81"
+    ],
+    "root_cause": "Creation, stock consumption and payment checkout share one use case; only Delivery Cash has explicit deferred cash rule.",
+    "related_files": [
+      "src/Falah.Application/Orders/OrderDetailsDto.cs",
+      "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs"
+    ],
+    "tests": "Recommend lifecycle acceptance tests: unpaid reservation queues kitchen once, payment later posts once, handover only after policy gate, cancellation/restock/close blockers, network replay at each stage.",
+    "recommendation": "Design separate pickup fulfilment state and payment state with server-authoritative transitions. Treat this as future approved product change, not a fix performed during audit.",
+    "uncertainty": "Requirement gap against requested operation, not an assertion that existing prepaid pickup implementation violates its original specification."
+  },
+  {
+    "id": "FLOW-002",
+    "severity": "MEDIUM",
+    "confidence": "high-static",
+    "title": "Held electronic preparation is not automatically released on confirmation",
+    "existing_behavior": "HoldPreparationUntilPaymentConfirmed suppresses initial kitchen routes. Confirmation posts money/status but does not enqueue held preparation. Auto-print documentation directs operator to Order Lookup.",
+    "repro": "Read-only trace: pending electronic checkout with hold setting true creates customer route only; POST confirm handler contains no queue call; kitchen remains absent until manual print. Not executed.",
+    "evidence": [
+      "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs:59-72",
+      "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:75-103",
+      "src/Falah.Server/Program.cs:1416-1434",
+      "src/Falah.Application/Settings/SettingsRequests.cs:17-21"
+    ],
+    "root_cause": "Suppression is a one-time checkout decision without durable preparation-release state or confirmation outbox event.",
+    "related_files": [
+      "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs"
+    ],
+    "tests": "Add hold->confirm release exactly once, replay, mixed payment failure, cancellation-before-release and manual reprint tests.",
+    "recommendation": "Explicitly communicate manual release now; future approved implementation should persist held state and transactionally enqueue release with stable key on confirmation.",
+    "uncertainty": "Manual release is documented existing behavior; issue is operational expectation and missing automated guarantee, not evidence payment confirmation always fails."
+  }
+]

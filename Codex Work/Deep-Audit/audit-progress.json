@@ -1,0 +1,90 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "branch": "main",
+  "status": "IN_PROGRESS",
+  "tracked_baseline_files": 690,
+  "streams": {
+    "financial": {
+      "scope": 327,
+      "counts": {
+        "REVIEWED_STATIC_COMPLETE_FILE": 269,
+        "NOT_ANALYZED": 58
+      }
+    },
+    "ui": {
+      "scope": 274,
+      "counts": {
+        "REVIEWED_SOURCE": 224,
+        "NOT_ANALYZED": 50
+      }
+    },
+    "printing": {
+      "scope": 71,
+      "counts": {
+        "STATIC_FILE_REVIEWED": 71
+      }
+    }
+  },
+  "review_receipts": "Recovered agent source-review claims verified against current file hashes; not all independently re-reviewed.",
+  "functions_actually_reviewed": "UNKNOWN; precise symbol-to-review reconciliation pending. Indexing does not count.",
+  "last_completed_task": "15-phase assessment and independent manual security continuation",
+  "interrupted_tasks": [
+    "Financial remaining source review",
+    "UI remaining source review and unsaved candidate writeups",
+    "Server Program.cs remaining handlers",
+    "Roslyn BOM correction",
+    "Security deep scan",
+    "Dependency advisories",
+    "Performance and hardware",
+    "Independent finding challenges"
+  ],
+  "inventory_caveat": "Corrected Roslyn inventory: Current/FUNCTION_INDEX.json; 690 files,561 C#,36711 declarations,0 syntax parser errors under configured Release .NET8 WINDOWS symbols. Semantic probe remains partial and is not full MSBuildWorkspace analysis. Indexing is not review.",
+  "tests": {
+    "domain": "ABORTED_TESTHOST_CONNECTION_TIMEOUT",
+    "executed": 0,
+    "runtime_financial_tests_during_audit": 0
+  },
+  "visual_observations": "No expense defect screenshot recovered; source evidence and user description only. DPI matrix NOT_TESTED.",
+  "findings": "See recovered financial/printing findings; unsaved UI candidates are not final. No canonical security scan result exists.",
+  "current_interruption": "Plugin unavailable; independent read-only review continues. Publication snapshot awaiting normal user-authorized commit/push.",
+  "workspace_validation": {
+    "copied_hashes_verified": 295,
+    "baseline_hashes_verified": 690,
+    "initial_eligible_files": 317,
+    "ignored_eligible_paths": 0,
+    "credential_regex_flags": 0,
+    "broken_markdown_links": 0,
+    "privacy_limit": "Regex check is not proof of absence; final manual publication gate remains."
+  },
+  "last_updated_utc": "2026-10-16T17:05:24.759116+00:00",
+  "file_review_receipts": 564,
+  "files_without_full_review": 126,
+  "ui_callable_reasoning_receipts": 507,
+  "global_functions_reviewed": "UNKNOWN",
+  "independently_corroborated_legacy_ids": [
+    "FIN-001",
+    "FIN-002",
+    "FIN-003",
+    "FIN-004",
+    "FIN-005",
+    "FIN-006",
+    "FIN-010",
+    "FIN-011",
+    "FIN-012",
+    "FIN-013",
+    "PRT-001",
+    "PRT-005",
+    "UI-001",
+    "UI-005",
+    "UI-009",
+    "UI-012"
+  ],
+  "additional_independently_challenged_security_mechanisms": [
+    "SEC-001"
+  ],
+  "security_harness": {
+    "cases": 3,
+    "assertions": "PASSED",
+    "boundary": "in-memory middleware/parser with fake session; no live API/DB"
+  }
+}

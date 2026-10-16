@@ -1,0 +1,33 @@
+# Read-only Windows wait-chain diagnostic for the explicitly selected test backend PID.
+param([Parameter(Mandatory)][int]$BackendProcessId)
+$ErrorActionPreference='Stop'
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class Fale7StartupWait {
+  [DllImport("advapi32.dll", SetLastError=true)] public static extern IntPtr OpenThreadWaitChainSession(uint flags, IntPtr callback);
+  [DllImport("advapi32.dll", SetLastError=true)] public static extern bool GetThreadWaitChain(IntPtr session, IntPtr context, uint flags, uint threadId, ref uint nodeCount, IntPtr nodes, out bool cycle);
+  [DllImport("advapi32.dll")] public static extern void CloseThreadWaitChainSession(IntPtr session);
+}
+'@
+$backend=Get-Process -Id $BackendProcessId
+$mainThread=$backend.Threads|Sort-Object StartTime|Select-Object -First 1
+$session=[Fale7StartupWait]::OpenThreadWaitChainSession(0,[IntPtr]::Zero)
+if($session -eq [IntPtr]::Zero){throw 'Could not open read-only wait-chain session.'}
+$buffer=[Runtime.InteropServices.Marshal]::AllocHGlobal(16*280)
+try{
+  [uint32]$nodeCount=16
+  $cycle=$false
+  $ok=[Fale7StartupWait]::GetThreadWaitChain($session,[IntPtr]::Zero,15,[uint32]$mainThread.Id,[ref]$nodeCount,$buffer,[ref]$cycle)
+  if(!$ok){throw "Wait-chain inspection failed: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())"}
+  $nodes=for($i=0;$i -lt $nodeCount;$i++){
+    $node=[IntPtr]::Add($buffer,$i*280)
+    $type=[Runtime.InteropServices.Marshal]::ReadInt32($node,0)
+    $status=[Runtime.InteropServices.Marshal]::ReadInt32($node,4)
+    if($type -eq 8){
+      $processIdValue=[Runtime.InteropServices.Marshal]::ReadInt32($node,8)
+      [pscustomobject]@{Type=$type;Status=$status;ProcessId=$processIdValue;ThreadId=[Runtime.InteropServices.Marshal]::ReadInt32($node,12);ProcessName=(Get-Process -Id $processIdValue -ErrorAction SilentlyContinue).ProcessName}
+    }else{[pscustomobject]@{Type=$type;Status=$status}}
+  }
+  [pscustomobject]@{BackendProcessId=$BackendProcessId;MainThread=$mainThread.Id;CycleDetected=$cycle;Nodes=@($nodes)}|ConvertTo-Json -Depth 5
+}finally{[Runtime.InteropServices.Marshal]::FreeHGlobal($buffer);[Fale7StartupWait]::CloseThreadWaitChainSession($session)}

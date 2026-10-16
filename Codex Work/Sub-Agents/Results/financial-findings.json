@@ -1,0 +1,549 @@
+[
+  {
+    "id": "FIN-001",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Mixed cash/electronic checkout cannot confirm its electronic leg",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+        "start": 148,
+        "end": 154,
+        "source_excerpt": "            var saleKey = $\"sale-{request.CheckoutRequestId}\";\n            if (!plan.DefersAllMoney)\n            {\n                var journal = new EfFinancialJournal(_db);\n                if (!journal.TryStart(saleKey, \"sale\"))\n                    throw new CheckoutConflictException(\"\u0645\u0641\u062a\u0627\u062d \u0627\u0644\u0639\u0645\u0644\u064a\u0629 \u0627\u0644\u0645\u0627\u0644\u064a\u0629 \u0647\u0630\u0627 \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644.\");\n            }"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+        "start": 253,
+        "end": 275,
+        "source_excerpt": "            if (!plan.DefersAllMoney)\n            {\n                if (paymentMethod == PaymentMethod.Multi && splits is not null)\n                {\n                    var idx = 0;\n                    foreach (var split in splits)\n                    {\n                        if (split.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet) { idx++; continue; }\n                        var movement = TreasuryMovementFactory.BuildSaleMovement($\"tm-{Guid.NewGuid():N}\",\n                            $\"op-{Guid.NewGuid():N}\", $\"{request.CheckoutRequestId}-{idx}\", orderId,\n                            split.Method, split.Amount, businessDayId, request.ShiftId, cashierUser.Name, now);\n                        _db.TreasuryMovements.Add(ToEntity(movement));\n                        idx++;\n                    }\n                }\n                else\n                {\n                    var movement = TreasuryMovementFactory.BuildSaleMovement($\"tm-{Guid.NewGuid():N}\",\n                        $\"op-{Guid.NewGuid():N}\", request.CheckoutRequestId, orderId,\n                        paymentMethod, plan.PayableTotal, businessDayId, request.ShiftId, cashierUser.Name, now);\n                    _db.TreasuryMovements.Add(ToEntity(movement));\n                }\n                new EfFinancialJournal(_db).Complete(saleKey);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+        "start": 75,
+        "end": 84,
+        "source_excerpt": "            var saleKey = $\"sale-{orderEntity.CheckoutRequestId}\";\n            var journal = new EfFinancialJournal(_db);\n            if (!journal.TryStart(saleKey, \"sale\"))\n                throw new ConfirmConflictException(\"\u0645\u0641\u062a\u0627\u062d \u0627\u0644\u0639\u0645\u0644\u064a\u0629 \u0627\u0644\u0645\u0627\u0644\u064a\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0637\u0644\u0628 \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644 \u0631\u063a\u0645 \u0623\u0646 \u0627\u0644\u062f\u0641\u0639 \u0644\u0645 \u064a\u0643\u0646 \u0645\u0624\u0643\u062f\u064b\u0627 - \u064a\u062d\u062a\u0627\u062c \u0645\u0631\u0627\u062c\u0639\u0629 \u064a\u062f\u0648\u064a\u0629.\");\n\n            var movement = TreasuryMovementFactory.BuildSaleMovement(\n                $\"tm-{Guid.NewGuid():N}\", $\"op-{Guid.NewGuid():N}\", orderEntity.CheckoutRequestId, orderEntity.Id,\n                leg.Method, leg.Amount, orderEntity.BusinessDayId, orderEntity.ShiftId, cashierUser.Name, DateTimeOffset.UtcNow);\n            _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));\n            journal.Complete(saleKey);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+        "start": 24,
+        "end": 38,
+        "source_excerpt": "        if (_db.FinancialJournalEntries.Local.Any(e => e.IdempotencyKey == idempotencyKey)\n            || _db.FinancialJournalEntries.Any(e => e.IdempotencyKey == idempotencyKey))\n            return false;\n\n        _db.FinancialJournalEntries.Add(new FinancialJournalEntryEntity\n        {\n            IdempotencyKey = idempotencyKey,\n            Kind = kind,\n            Status = nameof(JournalEntryStatus.Pending),\n            CreatedAtUtc = DateTimeOffset.UtcNow,\n        });\n        return true;\n    }\n\n    public void Complete(string idempotencyKey)"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+        "start": 69,
+        "end": 73,
+        "source_excerpt": "    {\n        var collectsNothing = !payableTotal.IsPositive;\n        return collectsNothing || cashOnDelivery || (electronicLeg is not null && paymentMethod != PaymentMethod.Multi);\n    }\n"
+      }
+    ],
+    "trigger_and_safe_repro_design": "On approved disposable DB only: order 200 EGP split 100 cash + 100 InstaPay; checkout succeeds and posts cash; confirm electronic. Expected second leg succeeds; static code deterministically rejects existing sale journal. No such write executed.",
+    "root_cause": "Checkout starts/completes sale-{request} for immediate mixed leg; confirmation attempts TryStart identical completed key. Movement suffix does not separate journal.",
+    "correction_design": "Journal payment events per stable leg identity, not whole mixed order; electronic confirmation must atomically persist pending-to-confirmed and one deferred leg movement. Preserve idempotent replay; do not remove original journal to workaround.",
+    "regression_tests": "Integration mixed cash+InstaPay and card+Wallet confirm/retry/concurrent confirm, exactly correct per-channel sums and one movement per leg; compare replay movement IDs.",
+    "counterevidence_and_limits": "Independent printing/workflows review via parent confirmed unsuffixed completed journal collision. Existing domain mixed split tests prove DefersAllMoney false; integration confirmation tests only single InstaPay.",
+    "independent_challenge": "Independent printing/workflows review via parent confirmed unsuffixed completed journal collision. Existing domain mixed split tests prove DefersAllMoney false; integration confirmation tests only single InstaPay. Parent also independently confirmed full CheckoutRules-to-checkout-journal-to-confirm chain.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+      "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+      "src/Falah.Domain/Orders/CheckoutRules.cs"
+    ]
+  },
+  {
+    "id": "FIN-002",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Cancelling pending mixed electronic payment hides collected cash without reversal",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Domain/Orders/Order.cs",
+        "start": 200,
+        "end": 213,
+        "source_excerpt": "    public void CancelElectronicPayment(string reason, string cancelledBy, DateTimeOffset nowUtc)\n    {\n        if (Status == OrderStatus.Cancelled) return;\n        if (ElectronicPayment is not { } leg) throw new DomainException(\"\u0644\u0627 \u064a\u0648\u062c\u062f \u062a\u062d\u0635\u064a\u0644 \u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u0637\u0644\u0628.\");\n        if (leg.Status == ElectronicPaymentStatus.Confirmed)\n            throw new DomainException(\"\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u062a\u062d\u0635\u064a\u0644 \u0628\u0627\u0644\u0641\u0639\u0644. \u0627\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0627\u0633\u062a\u0631\u062c\u0627\u0639 \u0627\u0644\u0645\u0627\u0644\u064a \u0628\u062f\u0644\u064b\u0627 \u0645\u0646 \u0627\u0644\u0625\u0644\u063a\u0627\u0621.\");\n        if (string.IsNullOrWhiteSpace(reason)) throw new DomainException(\"\u0633\u0628\u0628 \u0627\u0644\u0625\u0644\u063a\u0627\u0621 \u0645\u0637\u0644\u0648\u0628.\");\n\n        Status = OrderStatus.Cancelled;\n        IsPaid = false;\n        ElectronicPayment = leg with { Status = ElectronicPaymentStatus.Cancelled };\n        CancelledAtUtc = nowUtc;\n        CancelReason = reason.Trim();\n        CancelledBy = cancelledBy;"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+        "start": 39,
+        "end": 57,
+        "source_excerpt": "        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);\n\n        var orderEntity = await _db.Orders\n            .FromSqlRaw(\"SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}\", request.OrderId)\n            .Include(o => o.Items).Include(o => o.Refunds)\n            .FirstOrDefaultAsync(ct)\n            ?? throw new InvalidOperationException(\"\u0627\u0644\u0637\u0644\u0628 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\n\n        var wasAlreadyCancelled = orderEntity.Status == \"cancelled\";\n        var order = OrderMapper.ToDomain(orderEntity);\n        var now = DateTimeOffset.UtcNow;\n        order.CancelElectronicPayment(request.Reason, cashierUser.Name, now); // throws if confirmed/no leg/empty reason\n\n        orderEntity.Status = order.Status.ToWireString();\n        orderEntity.IsPaid = order.IsPaid;\n        orderEntity.ElectronicPaymentStatus = order.ElectronicPayment?.Status.ToWireString();\n        orderEntity.CancelledAtUtc = order.CancelledAtUtc;\n        orderEntity.CancelReason = order.CancelReason;\n        orderEntity.CancelledBy = order.CancelledBy;"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+        "start": 29,
+        "end": 47,
+        "source_excerpt": "\n        foreach (var order in orders)\n        {\n            if (order.Status == OrderStatus.Cancelled) continue;\n            var netTotal = order.Total - order.RefundAmount;\n\n            if (order.PaymentMethod == PaymentMethod.Multi && order.SplitPayments is { } splits)\n            {\n                foreach (var part in splits)\n                {\n                    var isElectronic = part.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet;\n                    var confirmed = order.ElectronicPayment is { Status: ElectronicPaymentStatus.Confirmed } leg && leg.Method == part.Method;\n                    if ((isElectronic && confirmed) || !isElectronic)\n                    {\n                        if (totals.ContainsKey(part.Method)) totals[part.Method] += part.Amount;\n                    }\n                }\n            }\n            else if (order.IsPaid && totals.ContainsKey(order.PaymentMethod))"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+        "start": 255,
+        "end": 267,
+        "source_excerpt": "                if (paymentMethod == PaymentMethod.Multi && splits is not null)\n                {\n                    var idx = 0;\n                    foreach (var split in splits)\n                    {\n                        if (split.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet) { idx++; continue; }\n                        var movement = TreasuryMovementFactory.BuildSaleMovement($\"tm-{Guid.NewGuid():N}\",\n                            $\"op-{Guid.NewGuid():N}\", $\"{request.CheckoutRequestId}-{idx}\", orderId,\n                            split.Method, split.Amount, businessDayId, request.ShiftId, cashierUser.Name, now);\n                        _db.TreasuryMovements.Add(ToEntity(movement));\n                        idx++;\n                    }\n                }"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB: 200 EGP split cash 100 + InstaPay 100, cancel pending transfer. Actual 100 cash and sale_collection remain; cash sales query now returns zero because order cancelled. Close with actual cash yields false overage/revenue omission.",
+    "root_cause": "Whole-order cancellation assumes checkout deferred all money, false for Multi. No refund/reversal of immediate legs; reports exclude cancelled order.",
+    "correction_design": "Model leg cancellation and outstanding tender replacement, or require explicit approved immediate-leg refund before full cancellation. Preserve cash until real reversal, and clearly classify inventory waste policy.",
+    "regression_tests": "Cancel split cash/electronic and card/electronic; assert treasury and operational cash totals reconcile, refunded immediate leg only when money returned, concurrent cancel/confirm exactly one terminal outcome.",
+    "counterevidence_and_limits": "Multi orders supported by checkout/domain; integration cancel helper creates only single InstaPay so test does not disprove. Inventory no reversal is separately deliberate legacy policy, not main defect.",
+    "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Domain/Orders/Order.cs",
+      "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+      "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+      "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs"
+    ]
+  },
+  {
+    "id": "FIN-003",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Refund can debit money for an order that was never collected",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+        "start": 78,
+        "end": 92,
+        "source_excerpt": "            var order = OrderMapper.ToDomain(orderEntity);\n            var refundable = RefundRules.RefundableRemaining(order.Total, order.RefundAmount);\n            // Matches the current app's behaviour exactly: a request for more than what remains is\n            // CLAMPED down to what remains, not rejected outright - see RefundRules.ClampRefundAmount.\n            var safeAmount = RefundRules.ClampRefundAmount(Money.FromPiastres(request.AmountPiastres), refundable);\n            if (!safeAmount.IsPositive) throw new DomainException(\"\u0644\u0627 \u064a\u0648\u062c\u062f \u0645\u0628\u0644\u063a \u0645\u062a\u0628\u0642\u064d \u0644\u0644\u0627\u0633\u062a\u0631\u062c\u0627\u0639.\");\n\n            // Ported from postRefund in lib/enterprise-store.tsx: a refund can only leave a\n            // protected account (drawer/main/bank/instapay - never wallet) if it actually holds\n            // enough posted balance. A real gap found during the legacy-parity audit: every other\n            // money-out handler in this codebase (expenses, purchasing, treasury, shift-open) calls\n            // this same guard; RefundOrderHandler alone skipped it, so a refund could silently drive\n            // an account negative.\n            var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(order.PaymentMethod);\n            var refundSourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, refundSourceAccount, ct);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+        "start": 102,
+        "end": 120,
+        "source_excerpt": "            var now = DateTimeOffset.UtcNow;\n            var movement = TreasuryMovementFactory.BuildRefundMovement(\n                $\"tm-{Guid.NewGuid():N}\", $\"op-{Guid.NewGuid():N}\", request.RefundRequestId, order.Id,\n                order.PaymentMethod, safeAmount, order.BusinessDayId, shiftPolicy.OperationalShiftId!,\n                cashierUser.Name, authorizedByName, request.Reason, now);\n\n            var refund = new OrderRefund($\"order-refund-{Guid.NewGuid():N}\", movement.OperationId, refundKey,\n                safeAmount, order.PaymentMethod, movement.Id, now, cashierUser.Name, authorizedByName,\n                request.Reason, order.ShiftId, shiftPolicy.OperationalShiftId!);\n\n            // Domain invariants enforced here too (cancelled/multi guard, amount<=refundable,\n            // Refunded transition) - not just trusted from the computation above.\n            order.ApplyRefund(refund);\n\n            orderEntity.Status = order.Status.ToWireString();\n            orderEntity.RefundAmountPiastres = order.RefundAmount.Piastres;\n            orderEntity.Version++;\n            var refundEntity = OrderMapper.ToEntity(refund);\n            orderEntity.Refunds.Add(refundEntity);"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/Order.cs",
+        "start": 220,
+        "end": 233,
+        "source_excerpt": "    public void ApplyRefund(OrderRefund refund)\n    {\n        if (Status == OrderStatus.Cancelled) throw new DomainException(\"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0633\u062a\u0631\u062c\u0627\u0639 \u0637\u0644\u0628 \u0645\u0644\u063a\u064a.\");\n        if (PaymentMethod == PaymentMethod.Multi) throw new DomainException(\"\u0645\u0631\u062a\u062c\u0639 \u0627\u0644\u062f\u0641\u0639 \u0627\u0644\u0645\u062a\u0639\u062f\u062f \u063a\u064a\u0631 \u0645\u062f\u0639\u0648\u0645 \u0641\u064a \u0627\u0644\u0645\u0633\u0627\u0631 \u0627\u0644\u0645\u0627\u0644\u064a \u0627\u0644\u062d\u0627\u0644\u064a.\");\n\n        var refundableBefore = Total - RefundAmount;\n        if (refund.Amount.IsZero || refund.Amount.IsNegative || refund.Amount > refundableBefore)\n            throw new DomainException(\"\u0645\u0628\u0644\u063a \u0627\u0644\u0645\u0631\u062a\u062c\u0639 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d.\");\n\n        _refunds.Add(refund);\n        RefundAmount += refund.Amount;\n        if (RefundAmount == Total) Status = OrderStatus.Refunded;\n    }\n}"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB with funded drawer/InstaPay: create unpaid cash-on-delivery or pending single InstaPay order, request legitimate approved refund. Total remaining >0 and pooled balance sufficient; path posts refund despite no collection. Wallet unprotected balance makes negative account possible as existing policy.",
+    "root_cause": "Refund eligibility based payable Total minus prior refunds, rather than collected refundable amount; domain never asserts IsPaid or confirmed/settled collection.",
+    "correction_design": "Compute per-order settled less already refunded, require collection provenance; pending orders cancel through proper path. Revalidate under same order lock. Domain invariant should reject unpaid full-order refund too.",
+    "regression_tests": "Unpaid COD, pending InstaPay/Wallet, partial collected mixed unsupported, full/partial paid, cancellation/refund/confirm races; assert uncollected requests write no movements/refunds and leave balances unchanged.",
+    "counterevidence_and_limits": "Approval authorizes action but cannot prove money collected. Protected-source pooled balance only covers liquidity. Multi already rejected; unaffected paid single methods work.",
+    "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "src/Falah.Domain/Orders/Order.cs"
+    ]
+  },
+  {
+    "id": "FIN-004",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Historical cash refund omitted from current-shift expected cash",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Domain/Orders/RefundRules.cs",
+        "start": 39,
+        "end": 43,
+        "source_excerpt": "            throw new DomainException(\"\u064a\u062c\u0628 \u0641\u062a\u062d \u0648\u0631\u062f\u064a\u0629 \u0642\u0628\u0644 \u062a\u0646\u0641\u064a\u0630 \u0645\u0631\u062a\u062c\u0639 \u0646\u0642\u062f\u064a \u0644\u0637\u0644\u0628 \u0645\u0646 \u0648\u0631\u062f\u064a\u0629 \u0645\u063a\u0644\u0642\u0629.\");\n\n        return new RefundShiftPolicy(historicalImmutable, historicalImmutable ? activeShiftId : originalShiftId);\n    }\n}"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+        "start": 95,
+        "end": 110,
+        "source_excerpt": "            var originalShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == order.ShiftId, ct)\n                ?? throw new InvalidOperationException(\"\u0648\u0631\u062f\u064a\u0629 \u0627\u0644\u0637\u0644\u0628 \u0627\u0644\u0623\u0635\u0644\u064a\u0629 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f\u0629.\");\n            var activeShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == nameof(ShiftStatus.Open), ct);\n\n            var shiftPolicy = RefundRules.ResolveOperationalShift(\n                order.ShiftId, Enum.Parse<ShiftStatus>(originalShiftEntity.Status), activeShiftEntity?.Id, order.PaymentMethod);\n\n            var now = DateTimeOffset.UtcNow;\n            var movement = TreasuryMovementFactory.BuildRefundMovement(\n                $\"tm-{Guid.NewGuid():N}\", $\"op-{Guid.NewGuid():N}\", request.RefundRequestId, order.Id,\n                order.PaymentMethod, safeAmount, order.BusinessDayId, shiftPolicy.OperationalShiftId!,\n                cashierUser.Name, authorizedByName, request.Reason, now);\n\n            var refund = new OrderRefund($\"order-refund-{Guid.NewGuid():N}\", movement.OperationId, refundKey,\n                safeAmount, order.PaymentMethod, movement.Id, now, cashierUser.Name, authorizedByName,\n                request.Reason, order.ShiftId, shiftPolicy.OperationalShiftId!);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+        "start": 42,
+        "end": 68,
+        "source_excerpt": "    public static async Task<ShiftCashBreakdown> ComputeBreakdownAsync(FalahDbContext db, string shiftId, Money openingCash, CancellationToken ct)\n    {\n        var orderEntities = await db.Orders.AsNoTracking()\n            .Include(o => o.Items).Include(o => o.Refunds)\n            .Where(o => o.ShiftId == shiftId)\n            .ToListAsync(ct);\n        var orders = orderEntities.Select(OrderMapper.ToDomain).ToList();\n        var netCashSales = OrderPaymentQueries.CashSalesFromOrders(orders);\n        var cashRefunds = OrderPaymentQueries.CashRefundsFromOrders(orders);\n\n        // Matches calculateShiftExpectedCash's own shiftExpenses filter exactly: only expenses paid\n        // FROM THIS SHIFT'S DRAWER count against it - an expense paid from Main Treasury/bank/\n        // InstaPay never touches this shift's cash reconciliation at all.\n        var drawerExpenses = Money.FromPiastres(await db.Expenses.AsNoTracking()\n            .Where(e => e.ShiftId == shiftId && e.PaidFromDrawer)\n            .SumAsync(e => e.AmountPiastres, ct));\n\n        var movements = await db.TreasuryMovements.AsNoTracking()\n            .Where(m => m.ShiftId == shiftId && m.Status == nameof(MovementStatus.Posted)\n                && (m.Type == \"cash_in\" || m.Type == \"safe_drop\" || DrawerWithdrawalTypes.Contains(m.Type)))\n            .ToListAsync(ct);\n        var cashIn = Money.FromPiastres(movements.Where(m => m.Type == \"cash_in\").Sum(m => m.AmountPiastres));\n        var withdrawals = Money.FromPiastres(movements.Where(m => DrawerWithdrawalTypes.Contains(m.Type)).Sum(m => m.AmountPiastres));\n        var safeDrops = Money.FromPiastres(movements.Where(m => m.Type == \"safe_drop\").Sum(m => m.AmountPiastres));\n\n        var expected = FinancialRules.CalculateExpectedDrawerCash(\n            openingCash, netCashSales, drawerExpenses, cashIn, withdrawals + safeDrops);"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+        "start": 31,
+        "end": 51,
+        "source_excerpt": "        {\n            if (order.Status == OrderStatus.Cancelled) continue;\n            var netTotal = order.Total - order.RefundAmount;\n\n            if (order.PaymentMethod == PaymentMethod.Multi && order.SplitPayments is { } splits)\n            {\n                foreach (var part in splits)\n                {\n                    var isElectronic = part.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet;\n                    var confirmed = order.ElectronicPayment is { Status: ElectronicPaymentStatus.Confirmed } leg && leg.Method == part.Method;\n                    if ((isElectronic && confirmed) || !isElectronic)\n                    {\n                        if (totals.ContainsKey(part.Method)) totals[part.Method] += part.Amount;\n                    }\n                }\n            }\n            else if (order.IsPaid && totals.ContainsKey(order.PaymentMethod))\n            {\n                totals[order.PaymentMethod] += netTotal;\n            }\n        }"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Sell cash in shift A then close A; open B with 500 EGP float; refund A order 100 from B. Refund movement operational B but orders for B exclude A and movement selection excludes refund; expected remains 500 while actual 400. Original shift historical query also changes from new RefundAmount.",
+    "root_cause": "Drawer mixes lifetime order net amounts with selected operational movement types and does not allocate refunds by OperationalShiftId.",
+    "correction_design": "Compute drawer receipts/disbursements from posted operational drawer movements or explicitly join OrderRefund operational shift; prevent double deduction for same-shift refunds and preserve old closed snapshot. Distinguish original sales day from refund execution day.",
+    "regression_tests": "Historical A -> B cash refund actual/expected and final drawer zero after close; same-shift partial refund once; noncash historic; cross-business-day report reconciliation; repeat request idempotent.",
+    "counterevidence_and_limits": "Refund rules explicitly promise historical immutability, and current shift required. Existing domain test checks chosen operational shift only; no reconciliation composition in inspected tests.",
+    "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Domain/Orders/RefundRules.cs",
+      "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "src/Falah.Domain/Orders/OrderPaymentQueries.cs"
+    ]
+  },
+  {
+    "id": "FIN-005",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 36,
+        "end": 44,
+        "source_excerpt": "        var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)\n            .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)\n            ?? throw new InvalidOperationException(\"\u0641\u0627\u062a\u0648\u0631\u0629 \u0627\u0644\u0634\u0631\u0627\u0621 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f\u0629.\");\n        if (purchase.Status == \"cancelled\") throw new DomainException(\"\u0641\u0627\u062a\u0648\u0631\u0629 \u0627\u0644\u0634\u0631\u0627\u0621 \u063a\u064a\u0631 \u0645\u062a\u0627\u062d\u0629 \u0644\u0644\u0633\u062f\u0627\u062f.\");\n\n        var idempotencyKey = $\"purchase-payment-{purchase.Id}-{request.RequestId}\";\n        var existingPayment = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);\n        if (existingPayment is not null) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);\n"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 59,
+        "end": 80,
+        "source_excerpt": "        var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()\n            .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);\n        var outstanding = PurchasingRules.SupplierOutstandingFromLedger(\n            ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),\n            purchase.SupplierId, purchase.Id);\n\n        var amount = Money.FromPiastres(request.AmountPiastres);\n        PurchasingRules.AssertPurchasePayment(amount, outstanding);\n        if (!amount.IsPositive) throw new DomainException(\"\u0645\u0628\u0644\u063a \u0627\u0644\u0633\u062f\u0627\u062f \u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0643\u0628\u0631 \u0645\u0646 \u0635\u0641\u0631.\");\n\n        var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)\n            ?? throw new DomainException(\"\u064a\u062c\u0628 \u062a\u062d\u062f\u064a\u062f \u062d\u0633\u0627\u0628 \u062f\u0641\u0639 \u0641\u0639\u0644\u064a.\");\n        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            // Read under a lock, inside the transaction, immediately before spending.\n            // Outside it, concurrent commands each read the same balance, each decide it covers\n            // them, and each write - which is how an account holding 30 paid out three separate\n            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.\n            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 95,
+        "end": 115,
+        "source_excerpt": "            var remaining = outstanding - amount;\n            purchase.PaidPiastres += amount.Piastres;\n            purchase.RemainingAmountPiastres = remaining.Piastres;\n            purchase.PaymentStatus = remaining.Piastres == 0 ? \"paid\" : \"partially_paid\";\n            purchase.Status = purchase.PaymentStatus;\n            purchase.Payments.Add(new PurchasePaymentEntity\n            {\n                Id = $\"payment-{request.RequestId}\", IdempotencyKey = idempotencyKey, PurchaseId = purchase.Id,\n                SupplierId = purchase.SupplierId, AmountPiastres = amount.Piastres, PaymentAccountId = accountId,\n                TreasuryMovementId = movement.Id, OperationId = operationId, CreatedBy = actorUser.Name,\n                ApprovedBy = authorization.Approver?.ApproverName, CreatedAtUtc = now,\n            });\n\n            _db.SupplierLedgerEntries.Add(new SupplierLedgerEntryEntity\n            {\n                Id = $\"ledger-{idempotencyKey}\", IdempotencyKey = idempotencyKey, SupplierId = purchase.SupplierId,\n                Type = \"supplier_payment\", DebitPiastres = 0, CreditPiastres = amount.Piastres, PurchaseId = purchase.Id,\n                ReferenceId = purchase.Id, Reason = \"\u0633\u062f\u0627\u062f \u0644\u0627\u062d\u0642 \u0644\u0641\u0627\u062a\u0648\u0631\u0629 \u0645\u0634\u062a\u0631\u064a\u0627\u062a\", CreatedBy = actorUser.Name,\n                OperationId = operationId, TreasuryMovementId = movement.Id, CreatedAtUtc = now,\n            });\n"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "start": 309,
+        "end": 328,
+        "source_excerpt": "            b.HasKey(c => c.Id);\n            // Phone is the identity - never looked up or merged by name (CustomerRules' own doc\n            // comment). The database itself, not just an application-level check, refuses a second\n            // customer row for the same normalized phone number.\n            b.HasIndex(c => c.Phone).IsUnique();\n            b.HasMany(c => c.Addresses).WithOne().HasForeignKey(a => a.CustomerId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<CustomerAddressEntity>(b => b.HasKey(a => a.Id));\n\n        modelBuilder.Entity<DriverEntity>(b => b.HasKey(d => d.Id));\n        modelBuilder.Entity<DeliveryServiceEntity>(b => b.HasKey(d => d.Id));\n\n        modelBuilder.Entity<DeliveryEntity>(b =>\n        {\n            b.HasKey(d => d.Id);\n            // One delivery row per order, ever - this is what makes checkout's auto-creation\n            // idempotent by construction on retry, the same way CheckoutRequestId protects Orders.\n            b.HasIndex(d => d.OrderId).IsUnique();\n            b.HasOne<OrderEntity>().WithMany().HasForeignKey(d => d.OrderId).OnDelete(DeleteBehavior.Restrict);\n            b.HasOne<ShiftEntity>().WithMany().HasForeignKey(d => d.ShiftId).OnDelete(DeleteBehavior.Restrict);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB invoice outstanding 100 EGP, source account 1000. Two requests different RequestIds both pre-read 100, each pays 80. Account lock serializes account only; second never refreshes invoice. Ledger receives total160 while invoice stale Paid80/Remaining20.",
+    "root_cause": "Business invariant checked outside transaction and unrelated account lock; purchase has no concurrency token or invoice row lock.",
+    "correction_design": "Acquire invoice UPDLOCK/HOLDLOCK in transaction before reading outstanding and tracked state; requery supplier invoice ledger under protection, validate then post/cache. Stable lock ordering relative to account and approvals; unique keys remain for replay.",
+    "regression_tests": "Barrier-controlled two distinct 80 payments against 100 from same and different accounts: one succeeds, one rejects, total <=100, caches equal ledger; same-request retry replays.",
+    "counterevidence_and_limits": "Treasury lock protects account from negative pooled balance but cannot make stale outstanding fresh. Different IDs legitimately bypass idempotency. No runtime reproduction performed.",
+    "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "src/Falah.Infrastructure/Persistence/FalahDbContext.cs"
+    ]
+  },
+  {
+    "id": "FIN-006",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Generic payroll transition marks run Paid without paying treasury or employee ledger",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+        "start": 25,
+        "end": 58,
+        "source_excerpt": "    {\n        if (!Enum.TryParse<PayrollRunStatus>(request.Status, ignoreCase: true, out var targetStatus))\n            throw new DomainException(\"\u062d\u0627\u0644\u0629 Payroll \u063a\u064a\u0631 \u0635\u0627\u0644\u062d\u0629.\");\n\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\n        var actor = OrderMapper.ToActor(actorUser);\n        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, \"employees_manage\");\n\n        var run = await _db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)\n            ?? throw new InvalidOperationException(\"\u0645\u0633\u064a\u0631 \u0627\u0644\u0631\u0648\u0627\u062a\u0628 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\n        var currentStatus = Enum.Parse<PayrollRunStatus>(run.Status);\n        PayrollRules.AssertTransition(currentStatus, targetStatus);\n\n        string? approvedByName = null;\n        if (targetStatus == PayrollRunStatus.Approved)\n        {\n            ManagerApproval? approval = null;\n            if (!string.IsNullOrEmpty(request.ManagerApprovalId))\n            {\n                var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)\n                    ?? throw new DomainException(\"\u0627\u0644\u0645\u0639\u062a\u0645\u062f \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\n                approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,\n                    approverUser.Role, DateTimeOffset.UtcNow, \"payroll_approve\", \"\u0627\u0639\u062a\u0645\u0627\u062f Payroll\");\n            }\n            var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, \"payroll_approve\", approval, requireApproval: true);\n            approvedByName = authorization.Approver?.ApproverName ?? actor.Name;\n        }\n\n        var now = DateTimeOffset.UtcNow;\n        run.Status = targetStatus.ToString();\n        if (targetStatus == PayrollRunStatus.Approved) run.ApprovedBy = approvedByName;\n        if (targetStatus == PayrollRunStatus.Reviewed) { run.ReviewedBy = actor.Name; run.ReviewedAtUtc = now; }\n"
+      },
+      {
+        "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "start": 12,
+        "end": 26,
+        "source_excerpt": "{\n    private static readonly IReadOnlyDictionary<PayrollRunStatus, PayrollRunStatus[]> Transitions = new Dictionary<PayrollRunStatus, PayrollRunStatus[]>\n    {\n        [PayrollRunStatus.Draft] = new[] { PayrollRunStatus.Calculated, PayrollRunStatus.Cancelled },\n        [PayrollRunStatus.Calculated] = new[] { PayrollRunStatus.Reviewed, PayrollRunStatus.Cancelled },\n        [PayrollRunStatus.Reviewed] = new[] { PayrollRunStatus.Approved, PayrollRunStatus.Cancelled },\n        [PayrollRunStatus.Approved] = new[] { PayrollRunStatus.Paid, PayrollRunStatus.Cancelled },\n        [PayrollRunStatus.Paid] = Array.Empty<PayrollRunStatus>(),\n        [PayrollRunStatus.Cancelled] = Array.Empty<PayrollRunStatus>(),\n    };\n\n    public static void AssertTransition(PayrollRunStatus from, PayrollRunStatus to)\n    {\n        if (!Transitions.TryGetValue(from, out var allowed) || !allowed.Contains(to))\n            throw new DomainException($\"\u0627\u0646\u062a\u0642\u0627\u0644 \u062d\u0627\u0644\u0629 Payroll \u063a\u064a\u0631 \u0645\u0633\u0645\u0648\u062d: {from} \u2192 {to}\");"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+        "start": 65,
+        "end": 78,
+        "source_excerpt": "        {\n            // A concurrent request settled this run between the idempotency lookup above and this\n            // read. A paid run is not an unapproved one: the caller must see the same result the\n            // winning request saw, not a rejection that would send an operator to pay it again.\n            // Reading Paid here proves the winner committed, and its movement commits in the same\n            // transaction, so the replay is guaranteed to be visible.\n            if (await LoadReplayAsync() is { } settledConcurrently) return settledConcurrently;\n        }\n        if (run.Status != nameof(PayrollRunStatus.Approved))\n            throw new DomainException(\"\u064a\u062c\u0628 \u0627\u0639\u062a\u0645\u0627\u062f \u0645\u0633\u064a\u0631 \u0627\u0644\u0631\u0648\u0627\u062a\u0628 \u0642\u0628\u0644 \u0627\u0644\u062f\u0641\u0639.\");\n\n        ManagerApproval? approval = null;\n        if (!string.IsNullOrEmpty(request.ManagerApprovalId))\n        {"
+      }
+    ],
+    "trigger_and_safe_repro_design": "API caller with employees_manage submits transition target Paid on Approved run. Status saved but no movement/ledger/paid lines; dedicated payout sees non-Approved status and cannot recover through normal payment.",
+    "root_cause": "General transition includes financial terminal Paid state without routing to dedicated payout command and without payroll_pay authorization.",
+    "correction_design": "Remove Paid from generic endpoint accepted targets; only PayPayroll transaction may set Paid with all movement/line/ledger invariants. Add row concurrency for cancellation versus payout.",
+    "regression_tests": "Approved->Paid generic request rejected/no mutations; real payout writes movement and every settlement atomically; employee manager lacking payroll_pay cannot mark paid; concurrent cancel/pay preserves one consistent terminal state.",
+    "counterevidence_and_limits": "Independent printing/workflows review via parent verified Program.cs830-839 exposes arbitrary status string to handler; UI NextStatus narrower does not constrain API. Existing payroll-pay path remains separate.",
+    "independent_challenge": "Independent printing/workflows review via parent verified Program.cs830-839 exposes arbitrary status string to handler; UI NextStatus narrower does not constrain API. Existing payroll-pay path remains separate.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
+    ]
+  },
+  {
+    "id": "FIN-007",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Backup filenames collide within a second and WITH FORMAT can overwrite prior backup",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+        "start": 51,
+        "end": 64,
+        "source_excerpt": "        Directory.CreateDirectory(directory);\n\n        var databaseName = _db.Database.GetDbConnection().Database;\n        BackupRules.AssertSafeDatabaseIdentifier(databaseName);\n        var now = DateTimeOffset.UtcNow;\n        var fileName = $\"falah-{databaseName}-{now:yyyyMMdd-HHmmss}.bak\";\n        var filePath = Path.Combine(directory, fileName);\n\n        var entity = new BackupRecordEntity\n        {\n            Id = $\"backup-{Guid.NewGuid():N}\", Kind = nameof(BackupRecordKind.Backup), FilePath = filePath,\n            Status = nameof(BackupRecordStatus.Requested), RequestedBy = actor.Name, RequestedAtUtc = now,\n        };\n        _db.BackupRecords.Add(entity);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+        "start": 76,
+        "end": 84,
+        "source_excerpt": "#pragma warning disable EF1002\n            await _db.Database.ExecuteSqlRawAsync(\n                $\"BACKUP DATABASE [{databaseName}] TO DISK = {{0}} WITH COPY_ONLY, CHECKSUM, FORMAT, NAME = {{1}}\",\n                new object[] { filePath, $\"Falah backup {now:O}\" }, ct);\n#pragma warning restore EF1002\n\n            entity.FileSizeBytes = File.Exists(filePath) ? new FileInfo(filePath).Length : null;\n            entity.Status = nameof(BackupRecordStatus.Succeeded);\n            entity.CompletedAtUtc = DateTimeOffset.UtcNow;"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+        "start": 127,
+        "end": 151,
+        "source_excerpt": "\n        var recorded = await db.BackupRecords\n            .Where(b => b.Kind == nameof(BackupRecordKind.Backup)\n                        && b.Status == nameof(BackupRecordStatus.Succeeded)\n                        && b.FileSizeBytes != null)\n            .ToListAsync(ct);\n\n        var prunable = Falah.Domain.Backup.BackupRules.SelectPrunableBackups(\n            recorded.Select(b => new Falah.Domain.Backup.BackupRules.RetainedBackup(\n                b.Id, b.CompletedAtUtc ?? b.RequestedAtUtc, b.VerificationStatus == \"Valid\")),\n            KeepCount).ToHashSet();\n\n        if (prunable.Count == 0) return;\n\n        foreach (var record in recorded.Where(b => prunable.Contains(b.Id)))\n        {\n            try\n            {\n                if (File.Exists(record.FilePath)) File.Delete(record.FilePath);\n                // The row stays, with its file marked gone: the history of what was backed up and\n                // when outlives the .bak, which is what an audit of \"were we taking backups in\n                // September\" actually needs to read.\n                record.FileSizeBytes = null;\n            }\n            catch (Exception ex)"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Two authorized backups of same database/directory choose timestamps within same UTC second; paths identical. Later BACKUP ... FORMAT can replace earlier backup media. Records now share file; retention of one may delete another supposedly preserved file. Never execute this against user backup files; deterministic path function test sufficient.",
+    "root_cause": "Second-resolution timestamp treated as unique filename; no GUID/exclusive reservation. Retention reasons over records not unique physical paths.",
+    "correction_design": "Use collision-resistant unique ID in filename and prohibit overwriting existing destination; preserve record-to-file identity. Retention should validate canonical distinct paths and never delete a file referenced by retained record.",
+    "regression_tests": "Same-time parallel name generation unique; simulated same destination refused; pruning duplicate path references preserves retained valid backup. Isolated SQL integration later with explicit permission.",
+    "counterevidence_and_limits": "SQL concurrency might make one backup fail instead of overwrite; either violates no-collision claim. Exact physical media behavior not runtime tested. Scheduled/interactive callers can overlap.",
+    "independent_challenge": "Not yet received",
+    "related_paths": [
+      "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+      "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs"
+    ]
+  },
+  {
+    "id": "FIN-008",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Restore pending-journal check does not exclude active or newly accepted financial work",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+        "start": 83,
+        "end": 86,
+        "source_excerpt": "                throw new DomainException(\"\u0645\u0644\u0641 \u0627\u0644\u0646\u0633\u062e\u0629 \u0627\u0644\u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f \u0639\u0644\u0649 \u0627\u0644\u0642\u0631\u0635.\");\n\n            var pendingCount = await _db.FinancialJournalEntries.AsNoTracking().CountAsync(j => j.Status != \"Complete\", ct);\n            BackupRules.AssertNoActiveOperations(pendingCount);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+        "start": 113,
+        "end": 119,
+        "source_excerpt": "        string safetyBackupPath;\n        try\n        {\n            var safety = await _createBackup.HandleAsync(new CreateBackupRequest(request.ActorUserId), ct);\n            if (safety.Status != nameof(BackupRecordStatus.Succeeded))\n                throw new DomainException(safety.ErrorMessage ?? \"\u062a\u0639\u0630\u0651\u0631 \u0625\u0646\u0634\u0627\u0621 \u0646\u0633\u062e\u0629 \u0623\u0645\u0627\u0646 \u0642\u0628\u0644 \u0627\u0644\u0627\u0633\u062a\u0639\u0627\u062f\u0629.\");\n            safetyBackupPath = safety.FilePath;"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+        "start": 148,
+        "end": 167,
+        "source_excerpt": "            await connection.OpenAsync(ct);\n\n            await using (var singleUser = connection.CreateCommand())\n            {\n                singleUser.CommandText = $\"ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE\";\n                await singleUser.ExecuteNonQueryAsync(ct);\n            }\n            await using (var restore = connection.CreateCommand())\n            {\n                restore.CommandText = $\"RESTORE DATABASE [{databaseName}] FROM DISK = @path WITH REPLACE\";\n                restore.Parameters.AddWithValue(\"@path\", backup.FilePath);\n                await restore.ExecuteNonQueryAsync(ct);\n            }\n            await using (var multiUser = connection.CreateCommand())\n            {\n                multiUser.CommandText = $\"ALTER DATABASE [{databaseName}] SET MULTI_USER\";\n                await multiUser.ExecuteNonQueryAsync(ct);\n            }\n\n            databaseWasReplaced = true;"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+        "start": 29,
+        "end": 47,
+        "source_excerpt": "        {\n            IdempotencyKey = idempotencyKey,\n            Kind = kind,\n            Status = nameof(JournalEntryStatus.Pending),\n            CreatedAtUtc = DateTimeOffset.UtcNow,\n        });\n        return true;\n    }\n\n    public void Complete(string idempotencyKey)\n    {\n        var entry = _db.FinancialJournalEntries.Local.FirstOrDefault(e => e.IdempotencyKey == idempotencyKey)\n            ?? _db.FinancialJournalEntries.FirstOrDefault(e => e.IdempotencyKey == idempotencyKey);\n        if (entry is null || entry.Status != nameof(JournalEntryStatus.Pending))\n            throw new DomainException($\"\u0644\u0627 \u064a\u0648\u062c\u062f \u0642\u064a\u062f \u0645\u0639\u0644\u0651\u0642 \u0628\u0647\u0630\u0627 \u0627\u0644\u0645\u0641\u062a\u0627\u062d: {idempotencyKey}\");\n        entry.Status = nameof(JournalEntryStatus.Complete);\n    }\n\n    public bool DiscardPending(string idempotencyKey)"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+        "start": 275,
+        "end": 279,
+        "source_excerpt": "                new EfFinancialJournal(_db).Complete(saleKey);\n            }\n\n            await _db.SaveChangesAsync(ct);\n            await transaction.CommitAsync(ct);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Design-only scenario: authorized restore sees zero persisted Pending, takes safety backup, a new sale commits after safety backup, then restore replaces database. Sale acknowledged before restore disappears; safety backup may not contain it. No destructive runtime test performed.",
+    "root_cause": "Pending journal staged and completed before common SaveChanges cannot reliably reveal in-flight work; a count snapshot is not writer exclusion. Restore does not put API/print/background writers into maintenance barrier.",
+    "correction_design": "Acquire exclusive process/distributed database maintenance lease all mutating handlers respect; drain in-flight operations, pause background workers, safety-backup quiescent state, restore/verify, clear pools/caches/sessions as designed, resume only after outcome recorded externally.",
+    "regression_tests": "Pure coordinator concurrency tests showing no accepted writes after maintenance entry; dedicated disposable-instance restore with explicit approval and injected failures, last acknowledged sale recoverability proof; no user-active DB.",
+    "counterevidence_and_limits": "SINGLE_USER rollback eventually forces exclusion but too late to preserve acknowledged work during gap. This is operational restore design candidate; independent challenge still required.",
+    "independent_challenge": "Not yet received",
+    "related_paths": [
+      "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+      "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+      "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs"
+    ]
+  },
+  {
+    "id": "FIN-009",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Concurrent different open-day requests create multiple active business days",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+        "start": 34,
+        "end": 55,
+        "source_excerpt": "        var now = DateTimeOffset.UtcNow;\n        var activeDayEntities = await _db.BusinessDays.AsNoTracking()\n            .Where(d => d.Status == nameof(BusinessDayStatus.Open) || d.Status == nameof(BusinessDayStatus.Closing) || d.Status == nameof(BusinessDayStatus.Reopened))\n            .ToListAsync(ct);\n        var activeDays = activeDayEntities\n            .Select(d => new BusinessDayRecord(d.Id, d.BusinessDate, d.OpenedBy, d.OpenedAtUtc, Enum.Parse<BusinessDayStatus>(d.Status), d.CloseRevision))\n            .ToList();\n\n        var businessDate = request.BusinessDate ?? BusinessClock.BusinessDate(now);\n        var day = BusinessDayRules.Open($\"day-{Guid.NewGuid():N}\", businessDate, request.OpenedByUserId, now, activeDays);\n\n        var entity = new BusinessDayEntity\n        {\n            Id = day.Id, BusinessDate = day.BusinessDate, OpenedBy = day.OpenedBy, OpenedAtUtc = day.OpenedAtUtc,\n            Status = nameof(BusinessDayStatus.Open), CloseRevision = 0, OpenRequestId = request.RequestId,\n        };\n\n        try\n        {\n            _db.BusinessDays.Add(entity);\n            await _db.SaveChangesAsync(ct);\n            return ToResult(entity, wasReplayed: false);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "start": 148,
+        "end": 152,
+        "source_excerpt": "            // and the manager visibility view (GET /api/expenses) both filter by exactly these two\n            // shapes - see expensesVisibleToActor in the reference app.\n            b.HasIndex(e => new { e.ShiftId, e.PaidFromDrawer });\n            b.HasIndex(e => e.BusinessDate);\n        });"
+      },
+      {
+        "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+        "start": 22,
+        "end": 29,
+        "source_excerpt": "    /// treatment every other snapshot field on Order already gets.</summary>\n    public static async Task<string?> TryGetActiveAsync(FalahDbContext db, CancellationToken ct)\n    {\n        var day = await db.BusinessDays.AsNoTracking()\n            .Where(d => d.Status == nameof(BusinessDayStatus.Open) || d.Status == nameof(BusinessDayStatus.Closing) || d.Status == nameof(BusinessDayStatus.Reopened))\n            .FirstOrDefaultAsync(ct);\n        return day?.Id;\n    }"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB no active day; synchronize two distinct RequestIds through active-day read before save; both pass pure Open rule and insert two active days. Gate FirstOrDefault may choose arbitrary active day.",
+    "root_cause": "Single-active invariant protected only by read check; no shared singleton lock or unique active-day representation.",
+    "correction_design": "Represent active day as uniquely constrained singleton ownership or indexed computed active-state key, atomically acquired in transaction including reopen/close. Existing duplicate records require explicit accounting reconciliation before constraint migration.",
+    "regression_tests": "Concurrent open distinct IDs exactly one active, same ID replay; reopen versus open also single active; gate deterministic or fail closed on corruption.",
+    "counterevidence_and_limits": "Same-request unique OpenRequestId does not address distinct commands. No database mutation or race executed.",
+    "independent_challenge": "Not yet received",
+    "related_paths": [
+      "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs"
+    ]
+  },
+  {
+    "id": "FIN-010",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Collected sales report drops immediate money from pending mixed payments",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Domain/Reports/SalesRules.cs",
+        "start": 55,
+        "end": 70,
+        "source_excerpt": "        var pendingElectronicSales = Money.FromPiastres(sales.Sum(o =>\n            o.ElectronicPayment is { Status: ElectronicPaymentStatus.Pending } ? o.Total.Piastres : 0));\n\n        // The same principle applied to cash-on-delivery, which the original formula missed: until a\n        // driver settlement moves it into the restaurant's own treasury, COD money is either still\n        // with the customer (not yet delivered) or in the driver's custody (delivered, unsettled).\n        // Either way the restaurant does not hold it, so counting it as collected would claim cash\n        // that is not there - exactly what excluding pending electronic sales already guards against.\n        // Net of refunds, so a refunded COD order cannot subtract more than the sale contributed.\n        var cashWithDrivers = Money.FromPiastres(sales\n            .Where(o => orderIdsWithCashOutsideRestaurant.Contains(o.Id))\n            .Sum(o => o.Total.Piastres - o.RefundAmount.Piastres));\n\n        var collectedSales = netSales - pendingElectronicSales - cashWithDrivers;\n\n        // Same channel attribution as the Shifts drawer reconciliation and the Business Day close"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+        "start": 34,
+        "end": 47,
+        "source_excerpt": "\n            if (order.PaymentMethod == PaymentMethod.Multi && order.SplitPayments is { } splits)\n            {\n                foreach (var part in splits)\n                {\n                    var isElectronic = part.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet;\n                    var confirmed = order.ElectronicPayment is { Status: ElectronicPaymentStatus.Confirmed } leg && leg.Method == part.Method;\n                    if ((isElectronic && confirmed) || !isElectronic)\n                    {\n                        if (totals.ContainsKey(part.Method)) totals[part.Method] += part.Amount;\n                    }\n                }\n            }\n            else if (order.IsPaid && totals.ContainsKey(order.PaymentMethod))"
+      },
+      {
+        "path": "tests/Falah.Domain.Tests/CheckoutRulesTests.cs",
+        "start": 109,
+        "end": 124,
+        "source_excerpt": "            Money.Zero, taxRule: null, Money.Zero, Money.Zero, Money.FromEgp(200m), splits, null);\n\n        Assert.NotNull(plan.ElectronicLeg);\n        Assert.Equal(Money.FromEgp(100m), plan.ElectronicLeg!.Amount);\n        // A multi-payment order does NOT defer everything just because one leg is electronic - the\n        // cash leg still posts immediately; only that one leg is deferred.\n        Assert.False(plan.DefersAllMoney);\n    }\n\n    [Fact]\n    public void Discount_reduces_the_taxable_base_before_tax_is_applied()\n    {\n        var items = new[] { Item(100m) };\n        var taxRule = new TaxRule(\"tax-1\", \"\u0636\u0631\u064a\u0628\u0629\", 1400, TaxMode.Exclusive, true); // 14%\n        var plan = CheckoutRules.BuildPlan(OrderType.Takeaway, PaymentMethod.Cash, items,\n            Money.FromEgp(20m), taxRule, Money.Zero, Money.Zero, Money.FromEgp(91.2m), null, null);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Pure conceptual example:200 EGP order with cash100+InstaPay100 still pending. Net200, PendingElectronicSales incorrectly200, CollectedSales0 though cash leg100 already posted.",
+    "root_cause": "Any pending electronic leg triggers subtraction of whole order total, instead of pending leg amount; report contradicts own cash channel totals.",
+    "correction_design": "Compute pending sum from actual leg.Amount and reconciled remaining collection; keep gross/net revenue separate from settlement timing. Do not infer amount from whole order IsPaid.",
+    "regression_tests": "Pure unit mixed cash/electronic and card/electronic pending =>collected immediate leg, pending electronic amount; after confirm totals conserve amount; integration verify treasury and report align without needing mocked data.",
+    "independent_challenge": "printing_workflows independently read SalesRules56-70 and OrderPaymentQueries34-44; confirmed numeric example and searched counterevidence. Distinct from FIN-001 journal confirmation block.",
+    "counterevidence_and_limits": "No runtime financial writes. Same-request idempotency and unrelated locks do not address this distinct scenario.",
+    "related_paths": [
+      "src/Falah.Domain/Reports/SalesRules.cs",
+      "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+      "tests/Falah.Domain.Tests/CheckoutRulesTests.cs"
+    ]
+  },
+  {
+    "id": "FIN-011",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Shift opening and purchase receipt check protected account balance before their transactions",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+        "start": 49,
+        "end": 71,
+        "source_excerpt": "        string? businessDayId = null;\n        if (openingCash.IsPositive)\n        {\n            businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n            var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Main, ct);\n            FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);\n        }\n\n        var entity = new ShiftEntity\n        {\n            Id = shift.Id,\n            ShiftName = shift.ShiftName,\n            OpenedByUserId = shift.OpenedByUserId,\n            OpeningCashPiastres = shift.OpeningCash.Piastres,\n            Status = nameof(ShiftStatus.Open),\n            BusinessDate = shift.BusinessDate,\n            OpenedAtUtc = shift.OpenedAtUtc,\n            OpenRequestId = request.RequestId,\n        };\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+        "start": 77,
+        "end": 86,
+        "source_excerpt": "                    ?? throw new InvalidOperationException(\"\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\n                var movement = TreasuryMovementFactory.BuildCashLifecycleMovement(\n                    $\"tm-{Guid.NewGuid():N}\", $\"shift-open-{shift.Id}\", $\"op-{Guid.NewGuid():N}\", \"shift_opening_float\",\n                    TreasuryAccounts.Main, TreasuryAccounts.Drawer, openingCash,\n                    \"shift_opening\", shift.Id, businessDayId, shift.Id,\n                    $\"\u0639\u0647\u062f\u0629 \u0627\u0641\u062a\u062a\u0627\u062d {shift.ShiftName}\", openedByUser.Name, approvedBy: null, now);\n                _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));\n            }\n\n            // The cashier's own receipt for the float they were handed. Queued here so it exists if"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+        "start": 39,
+        "end": 49,
+        "source_excerpt": "        (await db.TreasuryMovements\n            .FromSqlRaw(\n                \"SELECT * FROM TreasuryMovements WITH (UPDLOCK, HOLDLOCK) \" +\n                \"WHERE Status = {0} AND (SourceAccountId = {1} OR DestinationAccountId = {1})\",\n                nameof(MovementStatus.Posted), accountId)\n            .AsNoTracking()\n            .ToListAsync(ct))\n        .Select(TreasuryMapper.ToDomain).ToList();\n}\n\ninternal static class TreasuryMapper"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+        "start": 73,
+        "end": 97,
+        "source_excerpt": "        var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod);\n        if (paid.IsPositive && accountId is null) throw new DomainException(\"\u064a\u062c\u0628 \u062a\u062d\u062f\u064a\u062f \u062d\u0633\u0627\u0628 \u062f\u0641\u0639 \u0641\u0639\u0644\u064a \u0644\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0645\u062f\u0641\u0648\u0639.\");\n        if (accountId is not null)\n        {\n            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);\n            FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);\n        }\n        // Read each ingredient's current cost basis BEFORE this receipt is written, so the change\n        // this invoice causes can be recorded. See PurchasingRules.DescribeUnitCostChange for why\n        // this matters more here than it looks: one line rewrites every recipe using that item.\n        var previousUnitCosts = new Dictionary<string, Money?>();\n        foreach (var itemId in itemIds)\n        {\n            var lastCost = await _db.StockMovements.AsNoTracking()\n                .Where(m => m.InventoryItemId == itemId\n                    && m.Type == nameof(StockMovementType.PurchaseReceipt) && m.UnitCostPiastres != null)\n                .OrderByDescending(m => m.CreatedAtUtc)\n                .Select(m => m.UnitCostPiastres)\n                .FirstOrDefaultAsync(ct);\n            previousUnitCosts[itemId] = lastCost is { } c ? Money.FromPiastres(c) : null;\n        }\n\n        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB only after approval:Main100, opening float80 precheck completes, competing owner withdrawal80 commits, then opening float posts80; Main becomes-60. No test executed.",
+    "root_cause": "UPDLOCK/HOLDLOCK loader invoked before BeginTransaction; statement-end implicit transaction releases lock, balance snapshot stale at spending. SingleOpen index protects only shift rows.",
+    "correction_design": "Begin transaction before protected Main load/check and hold through float/order/doc save; establish consistent treasury/shift lock order; retry safe conflicts without discarding real error.",
+    "regression_tests": "Barrier-controlled opening float vs withdrawal/expense/purchase (different requests) assert account never negative; same open request replay and two-open single active still pass.",
+    "independent_challenge": "printing_workflows independently confirmed static source path and searched counterevidence, saved Codex Work/Sub-Agents/Handoffs/printing-progress-assessment.md, Read-only financial challenges completed on continuation. No runtime reproduction.",
+    "counterevidence_and_limits": "Normal HTTP routes have no ambient transaction. Explicit caller outer transaction could change lock duration; current endpoints provide none. Same-request replay/single open shift constraints do not serialize distinct account spend. No runtime race executed.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+      "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs"
+    ]
+  },
+  {
+    "id": "FIN-012",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Attendance correction credits do not enter calculated payroll",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+        "start": 92,
+        "end": 117,
+        "source_excerpt": "            var oldPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, oldLateMinutes,\n                settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;\n            var newPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, request.LateMinutes,\n                settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;\n            var penaltyDelta = newPenalty.Piastres - oldPenalty.Piastres;\n            if (penaltyDelta != 0)\n            {\n                var isCredit = penaltyDelta < 0; // a REDUCED penalty credits the employee back\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, $\"led-correction-penalty-{request.RequestId}\", record.EmployeeId, nameof(LedgerEntryType.Adjustment),\n                    $\"\u062a\u0635\u062d\u064a\u062d \u062e\u0635\u0645 \u062a\u0623\u062e\u064a\u0631 \u062d\u0636\u0648\u0631 \u2014 {request.Reason}\",\n                    isCredit ? Money.Zero : Money.FromPiastres(Math.Abs(penaltyDelta)),\n                    isCredit ? Money.FromPiastres(Math.Abs(penaltyDelta)) : Money.Zero,\n                    verifiedApproverName, verifiedApproverName, null, record.Id, null, null, null, ct);\n            }\n\n            var oldOvertime = PayrollRules.CalculateOvertimeAmount(dailyWage, settings.StandardWorkdayHours, oldOvertimeHours, settings.OvertimeMultiplier).Amount;\n            var newOvertime = PayrollRules.CalculateOvertimeAmount(dailyWage, settings.StandardWorkdayHours, request.OvertimeHours, settings.OvertimeMultiplier).Amount;\n            var overtimeDelta = newOvertime.Piastres - oldOvertime.Piastres;\n            if (overtimeDelta != 0)\n            {\n                var isCredit = overtimeDelta > 0; // an INCREASED overtime credits the employee more\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, $\"led-correction-overtime-{request.RequestId}\", record.EmployeeId, nameof(LedgerEntryType.Adjustment),\n                    $\"\u062a\u0635\u062d\u064a\u062d \u0633\u0627\u0639\u0627\u062a \u0625\u0636\u0627\u0641\u064a\u0629 \u062d\u0636\u0648\u0631 \u2014 {request.Reason}\",\n                    isCredit ? Money.Zero : Money.FromPiastres(Math.Abs(overtimeDelta)),\n                    isCredit ? Money.FromPiastres(Math.Abs(overtimeDelta)) : Money.Zero,\n                    verifiedApproverName, verifiedApproverName, null, record.Id, null, null, null, ct);"
+      },
+      {
+        "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "start": 95,
+        "end": 109,
+        "source_excerpt": "            var baseAmount = emp.CompensationIsMonthly\n                ? (emp.MonthlySalary ?? Money.Zero)\n                : Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is \"DailyWage\" or \"Salary\").Sum(e => e.Credit.Piastres));\n            var overtime = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == \"Overtime\").Sum(e => e.Credit.Piastres));\n            var extraShifts = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == \"ExtraShift\").Sum(e => e.Credit.Piastres));\n            var bonuses = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is \"Bonus\" or \"OtherEarning\").Sum(e => e.Credit.Piastres));\n            var deductions = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is \"Deduction\" or \"Adjustment\").Sum(e => e.Debit.Piastres));\n\n            if (emp.RequestedAdvanceDeduction.IsNegative || emp.RequestedAdvanceDeduction > emp.AvailableAdvance)\n                throw new DomainException($\"\u0627\u0633\u062a\u0642\u0637\u0627\u0639 \u0627\u0644\u0633\u0644\u0641\u0629 \u0644\u0644\u0645\u0648\u0638\u0641 {emp.EmployeeId} \u064a\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u0631\u0635\u064a\u062f \u0627\u0644\u0645\u062a\u0641\u0642 \u0639\u0644\u064a\u0647.\");\n\n            var net = baseAmount + overtime + extraShifts + bonuses - deductions - emp.RequestedAdvanceDeduction;\n            if (net.IsNegative) net = Money.Zero;\n\n            result.Add(new PayrollLine(emp.EmployeeId, baseAmount, overtime, extraShifts, bonuses, deductions, emp.RequestedAdvanceDeduction, net));"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB only if approved: post daily wage and late deduction, correct late minutes down before calculating payroll. Correction adds Adjustment credit but payroll still subtracts original deduction. Similarly increased overtime adjustment credit is omitted. No execution.",
+    "root_cause": "Correction records signed Adjustment entries; payroll includes Adjustment debits only, with no credit earnings bucket.",
+    "correction_design": "Reconcile both credit and debit adjustment sides into period net consistently; distinguish correction attribution from original earning if required and preserve payroll freeze semantics.",
+    "regression_tests": "Pure payroll inputs with original Deduction debit and correcting Adjustment credit must restore net; integration attendance correction followed by calculate and report must agree with ledger.",
+    "independent_challenge": "printing_workflows independently confirmed static source path and searched counterevidence, saved Codex Work/Sub-Agents/Handoffs/printing-progress-assessment.md, Read-only financial challenges completed on continuation. No runtime reproduction.",
+    "counterevidence_and_limits": "Correction must exist within selected payroll period before run creation. Frozen lines after run creation are separate policy. Independent CreatePayrollHandler43-60 trace passes Type/Credit/Debit unchanged. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "src/Falah.Domain/Payroll/PayrollRules.cs"
+    ]
+  },
+  {
+    "id": "FIN-013",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Owner dashboard adds outgoing stock instead of subtracting it",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "start": 297,
+        "end": 314,
+        "source_excerpt": "    private async Task<StockPositionDto> LoadStockAsync(CancellationToken ct)\n    {\n        var items = await _db.InventoryItems.AsNoTracking().Where(i => i.Active)\n            .Select(i => new { i.Id, i.Name, i.Unit, i.MinimumMilliUnits }).ToListAsync(ct);\n        var balances = await _db.StockMovements.AsNoTracking()\n            .GroupBy(m => m.InventoryItemId)\n            .Select(g => new { InventoryItemId = g.Key, Balance = g.Sum(m => m.QuantityMilliUnits) })\n            .ToDictionaryAsync(x => x.InventoryItemId, x => x.Balance, ct);\n\n        var low = items\n            .Select(i => new { i.Id, i.Name, i.Unit, i.MinimumMilliUnits, Balance = balances.GetValueOrDefault(i.Id) })\n            // Same test the inventory screen uses, so the count here and the list there agree.\n            .Where(i => i.Balance <= i.MinimumMilliUnits && i.MinimumMilliUnits > 0)\n            .OrderBy(i => i.Balance - i.MinimumMilliUnits)\n            .Select(i => new LowStockItemDto(i.Id, i.Name, i.Unit, i.Balance, i.MinimumMilliUnits))\n            .ToList();\n\n        return new StockPositionDto(items.Count, low.Count, low);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Conceptual: active ingredient minimum500, purchase In1000 and usage Out800 positive milliunits. True stock200, dashboard1800 and omits low-stock warning. No writes.",
+    "root_cause": "Group sum ignores Direction while stock quantity magnitudes are positive for both In and Out.",
+    "correction_design": "Share signed stock balance calculation or translate direction sign in SQL; compare dashboard low-stock items with inventory screen.",
+    "regression_tests": "Integration seeded signed movements plus count adjustments and waste should match inventory balance and low-stock count.",
+    "independent_challenge": "printing_workflows independently confirmed static source path and searched counterevidence, saved Codex Work/Sub-Agents/Handoffs/printing-progress-assessment.md, Read-only financial challenges completed on continuation. No runtime reproduction.",
+    "counterevidence_and_limits": "No independent challenge saved yet. Requires outgoing positive-magnitude movements, which InventoryRules and their pure tests establish; no runtime test.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs"
+    ]
+  }
+]
