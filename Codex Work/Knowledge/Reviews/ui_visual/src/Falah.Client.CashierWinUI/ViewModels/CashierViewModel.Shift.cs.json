@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Shift.cs",
+  "source_git_blob_sha256": "942d8dbf033357f7186def2e56f3871b14b273b7ca559738d1456cde829215e2",
+  "worktree_sha256": "fe92b9e4d8ea353aa57fb2a70c4a7948a5821376a246c055c6b7282d72929ac0",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T07:07:01.404339+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Complete shift-open source read and both exact methods reconciled; UI001 durable recovery separate from server unique-open constraint.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Shift.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-9605f4acfb5b89766bd0aa47a5ebd5639b921a37c13d339608c4e71afeb431f5",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        14,
+        5,
+        43,
+        6
+      ],
+      "reasoning": "Rejects opening while busy/initializing or lacking own/manage permission. Replays memory pending DTO before parsing; new opening accepts nonnegative piastres and captures request ID/user/local-machine-hour name. No general CanEditOperation guard means other pending operation direct invocation needs backend safety, normal closed-shift UI limits reachability.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Unknown retry/crash UI001, local timezone shift name and null user direct invocation fixture.",
+      "tests_missing": "Unknown retry/crash UI001, local timezone shift name and null user direct invocation fixture. NOT_EXECUTED.",
+      "verified_callers_callees": "CashInput.TryParse; CanOpenShift; CompleteOpenShiftAsync"
+    },
+    {
+      "stable_id": "sym-040e57dd41fcf090510eecd2aeb838f71b50dac4101d5b424a70975c336cabbe",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteOpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        46,
+        5,
+        66,
+        6
+      ],
+      "reasoning": "Captures open DTO before API, clears first definite rejection or success, conservatively retains unresolved retry failure. Success rotates ID then updates session/header and loads menu. If menu load fails shift remains legitimately open; no rollback should be claimed. Success-null body rotates ID and errors.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Unknown then same DTO; confirmed open then failed menu; backend unique active shift mitigates duplicate opening.",
+      "tests_missing": "Unknown then same DTO; confirmed open then failed menu; backend unique active shift mitigates duplicate opening. NOT_EXECUTED.",
+      "verified_callers_callees": "Api.OpenShiftAsync; RefreshOperationState; Header.Refresh; LoadMenuAsync"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

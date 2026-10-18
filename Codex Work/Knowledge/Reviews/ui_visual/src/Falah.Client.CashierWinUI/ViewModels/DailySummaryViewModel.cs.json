@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/DailySummaryViewModel.cs",
+  "source_git_blob_sha256": "b4951f4250aece845c172b95f03ff3e8c4b7f96cb41d53827bb9b158f96cd3e3",
+  "worktree_sha256": "b4951f4250aece845c172b95f03ff3e8c4b7f96cb41d53827bb9b158f96cd3e3",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:32:34.228912+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Complete daily summary source read; three exact methods and significant deriveddisplayproperties reconciled. Existing overtime-hours/money XAML mismatch remains separate source report, no printing pipeline fabricated.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/ViewModels/DailySummaryViewModel.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-6a9104818debc0a48b430abf1d381a5d44934c325194579d2822eba7cadfe6df",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.DailySummaryViewModel(Falah.Client.CashierWinUI.Services.AppSession)",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        27,
+        5,
+        30,
+        6
+      ],
+      "reasoning": "Stores session only, no automaticdailyclose/print/datawrite. Derivedsumproperties combineoverage-shortage andadvance+withdrawals locally despitegenericserver-onlyreport wording; unitsallpiastres.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Extremeoverflow/sourceviewunitconsistency separate.",
+      "tests_missing": "Extremeoverflow/sourceviewunitconsistency separate. NOT_EXECUTED.",
+      "verified_callers_callees": "AppSession; expressionproperties"
+    },
+    {
+      "stable_id": "sym-3f2cdfcb05ed83eb35915735cf58c447da15146ef7a2822a2055e0a5d3c71c27",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.FormatArabicLongDate(string)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        43,
+        5,
+        49,
+        6
+      ],
+      "reasoning": "Parses invariantISODateOnly, returnrawinputifinvalid, otherwise ar-EGlongdate. DoesnotconvertUTCinstant becauseinputexplicitbusinessdatestring. No reason toflag timezonefromdate-onlyformat.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Leapday/invalidstring/rawfallback; weekdayArabic.",
+      "tests_missing": "Leapday/invalidstring/rawfallback; weekdayArabic. NOT_EXECUTED.",
+      "verified_callers_callees": "DateOnly.TryParseExact; CultureInfo ar-EG"
+    },
+    {
+      "stable_id": "sym-f8e95040161234b9808b70547822166d15917139c71417c900dbe79ef09ee037",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.LoadAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        63,
+        5,
+        111,
+        6
+      ],
+      "reasoning": "Serializes settings/currentday/history/summary reads. Anycurrentdayfailureincludingnetwork fallsbackhistory rather thanonly404, so can show latesthistoricalsummary ifcurrentunreachable buthistorysucceeds; Settingsfailurepreservesolderidentity. Usesfirsthistory assumingservernewestorder. SummaryfailureLoadErrorhidesoldsummary, no financialwrite.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Current500/historysuccessfallback, permissionCanSeeSummary onlyviewnotmethodguard; servermustauthorize.",
+      "tests_missing": "Current500/historysuccessfallback, permissionCanSeeSummary onlyviewnotmethodguard; servermustauthorize. NOT_EXECUTED.",
+      "verified_callers_callees": "Api.GetSettingsAsync/GetCurrentBusinessDayAsync/GetBusinessDaysAsync/GetDailySummaryAsync"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

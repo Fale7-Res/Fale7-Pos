@@ -1,0 +1,100 @@
+{
+  "candidate_id": "FIN-CAND-CLOSEDAY-ADMISSION-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "at_utc": "2026-10-18T03:49:10.409416+00:00",
+  "status": "SOURCE_SUPPORTED_HIGH_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+      "lines": [
+        56,
+        85
+      ],
+      "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+      "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+      "symbols": [
+        "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+      "lines": [
+        14,
+        29
+      ],
+      "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "symbols": [
+        "sym-5302fe52cf38bc22dfd3b6bc6171ef7fcf6692e90c6e1e1d0e468662d1ead0bf"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "lines": [
+        64,
+        121
+      ],
+      "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "symbols": [
+        "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "lines": [
+        25,
+        57
+      ],
+      "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "lines": [
+        164,
+        208
+      ],
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "symbols": [
+        "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5"
+      ]
+    }
+  ],
+  "preconditions": "Authorized treasury deposit with fresh key already passed actor and active-day lookup; authorized close actor and otherwise satisfied close blockers; no external admission serialization.",
+  "schedule": [
+    "Tdeposit resolves open day at58, pauses before BeginTransaction60. No pending journal exists yet, no day row lock held.",
+    "Tclose evaluates blockers including journal and cash checks, computes reconciliation87, creates frozen snapshot with reconciliation101 and commits day Closed112-121. No deposit entry existed during evaluation/snapshot.",
+    "Tdeposit resumes, opens new transaction, writes journal/incoming treasury movement for previously obtained day ID, saves and commits84-85. No re-read Open state or day revision predicate in monetary critical section."
+  ],
+  "predicted_effect": "Posted monetary activity can attach to a Closed business day after authoritative closing snapshot and blocker evaluation, leaving frozen snapshot inconsistent with ledger. Chosen deposit case needs no open cashier shift and no source-balance lock, avoiding unrelated guards.",
+  "counterevidence": [
+    "Both individual operations are transactional; selected timeline has no transaction overlap, so those locks do not prevent prevalidated admission.",
+    "Blocked close commits blocked-audit and throws; candidate assumes all actual blockers satisfied before paused deposit posts.",
+    "No intentional direct financial mutation by Close handler; mutation is later legitimate deposit, exposing admission gap.",
+    "Snapshot is immutable historical close-time view; if product explicitly permits post-close day-stamped financial postings, policy/clear delta reporting required. Current RequireOpen contract and authoritative snapshot suggest exclusion intended.",
+    "No actual SQL acceptance, API concurrency, external writer serialization or data-loss outcome observed."
+  ],
+  "related_findings": [
+    "FIN-015 stale shift admission affects sales after shift handover, distinct business-day boundary here",
+    "FIN-008 backup restore admission race, analogous broader operation-admission concern but separate mechanism"
+  ],
+  "recommendation": "Transaction-held day admission coordination/revalidation for financial writes and close; close drains previously admitted operations and snapshots after them. Consistent lock order and distributed/multi-process semantics; no mere UI disabling or unshared process mutex.",
+  "tests": [
+    "Pause deposit after day lookup, close commits, resumed deposit must reject with zero journal/movement",
+    "Reverse order close waits until admitted deposit commits and snapshot includes it",
+    "New-day opening/reopen/idempotent replay and other money command gates",
+    "Approved disposable SQL controlled interleaving only; none executed now"
+  ],
+  "independent_review": "PENDING; root is author",
+  "runtime": "NOT_EXECUTED",
+  "next": "Independent challenge of precise no-overlap timeline; no live financial test authorized.",
+  "additional_source_checks": {
+    "middleware": "AuthenticationMiddleware.InvokeAsync32-84 resolves session/mismatch then awaits next; no financial write-admission mutex in invocation. Helper remainder not re-reviewed in this check.",
+    "program": "Only observed middleware auth and login fixed-window rate limiter; deposit542 delegates handler. Rate limiter is not financial serialization.",
+    "day_mapping": "FalahDbContext137-141 business day key+unique OpenRequestId only; no state concurrency token there.",
+    "qualification": "Source inspection of configured path only; external deployment proxy/application overrides not certified."
+  }
+}

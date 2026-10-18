@@ -1,0 +1,359 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T21:53:59.992112+00:00",
+  "records": [
+    {
+      "id": "NET-BOUNDARY-008",
+      "category": "Active Cashier shared HTTP transport and authority",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+          "startLine": 10,
+          "endLine": 11,
+          "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+          "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+          "symbol": {
+            "stable_id": "sym-4901f106f424cf467a862f6a7bbb03fc270b6d2edd5478944129b37f4511855f",
+            "kind": "GetAccessorDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.AppSession.Api.get",
+            "startLine": 10,
+            "endLine": 10,
+            "startColumn": 28,
+            "endColumn": 32,
+            "isCallable": true
+          },
+          "evidence": "Default authority comes from local FALAH_SERVER_URL environment or localhost; injectable ApiClient parameter for caller/test."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "startLine": 25,
+          "endLine": 41,
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": {
+            "stable_id": "sym-548a1f8e4001fcfdd1a935bb5990f5b0af034201816518c9a22e36a08918e951",
+            "kind": "VariableDeclarator",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient._http",
+            "startLine": 25,
+            "endLine": 25,
+            "startColumn": 33,
+            "endColumn": 38,
+            "isCallable": false
+          },
+          "evidence": "Constructs HttpClient10s timeout and base URI; ProductImageUri fixed escaped endpoint derives same configured authority."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "startLine": 92,
+          "endLine": 136,
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": {
+            "stable_id": "sym-64ee6b27519b8d94577f4f7cf79d0b5c14c99699c8d8d56a7cc5e851e7db5cd9",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.ReadAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)",
+            "startLine": 92,
+            "endLine": 103,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Read/Send delegates dispose HttpResponseMessage; distinguish transport exceptions/unknown outcomes."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "startLine": 157,
+          "endLine": 181,
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": {
+            "stable_id": "sym-2429d401662a38ec3d41aa1d3cf3d4b5bca73cd4d8bd24492b1a0a004e1e83e7",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.LoginByPinAsync(string, CancellationToken)",
+            "startLine": 157,
+            "endLine": 171,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "PIN login returns typed token and installs bearer; Logout clears header locally even if server call fails."
+        }
+      ],
+      "inputs": "Trusted environment/baseAddress or supplied HttpClient; typed DTO business/credential data.",
+      "outputs_side_effects": "Configured HTTP(S) backend calls; no separate telemetry recipient established in inspected core.",
+      "legitimate_purpose": "POS server communication.",
+      "trust_boundaries": "Local deployment authority and HTTP transport protect PIN/bearer/business data; default loopback HTTP does not imply safe LAN plaintext deployment.",
+      "counterevidence_limitations": [
+        "No HTTPS requirement/host allowlist in constructor; no custom certificate-validation bypass found.",
+        "Only transport core reviewed here, not all267 endpoint/business authorization cases.",
+        "Per-call absolute URL injection not established by escaped IDs/fixed routes inspected; unrelated partial methods remain independently audited elsewhere."
+      ],
+      "classification": "EXPLICIT_ENV_CONFIGURED_API_TRANSPORT"
+    },
+    {
+      "id": "NET-BOUNDARY-009",
+      "category": "CallCenter shared HTTP transport",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+          "startLine": 16,
+          "endLine": 17,
+          "source_git_blob_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+          "worktree_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+          "symbol": {
+            "stable_id": "sym-a6bb8b1d74a4db0b54555d1503dbcd3057707041635e65b859f1b7ffde585f8f",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.Services.AppSession.AppSession(Falah.Client.CallCenterWinUI.Services.ApiClient?)",
+            "startLine": 16,
+            "endLine": 17,
+            "startColumn": 5,
+            "endColumn": 109,
+            "isCallable": true
+          },
+          "evidence": "Same local FALAH_SERVER_URL/localhost authority resolution."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "startLine": 25,
+          "endLine": 39,
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+          "symbol": {
+            "stable_id": "sym-3f25d39fb4dc33e073f57171cf4a7b2a4c10905b669ef4c904770592b6336b6e",
+            "kind": "VariableDeclarator",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.Services.ApiClient._http",
+            "startLine": 25,
+            "endLine": 25,
+            "startColumn": 33,
+            "endColumn": 38,
+            "isCallable": false
+          },
+          "evidence": "HTTP10s timeout and same-authority escaped image URL."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "startLine": 56,
+          "endLine": 95,
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+          "symbol": {
+            "stable_id": "sym-ce8892177d95c076ea58255a5542674481164cf0f69939bd51c49b0ed03a0b51",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken)",
+            "startLine": 56,
+            "endLine": 82,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Typed result/error reader and send wrapper dispose responses; no dynamic execution from response."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "startLine": 115,
+          "endLine": 138,
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+          "symbol": {
+            "stable_id": "sym-bff97485e41dad73fce78e8b0a5f923c01e6684d9e362654925479f0e136c19c",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.Services.ApiClient.LoginByPinAsync(string, CancellationToken)",
+            "startLine": 115,
+            "endLine": 129,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Login installs bearer; logout makes server call before clearing."
+        }
+      ],
+      "inputs": "Local environment/constructor config, caller login/DTOs.",
+      "outputs_side_effects": "Credentials and business requests to configured backend.",
+      "legitimate_purpose": "Remote order-taking station, no secondary host in inspected core.",
+      "trust_boundaries": "Same HTTP authority/credential transport as cashier; not generic Internet trust.",
+      "counterevidence_limitations": [
+        "No actual environment variable value/PIN/session inspected.",
+        "CurrentShift/lookup reads reuse generic SendAsync and may misclassify uncertainty, not hidden behavior.",
+        "Authentication policy of all routes not certified by transport review."
+      ],
+      "classification": "EXPLICIT_ENV_CONFIGURED_API_TRANSPORT"
+    },
+    {
+      "id": "NET-BOUNDARY-010",
+      "category": "Legacy WPF API boundary",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.Cashier/Services/AppSession.cs",
+          "startLine": 8,
+          "endLine": 16,
+          "source_git_blob_sha256": "78f3827a4f5eed2126bef903204824b8bc3973aca3da12b079a30695c65e1d37",
+          "worktree_sha256": "78f3827a4f5eed2126bef903204824b8bc3973aca3da12b079a30695c65e1d37",
+          "symbol": {
+            "stable_id": "sym-b9f556b0cca528bfde640651920a66258f889f7a88e29aa997f825a51d94877a",
+            "kind": "ClassDeclaration",
+            "qualifiedSymbol": "Falah.Client.Cashier.Services.AppSession",
+            "startLine": 8,
+            "endLine": 17,
+            "startColumn": 1,
+            "endColumn": 2,
+            "isCallable": false
+          },
+          "evidence": "Default ApiClient constructed directly, no environment override here."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+          "startLine": 22,
+          "endLine": 38,
+          "source_git_blob_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "worktree_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "symbol": {
+            "stable_id": "sym-e9ff8fb60ea420b52cdaa5623dc49d64965c88733123145fb11c56122c71a872",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.Client.Cashier.Services.ApiClient.ApiClient(string)",
+            "startLine": 22,
+            "endLine": 25,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Loopback default HTTP10s timeout; health direct response lacks using."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+          "startLine": 71,
+          "endLine": 104,
+          "source_git_blob_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "worktree_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "symbol": {
+            "stable_id": "sym-9cfbffc3b20ec63830c9550b5f4220fd4a803fd3bd24e70a430d4cb9deb5b317",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.Cashier.Services.ApiClient.LoginByPinAsync(string, CancellationToken)",
+            "startLine": 71,
+            "endLine": 75,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Login parses UserSummaryDto directly; sale/refund calls no bearer installation visible in complete API source search."
+        }
+      ],
+      "inputs": "Default localhost or explicitly passed baseAddress; typed login/business DTOs.",
+      "outputs_side_effects": "Legacy client requests backend.",
+      "legitimate_purpose": "Obsolete/reference WPF cashier path, not covert second backend.",
+      "trust_boundaries": "Legacy contract mismatch against bearer server must be runtime/build classified separately.",
+      "counterevidence_limitations": [
+        "Not active deployment target.",
+        "No runtime WPF/login performed; mismatched contract/source suggests limited usability, not security bypass."
+      ],
+      "classification": "LEGACY_EXPLICIT_HTTP_CLIENT_CONTRACT_LIMIT"
+    },
+    {
+      "id": "NET-BOUNDARY-011",
+      "category": "Native image URL fetch outside bearer HttpClient",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "startLine": 807,
+          "endLine": 818,
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "symbol": {
+            "stable_id": "sym-740d606d1733794dc2bd9d1484035cc306146b34f475cbafbf192b011e84c3d1",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Converters.ImageUriToSourceConverter.Convert(object, Type, object, string)",
+            "startLine": 807,
+            "endLine": 818,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "BitmapImage.UriSource=uri starts own framework image fetch; cache URL keyed; no shared HTTP header passed."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "startLine": 314,
+          "endLine": 325,
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "symbol": {
+            "stable_id": "sym-64349009d470a7f6478ad43aba0419c10d60bba2e4973f8603c36594d17e4a64",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.Converters.ImageUriToSourceConverter.Convert(object, Type, object, string)",
+            "startLine": 314,
+            "endLine": 325,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "CallCenter same image-fetch path."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "startLine": 36,
+          "endLine": 41,
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": {
+            "stable_id": "sym-1fde4faf0f9240ca0b5fc76be50016974322f0a41fafed7b37d657599ad1fe41",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.ProductImageUri(string, string?)",
+            "startLine": 36,
+            "endLine": 41,
+            "startColumn": 5,
+            "endColumn": 134,
+            "isCallable": true
+          },
+          "evidence": "Constructs product image URI without bearer query/header."
+        },
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "startLine": 22,
+          "endLine": 57,
+          "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+          "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+          "symbol": {
+            "stable_id": "sym-5662cc47e597586612e31280b931a73719b1d511fb01eed03bbc93c822087aed",
+            "kind": "VariableDeclarator",
+            "qualifiedSymbol": "Falah.Server.AuthenticationMiddleware.AnonymousPaths",
+            "startLine": 22,
+            "endLine": 26,
+            "startColumn": 38,
+            "endColumn": 6,
+            "isCallable": false
+          },
+          "evidence": "Only health/login anonymous; /api/product image requires Bearer header and returns401 when absent."
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "startLine": 1518,
+          "endLine": 1521,
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "symbol": {
+            "stable_id": "sym-9d361cf41e472733b9e1081891058daa8453a395985585f346f97d76947ce442",
+            "kind": "ParenthesizedLambdaExpression",
+            "qualifiedSymbol": "lambda expression",
+            "startLine": 1518,
+            "endLine": 1522,
+            "startColumn": 40,
+            "endColumn": 2,
+            "isCallable": true
+          },
+          "evidence": "Actual product-image route serves DB bytes, no alternate public route in this call."
+        }
+      ],
+      "inputs": "Product ID/image version received from menu, escaped into same-authority path; BitmapImage converter accepts any URI supplied by binding.",
+      "outputs_side_effects": "Framework HTTP fetch of product image, decoded/cache retained.",
+      "legitimate_purpose": "Catalogue/menu photos.",
+      "trust_boundaries": "Framework image downloader does not visibly reuse authenticated custom HttpClient; possible authentication contract gap, not exfiltration destination.",
+      "counterevidence_limitations": [
+        "SOURCE_SUPPORTED_CANDIDATE: normal URI image fetch has no bearer installation path in inspected converter; endpoint requires it. Native request headers/cache behavior NOT observed.",
+        "No image/network request performed; cannot claim observed401 or definite rendered blank from this review.",
+        "Static cache unbounded per version is separate performance risk; DecodeWidth320 mitigates decoded width, not lifetime."
+      ],
+      "classification": "SOURCE_SUPPORTED_IMAGE_AUTH_BOUNDARY_GAP_PENDING_INDEPENDENT_CHALLENGE"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

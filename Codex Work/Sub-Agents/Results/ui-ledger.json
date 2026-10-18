@@ -2,8 +2,7 @@
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "reviewer": "ui_visual",
   "counts": {
-    "REVIEWED_SOURCE": 260,
-    "NOT_ANALYZED": 14
+    "REVIEWED_SOURCE": 274
   },
   "files": [
     {
@@ -623,10 +622,213 @@
       "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
       "normalized_lf_equivalent": true,
       "file_type": ".cs",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "MANUAL_FLOW_REVIEW",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "OrderStatusLabelConverter",
+        "BoolToVisibleConverter",
+        "InverseBoolToVisibleConverter",
+        "NullToCollapsedConverter",
+        "EmptyStringToVisibleConverter",
+        "ShiftDotBrushConverter",
+        "BoolToBrushConverter",
+        "StringEqualsToBrushConverter",
+        "StringEqualsToVisibleConverter",
+        "CountGreaterThanOneToVisibleConverter",
+        "PiastresToDisplayConverter",
+        "InverseBoolConverter",
+        "EmptyCollectionToVisibleConverter",
+        "NonEmptyCollectionToVisibleConverter",
+        "CairoBusinessDateConverter",
+        "TimeOfDayConverter",
+        "NavKeyToGlyphConverter",
+        "StatusToPillBrushConverter",
+        "ImageUriToSourceConverter",
+        "ZeroCountToVisibleConverter",
+        "CountToVisibleConverter"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "OrderStatusLabelConverter",
+          "matchingSourceLines": [
+            11
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "BoolToVisibleConverter",
+          "matchingSourceLines": [
+            28,
+            37
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "InverseBoolToVisibleConverter",
+          "matchingSourceLines": [
+            37
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "NullToCollapsedConverter",
+          "matchingSourceLines": [
+            48,
+            57
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "EmptyStringToVisibleConverter",
+          "matchingSourceLines": [
+            60
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ShiftDotBrushConverter",
+          "matchingSourceLines": [
+            71
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "BoolToBrushConverter",
+          "matchingSourceLines": [
+            90,
+            103
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "StringEqualsToBrushConverter",
+          "matchingSourceLines": [
+            106
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "StringEqualsToVisibleConverter",
+          "matchingSourceLines": [
+            121
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "CountGreaterThanOneToVisibleConverter",
+          "matchingSourceLines": [
+            131
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "PiastresToDisplayConverter",
+          "matchingSourceLines": [
+            143
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "InverseBoolConverter",
+          "matchingSourceLines": [
+            160,
+            162
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "EmptyCollectionToVisibleConverter",
+          "matchingSourceLines": [
+            170,
+            179,
+            181
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "NonEmptyCollectionToVisibleConverter",
+          "matchingSourceLines": [
+            181
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "CairoBusinessDateConverter",
+          "matchingSourceLines": [
+            196
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "TimeOfDayConverter",
+          "matchingSourceLines": [
+            223
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "NavKeyToGlyphConverter",
+          "matchingSourceLines": [
+            239
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "StatusToPillBrushConverter",
+          "matchingSourceLines": [
+            277
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ImageUriToSourceConverter",
+          "matchingSourceLines": [
+            308
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ZeroCountToVisibleConverter",
+          "matchingSourceLines": [
+            335,
+            345
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "CountToVisibleConverter",
+          "matchingSourceLines": [
+            335,
+            345,
+            346
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Converters/Converters.cs.md"
     },
     {
       "path": "src/Falah.Client.CallCenterWinUI/Falah.Client.CallCenterWinUI.csproj",
@@ -3425,10 +3627,109 @@
       "worktree_sha256": "1144993977b6f66a46a50bb5cb31d5ebc448756cd8a12d4579dee0d3e82ceaad",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "OpenShiftCommand",
+        "SetOrderTypeCommand",
+        "GrandTotalDisplay",
+        "SelectCategoryCommand",
+        "VisibleProducts",
+        "ItemsSource=\"{Binding VisibleProducts}\"",
+        "IsCheckoutOpen",
+        "ChangeDuePiastres",
+        "HasCheckoutResult",
+        "IsVariantPickerOpen"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "OpenShiftCommand",
+          "matchingSourceLines": [
+            24
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SetOrderTypeCommand",
+          "matchingSourceLines": [
+            61,
+            79
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "GrandTotalDisplay",
+          "matchingSourceLines": [
+            181,
+            188,
+            358
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectCategoryCommand",
+          "matchingSourceLines": [
+            228
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "VisibleProducts",
+          "matchingSourceLines": [
+            212,
+            260
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ItemsSource=\"{Binding VisibleProducts}\"",
+          "matchingSourceLines": [
+            260
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsCheckoutOpen",
+          "matchingSourceLines": [
+            342
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ChangeDuePiastres",
+          "matchingSourceLines": [
+            366
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasCheckoutResult",
+          "matchingSourceLines": [
+            400
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsVariantPickerOpen",
+          "matchingSourceLines": [
+            317
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Views/CashierView.xaml.md"
     },
     {
       "path": "src/Falah.Client.Cashier/Views/CashierView.xaml.cs",
@@ -8917,10 +9218,92 @@
       "worktree_sha256": "cc8d56dbe18e27540467b08b2453908e87330acba5535f43bacf8764f1812aea",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SelectedHistoryDay",
+        "CanSeeReconciliation",
+        "HasBlockers",
+        "Exceptions",
+        "RetryOperationCommand",
+        "IsDayActionOpen",
+        "IsSafeDropOpen",
+        "ExceptionTarget"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SelectedHistoryDay",
+          "matchingSourceLines": [
+            30
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CanSeeReconciliation",
+          "matchingSourceLines": [
+            53
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasBlockers",
+          "matchingSourceLines": [
+            145,
+            162
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Exceptions",
+          "matchingSourceLines": [
+            211,
+            217,
+            236,
+            245
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RetryOperationCommand",
+          "matchingSourceLines": [
+            255
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsDayActionOpen",
+          "matchingSourceLines": [
+            282
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsSafeDropOpen",
+          "matchingSourceLines": [
+            304
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ExceptionTarget",
+          "matchingSourceLines": [
+            340,
+            346
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml.cs",
@@ -9038,10 +9421,130 @@
       "worktree_sha256": "a4719ca4c0b5f6ddd089aac9cf790f31fdd850c06506ab521a0d53461ccc2cbe",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SelectedDateDisplay",
+        "Statement.Sales.NetSalesPiastres",
+        "SoldProducts",
+        "ProductHourly",
+        "ExpenseLines",
+        "Statement.ShiftTotals.ShortagePiastres",
+        "Statement.TreasuryBalancesNow",
+        "Employees",
+        "Statement.Inventory.SaleConsumptionMilliUnits",
+        "Statement.Delivery.UnsettledCustodyExpectedPiastres",
+        "AuditTrail",
+        "Statement.Backup.LastVerifiedBackupAtUtc"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SelectedDateDisplay",
+          "matchingSourceLines": [
+            34
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Statement.Sales.NetSalesPiastres",
+          "matchingSourceLines": [
+            58
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SoldProducts",
+          "matchingSourceLines": [
+            133,
+            152
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ProductHourly",
+          "matchingSourceLines": [
+            158
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ExpenseLines",
+          "matchingSourceLines": [
+            178,
+            204
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Statement.ShiftTotals.ShortagePiastres",
+          "matchingSourceLines": [
+            217
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Statement.TreasuryBalancesNow",
+          "matchingSourceLines": [
+            247,
+            248,
+            249,
+            250
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Employees",
+          "matchingSourceLines": [
+            278,
+            280
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Statement.Inventory.SaleConsumptionMilliUnits",
+          "matchingSourceLines": [
+            307
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Statement.Delivery.UnsettledCustodyExpectedPiastres",
+          "matchingSourceLines": [
+            334
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "AuditTrail",
+          "matchingSourceLines": [
+            363,
+            377
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Statement.Backup.LastVerifiedBackupAtUtc",
+          "matchingSourceLines": [
+            391
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml.cs",
@@ -9068,10 +9571,78 @@
       "worktree_sha256": "0350e2896a073b98a122c39ac4e91290134a8965added42578b72d602bbd27e6",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "HasSummary",
+        "Settings.SubName",
+        "Summary.Sales.NetSalesPiastres",
+        "NetShiftDifferencePiastres",
+        "Summary.EmployeeLedger.OvertimePiastres",
+        "CashierNamesDisplay",
+        "HasNoBusinessDay"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "HasSummary",
+          "matchingSourceLines": [
+            33
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Settings.SubName",
+          "matchingSourceLines": [
+            41
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Summary.Sales.NetSalesPiastres",
+          "matchingSourceLines": [
+            62
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "NetShiftDifferencePiastres",
+          "matchingSourceLines": [
+            133
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Summary.EmployeeLedger.OvertimePiastres",
+          "matchingSourceLines": [
+            153
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CashierNamesDisplay",
+          "matchingSourceLines": [
+            177
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasNoBusinessDay",
+          "matchingSourceLines": [
+            209
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml.cs",
@@ -9537,10 +10108,86 @@
       "worktree_sha256": "049e44a2eab52ee2cb47c91f052debbd00ff3e5c8b704c1a8d242f75926ee8ee",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "Employees",
+        "OpenLedgerCommand",
+        "IsCashOutOpen",
+        "CanEditAction",
+        "IsReportOpen",
+        "IsPayOpen",
+        "EmployeeEditorView"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "Employees",
+          "matchingSourceLines": [
+            1,
+            63,
+            137
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "OpenLedgerCommand",
+          "matchingSourceLines": [
+            92
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsCashOutOpen",
+          "matchingSourceLines": [
+            211
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CanEditAction",
+          "matchingSourceLines": [
+            265,
+            268,
+            275,
+            406,
+            413,
+            418,
+            428
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsReportOpen",
+          "matchingSourceLines": [
+            292
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsPayOpen",
+          "matchingSourceLines": [
+            380
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "EmployeeEditorView",
+          "matchingSourceLines": [
+            445
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml.cs",
@@ -9658,10 +10305,104 @@
       "worktree_sha256": "7827f5daf0c56d8258754883dd4c9df76814175a01390884bc172a3375d4d81a",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "StockValueCaveat",
+        "SelectedItem",
+        "RecentMovements",
+        "DetailMovements",
+        "CountSheet",
+        "CountedText",
+        "CountSheetProgressLabel",
+        "InventoryModalsView"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "StockValueCaveat",
+          "matchingSourceLines": [
+            60,
+            62
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SelectedItem",
+          "matchingSourceLines": [
+            138,
+            285,
+            286
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "RecentMovements",
+          "matchingSourceLines": [
+            235,
+            263
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DetailMovements",
+          "matchingSourceLines": [
+            374,
+            402
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CountSheet",
+          "matchingSourceLines": [
+            33,
+            435,
+            436,
+            458,
+            509,
+            512,
+            513,
+            516,
+            518,
+            520,
+            522,
+            523,
+            525
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CountedText",
+          "matchingSourceLines": [
+            478
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CountSheetProgressLabel",
+          "matchingSourceLines": [
+            435
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "InventoryModalsView",
+          "matchingSourceLines": [
+            536
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/InventoryView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/InventoryView.xaml.cs",
@@ -10077,10 +10818,103 @@
       "worktree_sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "VisibleAttention",
+        "Metrics",
+        "SeriesPoints",
+        "FractionToWidthConverter",
+        "DriverSettlementNote",
+        "MoneyOrUnknownConverter",
+        "Data.Leakage",
+        "PrintRoutes",
+        "HasData"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "VisibleAttention",
+          "matchingSourceLines": [
+            62
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Metrics",
+          "matchingSourceLines": [
+            108
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SeriesPoints",
+          "matchingSourceLines": [
+            162
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FractionToWidthConverter",
+          "matchingSourceLines": [
+            187
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DriverSettlementNote",
+          "matchingSourceLines": [
+            199,
+            201
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "MoneyOrUnknownConverter",
+          "matchingSourceLines": [
+            257,
+            260,
+            269
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Data.Leakage",
+          "matchingSourceLines": [
+            295,
+            298,
+            301,
+            304,
+            307
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "PrintRoutes",
+          "matchingSourceLines": [
+            386
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasData",
+          "matchingSourceLines": [
+            44
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml.cs",
@@ -10663,10 +11497,84 @@
       "worktree_sha256": "6d6d87cd0703d327ddbd5210aa92c85e907e360097c14e223e1114b3690f1c63",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SelectedRecipe",
+        "Coverage",
+        "Detail.ProductName",
+        "DetailCostDisplay",
+        "DetailLines",
+        "EditorLines",
+        "CancelEditCommand"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SelectedRecipe",
+          "matchingSourceLines": [
+            78
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Coverage",
+          "matchingSourceLines": [
+            39,
+            48,
+            50,
+            51,
+            53
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Detail.ProductName",
+          "matchingSourceLines": [
+            184
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DetailCostDisplay",
+          "matchingSourceLines": [
+            211
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "DetailLines",
+          "matchingSourceLines": [
+            272,
+            319
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "EditorLines",
+          "matchingSourceLines": [
+            350,
+            396
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CancelEditCommand",
+          "matchingSourceLines": [
+            436
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/RecipesView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml.cs",
@@ -10728,10 +11636,102 @@
       "worktree_sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "IsSpecificDay",
+        "HasData",
+        "Sales.CollectedSalesPiastres",
+        "Sales.OffersValuePiastres",
+        "TopItems",
+        "ProductHours",
+        "Delivery.FailedCount",
+        "FoodCostBasisNote",
+        "SignificantActions"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "IsSpecificDay",
+          "matchingSourceLines": [
+            34,
+            40,
+            45
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "HasData",
+          "matchingSourceLines": [
+            59
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Sales.CollectedSalesPiastres",
+          "matchingSourceLines": [
+            78
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Sales.OffersValuePiastres",
+          "matchingSourceLines": [
+            158
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "TopItems",
+          "matchingSourceLines": [
+            181,
+            199
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ProductHours",
+          "matchingSourceLines": [
+            208,
+            237
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Delivery.FailedCount",
+          "matchingSourceLines": [
+            292
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FoodCostBasisNote",
+          "matchingSourceLines": [
+            341,
+            343
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SignificantActions",
+          "matchingSourceLines": [
+            396,
+            410
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/ReportsView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml.cs",
@@ -11038,10 +12038,85 @@
       "worktree_sha256": "8556d0c5e0e5b562b4550a9fff6684265f97a9da8905f50a3a0c0720183bcc3f",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "CanSeeShiftTotals",
+        "History",
+        "ReprintShiftOpenCommand",
+        "IsCloseShiftModalOpen",
+        "IsCloseShiftCounting",
+        "CancelCloseShiftModalCommand",
+        "IsOpenShiftModalOpen"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "CanSeeShiftTotals",
+          "matchingSourceLines": [
+            82,
+            138
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "History",
+          "matchingSourceLines": [
+            154,
+            161,
+            164,
+            184,
+            261
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ReprintShiftOpenCommand",
+          "matchingSourceLines": [
+            246
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsCloseShiftModalOpen",
+          "matchingSourceLines": [
+            277
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsCloseShiftCounting",
+          "matchingSourceLines": [
+            289,
+            312
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "CancelCloseShiftModalCommand",
+          "matchingSourceLines": [
+            283,
+            304
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsOpenShiftModalOpen",
+          "matchingSourceLines": [
+            369
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml.cs",
@@ -11068,10 +12143,74 @@
       "worktree_sha256": "3cb8beacf1ca5d83da4dddd9b9cd1afdeccd9f783ef11392f474ef0ae330d4f7",
       "normalized_lf_equivalent": true,
       "file_type": ".xaml",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "NOT_APPLICABLE",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "Balances",
+        "FilterByAccountCommand",
+        "Movements",
+        "IsActionOpen",
+        "SubmitTreasuryActionCommand",
+        "ActionNote"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "Balances",
+          "matchingSourceLines": [
+            7,
+            45
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "FilterByAccountCommand",
+          "matchingSourceLines": [
+            56,
+            122
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "Movements",
+          "matchingSourceLines": [
+            149,
+            208,
+            216
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "IsActionOpen",
+          "matchingSourceLines": [
+            232
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "SubmitTreasuryActionCommand",
+          "matchingSourceLines": [
+            290
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        },
+        {
+          "anchor": "ActionNote",
+          "matchingSourceLines": [
+            226,
+            227
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_XAML_RESOURCE_BINDING"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/TreasuryView.xaml.md"
     },
     {
       "path": "src/Falah.Client.CashierWinUI/Views/TreasuryView.xaml.cs",
@@ -11682,10 +12821,191 @@
       "worktree_sha256": "d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c",
       "normalized_lf_equivalent": true,
       "file_type": ".cs",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "MANUAL_FLOW_REVIEW",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+        "Json(string text, HttpStatusCode status = HttpStatusCode.OK)",
+        "Session(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+        "Pickup_checkout_sends_the_identity_collected_by_the_form()",
+        "SimpleLambdaExpression",
+        "Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()",
+        "SimpleLambdaExpression",
+        "Daily_statement_reloads_if_the_date_changes_while_loading()",
+        "SimpleLambdaExpression",
+        "Daily_statement_never_shows_a_response_for_a_date_no_longer_selected()",
+        "SimpleLambdaExpression",
+        "The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint()",
+        "Record(HttpRequestMessage request)",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed()",
+        "SimpleLambdaExpression",
+        "The_offered_float_is_capped_by_what_the_main_treasury_holds()",
+        "SimpleLambdaExpression"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+          "matchingSourceLines": [
+            16
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Json(string text, HttpStatusCode status = HttpStatusCode.OK)",
+          "matchingSourceLines": [
+            18
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Session(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+          "matchingSourceLines": [
+            20
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Pickup_checkout_sends_the_identity_collected_by_the_form()",
+          "matchingSourceLines": [
+            25
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()",
+          "matchingSourceLines": [
+            47
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Daily_statement_reloads_if_the_date_changes_while_loading()",
+          "matchingSourceLines": [
+            69
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Daily_statement_never_shows_a_response_for_a_date_no_longer_selected()",
+          "matchingSourceLines": [
+            90
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint()",
+          "matchingSourceLines": [
+            122
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Record(HttpRequestMessage request)",
+          "matchingSourceLines": [
+            125
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed()",
+          "matchingSourceLines": [
+            155
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "The_offered_float_is_capped_by_what_the_main_treasury_holds()",
+          "matchingSourceLines": [
+            187
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/CloseoutRegressionTests.cs.md"
     },
     {
       "path": "tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs",
@@ -11868,10 +13188,484 @@
       "worktree_sha256": "bb47f9de7691ca50570694451b00545eb3aabdd26876011cd5c01d9a13c4bd00",
       "normalized_lf_equivalent": true,
       "file_type": ".cs",
-      "status": "NOT_ANALYZED",
-      "fileReviewed": false,
-      "function_review": "NOT_ANALYZED",
-      "visual_verification": "NOT_TESTED"
+      "status": "REVIEWED_SOURCE",
+      "fileReviewed": true,
+      "function_review": "MANUAL_FLOW_REVIEW",
+      "visual_verification": "NOT_TESTED",
+      "functionReviewAnchors": [
+        "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+        "Json(string json, HttpStatusCode status = HttpStatusCode.OK)",
+        "Http(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+        "Session(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+        "ReadFixture(string path)",
+        "Secondary_read_failure_is_visible_and_retry_recovers(string module, string failedPath)",
+        "Missing_blocker_response_never_means_business_day_can_close()",
+        "Failed_expenses_are_not_presented_as_a_zero_expense_report()",
+        "Stepping_a_day_switches_the_screen_onto_that_day()",
+        "Choosing_a_week_asks_every_report_for_the_whole_span()",
+        "WaitForIdleAsync(ReportsViewModel vm)",
+        "Changing_report_date_during_a_read_reloads_a_consistent_new_date()",
+        "Printing_empty_state_is_notified_after_loading_finishes()",
+        "Payroll_does_not_show_a_failed_line_read_as_zero_payable()",
+        "Payroll_approval_permission_alone_does_not_bypass_the_management_gate()",
+        "Control_center_view_permission_cannot_change_the_close_checklist()",
+        "Treasury_retries_original_payload_and_blocks_abandonment_after_an_unknown_outcome(string action)",
+        "Treasury_definite_rejection_allows_correction_and_releases_the_session()",
+        "Call_center_recovers_each_operators_own_draft_after_switching_back()",
+        "Electronic_payment_decision_cannot_switch_or_be_abandoned_after_response_loss(bool confirm)",
+        "Call_center_reprint_retries_the_original_request_and_prevents_abandonment()",
+        "Call_center_keeps_unresolved_request_after_a_later_rejection()",
+        "Call_center_lock_waits_for_an_in_flight_operation_then_returns_to_login()",
+        "Call_center_no_longer_requests_its_own_tickets_after_checkout()",
+        "Call_center_says_so_when_the_server_could_not_queue_the_tickets()",
+        "Call_center_estimate_uses_the_existing_tax_rules(string mode, long expected)",
+        "SimpleLambdaExpression",
+        "Load()",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "ParenthesizedLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "ParenthesizedLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression",
+        "SimpleLambdaExpression"
+      ],
+      "reviewedUnits": [
+        {
+          "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+          "matchingSourceLines": [
+            13
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Json(string json, HttpStatusCode status = HttpStatusCode.OK)",
+          "matchingSourceLines": [
+            16
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Http(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+          "matchingSourceLines": [
+            19
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Session(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+          "matchingSourceLines": [
+            22
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ReadFixture(string path)",
+          "matchingSourceLines": [
+            25
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Secondary_read_failure_is_visible_and_retry_recovers(string module, string failedPath)",
+          "matchingSourceLines": [
+            51
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Missing_blocker_response_never_means_business_day_can_close()",
+          "matchingSourceLines": [
+            75
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Failed_expenses_are_not_presented_as_a_zero_expense_report()",
+          "matchingSourceLines": [
+            93
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Stepping_a_day_switches_the_screen_onto_that_day()",
+          "matchingSourceLines": [
+            107
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Choosing_a_week_asks_every_report_for_the_whole_span()",
+          "matchingSourceLines": [
+            133
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "WaitForIdleAsync(ReportsViewModel vm)",
+          "matchingSourceLines": [
+            154
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Changing_report_date_during_a_read_reloads_a_consistent_new_date()",
+          "matchingSourceLines": [
+            160
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Printing_empty_state_is_notified_after_loading_finishes()",
+          "matchingSourceLines": [
+            187
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Payroll_does_not_show_a_failed_line_read_as_zero_payable()",
+          "matchingSourceLines": [
+            203
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Payroll_approval_permission_alone_does_not_bypass_the_management_gate()",
+          "matchingSourceLines": [
+            216
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Control_center_view_permission_cannot_change_the_close_checklist()",
+          "matchingSourceLines": [
+            228
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Treasury_retries_original_payload_and_blocks_abandonment_after_an_unknown_outcome(string action)",
+          "matchingSourceLines": [
+            250
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Treasury_definite_rejection_allows_correction_and_releases_the_session()",
+          "matchingSourceLines": [
+            285
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_recovers_each_operators_own_draft_after_switching_back()",
+          "matchingSourceLines": [
+            300
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Electronic_payment_decision_cannot_switch_or_be_abandoned_after_response_loss(bool confirm)",
+          "matchingSourceLines": [
+            320
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_reprint_retries_the_original_request_and_prevents_abandonment()",
+          "matchingSourceLines": [
+            356
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_keeps_unresolved_request_after_a_later_rejection()",
+          "matchingSourceLines": [
+            388
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_lock_waits_for_an_in_flight_operation_then_returns_to_login()",
+          "matchingSourceLines": [
+            427
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_no_longer_requests_its_own_tickets_after_checkout()",
+          "matchingSourceLines": [
+            450
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_says_so_when_the_server_could_not_queue_the_tickets()",
+          "matchingSourceLines": [
+            501
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Call_center_estimate_uses_the_existing_tax_rules(string mode, long expected)",
+          "matchingSourceLines": [
+            532
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "Load()",
+          "matchingSourceLines": [
+            65,
+            66,
+            70
+          ],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ParenthesizedLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "ParenthesizedLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        },
+        {
+          "anchor": "SimpleLambdaExpression",
+          "matchingSourceLines": [],
+          "reviewed": true,
+          "reviewKind": "MANUAL_DATAFLOW"
+        }
+      ],
+      "report": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/FinalVerificationTests.cs.md"
     },
     {
       "path": "tests/Falah.Client.Tests/HeaderViewModel.cs",

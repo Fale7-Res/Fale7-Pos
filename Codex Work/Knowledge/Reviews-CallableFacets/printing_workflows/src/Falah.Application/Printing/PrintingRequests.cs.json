@@ -1,0 +1,257 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:08:06.277129+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+  "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-5029cdb4479a97adc717c680057a3b2801e2bb5e6f6cafcbd52f28b33bead951",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.CreatePrintJobsRequest::record-generated-behavior",
+      "source_span": [
+        15,
+        21
+      ],
+      "reasoning": "CreatePrintJobsRequest stores request/order identity,nullable CustomerRoute,reprint flag,actor,IncludeKitchenRoutes defaulttrue and optionalReason. Generated with-copy preserves default true unless explicitly changed;IsReprint alone does NOT suppress kitchen routes,handler branches solely IncludeKitchenRoutes. This explains CallCenter copy risk. Null CustomerRoute means no customer job in CreatePrintJobsHandler (not automatic Receipt here);kitchen derives frozen OrderItem stations. Scalar equality is not request-key replay.",
+      "inputs": "Seven input fields;optional tail default kitchen true/reasonnull.",
+      "outputs": "JSON queue instruction,not send/paper.",
+      "side_effects": "No side effect until handler creates jobs/audit.",
+      "trust_boundaries": "ActorUserId existence only in this handler,not menu/print privilege predicate;global session actor middleware separate.",
+      "database": "CreatePrintJobsHandler32-99 replay by RequestId,order reads,job inserts only.",
+      "printing_ui": "No order/payment/inventory writes;reprint copy can still request kitchen preparation tickets.",
+      "performance": "Small record;job count bounded by derived routes,not constructor.",
+      "duplicates_conflicts": "with same RequestId changed routes returns previous set;record equality no payload digest.",
+      "issues_hypotheses": "Default IncludeKitchen true must be explicit when customer-only intended.",
+      "tests_missing": [
+        "Omitted kitchen flag with IsReprint true,CustomerRoute null,with-copy retrykey and same order snapshot routing"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs15-21",
+        "CreatePrintJobsHandler.cs32-99",
+        "CallCenter.Checkout.ReprintLookedUpOrderAsync",
+        "Cashier explicit IncludeKitchenRoutes=false"
+      ]
+    },
+    {
+      "stable_id": "sym-c24fd652df188a97191f3f6c4b62b2cff2f5b0889236729b078ee6b1e1c873cb",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.ReprintDocumentRequest::record-generated-behavior",
+      "source_span": [
+        26,
+        27
+      ],
+      "reasoning": "ReprintDocumentRequest carries RequestId,DocumentKind,DocumentId,ActorUserId and optional reason for nonorder shift/expense slips. Generated constructor/copy validates neither kind nor document existence;handler parses kind,rejects Order,checks existing shift/closed shift/expense then builds only PrintJob+audit. No receipt implies reopen or re-spend. ToString includes reason/document identity but no PIN.",
+      "inputs": "Five scalar/nullable fields.",
+      "outputs": "JSON slip reprint command.",
+      "side_effects": "Record allocation only;no financial effect.",
+      "trust_boundaries": "Body selected actor loaded for attribution;no extra permission in shown handler.",
+      "database": "ReprintDocumentHandler27-75 reads existence and queues deterministic job;DTO no SQL.",
+      "printing_ui": "Copied closed-shift slip not new close;expense voucher not expense payment.",
+      "performance": "Constant fields,reason potentially unbounded string.",
+      "duplicates_conflicts": "Same RequestId prior jobs replay regardless changed kind/id;new request means genuinely new reprint.",
+      "issues_hypotheses": "Enum parse alone accepts numeric unknown;downstream kind switch validity requires explicit domain proof.",
+      "tests_missing": [
+        "Order kind refused,missing closed state,unknown numerickind,reason omitted,replayed ID changed document"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs26-27",
+        "ReprintDocumentHandler.HandleAsync27-75",
+        "DocumentPrintJobs.Build"
+      ]
+    },
+    {
+      "stable_id": "sym-0c11a61c215d3e2674a34a6402e300af349279a4d1ff7ba6a0b79b9e45cd5f60",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.PrintJobDto::record-generated-behavior",
+      "source_span": [
+        29,
+        31
+      ],
+      "reasoning": "PrintJobDto projects job identity,OrderId/Number,Route/Status,attempt count,last time/error,reprint and createdtime. Generated properties do not poll or validate enum strings;value equality snapshots metadata only. Nonorder document jobs may encode synthetic order identity through DocumentPrintJobs,so OrderId is not necessarily actual sale foreign key. Error may contain machine paths/transport destination from agent. Succeeded is reporter/transport state,not paper proof.",
+      "inputs": "Ten stored queue fields.",
+      "outputs": "Job view/API polling row.",
+      "side_effects": "No retry/printing from constructor/copy.",
+      "trust_boundaries": "Read DTO can expose error/device metadata;not authority to mark job succeeded.",
+      "database": "CreatePrintJobsHandler.ToDto102-104,PrintJobQueryService queries;record no DB.",
+      "printing_ui": "AttemptCount not receipt copies;IsReprint not suppressed kitchen;PRT002 physical distinction.",
+      "performance": "Scalar/string equality small but Error length variable.",
+      "duplicates_conflicts": "with copy locally alters state but cannot commit;two queries may produce equal job with different unseen attempt history.",
+      "issues_hypotheses": "Status enum validity and order/document interpretation enforced elsewhere.",
+      "tests_missing": [
+        "Nonorder job identity,nullable error/times,huge error,pending/success not physical paper"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs29-31",
+        "CreatePrintJobsHandler.ToDto",
+        "DocumentPrintJobs.Build",
+        "PrintJobProcessor error formatting"
+      ]
+    },
+    {
+      "stable_id": "sym-5fa74c36d8070f7eee7e86f9b5f1dd10b4b83e44102b6c0aa305732b24dd66ce",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.PrintRouteStatusDto::record-generated-behavior",
+      "source_span": [
+        40,
+        42
+      ],
+      "reasoning": "PrintRouteStatusDto contains route and current Pending/Failed/Stuck counts,oldest pending time,last success time. Constructor does not enforce Stuck<=Pending or zero pending implies null oldest. Query computes stuck from5minute age and success from loaded2day window;record generated equality compares exact timestamps/counts,not actual printer online state. No heartbeat/device-health property exists.",
+      "inputs": "Route,three ints,two nullable timestamps.",
+      "outputs": "Queue-derived route summary.",
+      "side_effects": "No probe or job mutation.",
+      "trust_boundaries": "Server computed queue observation,not agent-authenticated hardware heartbeat.",
+      "database": "PrintJobQueryService49-68 producer;record no SQL.",
+      "printing_ui": "Failed/stuck differentiations UI;last succeeded may be null outside query lookback despite historical paper.",
+      "performance": "Constant scalar behavior;route count six producer.",
+      "duplicates_conflicts": "with inconsistent counts possible;value equality not dependable printer-health check.",
+      "issues_hypotheses": "Age threshold merely queue symptom,not verified printer fault.",
+      "tests_missing": [
+        "Stuck threshold boundary,old success outside2days,zero pending nulloldest,counts consistency"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs40-42",
+        "PrintJobQueryService.GetOverviewAsync49-68"
+      ]
+    },
+    {
+      "stable_id": "sym-0afde8f5ac542b6cf4cd9d0b5e77adbeebdc6bb1b2c30517d330371fb00d5320",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.PrintingOverviewDto::record-generated-behavior",
+      "source_span": [
+        44,
+        47
+      ],
+      "reasoning": "PrintingOverviewDto stores Routes and NeedsAttention IReadOnlyList refs plus total counts. Generated with-copy/equality is shallow for both lists;no recompute totals from route modifications. Producer includes6route summaries and attention capped60 while totals cover all loaded jobs,so NeedsAttention.Count need not equal total failed+stuck. Generated record does not claim queue ownership/lease or printer state.",
+      "inputs": "Two list references,three total ints.",
+      "outputs": "Composite queue overview JSON.",
+      "side_effects": "No print/retry/claim.",
+      "trust_boundaries": "Session-visible operation/error metadata;constructor no policy.",
+      "database": "PrintJobQueryService49-86 reads current/recent jobs;DTO no SQL.",
+      "printing_ui": "UI must display6routes or explicitly hide;record not4printer topology limit.",
+      "performance": "List serialization vs source full query;no paging token generated.",
+      "duplicates_conflicts": "Copies share backing lists;independent deserialized equalcontent records may compare unequal.",
+      "issues_hypotheses": "Attention cap60 means overview list not exhaustive matching totals.",
+      "tests_missing": [
+        "More60failed,route total consistency,shallow list alias,all6 routes and no physical status inference"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs44-47",
+        "PrintJobQueryService49-86",
+        "PrintingViewModel route cards"
+      ]
+    },
+    {
+      "stable_id": "sym-d9becc95ec77928cd2dc2b2123a72a8b4a31e506a2f14a56a1b750d8618c5d93",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.CreatePrintJobsResult::record-generated-behavior",
+      "source_span": [
+        49,
+        49
+      ],
+      "reasoning": "CreatePrintJobsResult stores Jobs IReadOnlyList and WasReplayed. Generated constructor/copy holds list reference and does not confirm print jobs all share intended order/request/route;handler returns existing set by CreateRequestId or newly inserted. WasReplayed means queue insertion reused,not physical retransmission or regenerated sale. No content bytes or paper receipt in result.",
+      "inputs": "List<PrintJobDto> reference,replay bool.",
+      "outputs": "Queue creation/reprint acknowledgement.",
+      "side_effects": "Allocation only,no send.",
+      "trust_boundaries": "Server acknowledged queue rows;client-created copy no print authority.",
+      "database": "CreatePrintJobs/ReprintDocument return after Save/replay;record no SQL.",
+      "printing_ui": "Jobs Pending expected;not success paper;financial state unchanged by queue creation.",
+      "performance": "List size routes,shallow equality/reference.",
+      "duplicates_conflicts": "with-copy Jobs alias;WasReplayed may differ same job list response after retry.",
+      "issues_hypotheses": "Idempotency stored by RequestId,not generated equality.",
+      "tests_missing": [
+        "Same-key replay jobIDs,new-key reprint jobs,empty preventedhandler,list alias/JSON semantic compare"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs49",
+        "CreatePrintJobsHandler.HandleAsync",
+        "ReprintDocumentHandler.HandleAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-bb8ef2ae33030258bae34f1a88c101a4592116127192110f5980056c0d6e856e",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.ReportPrintJobResultRequest::record-generated-behavior",
+      "source_span": [
+        56,
+        56
+      ],
+      "reasoning": "ReportPrintJobResultRequest holds stable perattempt RequestId,PrintJobId,Succeeded,Error? and ReportedByUserId. Constructor/with adds no reporter-machine ownership or independent hardware measurement;handler checks reporter exists,locks job,updates status and appends attempt. Processor persists same RequestId before send and reuses after network failure;copying with new ID represents another attempt and increments count. Succeeded only caller transport observation.",
+      "inputs": "Five report fields.",
+      "outputs": "JSON attempt observation.",
+      "side_effects": "No state update until report handler.",
+      "trust_boundaries": "ReportedByUserId middleware/body identity boundary;any real reporter row not proof route ownership.",
+      "database": "ReportPrintJobResultHandler23-77 updates job/attempt atomically,replay by request key;record no SQL.",
+      "printing_ui": "Cannot prove paper;Error cleared on succeeded handler;failed uncertain journal requires manual inspection.",
+      "performance": "Small record,Error size maylarge;retry serializes same payload.",
+      "duplicates_conflicts": "with changed PrintJobId but same key can receive current otherjob on replay;no payload match validation.",
+      "issues_hypotheses": "Reporter-supplied status rather than device-attested state.",
+      "tests_missing": [
+        "Same attempt retry one count,new attempt count++,crossjob reusedkey,false/true conflicting body,secret-free error formatting"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs56",
+        "ReportPrintJobResultHandler.cs23-77",
+        "PrintJobProcessor.ProcessAsync/ReportAsync",
+        "UnreportedAttemptStore.StoredAttempt"
+      ]
+    },
+    {
+      "stable_id": "sym-438d909789f0df2818cf238d07f74ffb0010b85a6009ef596c123a9ac00b85a9",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.PrintJobAttemptDto::record-generated-behavior",
+      "source_span": [
+        58,
+        58
+      ],
+      "reasoning": "PrintJobAttemptDto contains AttemptedAtUtc,Succeeded,nullableError and ReportedBy display name. Generated scalar equality captures exact reported observation,not attempt stable ID (not included). Attempts query cannot uniquely identify same-time attempts from DTO fields alone,and caller-reported name/status not device acknowledgement. ToString includes error/name,so broad logging may reveal paths/user attribution.",
+      "inputs": "Four attempt projection fields.",
+      "outputs": "Attempt history row.",
+      "side_effects": "No retry or report submission.",
+      "trust_boundaries": "Persisted observation read boundary,not signed printer evidence.",
+      "database": "PrintJobQueryService88-97 projects stored attempts;record no SQL.",
+      "printing_ui": "Succeeded still PRT002 transport-only;time reporter server recorded.",
+      "performance": "Small scalar view;history size query unbounded.",
+      "duplicates_conflicts": "Equality can collapse distinct identical same-time attempts if consumers dedupe by DTO;no such actual dedupe established.",
+      "issues_hypotheses": "No attempt/requestID available in contract.",
+      "tests_missing": [
+        "Same-time identical attempts retained,nullableerror,reportedname changes,history order tie"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs58",
+        "PrintJobQueryService.GetJobDetailsAsync88-97"
+      ]
+    },
+    {
+      "stable_id": "sym-07f685667c30c711b6dedebc522e46689d50dc14314fd31b1c1956bd1c1d1d53",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.PrintJobDetailsDto::record-generated-behavior",
+      "source_span": [
+        60,
+        60
+      ],
+      "reasoning": "PrintJobDetailsDto stores Job record reference and IReadOnlyList Attempts. Generated shallow copy aliases attempts and compares list references,not job/attempt consistency. Query reads job then attempts separately without snapshot,so summary count/status and list can reflect different instants. Record constructor performs no consistency validation or status refresh;this is detail,not ticket image preview.",
+      "inputs": "PrintJobDto plus attempt list.",
+      "outputs": "Composite history detail response.",
+      "side_effects": "No queue update,renderer,printer.",
+      "trust_boundaries": "Read boundary exposes LastError/reporter metadata;not authority to retry.",
+      "database": "PrintJobQueryService88-97 two reads,record no SQL.",
+      "printing_ui": "Job details not faithful paper preview;no content bytes.",
+      "performance": "Unbounded history serialization;record generation no lazy loading.",
+      "duplicates_conflicts": "with-copy shares attempts;equalcontent JSON lists compare unequal;concurrent new attempt not fixed by immutable record syntax.",
+      "issues_hypotheses": "Two-query snapshot mismatch.",
+      "tests_missing": [
+        "Append attempt between reads,large history,list alias,JSON semantic equality and no render invoked"
+      ],
+      "verified_callers_callees": [
+        "PrintingRequests.cs60",
+        "PrintJobQueryService.GetJobDetailsAsync88-97"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

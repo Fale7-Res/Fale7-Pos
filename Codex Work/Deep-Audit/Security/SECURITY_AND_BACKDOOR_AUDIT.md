@@ -1,3 +1,15 @@
+# Current defensive review update — 2026-10-17
+
+Audit remains IN_PROGRESS; older body below is retained for provenance.
+
+SEC-001 now has10 asserted in-memory real MinimalAPI binding cases, all passed their expected branch assertions: [saved result](../../Knowledge/Flows/SEC-001/minimal-api-binding-results.json). Baseline middleware and DTO linked unchanged, fake session; no live privileged command, server listener or database invocation. An independently traced ClosedByUserId omission is [saved separately](../../Knowledge/Flows/SEC-001/closed-by-alias-independent-trace.json); actual handler reproduction remains unexecuted.
+
+SEC-003 HIGH: source-confirmed employee profile reads lack employees_manage or explicit self-access restriction. Program685-691 forwards reads to EmployeeQueryService61-85 fullDTO, including compensation and personal identifier field references. Authentication remains required; fingerprint reference is not a raw biometric template. Printing reviewer and parent independently traced the source. No live employee rows, identifiers or responses were accessed. Canonical evidence/remediation/test plan: [manual registry](manual-security-findings.json), recordSEC-003; [master registry](../MASTER_FINDINGS.json). Related ledger/attendance/payroll read endpoints are source-supported broader scope candidates pending canonical extension and policy challenge.
+
+Parent independent route-depth review58/130 complete at this checkpoint; unique wording/schema alone never certifies depth. Privileged financial commands still enforce their own balances/state/approval guards; evidence must distinguish identity substitution from bypass of those independent constraints.
+
+---
+
 # Security and hidden-behavior audit — partial manual continuation
 
 Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. **IN PROGRESS**. This is not a complete repository security verdict. The plugin launch is blocked; ordinary static review and independent challenges continue. No application fixes or live security mutations were performed.

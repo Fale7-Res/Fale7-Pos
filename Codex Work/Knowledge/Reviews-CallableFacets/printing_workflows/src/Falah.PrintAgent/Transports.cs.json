@@ -1,0 +1,101 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/Transports.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:01:24.744455+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-1d90e66aaef73d81188afdbff8ccf19a03bef597653503b36331f77d1e7ff801",
+      "status": "ANALYZED",
+      "source_name": "Falah.PrintAgent.NetworkTicketTransport.Description::get()",
+      "source_span": [
+        21,
+        21
+      ],
+      "reasoning": "NetworkTicketTransport.Description interpolates configured host and port as network host:port. It is read for startup/attempt logs and reported error context,not used to establish a connection;SendAsync separately uses those fields. Getting it cannot prove reachability,bytes accepted or physical paper. IPv6 hosts are unbracketed in description and potentially ambiguous but actual socket call uses original host string.",
+      "inputs": "_host string and _port int set by constructor.",
+      "outputs": "Fresh diagnostic string.",
+      "side_effects": "String allocation only,no TCP attempt.",
+      "trust_boundaries": "Configuration-to-log/server error boundary exposes printer network address;no credentials or PIN field used.",
+      "database": "Getter no DB;processor error may later persist string in print result.",
+      "printing_ui": "Diagnostic route identification,not print state.",
+      "performance": "O(host length) string allocation per logging read.",
+      "duplicates_conflicts": "No identity/parser contract;two differently formatted configs may log similarly.",
+      "issues_hypotheses": [
+        "Unbracketed IPv6 diagnostic ambiguity;not socket parsing defect"
+      ],
+      "tests_missing": [
+        "Host/port exact output and no socket side effect;IPv6 diagnostics"
+      ],
+      "verified_callers_callees": [
+        "Transports.cs14-21 constructor/getter",
+        "SendAsync23-32",
+        "PrintJobProcessor.cs111,121"
+      ]
+    },
+    {
+      "stable_id": "sym-80141edf0c1b52335029f14661d9a8593d600b8f3690cd9345ef041f958c2cfa",
+      "status": "ANALYZED",
+      "source_name": "Falah.PrintAgent.SerialTicketTransport.Description::get()",
+      "source_span": [
+        49,
+        49
+      ],
+      "reasoning": "SerialTicketTransport.Description returns serial portName@baudRate from constructor fields. Getter performs no COM enumeration/open/flush and does not verify speed matches hardware;those actions occur only in SendAsync. It is logged for both success and failure,so a diagnostic string is not evidence a serial printer acknowledged output.",
+      "inputs": "_portName and _baudRate immutable fields.",
+      "outputs": "Fresh serial diagnostic string.",
+      "side_effects": "Allocation only,no serial device operation.",
+      "trust_boundaries": "Local serial configuration exposed to operator/server error log;no auth secret.",
+      "database": "No DB read/write in getter.",
+      "printing_ui": "Distinguishes configured serial destination/speed from physical print proof.",
+      "performance": "Constant fields/string formatting,no hardware wait.",
+      "duplicates_conflicts": "No status/retry/idempotency semantics;same getter value across multiple attempts.",
+      "issues_hypotheses": [
+        "Successful transport label cannot distinguish buffer flush from paper"
+      ],
+      "tests_missing": [
+        "PortName/baud formatting including odd configured names;getter no COM open"
+      ],
+      "verified_callers_callees": [
+        "Transports.cs42-49",
+        "SendAsync51-64",
+        "PrintJobProcessor.cs111,121"
+      ]
+    },
+    {
+      "stable_id": "sym-63156e1600883344976dc55047725f03288a39916707fdbc45958ca7c0352fc2",
+      "status": "ANALYZED",
+      "source_name": "Falah.PrintAgent.FileTicketTransport.Description::get()",
+      "source_span": [
+        80,
+        80
+      ],
+      "reasoning": "FileTicketTransport.Description explicitly includes file directory and no physical printing suffix. This is safety-relevant messaging consumed by processor logs;it does not perform write or create directory. Constructor already creates directory separately,while SendAsync writes timestamped escpos file. Getter therefore must remain distinguishable from hardware success and cannot be read as printer availability.",
+      "inputs": "_directory constructor field.",
+      "outputs": "file <directory> (no physical printing) diagnostic.",
+      "side_effects": "Only string allocation;Directory.CreateDirectory belongs constructor,not getter.",
+      "trust_boundaries": "Local output path can enter server print error/logs;no file content or secret read.",
+      "database": "No DB operation.",
+      "printing_ui": "Explicit verification-only transport marker counters claiming successful file output means physical receipt.",
+      "performance": "Linear string length,no disk I/O here.",
+      "duplicates_conflicts": "No unique attempt/file path exposed by getter;all same-directory attempts share description.",
+      "issues_hypotheses": [
+        "Directory path disclosure in broad print detail read remains prior boundary concern"
+      ],
+      "tests_missing": [
+        "Suffix retained for paths with spaces,relative/absolute paths;no write from getter"
+      ],
+      "verified_callers_callees": [
+        "Transports.cs74-80",
+        "SendAsync82-86",
+        "PrintJobProcessor.cs111,121"
+      ]
+    }
+  ],
+  "source_git_blob_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+  "worktree_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

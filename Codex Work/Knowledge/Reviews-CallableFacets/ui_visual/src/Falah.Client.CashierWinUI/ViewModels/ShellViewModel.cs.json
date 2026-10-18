@@ -1,0 +1,111 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:07:41.391190+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-c7f0b70fffe0cd929359792f97ed8bb8c9d6e7f6e18a4eea314db361a347a4fe",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel.Header::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        33,
+        5,
+        33,
+        46
+      ],
+      "reasoning": "Returns shared rootheader reference, avoiding perpage timers/newidentityobjects. No navigation or network sideeffect.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Session/header auth consistency parentreviewed.",
+      "tests_missing": "Session/header auth consistency parentreviewed. NOT_EXECUTED.",
+      "verified_callers_callees": "_header"
+    }
+  ],
+  "source_git_blob_sha256": "332d91a8710324eadba28d1b9811383f83dc3e68d6ab763a78e477eeb805978f",
+  "worktree_sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-49da34039c1c96c3ac1e541299ff104c97088f271bd292782946dd61080d8ab7",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel._currentPage::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        21,
+        42,
+        21,
+        54
+      ],
+      "reasoning": "Observable CurrentPage notifies ShellView propertylistener, which constructs actual viewfor typedVM. Changing page does not automatically dispose priorVM or cancel tasks; caches retainoperationaldrafts.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Eventlifetimes and retainedpending guards separatelyanalyzed.",
+      "tests_missing": "Eventlifetimes and retainedpending guards separatelyanalyzed. NOT_EXECUTED.",
+      "verified_callers_callees": "ShellView.ApplyCurrentPage; Navigate"
+    },
+    {
+      "stable_id": "sym-26a476ac6096d2c218456940754560a5d477b042ba2cf412f6765c1d6cd017e6",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel._selectedItem::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        22,
+        48,
+        22,
+        61
+      ],
+      "reasoning": "Observable SelectedItem updates group highlight through ShellView listener. It is cosmeticselection; Navigate also validates membership/globalpending.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Setter alone not endpointpermissionenforcement.",
+      "tests_missing": "Setter alone not endpointpermissionenforcement. NOT_EXECUTED.",
+      "verified_callers_callees": "ShellView.ApplySelectedItem"
+    },
+    {
+      "stable_id": "sym-3dc7d0231610f44c3ae6f9fe8b99bb322bd475add536ce32b1b022525cc47ebb",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel.Navigate(Falah.Client.CashierWinUI.ViewModels.ShellNavItem)::relay-command-generator-input",
+      "exact_kind": "ToolkitRelayCommandGeneratorInput",
+      "exact_span": [
+        144,
+        5,
+        177,
+        6
+      ],
+      "reasoning": "NavigateCommand generated typeditem wrapper has no CanExecutemetadata; body rejects globalunresolved or nonmemberitem, chooses actualtypedpagefactory elsehonestplaceholder. Permissionfilter happened NavItemsconstruction and rechecked membership.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No claim everypermissioncombination supported; rootroute matrix independent.",
+      "tests_missing": "No claim everypermissioncombination supported; rootroute matrix independent. NOT_EXECUTED.",
+      "verified_callers_callees": "Navigate; Create* page factories"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

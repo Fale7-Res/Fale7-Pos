@@ -1,0 +1,103 @@
+{
+  "batch": "batch-05-startup-migration-generated",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T18:36:40.465561+00:00",
+  "calls": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "call_line": 212,
+      "end_line": 214,
+      "sql_template": "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE database_id = DB_ID() AND is_read_committed_snapshot_on = 1) ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;",
+      "inputs": "No SQL text input; target CURRENT derived from configured connection selected at66-70, not request.",
+      "classification": "CONSTANT_COMMAND_NO_UNTRUSTED_SQL_INPUT",
+      "reasoning": "Concatenation joins constant literals; DATABASE CURRENT avoids identifier interpolation. Startup executes after Migrate206 before Seeder215. It can force rollback for other processes connected to same DB, despite comment claiming no client yet; SQLi-safe does not make startup safe against unknown/production target. No server start performed.",
+      "context_read": "Program62-71 config provenance with fallback literal withheld,194-225 startup",
+      "trust_boundary": "Trusted startup config to database-wide administrative setting; config target verification mandatory.",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "enclosing_symbol": null,
+      "review_method": "Independent manual source-only SQL boundary analysis",
+      "runtime_sql_execution": "NOT_EXECUTED",
+      "call_stable_id": "sqlcall-4e743e5092b2d93e4427f85f502395ed37448c1e8d308bfd3ae6cc316015f94a",
+      "call_identity_basis": "Manual verified source path + baseline blob SHA256 + SQL template + exact call line span; supplementary SQL-operation identity, not new callable analysis.",
+      "enclosing_symbol_limit": "Top-level startup operation is not represented as a callable in existing symbol index; supplementary exact SQL call identity supplied without inventing a C# function."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.cs",
+      "call_line": 18,
+      "sql_template": "UPDATE Orders SET OrderType = 'pickup' WHERE OrderType IN ('dine_in', 'dinein');",
+      "inputs": "No variable inputs; literal business value migration.",
+      "classification": "CONSTANT_MIGRATION_SQL",
+      "reasoning": "Fixed literal table/column/status strings. No injection path; actual business rows can change when migration applies. Program automatic Migrate can invoke this on configured target, so read-only audit never executes it.",
+      "context_read": "Migration1-27 full",
+      "trust_boundary": "Trusted deployment migration to existing order data.",
+      "source_git_blob_sha256": "e6c5f106ac12eaba3482cf830244ad10d33975bc23eccc52bb7a15000a41df14",
+      "worktree_sha256": "1c505300965819d06f2ecc7ea359b3ab096baf9c233e488cf08d866945afa9c6",
+      "enclosing_symbol": {
+        "stable_id": "sym-5f7b5305c2e03b0de39d2aebc548b4c2af413e5df1ba3ded1587b48475960f60",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Persistence.Migrations.RenameDineInOrdersToPickup.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "startLine": 16,
+        "endLine": 19,
+        "startColumn": 9,
+        "endColumn": 10
+      },
+      "review_method": "Independent manual source-only SQL boundary analysis",
+      "runtime_sql_execution": "NOT_EXECUTED",
+      "call_stable_id": "sqlcall-e4fca77829b39ec1062437a917bb7a96097fdf42875543dd2239828f41c6fcde",
+      "call_identity_basis": "Manual verified source path + baseline blob SHA256 + SQL template + exact call line span; supplementary SQL-operation identity, not new callable analysis."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.cs",
+      "call_line": 24,
+      "sql_template": "UPDATE Orders SET OrderType = 'dine_in' WHERE OrderType = 'pickup';",
+      "inputs": "No variable SQL inputs.",
+      "classification": "CONSTANT_MIGRATION_SQL",
+      "reasoning": "Down is a broad literal reverse mapping, not injection. It changes all pickup rows present, including ones originally created as pickup; rollback semantic loss is distinct from SQL construction and no migration/rollback executed.",
+      "context_read": "Migration1-27 full",
+      "trust_boundary": "Trusted rollback action to order-type data semantics.",
+      "source_git_blob_sha256": "e6c5f106ac12eaba3482cf830244ad10d33975bc23eccc52bb7a15000a41df14",
+      "worktree_sha256": "1c505300965819d06f2ecc7ea359b3ab096baf9c233e488cf08d866945afa9c6",
+      "enclosing_symbol": {
+        "stable_id": "sym-10053923043ad4c026cbf871c42eb2439ff878e539eb298b065a4e35f9211034",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Persistence.Migrations.RenameDineInOrdersToPickup.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "startLine": 22,
+        "endLine": 25,
+        "startColumn": 9,
+        "endColumn": 10
+      },
+      "review_method": "Independent manual source-only SQL boundary analysis",
+      "runtime_sql_execution": "NOT_EXECUTED",
+      "call_stable_id": "sqlcall-5302c40c8f0e321d752262b36429e37bd72af0ae93d2b51263cb377cbc05e037",
+      "call_identity_basis": "Manual verified source path + baseline blob SHA256 + SQL template + exact call line span; supplementary SQL-operation identity, not new callable analysis."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "call_line": 93,
+      "sql_template": "EF provider-generated UPDATE from Where(s.BusinessDayId == day.Id).SetProperty(Authoritative,false)",
+      "inputs": "day.Id loaded by request.BusinessDayId through EF predicate; false is constant setter.",
+      "classification": "EF_EXPRESSION_GENERATED_UPDATE_NO_RAW_SQL",
+      "reasoning": "Additional discovered write sink uses expression trees, not SQL concatenation; no dynamic column name or string SQL. business_day_close authorization52; transaction64 before update93. Business closure snapshot concurrency and FIN009/phase integrity not acquitted by query construction.",
+      "context_read": "CloseBusinessDayHandler34-120",
+      "trust_boundary": "Authorized business-day identity to provider-generated bulk update.",
+      "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "enclosing_symbol": {
+        "stable_id": "sym-a673e146b1261457b740b8266109940a901cb01b2fb56c1ff2a13bbda0afc4b6",
+        "kind": "SimpleLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 93,
+        "endLine": 93,
+        "startColumn": 56,
+        "endColumn": 76
+      },
+      "review_method": "Independent manual source-only SQL boundary analysis",
+      "runtime_sql_execution": "NOT_EXECUTED",
+      "call_stable_id": "sqlcall-4b4a8402d6696185572919cd4fb7769619bbb541e87d94408e64404bd895599e",
+      "call_identity_basis": "Manual verified source path + baseline blob SHA256 + SQL template + exact call line span; supplementary SQL-operation identity, not new callable analysis."
+    }
+  ],
+  "scope_limit": "SQL construction/value-binding only; parameterization does not certify authorization/transactions or overall code security."
+}

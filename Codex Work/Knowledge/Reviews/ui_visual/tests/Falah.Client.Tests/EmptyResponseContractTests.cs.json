@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/EmptyResponseContractTests.cs",
+  "source_git_blob_sha256": "20293bc0c7ace98c0cc0a74b507a1406ca5d09939bb0f584ad7b6cca6bba88b2",
+  "worktree_sha256": "20293bc0c7ace98c0cc0a74b507a1406ca5d09939bb0f584ad7b6cca6bba88b2",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:57:05.938918+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Empty-success protocol unit theory scope and assertion strength exact review.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/EmptyResponseContractTests.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-e204a5f4d273f8109c0562acab4b4bdbcdc0b896b661f7ae4c3706de11712e63",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.EmptyResponseContractTests.EmptyHandler.SendAsync(HttpRequestMessage, CancellationToken)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        11,
+        9,
+        12,
+        73
+      ],
+      "reasoning": "Fixture handler returns HTTP200 with no body for any request, never uses network and does not inspect route/auth/request contents.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Proves empty-body result handling only, not endpoint correctness or authorization.",
+      "tests_missing": "Proves empty-body result handling only, not endpoint correctness or authorization. NOT_EXECUTED.",
+      "verified_callers_callees": "Task.FromResult(HttpResponseMessage OK)"
+    },
+    {
+      "stable_id": "sym-8ea482b03ec5ff456ebd48c7e4626a744624a79d2d485fd645c0920cab41573b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.EmptyResponseContractTests.Request<T>()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        14,
+        5,
+        16,
+        65
+      ],
+      "reasoning": "Deserializes fixed minimal synthetic IDs into generic request type using web JSON defaults and null-forgiving; DTO required fields may remain defaults. No secrets or real records.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Malformed/minimal fixture is not evidence valid server write payload.",
+      "tests_missing": "Malformed/minimal fixture is not evidence valid server write payload. NOT_EXECUTED.",
+      "verified_callers_callees": "JsonSerializer.Deserialize<T>"
+    },
+    {
+      "stable_id": "sym-a9e15bf72ebfeb28515e6c679eb928129036373e8a9248b8a1c4934b9639fe73",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.EmptyResponseContractTests.Empty_success_response_is_a_confirmed_write_not_an_unknown_json_failure(string)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        18,
+        5,
+        45,
+        6
+      ],
+      "reasoning": "Theory calls8 boolean write wrappers using fake empty200 response then asserts Success, Value true, OutcomeUnknown false and null error. Covers empty successful transport responses for selected wrappers, not typed DTO wrappers, HTTP204, malformed JSON or actual committed transaction.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Static review only NOT_EXECUTED in this pass; no live endpoint/DB.",
+      "tests_missing": "Static review only NOT_EXECUTED in this pass; no live endpoint/DB. NOT_EXECUTED.",
+      "verified_callers_callees": "EmptyHandler; ApiClient selected write methods; xUnit Assert"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

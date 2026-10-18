@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+  "source_git_blob_sha256": "c7626ca4d4c66233519de67702c4835e8e59dee9754e6c347cf728cf068edeba",
+  "worktree_sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:42:56.155229+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Owner operational dashboard with attention, KPIs, trend, cash/cost/obligations/people/health.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "VisibleAttention",
+      "reasoning": "First attention card displays severityword and color, root navigationcommand, disabled ifnoNavKey. Toggle exposes collapsedrest; priorVMdoesnotseveritysort latecriticalrows despitecomment, so nativeviewconfirmsonlyVisibleAttention shown."
+    },
+    {
+      "anchor": "Metrics",
+      "reasoning": "252x132 wrapping KPIcards contain22pxamount, comparison,22pxsparkline and2linecaption. Fixedheight with wrappingamount/caption may clip attextscale. Net/collectedsparklinepoints provenance documentedVM; no fabricatedchartdata."
+    },
+    {
+      "anchor": "SeriesPoints",
+      "reasoning": "120pxtrend with clear zero-filled note. Doesnotannotate axes/timestamps in thismarkup, so trendshape cannot independently identify exactpeak time withoutotherreports."
+    },
+    {
+      "anchor": "FractionToWidthConverter",
+      "reasoning": "Split barinner width uses converterfixed150pxscale inside startrack next72label+46percent in one ofthreepagecolumns. Actualtrackcanbeless150, allowingbaroverflow; nativeboundsnotmeasured. Emptytotalem dash controlledVM."
+    },
+    {
+      "anchor": "DriverSettlementNote",
+      "reasoning": "Explains collectedincludesdriver settlements, while Split actuallyVMpickup/takeaway/delivery shares. Currentcash explicitlynow versusselectedperiod. Pendingelectronic adjacent currenttreasury butsourceperiodsemantics must be clear."
+    },
+    {
+      "anchor": "MoneyOrUnknownConverter",
+      "reasoning": "Profitability preserves unknown foodcost/grossprofit/result with warning and excludedrent/depreciationnote. Thisscreen lacks Reports currentrecipe/currentpricebasisnote, so historicalperiodcostbasis less explicit."
+    },
+    {
+      "anchor": "Data.Leakage",
+      "reasoning": "Offers/comps/manualdiscount/refunds/waste separate, no unintendednettinginview. Obligationsshowcurrentowedcounts alongsideperiodpurchases; useDatecontext labels carefully."
+    },
+    {
+      "anchor": "PrintRoutes",
+      "reasoning": "PrinthealthusesallDTO routes withlastlogicalsuccess timestamp, not measuredphysicalpaper output. BackupdisplayformattedVM. Lowstock countheader canexceedsixshownrows becauseVMcaps6, no explicitmore/link here."
+    },
+    {
+      "anchor": "HasData",
+      "reasoning": "Rootcontenthiddenwhileloading/error, avoiding visiblymixed old/newKPI snapshot. Refresh/period have accessible names, goodcontrastwiring sourceonly; no nativeobservations."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need attentioncriticalsort/collapse, narrowpercenttrackbounds, KPItextscale, historicalcostbasis, current-versus-periodpositions and>6lowstock disclosure. No callable declarations.",
+  "recommendations": "Use relative barwidth based actualtrack, explicitlyrankattention and disclose cappedlowstock/currentcostbasis. Preserve unknown values and no physicalhealthclaim.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

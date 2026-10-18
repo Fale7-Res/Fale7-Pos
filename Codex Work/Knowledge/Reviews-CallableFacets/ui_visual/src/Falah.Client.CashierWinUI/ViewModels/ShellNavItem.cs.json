@@ -1,0 +1,111 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellNavItem.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:07:41.295007+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-8bdf67332b1697ac1eaae87ac7f6b4f7c387e64e18801f60d6a3cdcec9cbaab2",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellNavGroup.IsDirect::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        21,
+        5,
+        21,
+        46
+      ],
+      "reasoning": "IsDirect only when exactlyone permitted item; zero/multiple groups treated nondirect. Buildgroups filters empty groups before shellview normaluse.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Emptygroup invariant must hold, not enforcedby recordconstructor.",
+      "tests_missing": "Emptygroup invariant must hold, not enforcedby recordconstructor. NOT_EXECUTED.",
+      "verified_callers_callees": "Items.Count; ShellView.CreateNavButton"
+    },
+    {
+      "stable_id": "sym-4a43719f2dfbd9f099105beb7884795de7a94bf8ee46a6c5da1cf34246b5a58c",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellNavGroup.Single::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        22,
+        5,
+        22,
+        44
+      ],
+      "reasoning": "Returns Items[0] without guard; normal caller uses when IsDirect true and iconalso firstitem. Emptygroup violates invariant and throws.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No unknownemptygroup runtimefound; sourceconstruction gate independentlyreviewed.",
+      "tests_missing": "No unknownemptygroup runtimefound; sourceconstruction gate independentlyreviewed. NOT_EXECUTED.",
+      "verified_callers_callees": "Items[0]; ShellView.CreateNavButton"
+    }
+  ],
+  "source_git_blob_sha256": "0acb8c21ee329f90563f9ff232e176179f02deba2b306c1d8bf0e012f93be93e",
+  "worktree_sha256": "3c290ee3ffd372cdd77f9c1e9663a7d9fb6995d775ff1ff3b3817ee6d36f0506",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-11a6efc60a5fd148c1c9cd84c303927794af13fde7fe66c08900dd2abcfd3212",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellNavItem::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        8,
+        1,
+        8,
+        81
+      ],
+      "reasoning": "ShellNavItem positional record stores key,label,optionalpermission and generated valueequality. NavItems.Contains uses recordequality, so forgedequal item matchessame permittedroute, not unauthorizedkey.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Server auth remainsboundary; label equality impacts membership.",
+      "tests_missing": "Server auth remainsboundary; label equality impacts membership. NOT_EXECUTED.",
+      "verified_callers_callees": "ShellViewModel.Navigate; NavItems.Contains"
+    },
+    {
+      "stable_id": "sym-630ffc489abe2604709891082613ad37e1f971d010afd792ecdf253b062e99fc",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellNavGroup::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        18,
+        1,
+        23,
+        2
+      ],
+      "reasoning": "ShellNavGroup record stores readonlylistinterface with key/label; equality/copy shallow list reference, computed IsDirect/Single assume permitted nonemptyitems. No authorizationengine generated.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "ReadOnlyListinterface does not make underlyinglistimmutable.",
+      "tests_missing": "ReadOnlyListinterface does not make underlyinglistimmutable. NOT_EXECUTED.",
+      "verified_callers_callees": "NavGroups; ShellView"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,86 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:22.005668+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+  "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-bee5e2ed70b58fb28cd63bf06b03751ab21d87696dc1bcfbddca8adeab3b3d7a",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.ApiResult<T>::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        54,
+        5,
+        54,
+        127
+      ],
+      "reasoning": "ApiResult<T> positional record carries Success, nullable Value/Error plus OutcomeUnknown and StatusCode defaults. Equality/copy include flags and generic value semantics; record itself does not decide outcome or guarantee typed nonnull value.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Callers must inspect Success+Value and preserve unknown intent; no token/secret in record declaration.",
+      "tests_missing": "Callers must inspect Success+Value and preserve unknown intent; no token/secret in record declaration. NOT_EXECUTED.",
+      "verified_callers_callees": "ReadResultAsync; RetainedRequest/CallCenter retry logic"
+    },
+    {
+      "stable_id": "sym-11f1395312186e75fdd70952f898bacba25a37cff75138b42eae63e45b64d192",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.ErrorBody::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        108,
+        5,
+        108,
+        52
+      ],
+      "reasoning": "Private ErrorBody record only captures nullable lowercase error property from response JSON; generated ToString would expose message if logged, but no logging path assumed.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Unexpected JSON shape falls back generic error in reader.",
+      "tests_missing": "Unexpected JSON shape falls back generic error in reader. NOT_EXECUTED.",
+      "verified_callers_callees": "ReadResultAsync<ErrorBody>"
+    },
+    {
+      "stable_id": "sym-636786fdeddf48138d2082f43b353e6bdff4197be7b27e8bfa9a2bfb803267b5",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.TreasuryBalanceDto::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        224,
+        5,
+        224,
+        85
+      ],
+      "reasoning": "TreasuryBalanceDto record holds account ID and signed balance piastres; generated equality/copy do not impose nonnegative balance or actor visibility.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Endpoint authorization and monetary scale remain server contract.",
+      "tests_missing": "Endpoint authorization and monetary scale remain server contract. NOT_EXECUTED.",
+      "verified_callers_callees": "GetTreasuryBalanceAsync"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

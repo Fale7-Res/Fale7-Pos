@@ -1,0 +1,44 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "at_utc": "2026-10-17T01:59:58.625404+00:00",
+  "classification": "SOURCE_CONFIRMED_IDENTITY_ALIAS_OMISSION; NO_RUNTIME_OR_PRIVILEGED_OPERATION_EXECUTED",
+  "parent_independent_trace": "AuthenticationMiddleware.ActorFields85-89 omits ClosedByUserId. Program337-356 forwards body unchanged. CloseShiftHandler52-54 selects actor from ClosedByUserId,101 applies AuthorizationPolicy using that actor. Hence authentication itself remains required but selected actor identity is not compared with session by this alias checker. This differs from case mismatch mechanism and does not bypass valid manager-approval/discrepancy/reason invariants. Existing already-closed replay is separate read response path.",
+  "limits": [
+    "No database, shift, account, token or permission mutated",
+    "No actual request to running service",
+    "Full schema/handler transaction reproduction remains unexecuted"
+  ],
+  "recommendation": "Bind closing actor to authenticated context; regression test alias coverage and valid approval controls in isolated disposable fixture after authorization. No fix applied.",
+  "sources": [
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b"
+    },
+    {
+      "path": "src/Falah.Application/Shifts/CloseShiftRequest.cs",
+      "worktree_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+      "git_blob_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932"
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+      "git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee"
+    },
+    {
+      "path": "src/Falah.Domain/Shifts/Shift.cs",
+      "worktree_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "git_blob_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690"
+    }
+  ]
+}

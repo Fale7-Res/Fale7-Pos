@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml",
+  "source_git_blob_sha256": "17bf5f2d9ca55948e1ef9b4d8c80f1910d23b0eea65316dcee5144065e7b04b2",
+  "worktree_sha256": "049e44a2eab52ee2cb47c91f052debbd00ff3e5c8b704c1a8d242f75926ee8ee",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:40:39.661672+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Employee balances, accrual/cash actions, ledger, financial report and standalone payment.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "Employees",
+      "reasoning": "150job/130balance/272actions plus name star; name horizontal inactivebadge risks unbounded wrap. Three rows of compact36px financial actions include wage/overtime/extrashift/advance/withdrawal/pay; VM must authorize each, no per-row visibility gates."
+    },
+    {
+      "anchor": "OpenLedgerCommand",
+      "reasoning": "Ledger720max700 fullspan overlay shows description/type, debit/credit/running balance, distinct loading/error/retry/empty. No timestamps or actor shown per ledger entry, limiting traceability despite full running money trail."
+    },
+    {
+      "anchor": "IsCashOutOpen",
+      "reasoning": "Shared accrual/cash modal440max640 centeredscroll; advance/withdrawal open-shift alert, wage editable amount, overtime1..5 preview and extrashiftreadonlyvalue. Commands differentiated despite shared display; descriptions are not proof exact server payroll calculation."
+    },
+    {
+      "anchor": "CanEditAction",
+      "reasoning": "Amount/reason/managerPIN locked, overtimebuttons rely commandguard. Static savecaption not explicit retained retry. Close guards/globalpending/context restoration belongVM; same-process tests do not certify restart."
+    },
+    {
+      "anchor": "IsReportOpen",
+      "reasoning": "1000wide max720 financial report, custom DatePickers,6fixed moneycolumns plus name. Explicitly separates advances from payments and current balance from period subtotal. Preserves semantic distinction, but window narrower than1048DIP has fixedwidth overflow risk."
+    },
+    {
+      "anchor": "IsPayOpen",
+      "reasoning": "Standalone pay explicitly restaurantaccount, partial/full current entitlement, no payrollrun requirement. Nothingdue hides editable action and explains state; CanEditAction locks account/amount/reason/PIN. No employee payment executed."
+    },
+    {
+      "anchor": "EmployeeEditorView",
+      "reasoning": "SeparateEditorDataContext declaredlast, overlays any existing actionmodal; VMmutualexclusion/focusrequired. No background session or customer data inspected. White-onTextPrimarytoast darkcontrast issue repeats."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need wage accrual versus cash debit correctness, period/current balance distinction, restartpending actions, active/inactive switch, longnames,1000wide report and darktoast. No callable declarations.",
+  "recommendations": "Preserve distinct financial routes, add ledger timestamp/actor evidence and adaptive widths. Explicitly reconcile durable request context instead of relying only on disabled fields.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

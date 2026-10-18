@@ -1,0 +1,43 @@
+{
+  "id": "UI-CAND-OWNER-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "updated_at_utc": "2026-10-17T12:45:31.720204+00:00",
+  "title": "Collected-money metric sparkline renders net-sales series",
+  "severity_proposed": "MEDIUM",
+  "confidence": "HIGH_SOURCE_ONLY",
+  "status": "PENDING_INDEPENDENT_CHALLENGE",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs",
+      "startLine": 215,
+      "endLine": 222,
+      "reasoning": "Local series projects only NetSalesPiastres then is passed to both total-sales card and actual-collected card; collected value and comparison use distinct DTO fields."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+      "startLine": 108,
+      "endLine": 140,
+      "reasoning": "Shared metric template renders each label/value and SparklineView Points bound to that card Points property."
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "startLine": 52,
+      "endLine": 52,
+      "reasoning": "TrendPointDto has NetSalesPiastres and OrderCount, no collected-series measure."
+    }
+  ],
+  "trigger": "A range whose sales timing differs from collections, for example deferred delivery cash or pending electronic sales. Actual-collected card receives sales sparkline regardless its distinct amount.",
+  "rootCause": "RebuildMetrics reuses one net-sales point list for two different measures without measure metadata.",
+  "impact": "Owner can read a visually incorrect collection trend under actual money label. Financial ledger and numeric card value remain server-derived and unchanged.",
+  "counterarguments": [
+    "Possible intended generic sales context decoration, but no text explains that actual-collected sparkline is sales and shared metric-card convention implies same measure.",
+    "When all sales are collected with matching timing, shapes may coincide, so not visible for every dataset.",
+    "No screenshot/native rendering observed; source binding proves supplied points only."
+  ],
+  "recommended_verification": "Independent reviewer trace VM, XAML and Sparkline Points use; pure DTO fixture with unequal sales/collection timing. Do not write real financial records.",
+  "tests_missing": [
+    "Metric-card label/measure/series consistency test with deferred collection."
+  ],
+  "source_changes": "NONE",
+  "runtime_db_printing": "NOT_EXECUTED"
+}

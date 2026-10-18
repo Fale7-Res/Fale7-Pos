@@ -3,6 +3,14 @@ import sys,json
 sys.path.insert(0,str(ROOT/'Codex Work/Verification-Tools'))
 from knowledge_store import save_review,atomic_json,load_symbols,now
 
+def test_symbol_reviews(path,facts):
+    """Persist only manually supplied per-exact-span test reasoning; never infers analysis from names."""
+    source=load_symbols(path); reviews=[]
+    for line,col,kind,name,reason,inputs,outputs,relations,missing in facts:
+        s,=[s for s in source['symbols'] if (s['startLine'],s['startColumn'],s['kind'],s['name'])==(line,col,kind,name)]
+        reviews.append(dict(stable_id=s['stable_id'],status='ANALYZED',exact_signature=s['qualifiedSymbol'],exact_span=[line,col,s['endLine'],s['endColumn']],reasoning=reason,inputs=inputs,outputs=outputs,side_effects='Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED',trust_boundaries='Fixture contracts cannot prove server authorization or real transport',database='NOT_APPLICABLE direct DB; no live data touched',printing_ui='No native UI/physical printer invoked; real VM command bodies tested by fixture only',performance='Bounded test data; actual service latency/scale UNKNOWN',duplicates_conflicts='Exact syntax span and signature reconciled; no legacy heading promotion',issues_hypotheses=missing,tests_missing=missing,verified_callers_callees=relations))
+    return reviews
+
 def record(path,role,notes,tests,recommendations,symbols=None):
     if path.endswith('.cs') and symbols is None:
         raise ValueError('C# requires explicit exact-symbol review list, never heading promotion')

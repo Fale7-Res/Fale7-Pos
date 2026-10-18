@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs",
+  "source_git_blob_sha256": "4d17c848e22bc8ee801ce2963109e5280c1faa97b876830dddb85b2310e4eb15",
+  "worktree_sha256": "4d17c848e22bc8ee801ce2963109e5280c1faa97b876830dddb85b2310e4eb15",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:40:01.019103+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Cashier control full source independently read; seven implementations have equivalent executable property/event bodies to CallCenter counterparts, each exact span reconciled separately.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-c8d1e57b2258d50f50ea2fbecfa4c76a48f73f1fe5c810390cdb4db79f2dab0e",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Controls.StatusPillView.StatusPillView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        11,
+        5,
+        14,
+        6
+      ],
+      "reasoning": "Initializes status pill XAML without explicitly invoking Text callback; initial default background follows XAML/resources until Text changes.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Initial and theme-switch visual states require native verification.",
+      "tests_missing": "Initial and theme-switch visual states require native verification. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    },
+    {
+      "stable_id": "sym-9371027bcdd37a869cd724e8d38c558a927305443f25df8b78031110b6e4be0b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Controls.StatusPillView.Text.get",
+      "exact_kind": "GetAccessorDeclaration",
+      "exact_span": [
+        18,
+        9,
+        18,
+        47
+      ],
+      "reasoning": "Reads text dependency property used as display label and converter input; no independent typed status model is stored here.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Verify localized status strings supported by converter.",
+      "tests_missing": "Verify localized status strings supported by converter. NOT_EXECUTED.",
+      "verified_callers_callees": "GetValue(TextProperty)"
+    },
+    {
+      "stable_id": "sym-b728ba2e0b147295b7fce280cc8f006d8bad66aa1eab8dbe298512bff65b6812",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Controls.StatusPillView.Text.set",
+      "exact_kind": "SetAccessorDeclaration",
+      "exact_span": [
+        19,
+        9,
+        19,
+        46
+      ],
+      "reasoning": "Writes status text and triggers callback when dependency value changes; same-text theme changes do not inherently invoke this setter callback.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Same status across light/dark changes requires regression check UI004.",
+      "tests_missing": "Same status across light/dark changes requires regression check UI004. NOT_EXECUTED.",
+      "verified_callers_callees": "SetValue(TextProperty)"
+    },
+    {
+      "stable_id": "sym-aa08135467131e50853c793e3d99f6224bf3c87ea4a0b2d4eb7993637f75ca85",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Controls.StatusPillView.OnTextChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        22,
+        5,
+        29,
+        6
+      ],
+      "reasoning": "Normalizes new text to empty string, updates Label.Text, then creates StatusToPillBrushConverter and assigns converted Brush to Root.Background. Brush recalculation is tied to text changes, not theme events.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "UI004 source-only theme/resource risk; no rendered-state claim.",
+      "tests_missing": "UI004 source-only theme/resource risk; no rendered-state claim. NOT_EXECUTED.",
+      "verified_callers_callees": "TextProperty callback; StatusToPillBrushConverter.Convert; Root.Background"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

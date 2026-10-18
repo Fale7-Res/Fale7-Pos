@@ -1,0 +1,1854 @@
+{
+  "findings": [
+    {
+      "id": "FIN-014",
+      "title": "Restore success followed by MULTI_USER failure is classified as database not replaced",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH",
+      "confidence": "HIGH_SOURCE_CONTROL_FLOW;FAILURE_MODE_NOT_REPRODUCED",
+      "status": "SOURCE_CONFIRMED_WITH_INDEPENDENT_STATIC_CHALLENGE",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+          "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+          "start_line": 150,
+          "end_line": 194,
+          "containing_symbol": "sym-6169ef3c03b4842183f4796c30d34f069683908c295334130a886381ef1c3f97"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+          "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+          "start_line": 211,
+          "end_line": 234,
+          "containing_symbol": "sym-af3d00c171a7957d002d066a9cea1b208f7a64016e92aac1788c5e3f62079ff3"
+        }
+      ],
+      "root_cause": "databaseWasReplaced becomes true only after RESTORE and MULTI_USER both return. If restore159 succeeded and MULTI_USER164 throws/cancels, catch releases mode best-effort but leaves false flag and Failed status.",
+      "impact": "Operator may be told restore failed after database replacement; RecordOutcome false branch does not re-add disappeared restore row or clear killed connection pool. Incorrect outcome can encourage a dangerous retry. Actual failure at this precise boundary has not been produced.",
+      "preconditions": "Authorized restore with safety backup and successful RESTORE, followed by failure/cancellation of MULTI_USER or its acknowledgment.",
+      "counterevidence": "TryReleaseSingleUserAsync is a best-effort corrective path and RecordOutcome appends errors without rethrow. Normal fully successful path explicitly re-adds record/clears pool; no claim every restore fails. Request cancellation may prevent actual client receipt of DTO; false state/error bookkeeping remains the source-supported issue.",
+      "recommendation": "Track destructive restore completion separately from availability restoration; report explicit replaced-but-recovery-incomplete state and preserve outcome outside replaced DB. Resolve uncertain SQL command acknowledgments with dedicated recovery protocol. No implementation.",
+      "required_regression_tests": [
+        "Failure/cancellation after successful RESTORE before/during MULTI_USER using pure fake coordinator.",
+        "Approved disposable instance fault injection confirming replaced DB is never reported as untouched; no automatic retry."
+      ],
+      "runtime_reproduction": "NOT_EXECUTED",
+      "independent_verification": {
+        "reviewer": "financial_integrity",
+        "artifact": "Codex Work/Sub-Agents/Handoffs/financial-restore-outcome-challenge.json",
+        "artifact_sha256": "2a3d80a315252132d47e6681cc56d62c936f0db49e4c26c5c0c7cb0abaefa1df",
+        "scope": "Conditional source path; no destructive failure injection."
+      },
+      "related_findings": [
+        "FIN-008"
+      ],
+      "distinctness": "FIN008 concerns write-admission race; this concerns post-replacement result classification on subsequent failure."
+    },
+    {
+      "id": "FIN-015",
+      "title": "Checkout can commit after its previously open shift has completed handover",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH",
+      "confidence": "HIGH for missing in-transaction shift revalidation in approved source; concrete SQL acceptance predicted under stated normal schema, not runtime observed.",
+      "status": "SOURCE_CONFIRMED_WITH_INDEPENDENT_STATIC_CHALLENGE",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "startLine": 44,
+          "endLine": 60,
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+          "symbol": {
+            "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+            "startLine": 40,
+            "endLine": 290,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Fresh request reads Shift status AsNoTracking47-50 outside any explicit transaction, then awaits user/pricing/tax reads. Same-key successful replay returns before fresh gate."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "startLine": 142,
+          "endLine": 193,
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+          "symbol": {
+            "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+            "startLine": 40,
+            "endLine": 290,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Transaction starts145 after plan construction; no subsequent shift lookup/lock/update. Order.Create receives request.ShiftId166, staged OrderEntity added193."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "startLine": 248,
+          "endLine": 279,
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+          "symbol": {
+            "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+            "startLine": 40,
+            "endLine": 290,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Inventory staged251, cash sale movement270-273 with request.ShiftId, journal complete275, SaveChanges278/Commit279; no Shift status/version predicate."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "startLine": 56,
+          "endLine": 104,
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "symbol": {
+            "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+            "startLine": 47,
+            "endLine": 175,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Close holds UPDLOCK/ROWLOCK/HOLDLOCK on Shift63 within transaction56, checks Open79 then computes expected96 and authorization104."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "startLine": 125,
+          "endLine": 164,
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "symbol": {
+            "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+            "startLine": 47,
+            "endLine": 175,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Close posts handover from counted actual128-133, marks Closed139, stores expected/actual141-143, increments Version150 and commits164."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "startLine": 78,
+          "endLine": 98,
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+          "symbol": {
+            "stable_id": "sym-27466a2785f223f32216b6eb4f0d673a6de98ee6dd89de23ef1cd426960128b0",
+            "kind": "SimpleLambdaExpression",
+            "qualifiedSymbol": "lambda expression",
+            "startLine": 78,
+            "endLine": 99,
+            "startColumn": 42,
+            "endColumn": 10,
+            "isCallable": true
+          },
+          "evidence": "Order unique request/sequence plus Order.Version token; FK to Shift only on ShiftId97. No status predicate attached to order insertion."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "startLine": 116,
+          "endLine": 129,
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+          "symbol": {
+            "stable_id": "sym-29ef25ff6d4e6aa5846192f24a28b4a91da8a660c52beb4dd0328b39f08cd65b",
+            "kind": "SimpleLambdaExpression",
+            "qualifiedSymbol": "lambda expression",
+            "startLine": 116,
+            "endLine": 129,
+            "startColumn": 42,
+            "endColumn": 10,
+            "isCallable": true
+          },
+          "evidence": "Shift.Version concurrency token protects updates to Shift row; filtered unique Open status constrains multiple open shifts, not inserts referencing closed parent."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+          "startLine": 64,
+          "endLine": 89,
+          "source_git_blob_sha256": "52bd586642a7e1be07ddf41fe5ca8bb0e4b13c360edd2868bf48bf07cef3dc6d",
+          "worktree_sha256": "b7191bc0209e7a232df2cae9c195ac9b715c80cd13fd3937b4a7c8ed6debb10e",
+          "symbol": {
+            "stable_id": "sym-5f4dca6a0f778be65e0d46f06753c77b037dbf49c9a4adb6c5e9418b07a2fcb4",
+            "kind": "ClassDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Persistence.Entities.ShiftEntity",
+            "startLine": 64,
+            "endLine": 89,
+            "startColumn": 1,
+            "endColumn": 2,
+            "isCallable": false
+          },
+          "evidence": "Shift persistent status and uint Version exist; no automatic sale admission gate on entity property."
+        },
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "startLine": 66,
+          "endLine": 110,
+          "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+          "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+          "symbol": {
+            "stable_id": "sym-20e34134ea14dc690da76ac75a788f3ce95d2a1809da0b144555d2a1a46b5e14",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Domain.Orders.Order.Create(Falah.Domain.Orders.CheckoutRules.CheckoutPlan, string, string, long, string, string, IReadOnlyList<Falah.Domain.Orders.OrderItem>, string, string?, DateTimeOffset, string?, string?, string?, string?, Falah.Domain.Common.Money, string?, string?, string?, int?, string?, string?)",
+            "startLine": 66,
+            "endLine": 111,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Order.Create accepts string shiftId and copies it, no Shift aggregate/status input."
+        },
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "startLine": 84,
+          "endLine": 114,
+          "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+          "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+          "symbol": {
+            "stable_id": "sym-77e1899a5d7a3b40aa3a4e3d0d8fce70eeef75f5b96da6c0dd568170c7eb7a06",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Domain.Orders.CheckoutRules.BuildPlan(Falah.Domain.Orders.OrderType, Falah.Domain.Financial.PaymentMethod, IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, IReadOnlyList<Falah.Domain.Financial.PaymentSplit>?, string?)",
+            "startLine": 84,
+            "endLine": 115,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "BuildPlan validates tender/payment computations, no live Shift input or close coordination."
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "startLine": 23,
+          "endLine": 29,
+          "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "symbol": {
+            "stable_id": "sym-7c9ef5cd166574188e64b3145a04e915e577a36ca17e4c539049257f64d5b612",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+            "startLine": 23,
+            "endLine": 29,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Checkout TryGetActive finds optional active/closing/reopened business day; no shift check. Null allowed by caller."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+          "startLine": 21,
+          "endLine": 67,
+          "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+          "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+          "symbol": {
+            "stable_id": "sym-15bec1c768e59f457124e27cda15e8d89d59ba5354abc3b44cbf27f8517adc81",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductForOrderAsync(string, string, IReadOnlyList<Falah.Infrastructure.Orders.MenuPricingService.ResolvedItem>, string, DateTimeOffset, CancellationToken)",
+            "startLine": 21,
+            "endLine": 67,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Stock stage operations receive order/item data, not Shift status. Empty recipe list can return28; no implicit Shift gate."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+          "startLine": 77,
+          "endLine": 97,
+          "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+          "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+          "symbol": {
+            "stable_id": "sym-7cb1499dc461cea1564eb9848e4c5adcf3b24675b6b646b97ac3039d10c56048",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductOrderPackagingAsync(string, string, string, DateTimeOffset, CancellationToken)",
+            "startLine": 77,
+            "endLine": 97,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Packaging reads configured rule/stages usage only, no Shift gate."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+          "startLine": 22,
+          "endLine": 44,
+          "source_git_blob_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+          "worktree_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+          "symbol": {
+            "stable_id": "sym-40ef18bae8fe0c94a20fe757fd78bb3eb5e22a85e571c392e767e1900145fb2e",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Persistence.EfFinancialJournal.TryStart(string, string)",
+            "startLine": 22,
+            "endLine": 36,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Journal is request-key scoped; new sale key does not coordinate with close. Complete changes local/request row, not Shift status."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
+          "startLine": 19,
+          "endLine": 28,
+          "source_git_blob_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+          "worktree_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+          "symbol": {
+            "stable_id": "sym-19e519b9c3d199d1c0491a3ff3b0b0f8733b02d907cd992185d4acd71aa2f095",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+            "startLine": 19,
+            "endLine": 29,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Sequence allocator serializes fixed sequence row in checkout transaction, not Shift row. Schedule starts after close commit, no blocking resource overlap required."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+          "startLine": 30,
+          "endLine": 68,
+          "source_git_blob_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+          "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+          "symbol": {
+            "stable_id": "sym-d2b3fa262b825e51feb2fa40a5bf212094393730e7ad5d2d060b638a9d452f7e",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeExpectedCashAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, Falah.Domain.Common.Money, CancellationToken)",
+            "startLine": 30,
+            "endLine": 31,
+            "startColumn": 5,
+            "endColumn": 82,
+            "isCallable": true
+          },
+          "evidence": "Close expected derived from orders existing at computation and current expenses/movements; future checkout absent. Close does not later recompute after handover."
+        },
+        {
+          "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+          "startLine": 32,
+          "endLine": 60,
+          "source_git_blob_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+          "worktree_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+          "symbol": {
+            "stable_id": "sym-fd1e297372ee88ceee8f09beba84e26bb954e73a75b4a2c34e0d471c56301e32",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod)",
+            "startLine": 32,
+            "endLine": 39,
+            "startColumn": 5,
+            "endColumn": 7,
+            "isCallable": true
+          },
+          "evidence": "Cash sale destination is tre-drawer; BuildSaleMovement marks Posted with original ShiftId, so post-close cash sale leaves new drawer movement after previous handover."
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "startLine": 337,
+          "endLine": 342,
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "symbol": {
+            "stable_id": "sym-6ddc0569a6defbdfdb7668effd54dc449e6789d9e7bae6a2c196e6ffff720046",
+            "kind": "ParenthesizedLambdaExpression",
+            "qualifiedSymbol": "lambda expression",
+            "startLine": 337,
+            "endLine": 356,
+            "startColumn": 34,
+            "endColumn": 2,
+            "isCallable": true
+          },
+          "evidence": "Close endpoint directly invokes scoped handler; no shared admission coordinator in endpoint."
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "startLine": 1370,
+          "endLine": 1379,
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "symbol": {
+            "stable_id": "sym-79e59db91c765b1b529a94137ac97e6487d215ad4d128cb3974b9f74ebdf72c7",
+            "kind": "ParenthesizedLambdaExpression",
+            "qualifiedSymbol": "lambda expression",
+            "startLine": 1370,
+            "endLine": 1393,
+            "startColumn": 37,
+            "endColumn": 2,
+            "isCallable": true
+          },
+          "evidence": "Checkout endpoint directly awaits handler then automatic printing after commit; no revalidation performed there."
+        }
+      ],
+      "root_cause": "Open shift predicate read before checkout transaction is not revalidated/held through commit; closing uses a different correctly locked Shift update that checkout does not perform.",
+      "preconditions": [
+        "Fresh authorized checkout with unique CheckoutRequestId reaches successful Open snapshot for shift S.",
+        "Request pauses between Open snapshot and transaction145; intervening awaits/pricing/tax permit ordinary scheduling without malicious source changes.",
+        "Separate authorized close S completes valid count/approval and commits; no deletion of shift S.",
+        "Checkout payload otherwise valid, active products and normal approved schema, no out-of-repository/deployed trigger adding a status guard.",
+        "Cash take-away/pickup example avoids COD deferred-money semantics and comp/discount approvals; all legitimate permissions remain required."
+      ],
+      "evidence_chain": [
+        {
+          "step": 1,
+          "request": "T1 checkout",
+          "operation": "Reads S.Status=Open at47-50; pause before transaction145. No transaction-held Shift lock remains."
+        },
+        {
+          "step": 2,
+          "request": "T2 close",
+          "operation": "Begins transaction56, locks Shift63, computes expected without T1 order96, posts handover, sets Closed/Version++, Save/Commit163-164."
+        },
+        {
+          "step": 3,
+          "request": "T1 checkout",
+          "operation": "Resumes only after T2 committed; begins transaction145, allocates sequence and stages new Order(S) plus stock and cash movement, commits278-279 without reading/updating S."
+        }
+      ],
+      "impact": "Recorded closed shift expected/actual/handover exclude newly committed cash order while order and posted drawer collection reference that closed shift; new order time can be later than ClosedAtUtc. Stock can also be consumed when configured. No cash loss, fraud, exploit, or accepted real write observed.",
+      "counterevidence": [
+        "A request that first reads after close is correctly rejected at47-50; this is overlap/TOCTOU only.",
+        "Same checkout request replay returns an existing order; replay after close is expected and not this defect.",
+        "Close row lock and Version correctly serialize competing Shift updates/closes. Checkout reads no-tracking before transaction and does not issue Shift update, so these guards do not bind fresh sale commit to Open state.",
+        "FK validates existing parent key, not parent Status. Chosen schedule completes close before checkout transaction, avoiding need to predict overlapping FK lock behavior.",
+        "Atomic checkout transaction prevents order/payment/stock half-writes, but does not validate stale admission predicate.",
+        "Client busy/close navigation restrictions can protect a single app instance, not another device or already admitted server request.",
+        "Unique Open-shift index prevents two open parent rows, not an order referencing a closed row.",
+        "Deployment-specific triggers/policies were not queried. No trigger/custom SaveChanges status guard was found in approved persistence source/migration search; unknown deployed changes remain a limitation."
+      ],
+      "recommendation": "Coordinate checkout admission and closure with a transaction-held shared Shift row protocol: read/lock/revalidate Open before financial writes and hold coordination through commit, with consistent lock ordering across close/sale/refund/cash operations. Alternative explicit Closing/drain model requires preserving all admitted sales in handover before Closed. Do not retroactively rewrite closed snapshots to hide mismatch.",
+      "required_regression_tests": [
+        "Approved isolated SQL integration fixture: barrier after checkout47-50 before145, close commits, resume fresh cash checkout; must reject with no order/payment/stock rows.",
+        "Reverse order: admitted transaction-held checkout should make close wait and recompute expected including exactly that sale.",
+        "Same-key completed replay after close remains non-mutating and successful.",
+        "Cover cash, partial electronic, COD, comp and print-after-commit boundaries, plus different device/session actors; no production writes."
+      ],
+      "runtime_reproduction": "NOT_EXECUTED",
+      "independent_verification": {
+        "artifact": "Deep-Audit\\Database-and-Finance\\Independent-Challenges\\checkout-after-close.json",
+        "reviewer": "ui_independent_challenge",
+        "disposition": "SURVIVES_INDEPENDENT_SOURCE_CHALLENGE_TOCTOU"
+      },
+      "related_findings": [
+        "FIN-004",
+        "FIN-011"
+      ],
+      "distinctness": [
+        "FIN-004 historical refund allocation uses different workflow and refund movement attribution.",
+        "FIN-011 treasury balance locks acquired outside transaction in some callers; this candidate concerns sale admission versus shift close status."
+      ],
+      "regression_risks": "A new common lock order/admission barrier can deadlock or change replay if applied inconsistently; preserve same-key replay and all-cash/electronic/COD accounting.",
+      "remaining_uncertainty": [
+        "No deterministic DB integration reproduction performed under owner source-only constraints.",
+        "Actual deployed schema/SQL triggers and isolation settings not inspected; report applies approved source model.",
+        "Mitigation lock ordering/performance requires design/testing, not implemented in audit."
+      ]
+    },
+    {
+      "id": "FIN-016",
+      "title": "Unvalidated signed delivery fee can bypass intended discount and comp authorization",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH",
+      "confidence": "HIGH_SOURCE_AND_ISOLATED_ARITHMETIC;FULL_HTTP_DB_ACCEPTANCE_NOT_EXECUTED",
+      "status": "CONFIRMED_SOURCE_AND_PURE_ARITHMETIC_REPRO",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+          "evidence_spans": [
+            [
+              65,
+              73
+            ],
+            [
+              102,
+              143
+            ],
+            [
+              249,
+              280
+            ]
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+          "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+          "evidence_spans": [
+            [
+              35,
+              39
+            ],
+            [
+              99,
+              121
+            ]
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Common/Money.cs",
+          "source_git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+          "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+          "evidence_spans": [
+            [
+              13,
+              17
+            ],
+            [
+              31,
+              34
+            ]
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+          "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+          "evidence_spans": [
+            [
+              66,
+              110
+            ]
+          ]
+        },
+        {
+          "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+          "source_git_blob_sha256": "6fa4b76e9a4abdce701c4db9571c19ab2bd3ff8694f64dff9aacc7e9745fadb5",
+          "worktree_sha256": "66cd885af3b6ddf84ea4a1629232490ba92e333be7626715be8614587b91dae1",
+          "evidence_spans": [
+            [
+              22,
+              38
+            ]
+          ]
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "evidence_spans": [
+            [
+              1370,
+              1393
+            ]
+          ]
+        }
+      ],
+      "root_cause": "Untrusted signed fee enters payable-total arithmetic without context/range validation; positive discount/comp permission gates do not cover a reduction encoded as negative fee. Money addition also permits unchecked large positive fee overflow.",
+      "evidence_chain": [
+        "Signed Money accepts raw DeliveryFeePiastres. Handler does not zero non-delivery fee or reject negative fee in examined flow.",
+        "Base pos permission is required. Positive Discount and Comp fields have distinct permission/approval gates, but fee is added without such policy.",
+        "ComputePayableTotal adds fee then clamps negative result to zero. Zero amount-paid passes zero payable; plan DefersAllMoney suppresses sale collection while normal order/stock transaction still proceeds.",
+        "Order.Create copies plan fee/total rather than validating a nonnegative fee. No fee check constraint found in approved model/migration search."
+      ],
+      "preconditions": "Legitimate authenticated active pos actor; open shift; valid sellable order and ordinary database constraints. Does not require SEC001 actor mismatch. Negative-fee request is outside ordinary client validation paths; this is a server trust boundary.",
+      "impact": "A legitimate pos actor can construct a sale whose computed payable is reduced or zero without positive Discount/Comp fields triggering their extra authorization. Normal order/stock writes are predicted from source, not exercised on any database.",
+      "counterevidence": [
+        "Legitimate full comps also permit zero payable but require separate approvals; this finding bypasses that intended route.",
+        "Foreign deployment trigger/additional validation not observed; no real HTTP/DB acceptance demonstrated.",
+        "Server still resolves product prices, quantities, tax and actor permission; no arbitrary unauthenticated sale claimed.",
+        "Ordinary UI may constrain fee entry; server must independently enforce accepted financial ranges.",
+        "Zero-payable legitimate authorized comps remain valid; signed Money is required by other financial domains and must not be globally prohibited.",
+        "Pure probe is a separate net10 audit binary linked to unchanged approved Domain source, not the deployed net8 app."
+      ],
+      "recommendation": "Validate fee sign, bounds and permitted order-type meaning at server boundary; use configured delivery pricing/approved override policy where required. Use checked bounded payable arithmetic with explicit validation errors. Preserve legitimate signed ledger deltas and approved comp flows; no code change implemented.",
+      "required_regression_tests": [
+        "Restricted pos actor with negative/non-delivery fee rejected without order/stock/money changes in approved isolated DB fixture.",
+        "Boundary/overflow values for fee/subtotal/discount/comp; no wrap-to-zero.",
+        "Positive fee, ordinary zero-fee, insufficient amount, approved comps and COD retain intended behavior."
+      ],
+      "executed_safe_validation": {
+        "path": "Codex Work/Local-Verification/negative-fee-pure-results.json",
+        "sha256": "290a42a9b31730cf2d2b8c863a89d314cd7fde956f02d5010d38239ae4f4d479",
+        "assertions": 7,
+        "failures": 0,
+        "scope": "Pure Domain arithmetic only; no authenticated operation or persisted business record."
+      },
+      "independent_verification": {
+        "originator": "financial_integrity",
+        "reviewer": "root",
+        "artifact": "Codex Work/Deep-Audit/Database-and-Finance/negative-fee-parent-source-challenge.json",
+        "scope": "Independent manual source challenge plus pure calculation probe."
+      },
+      "runtime_reproduction": "PURE_CALCULATION_ONLY;LIVE_HTTP_DB_NOT_EXECUTED",
+      "regression_risks": "Global nonnegative Money restriction would break signed balances/differences. Checked-arithmetic changes can expose existing overflow errors; reject invalid boundary inputs predictably and preserve financial idempotency.",
+      "remaining_uncertainty": "Actual app-host/DB acceptance, deployed constraints and native client behavior untested; all legitimate authorization/stock rules still apply."
+    },
+    {
+      "id": "FIN-017",
+      "title": "Shift close can attribute approval to an unvalidated optional presenter",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "MEDIUM",
+      "confidence": "HIGH_SOURCE_ONLY;NO_RUNTIME_REPRODUCTION",
+      "status": "SOURCE_CORROBORATED_WITH_INDEPENDENT_STATIC_CHALLENGE",
+      "originator": "original financial_integrity candidate",
+      "independent_reviewer": "root",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/Independent-Challenges/shift-close-attribution.json",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "lines": [
+            86,
+            105
+          ],
+          "containing_symbols": [
+            "sym-18fc61878f50b3df31439bedaaccf8dd7120c80e922fc7c7ab7bce8c797d71fa",
+            "sym-f84fd3db2ebab8d53501c1890a5d01b572791bb0adda22c4dfb1de8bb0188530",
+            "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+            "sym-cdef85623866dc9e295e683a428badf0be98c64f70fa7bc0c3bcbf44680485e4"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "lines": [
+            113,
+            164
+          ],
+          "containing_symbols": [
+            "sym-18fc61878f50b3df31439bedaaccf8dd7120c80e922fc7c7ab7bce8c797d71fa",
+            "sym-f84fd3db2ebab8d53501c1890a5d01b572791bb0adda22c4dfb1de8bb0188530",
+            "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+            "sym-14d2ab5874f3e3d80662d75dde1233b84000000d32ec52a375dac9f008c8bd69"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+          "source_git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+          "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+          "lines": [
+            69,
+            111
+          ],
+          "containing_symbols": [
+            "sym-6b19acd6a53a1b6131beb9315aa0038d723cbc20da808fbabcf62452402fced3",
+            "sym-493f75a8038d71fff157bd24981b902d047de2e3c18b058ba55e7a83e37fc08b",
+            "sym-a055b6b0d90a103ea5bfd1ce6c0d941be413195b548ca13ad0fcc303f4862b79"
+          ]
+        },
+        {
+          "path": "src/Falah.Application/Shifts/CloseShiftRequest.cs",
+          "source_git_blob_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+          "worktree_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+          "lines": [
+            10,
+            17
+          ],
+          "containing_symbols": [
+            "sym-1206348a2cb014b0d2a049259527703a1d2eefe4a8fe29d269cbeb5caede47e5"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Shifts/Shift.cs",
+          "lines": [
+            103,
+            115
+          ],
+          "source_git_blob_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+          "worktree_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+          "containing_symbols": [
+            "sym-7b8155252898c8eeabc32cef851fe02eb3a7dfa7e90cdc12a1ca3e9df994d72c"
+          ]
+        }
+      ],
+      "root_cause": "Unvalidated presentation retained instead of validated authorization outcome.",
+      "impact": "False attribution to a person who did not issue approval; no money change or otherwise forbidden operation authorized by this defect alone.",
+      "counterevidence": [
+        "No privilege bypass: base close remains authorized. Existing real user ID needed; not arbitrary name injection.",
+        "Elevated discrepancy without own permission requires issued valid approval; candidate excludes that branch.",
+        "Permission OR approval policy is intentional; do not require unconditional second-person approval.",
+        "No SQL or UI reproduction executed.",
+        "Domain Shift.Close106 rejects above-threshold difference with missing authorizedBy name or reason. Therefore direct-permission close with no presentation does not silently persist null authorizer; it fails. Below-threshold unnecessary presentation still demonstrates source attribution defect; above-threshold presented-name branch needs nonblank reason."
+      ],
+      "recommendation": "Return validated provenance and record issued approver only if validated, otherwise actual actor/null according to policy.",
+      "tests": [
+        "Below threshold plus unissued presentation",
+        "Own elevated permission plus unissued presentation",
+        "Valid issued delegated approval; mismatched/consumed token"
+      ],
+      "runtime_test": "NOT_EXECUTED",
+      "independent_verification": {
+        "status": "STATIC_ONLY",
+        "reviewer": "root",
+        "artifact": "Independent-Challenges/shift-close-attribution.json"
+      },
+      "preconditions": "Legitimately authorized closer; existing other approver user; nonempty arbitrary approval ID; discrepancy below threshold OR own shifts_manage permission. Above-threshold direct-permission branch also requires nonblank reason and presented existing-user name, because Shift.Close106 requires both even after policy accepted direct permission."
+    },
+    {
+      "id": "FIN-018",
+      "title": "Negative receipt quantity and unit cost can post stock reduction with supplier debt",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "MEDIUM",
+      "confidence": "HIGH_SOURCE_ONLY;NO_RUNTIME_REPRODUCTION",
+      "status": "SOURCE_CORROBORATED_WITH_INDEPENDENT_STATIC_CHALLENGE",
+      "originator": "original financial_integrity candidate",
+      "independent_reviewer": "root",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/Independent-Challenges/negative-purchase-lines.json",
+      "sources": [
+        {
+          "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+          "lines": [
+            15,
+            29
+          ],
+          "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+          "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+          "symbols": []
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+          "lines": [
+            54,
+            79
+          ],
+          "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+          "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+          "symbols": [
+            "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+          "lines": [
+            121,
+            175
+          ],
+          "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+          "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+          "symbols": [
+            "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "lines": [
+            10,
+            11
+          ],
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+          "symbols": [
+            "sym-07bd03e837172dc2925f7f402d126b06ee7d334a51b5c68027946018122746c5"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "lines": [
+            77,
+            98
+          ],
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+          "symbols": [
+            "sym-fe2f5a4666db2ef9e2420389e5c48495bd0e63834623e55d5a026f72d7b70147"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "lines": [
+            20,
+            33
+          ],
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+          "symbols": [
+            "sym-8db96d208b788eeb4c7c1b2f9f314e6bc9ebc69d3fdceaf0b10bb5642817b1f9"
+          ]
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "lines": [
+            2182,
+            2187
+          ],
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "symbols": [
+            "sym-606a29d033bfa1f938bee26ff1dccee2f1f985cb9b45de9024033ae31b6396fd"
+          ]
+        }
+      ],
+      "root_cause": "Aggregate payment validation substituted for per-line positive receipt quantity/nonnegative purchase cost validation.",
+      "impact": "Incorrect stock reduction labelled receipt and positive supplier debt for invalid purchase; unauthorized privilege escalation not claimed.",
+      "counterevidence": [
+        "Single negative factor makes total negative and zero paid > total is rejected; two negative factors preserve positive total and expose missing per-line guards.",
+        "Normal client may restrict input; server API is authoritative boundary.",
+        "All receipt facts transactionally commit or rollback; no partial commit claim.",
+        "LastPurchaseUnitCost filters nonpositive cost and may retain earlier valid basis; do not claim every costing view adopts negative price.",
+        "Could be intended return only with explicit accounting contract, but stock-out coupled positive supplier debt is not coherent return convention in inspected receive-only contract."
+      ],
+      "recommendation": "Validate direction-specific quantity and unit price bounds before journal; explicitly separate approved return/credit-note semantics; preserve legitimate signed general Money/stock history.",
+      "tests": [
+        "Both-negative line rejected without stock/debt/journal",
+        "Single-negative and zero quantity/cost policy",
+        "Valid positive receipt, credit, payment bounds, idempotent retry",
+        "Approved disposable SQL fixture confirms absence of unintended records on rejected input"
+      ],
+      "runtime_test": "NOT_EXECUTED",
+      "independent_verification": {
+        "status": "STATIC_ONLY",
+        "reviewer": "root",
+        "artifact": "Independent-Challenges/negative-purchase-lines.json"
+      }
+    },
+    {
+      "id": "FIN-CAND-PAYROLL-001",
+      "title": "Concurrent pay/cancel can overwrite payroll terminal status",
+      "severity": "HIGH",
+      "confidence": "SOURCE_SUPPORTED_CANDIDATE;INDEPENDENT_CHALLENGE_PENDING",
+      "status": "CANDIDATE_NOT_INDEPENDENTLY_VERIFIED",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "originator": "root financial_coordinator",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+          "lines": [
+            24,
+            60
+          ],
+          "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+          "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+          "symbols": [
+            "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "lines": [
+            62,
+            87
+          ],
+          "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+          "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+          "symbols": [
+            "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+            "sym-e1836001213e59d67e5f4c5b5d410a03df04bd624f958d0722a0947d8d809d3a"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "lines": [
+            110,
+            162
+          ],
+          "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+          "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+          "symbols": [
+            "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "lines": [
+            13,
+            27
+          ],
+          "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "symbols": []
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "lines": [
+            460,
+            477
+          ],
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+          "symbols": [
+            "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+            "sym-6f67681e797db4ee997d1bcf1474ca758f599548efd3458247443aa35af32fcd"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+          "lines": [
+            5,
+            20
+          ],
+          "source_git_blob_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+          "worktree_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+          "symbols": []
+        }
+      ],
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/payroll-status-race-candidate.json",
+      "source_evidence": {
+        "candidate_key": "PAYROLL_CANCEL_PAYMENT_STALE_STATUS_RACE",
+        "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+        "reviewer": "root finishing explicitly interrupted financial competing-path lead",
+        "at_utc": "2026-10-18T03:23:05.441660+00:00",
+        "status": "SOURCE_SUPPORTED_HIGH_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+        "sources": [
+          {
+            "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+            "lines": [
+              24,
+              60
+            ],
+            "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+            "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+            "symbols": [
+              "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+            "lines": [
+              62,
+              87
+            ],
+            "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+            "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+            "symbols": [
+              "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+              "sym-e1836001213e59d67e5f4c5b5d410a03df04bd624f958d0722a0947d8d809d3a"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+            "lines": [
+              110,
+              162
+            ],
+            "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+            "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+            "symbols": [
+              "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32"
+            ]
+          },
+          {
+            "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+            "lines": [
+              13,
+              27
+            ],
+            "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+            "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+            "symbols": []
+          },
+          {
+            "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+            "lines": [
+              460,
+              477
+            ],
+            "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+            "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+            "symbols": [
+              "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+              "sym-6f67681e797db4ee997d1bcf1474ca758f599548efd3458247443aa35af32fcd"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+            "lines": [
+              5,
+              20
+            ],
+            "source_git_blob_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+            "worktree_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+            "symbols": []
+          }
+        ],
+        "root_cause": "Generic transition and payment authorize status on tracked pre-write snapshots without shared run lock/conditional status predicate/concurrency token.",
+        "schedules": [
+          {
+            "steps": [
+              "Cancellation loads Approved34 and validates Approved->Cancelled37, then pauses.",
+              "Payment reads Approved62-74, valid actor/account/day/balance; posts movement+settlements and commits Paid161-162.",
+              "Cancellation resumes sets Cancelled55 and SaveChanges59; no run concurrency token in entity/model."
+            ],
+            "predicted_effect": "Paid movement and settlement remain while run status becomes Cancelled. Filtered live-period index excludes Cancelled; subsequent run creation eligibility may change. No claim actual duplicate payment reproduced."
+          },
+          {
+            "steps": [
+              "Payment reads Approved62-74 and lines86, then pauses before transaction111.",
+              "Cancellation reads Approved and commits Cancelled59.",
+              "Payment resumes, starts transaction, locks only source balance118, not run state; sets Paid149 and commits."
+            ],
+            "predicted_effect": "Cancelled run can still be paid. Choose no replacement run inserted, avoiding unique live-period index conflict."
+          }
+        ],
+        "counterevidence": [
+          "Same-run payment idempotency key and unique journal/movement prevents duplicate same-run payment; does not coordinate status-only transition.",
+          "Payment source balance lock is inside transaction and protects cash balance; does not revalidate payroll status.",
+          "Paid and Cancelled terminal domain states reject newly read invalid transitions; selected schedules deliberately validate earlier Approved snapshots.",
+          "Filtered unique live-period index can reject a payment restoring Paid when another active run has already been inserted; chosen no-new-run schedule avoids this counterexample.",
+          "Actual EF SQL predicate and database acceptance not observed; source model/entity show no run concurrency token."
+        ],
+        "impact": "Money may leave for a run already cancelled, or completed financial settlement be displayed as cancelled; downstream reports and retry/recreation decisions unreliable.",
+        "proposed_fix": "Coordinate pay/cancel/review transitions on same transaction-held run lock or compare-and-swap concurrency token; recheck state and lines inside monetary critical section; retain idempotency and consistent lock order.",
+        "required_tests": [
+          "Approved snapshot pause then cancel commit then payment resume must reject all financial writes",
+          "Cancel snapshot pause then pay commit then cancel resume must reject without changing Paid",
+          "Same-run duplicate payment retains one movement",
+          "Interleaving with newly created replacement period run and live-period unique index"
+        ],
+        "verification": "SOURCE_ONLY; no DB mutation or transactions executed",
+        "independent_challenge": "PENDING; financial specialist unavailable thread-limit; root author is not independent challenger"
+      },
+      "runtime_end_to_end": "NOT_EXECUTED",
+      "independent_verification": "PENDING; root originator cannot independently approve own finding"
+    },
+    {
+      "id": "FIN-CAND-CASHCOUNT-001",
+      "title": "Unvalidated denomination and unchecked arithmetic can corrupt finalized count values",
+      "severity": "MEDIUM",
+      "confidence": "SOURCE_SUPPORTED_CANDIDATE;INDEPENDENT_CHALLENGE_PENDING",
+      "status": "CANDIDATE_NOT_INDEPENDENTLY_VERIFIED",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "originator": "root financial_coordinator",
+      "sources": [
+        {
+          "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+          "lines": [
+            125,
+            135
+          ],
+          "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+          "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+          "symbols": [
+            "sym-e133d5904af8e891421ef2489df104ac275f1230476034329c253ad13fce37c6"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+          "lines": [
+            29,
+            61
+          ],
+          "source_git_blob_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+          "worktree_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+          "symbols": [
+            "sym-d1fac0a62a9a06a19397c440997f02d62aec3d8d862291a178aa4e2ddf2539eb"
+          ]
+        },
+        {
+          "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+          "lines": [
+            47,
+            51
+          ],
+          "source_git_blob_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+          "worktree_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+          "symbols": []
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "lines": [
+            488,
+            500
+          ],
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "symbols": [
+            "sym-7a158f4ae1a34024042ba7eef06d297bfb91250a158fb96641a4844ae0c2e281"
+          ]
+        }
+      ],
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/cash-denomination-boundary-lead.json",
+      "source_evidence": {
+        "at_utc": "2026-10-18T03:34:18.470543+00:00",
+        "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+        "candidate_id": "FIN-CAND-CASHCOUNT-001",
+        "status": "SOURCE_SUPPORTED_MEDIUM_CANDIDATE_WITH_PURE_REPRODUCTION;INDEPENDENT_CHALLENGE_PENDING",
+        "sources": [
+          {
+            "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+            "lines": [
+              125,
+              135
+            ],
+            "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+            "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+            "symbols": [
+              "sym-e133d5904af8e891421ef2489df104ac275f1230476034329c253ad13fce37c6"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+            "lines": [
+              29,
+              61
+            ],
+            "source_git_blob_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+            "worktree_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+            "symbols": [
+              "sym-d1fac0a62a9a06a19397c440997f02d62aec3d8d862291a178aa4e2ddf2539eb"
+            ]
+          },
+          {
+            "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+            "lines": [
+              47,
+              51
+            ],
+            "source_git_blob_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+            "worktree_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+            "symbols": []
+          },
+          {
+            "path": "src/Falah.Server/Program.cs",
+            "lines": [
+              488,
+              500
+            ],
+            "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+            "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+            "symbols": [
+              "sym-7a158f4ae1a34024042ba7eef06d297bfb91250a158fb96641a4844ae0c2e281"
+            ]
+          }
+        ],
+        "behavior": "Negative or unsupported denomination passes Domain arithmetic and source forwards computed values into finalized count/audit. Positive denomination times huge positive quantity and total-minus-extreme-expected wrap into incorrect signed long results in isolated linked source.",
+        "impact": "Invalid finalized count and discrepancy audit possible for authorized cash_count actor; no evidence it directly posts cash, settles shifts or overrides close blockers.",
+        "counterevidence": [
+          "Negative quantity clamp is documented intended compatibility behavior, not finding.",
+          "Normal denomination list endpoint returns fixed valid notes/coins; crafted API inputs needed beyond normal UI.",
+          "Permission cash_count and existing day required; not unauthenticated or financial privilege bypass.",
+          "Six passed assertions mean implementation behavior reproduced, not application correctness passed.",
+          "Separate net10 harness, not actual net8 server or DB acceptance. Current project sources declare no checked arithmetic setting; inherited host/environment build overrides not certified."
+        ],
+        "recommended_remediation": "Whitelist allowed positive denominations; bound quantity and use checked multiplication/sum/difference with clear domain rejection. Define server-authoritative expected-cash snapshot policy before changing intended client input semantics.",
+        "required_tests": [
+          "All six pure cases as desired-policy rejection/control tests",
+          "Authorized disposable handler fixture rejects invalid rows without count or audit",
+          "Net8 actual published build arithmetic consistency",
+          "Confirm stored count cannot silently influence close reconciliation without server validation"
+        ],
+        "independent_review": "PENDING; root originated candidate, no independent agent currently available",
+        "pure_results": "Local-Verification/cash-denomination-pure-results.json",
+        "pure_results_sha256": "9835735d476915aaeeb1c12a8a1f70b329a4dca742b5130702b9f30f66610db1",
+        "linked_sources": [
+          {
+            "path": "src/Falah.Domain/Audit/AuditEvent.cs",
+            "sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/Actor.cs",
+            "sha256": "bd3c6edcf6f3dd8ab4f27d0d8890f0c15f278c2aa3420c5570ebf928a4f4203c"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+            "sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/ManagerApproval.cs",
+            "sha256": "dcd86fa2a536f88cde67e01c8163cb6a27c3fc7de1201c21f5fde6261fd870a2"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/PermissionCatalog.cs",
+            "sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/PinHasher.cs",
+            "sha256": "dea709e111adf03d56624a80fcf330ba2cb63540f3d70acaa97e91bdba1f40b6"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/SessionToken.cs",
+            "sha256": "356e4dcde7e8778421f240589c9f00791d583700266d9b1d548ffc380e6d2668"
+          },
+          {
+            "path": "src/Falah.Domain/Authorization/UserManagementRules.cs",
+            "sha256": "3a72ee5f6b79d83b6364bf22d8150b39b2a13211fa2db392f13b90c5b10c32fe"
+          },
+          {
+            "path": "src/Falah.Domain/Backup/BackupRules.cs",
+            "sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e"
+          },
+          {
+            "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+            "sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06"
+          },
+          {
+            "path": "src/Falah.Domain/Common/BusinessClock.cs",
+            "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208"
+          },
+          {
+            "path": "src/Falah.Domain/Common/DomainException.cs",
+            "sha256": "763b8c5644ed42f312f652daa85cb920474290175021e94b272ca4f02f90e00d"
+          },
+          {
+            "path": "src/Falah.Domain/Common/Money.cs",
+            "sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f"
+          },
+          {
+            "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+            "sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652"
+          },
+          {
+            "path": "src/Falah.Domain/Customers/Customer.cs",
+            "sha256": "1cd133bfadd3dec6e841be4aa37526162b63d1591a35fbb083c8e7c4c5c3ec63"
+          },
+          {
+            "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+            "sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e"
+          },
+          {
+            "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+            "sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa"
+          },
+          {
+            "path": "src/Falah.Domain/Delivery/DeliveryStatus.cs",
+            "sha256": "ac7798dec40be08c0cf518bac1226059a34ef34f54744c4bf74cf56979665be6"
+          },
+          {
+            "path": "src/Falah.Domain/Employees/Attendance.cs",
+            "sha256": "dd1e762019008a9e1c10d88accd40342aa0dd56bd836f032e689447e0d9f00fc"
+          },
+          {
+            "path": "src/Falah.Domain/Employees/Employee.cs",
+            "sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c"
+          },
+          {
+            "path": "src/Falah.Domain/Employees/EmployeeRules.cs",
+            "sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5"
+          },
+          {
+            "path": "src/Falah.Domain/Financial/FinancialRules.cs",
+            "sha256": "0c48f0fef3792f1bd9e85023ad85978ae8583f9f7d2e2bcaa65f3159aef1b926"
+          },
+          {
+            "path": "src/Falah.Domain/Financial/PaymentMethod.cs",
+            "sha256": "075abd460e3510501379b2e6d0a316980d8decf4421a343fdd61863702dd1e8e"
+          },
+          {
+            "path": "src/Falah.Domain/Financial/TaxRule.cs",
+            "sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766"
+          },
+          {
+            "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+            "sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87"
+          },
+          {
+            "path": "src/Falah.Domain/Idempotency/FinancialJournal.cs",
+            "sha256": "9db76c8c0bbc5ef0940184d880643e05cee17a6dd85cb7656703fe6bb5cf1295"
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+            "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/InventoryRecords.cs",
+            "sha256": "52d7a39781b9d8a87828ed3d38193ecc8fc87b0a140e666c1df64a8ac66918af"
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+            "sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67"
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/PrepRecipeLine.cs",
+            "sha256": "a1309574f1717ceda4e508e0c694472e28e3d7ae7f18a97af9a5ba6c1596fb15"
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+            "sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524"
+          },
+          {
+            "path": "src/Falah.Domain/Menu/ProductImageRules.cs",
+            "sha256": "726d153f2fb151c7fd969c2c0dc199f30fdc2e36798552d79304ad1744b1de49"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+            "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/ElectronicPayment.cs",
+            "sha256": "9b3fd7b69233fff187b40ac34b92851de557f38e6a8c8c641cd25c7add0efbd7"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/Order.cs",
+            "sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/OrderEnums.cs",
+            "sha256": "017b0a0657846aae726cb0b7762fd9d31ccef5b0e60a902584b0aafbbee7eecc"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/OrderItem.cs",
+            "sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+            "sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/OrderRefund.cs",
+            "sha256": "dfb3e496413d4e770c0961e421a663262f1a9a612b017616120807ebdaf89a33"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/OrderValueBreakdown.cs",
+            "sha256": "4c7f490f4226a5b1e431a26a065ec2a84b283e7b4ee0f2e1232f1ae3dfb5a6b9"
+          },
+          {
+            "path": "src/Falah.Domain/Orders/RefundRules.cs",
+            "sha256": "10bf926d5ad29fcc2d25b98ce32e523ae76769ae077bbd0d659b59443501feb9"
+          },
+          {
+            "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+            "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+          },
+          {
+            "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+            "sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303"
+          },
+          {
+            "path": "src/Falah.Domain/Pricing/PriceRule.cs",
+            "sha256": "96af5115cb582e129e04140cd81ca97555e80a548078202f69693e5348cac826"
+          },
+          {
+            "path": "src/Falah.Domain/Pricing/PricingRules.cs",
+            "sha256": "d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b"
+          },
+          {
+            "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs",
+            "sha256": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be"
+          },
+          {
+            "path": "src/Falah.Domain/Printing/PrintRecords.cs",
+            "sha256": "3f47e0d211c4eb59acc9245104c68220198105e97971b7f9604d31074855ac18"
+          },
+          {
+            "path": "src/Falah.Domain/Printing/PrintRules.cs",
+            "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9"
+          },
+          {
+            "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+            "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908"
+          },
+          {
+            "path": "src/Falah.Domain/Purchasing/PayablesAging.cs",
+            "sha256": "1e5c3b20e445a616b5b6bbb38bd30f3c3132d377a1967c53ce4ad7ac048389b7"
+          },
+          {
+            "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+            "sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+          },
+          {
+            "path": "src/Falah.Domain/Reports/SalesRules.cs",
+            "sha256": "eb5ff2f1a5e957ff106386e34849d11a8b6a2e7f01fb864c3988a00f77adc4e9"
+          },
+          {
+            "path": "src/Falah.Domain/Reports/TrendRules.cs",
+            "sha256": "f192a9a0c309eaa8710fe5c00db307073e976aeabc87fe8299d33c22eb75e511"
+          },
+          {
+            "path": "src/Falah.Domain/Shifts/Shift.cs",
+            "sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690"
+          }
+        ],
+        "audit_program_sha256": "fa691ba9b0a2d26fecd284c8418563fb2ff5508e2000117759fb13340e617027",
+        "audit_assembly_sha256": "69e12d6ed7aa12777193446968c7c4f2775dee2e5cffc799127543773b8c7db1",
+        "runtime_actions": "Synthetic pure calculation only; zero DB/API/financial record writes"
+      },
+      "runtime_end_to_end": "NOT_EXECUTED",
+      "independent_verification": "PENDING; root originator cannot independently approve own finding"
+    },
+    {
+      "id": "FIN-CAND-PREPGRAPH-001",
+      "title": "Concurrent opposite prep edges can evade pretransaction cycle admission",
+      "severity": "MEDIUM",
+      "confidence": "SOURCE_SUPPORTED_CANDIDATE;INDEPENDENT_CHALLENGE_PENDING",
+      "status": "CANDIDATE_NOT_INDEPENDENTLY_VERIFIED",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "originator": "root financial_coordinator",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+          "lines": [
+            25,
+            49
+          ],
+          "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+          "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+          "symbols": [
+            "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+          "lines": [
+            51,
+            73
+          ],
+          "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+          "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+          "symbols": [
+            "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6",
+            "sym-9bbeda666b454a98bba773a7571be440f283aef223ec8589f7f50f6b3233c0c2",
+            "sym-122f663756548959845d86027e990f3e9f0b2e8218b55e1707a64f80c1ab6627"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+          "lines": [
+            84,
+            109
+          ],
+          "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+          "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+          "symbols": [
+            "sym-16929df3b18ace24b5400bf287a8bfe8a53af5db705863f2233c1eed03842bfd"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "lines": [
+            28,
+            45
+          ],
+          "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+          "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+          "symbols": [
+            "sym-b43d69b3394282fe5cf2c2b2512f84b5f0685bdf7ccf6d33e5df792fa5aa1ceb"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "lines": [
+            97,
+            127
+          ],
+          "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+          "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+          "symbols": [
+            "sym-68c38ec3666ab8a76cc483782c9d631d417de98e152305dea4d4c0b2b2259e38"
+          ]
+        }
+      ],
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/prep-graph-concurrency-candidate.json",
+      "source_evidence": {
+        "candidate_id": "FIN-CAND-PREPGRAPH-001",
+        "at_utc": "2026-10-18T03:39:19.972216+00:00",
+        "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+        "status": "SOURCE_SUPPORTED_MEDIUM_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+        "sources": [
+          {
+            "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+            "lines": [
+              25,
+              49
+            ],
+            "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+            "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+            "symbols": [
+              "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+            "lines": [
+              51,
+              73
+            ],
+            "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+            "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+            "symbols": [
+              "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6",
+              "sym-9bbeda666b454a98bba773a7571be440f283aef223ec8589f7f50f6b3233c0c2",
+              "sym-122f663756548959845d86027e990f3e9f0b2e8218b55e1707a64f80c1ab6627"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+            "lines": [
+              84,
+              109
+            ],
+            "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+            "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+            "symbols": [
+              "sym-16929df3b18ace24b5400bf287a8bfe8a53af5db705863f2233c1eed03842bfd"
+            ]
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+            "lines": [
+              28,
+              45
+            ],
+            "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+            "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+            "symbols": [
+              "sym-b43d69b3394282fe5cf2c2b2512f84b5f0685bdf7ccf6d33e5df792fa5aa1ceb"
+            ]
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+            "lines": [
+              97,
+              127
+            ],
+            "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+            "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+            "symbols": [
+              "sym-68c38ec3666ab8a76cc483782c9d631d417de98e152305dea4d4c0b2b2259e38"
+            ]
+          }
+        ],
+        "preconditions": "Two authorized concurrent menu_manage/valid-approval requests saving different recipe IDs and different output ingredients A/B; positive amounts; existing valid ingredient IDs; no other graph edges.",
+        "schedule": [
+          "T1 validates A produces input B; reads other active prep recipes before transaction49 and sees no B->A edge.",
+          "T2 validates B produces input A; reads same precommit graph and sees no A->B edge.",
+          "Both begin separate transactions after validation; write distinct recipes/lines, commit. Neither validator reruns under transaction or obtains shared graph-admission lock."
+        ],
+        "predicted_effect": "Stored active structural cycle A->B->A despite documented save rejection policy; dependent prep/dish costs become incomplete/unknown rather than valid margins. Actual SQL dual-commit not executed.",
+        "counterevidence": [
+          "Domain costing path-local resolving set prevents stack overflow and returns unknown; not infinite recursion/process termination.",
+          "Sequential second save sees first edge and rejects, so ordinary sequential test does not reproduce race.",
+          "Whole-line replacement atomicity prevents partial individual recipe update; does not serialize two distinct graph predicates.",
+          "No actual ledger/stock movement created by SavePrepRecipe; accounting effect is cost-coverage/report reliability rather than proven money loss."
+        ],
+        "recommendation": "Coordinate graph updates using transaction-scoped graph revision/locking and revalidate serializably with bounded retry; consistent multi-process semantics. Retain unknown-cost and recursion defenses. No implementation.",
+        "regression_tests": [
+          "Barrier before both graph reads/transaction; opposite-edge saves cannot both commit.",
+          "Independent acyclic concurrent saves remain possible as policy allows.",
+          "Pure circular-cost fixture retains Unknown and finite termination; report must not display full profit."
+        ],
+        "independent_review": "PENDING; root is originator",
+        "runtime": "NOT_EXECUTED"
+      },
+      "runtime_end_to_end": "NOT_EXECUTED",
+      "independent_verification": "PENDING; root originator cannot independently approve own finding"
+    },
+    {
+      "id": "FIN-CAND-PACKAGING-COVERAGE-001",
+      "title": "Unknown once-per-order packaging cost does not invalidate aggregate profit completeness",
+      "severity": "MEDIUM",
+      "confidence": "SOURCE_SUPPORTED_CANDIDATE;INDEPENDENT_CHALLENGE_PENDING",
+      "status": "CANDIDATE_NOT_INDEPENDENTLY_VERIFIED",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "originator": "root financial_coordinator",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "lines": [
+            399,
+            423
+          ],
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "symbols": [
+            "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "lines": [
+            181,
+            190
+          ],
+          "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+          "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+          "symbols": [
+            "sym-a37184daa74a29ceaf9a0a0efae1fb2687dbc0e55f16a843284f7761fc8466dd"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "lines": [
+            205,
+            223
+          ],
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+          "symbols": [
+            "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+          "lines": [
+            35,
+            46
+          ],
+          "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+          "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+          "symbols": [
+            "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db"
+          ]
+        }
+      ],
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/packaging-completeness-candidate.json",
+      "source_evidence": {
+        "candidate_id": "FIN-CAND-PACKAGING-COVERAGE-001",
+        "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+        "at_utc": "2026-10-18T03:45:08.288040+00:00",
+        "status": "SOURCE_SUPPORTED_MEDIUM_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+        "sources": [
+          {
+            "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+            "lines": [
+              399,
+              423
+            ],
+            "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+            "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+            "symbols": [
+              "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51"
+            ]
+          },
+          {
+            "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+            "lines": [
+              181,
+              190
+            ],
+            "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+            "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+            "symbols": [
+              "sym-a37184daa74a29ceaf9a0a0efae1fb2687dbc0e55f16a843284f7761fc8466dd"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+            "lines": [
+              205,
+              223
+            ],
+            "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+            "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+            "symbols": [
+              "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a"
+            ]
+          },
+          {
+            "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+            "lines": [
+              35,
+              46
+            ],
+            "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+            "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+            "symbols": [
+              "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db"
+            ]
+          }
+        ],
+        "preconditions": "Selected sold dish lines all have fully known recipe cost. An active once-per-order packaging rule for sold order type references ingredient with unknown cost.",
+        "evidence_chain": [
+          "Reporting399-408 increments total/known for complete sold dish recipes.",
+          "CostingRules181-190 returns Known=false for configured packaging ingredient without unit cost.",
+          "Reporting413-419 adds missing packaging name and continues without any completeness counter change. Returns identical knownLineCount=soldLineCount plus nonempty Missing422.",
+          "OwnerDashboard211-215 passes only numeric counts and known amount to profitability; gross.IsComplete forwarded222, while Missing forwarded223 separately and does not alter flag.",
+          "ProfitabilityRules38 deems knownLineCount>=soldLineCount complete, so numeric margin from incomplete packaging cost can carry IsComplete=true."
+        ],
+        "impact": "Contradictory financial report completeness and overstated numerical profit/operating result when packaging cost unknown. No ledger money lost or actual UI presentation verified.",
+        "counterevidence": [
+          "Missing packaging name remains in FoodCostReportDto and ProfitabilityDto.Missing; not silently deleted. UI may show that independent warning (not inspected here).",
+          "No active packaging rule is intentionally known zero optional cost; candidate requires configured rule with unresolved cost.",
+          "Partial unknown dish recipe correctly changes counts; this candidate concerns separately accounted order packaging.",
+          "Current-price historical recipe costing is documented limitation, distinct from missing packaging completeness."
+        ],
+        "root_cause": "Completeness counts represent dish lines only, while monetary food-cost total includes separately processed order-level packaging; missing packaging status not included in completeness boolean calculation.",
+        "recommendation": "Carry explicit aggregate completeness including dish and order packaging costs into profitability; preserve separate unit/count semantics rather than inventing dish counts. Keep missing descriptions and no-known-cost policy.",
+        "required_tests": [
+          "One known dish plus missing active packaging must mark profit incomplete",
+          "Known packaging retains true completeness and charges once per order",
+          "No packaging rule stays optional known zero",
+          "Many items one order vs many orders packaging cardinality",
+          "Missing name may warn visually, but returned IsComplete must agree with aggregate cost coverage"
+        ],
+        "independent_review": "PENDING; root originator cannot independently certify own candidate",
+        "runtime_executed": false
+      },
+      "runtime_end_to_end": "NOT_EXECUTED",
+      "independent_verification": "PENDING; root author cannot independently approve own issue"
+    },
+    {
+      "id": "FIN-CAND-CLOSEDAY-ADMISSION-001",
+      "title": "Previously admitted treasury deposit can post after authoritative business-day close",
+      "severity": "HIGH",
+      "confidence": "SOURCE_SUPPORTED_CANDIDATE;INDEPENDENT_CHALLENGE_PENDING",
+      "status": "CANDIDATE_NOT_INDEPENDENTLY_VERIFIED",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "originator": "root financial_coordinator",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+          "lines": [
+            56,
+            85
+          ],
+          "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+          "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+          "symbols": [
+            "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "lines": [
+            14,
+            29
+          ],
+          "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "symbols": [
+            "sym-5302fe52cf38bc22dfd3b6bc6171ef7fcf6692e90c6e1e1d0e468662d1ead0bf"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+          "lines": [
+            64,
+            121
+          ],
+          "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+          "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+          "symbols": [
+            "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+          "lines": [
+            25,
+            57
+          ],
+          "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+          "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+          "symbols": []
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "lines": [
+            164,
+            208
+          ],
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "symbols": [
+            "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5"
+          ]
+        }
+      ],
+      "source_evidence": {
+        "candidate_id": "FIN-CAND-CLOSEDAY-ADMISSION-001",
+        "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+        "at_utc": "2026-10-18T03:49:10.409416+00:00",
+        "status": "SOURCE_SUPPORTED_HIGH_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+        "sources": [
+          {
+            "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+            "lines": [
+              56,
+              85
+            ],
+            "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+            "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+            "symbols": [
+              "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+            "lines": [
+              14,
+              29
+            ],
+            "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+            "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+            "symbols": [
+              "sym-5302fe52cf38bc22dfd3b6bc6171ef7fcf6692e90c6e1e1d0e468662d1ead0bf"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+            "lines": [
+              64,
+              121
+            ],
+            "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+            "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+            "symbols": [
+              "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4"
+            ]
+          },
+          {
+            "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+            "lines": [
+              25,
+              57
+            ],
+            "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+            "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+            "symbols": []
+          },
+          {
+            "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+            "lines": [
+              164,
+              208
+            ],
+            "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+            "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+            "symbols": [
+              "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5"
+            ]
+          }
+        ],
+        "preconditions": "Authorized treasury deposit with fresh key already passed actor and active-day lookup; authorized close actor and otherwise satisfied close blockers; no external admission serialization.",
+        "schedule": [
+          "Tdeposit resolves open day at58, pauses before BeginTransaction60. No pending journal exists yet, no day row lock held.",
+          "Tclose evaluates blockers including journal and cash checks, computes reconciliation87, creates frozen snapshot with reconciliation101 and commits day Closed112-121. No deposit entry existed during evaluation/snapshot.",
+          "Tdeposit resumes, opens new transaction, writes journal/incoming treasury movement for previously obtained day ID, saves and commits84-85. No re-read Open state or day revision predicate in monetary critical section."
+        ],
+        "predicted_effect": "Posted monetary activity can attach to a Closed business day after authoritative closing snapshot and blocker evaluation, leaving frozen snapshot inconsistent with ledger. Chosen deposit case needs no open cashier shift and no source-balance lock, avoiding unrelated guards.",
+        "counterevidence": [
+          "Both individual operations are transactional; selected timeline has no transaction overlap, so those locks do not prevent prevalidated admission.",
+          "Blocked close commits blocked-audit and throws; candidate assumes all actual blockers satisfied before paused deposit posts.",
+          "No intentional direct financial mutation by Close handler; mutation is later legitimate deposit, exposing admission gap.",
+          "Snapshot is immutable historical close-time view; if product explicitly permits post-close day-stamped financial postings, policy/clear delta reporting required. Current RequireOpen contract and authoritative snapshot suggest exclusion intended.",
+          "No actual SQL acceptance, API concurrency, external writer serialization or data-loss outcome observed."
+        ],
+        "related_findings": [
+          "FIN-015 stale shift admission affects sales after shift handover, distinct business-day boundary here",
+          "FIN-008 backup restore admission race, analogous broader operation-admission concern but separate mechanism"
+        ],
+        "recommendation": "Transaction-held day admission coordination/revalidation for financial writes and close; close drains previously admitted operations and snapshots after them. Consistent lock order and distributed/multi-process semantics; no mere UI disabling or unshared process mutex.",
+        "tests": [
+          "Pause deposit after day lookup, close commits, resumed deposit must reject with zero journal/movement",
+          "Reverse order close waits until admitted deposit commits and snapshot includes it",
+          "New-day opening/reopen/idempotent replay and other money command gates",
+          "Approved disposable SQL controlled interleaving only; none executed now"
+        ],
+        "independent_review": "PENDING; root is author",
+        "runtime": "NOT_EXECUTED",
+        "next": "Independent challenge of precise no-overlap timeline; no live financial test authorized.",
+        "additional_source_checks": {
+          "middleware": "AuthenticationMiddleware.InvokeAsync32-84 resolves session/mismatch then awaits next; no financial write-admission mutex in invocation. Helper remainder not re-reviewed in this check.",
+          "program": "Only observed middleware auth and login fixed-window rate limiter; deposit542 delegates handler. Rate limiter is not financial serialization.",
+          "day_mapping": "FalahDbContext137-141 business day key+unique OpenRequestId only; no state concurrency token there.",
+          "qualification": "Source inspection of configured path only; external deployment proxy/application overrides not certified."
+        }
+      },
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/business-day-admission-candidate.json",
+      "runtime_end_to_end": "NOT_EXECUTED",
+      "independent_verification": "PENDING; root author cannot independently certify own candidate"
+    }
+  ],
+  "at_utc": "2026-10-17T12:46:23.079153+00:00",
+  "originator": "root"
+}

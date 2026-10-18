@@ -1,0 +1,62 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:22.271988+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+  "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-065300cc73d3eccc6c128690debb964367467ad321ed186ec2150bddb7d4783a",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.RetainedRequestRecord::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        30,
+        1,
+        30,
+        105
+      ],
+      "reasoning": "RetainedRequestRecord immutable positional metadata stores owner key/type/savedUTC only, not payload. List can expose pending-operation metadata but record is not authorization boundary.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No live journal/customer/PIN payload accessed.",
+      "tests_missing": "No live journal/customer/PIN payload accessed. NOT_EXECUTED.",
+      "verified_callers_callees": "FileRetainedRequestStore.List"
+    },
+    {
+      "stable_id": "sym-299624dde1180b1f575c6c4db2bca526f9887422400489018da8f0b6d42c87de",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.Envelope::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        34,
+        5,
+        34,
+        97
+      ],
+      "reasoning": "Private Envelope record stores type discriminator, savedUTC and JsonElement payload. Compiler copy/equality is shallow for JsonElement; serialization stores raw DTO fields including any PIN-bearing user DTO. Root SEC002 owns confidentiality analysis.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No encryption implied by record or JsonElement; file ACL and cleanup counterevidence parent-owned.",
+      "tests_missing": "No encryption implied by record or JsonElement; file ACL and cleanup counterevidence parent-owned. NOT_EXECUTED.",
+      "verified_callers_callees": "Save/Load; JsonSerializer"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

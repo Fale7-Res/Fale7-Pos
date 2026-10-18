@@ -1,3 +1,107 @@
+# Reconciled progress — 2026-10-17T18:33:14.249693+00:00
+
+**Audit remains IN PROGRESS. All690 file reports exist; exhaustive function reasoning and final quality gates do not yet pass.**
+
+Local main `1605b0a4cb2a57c485633e9e942647daeaefdf74`. Remote was read-only verified at the same SHA on2026-10-17; no commit/push performed. Original source baseline `c35816ecae49633674775dd32061c6ee92f94aaf`.
+
+File-pass receipts: **690/690**, missing reports:0. Source hash mismatches:0; receipt consistency errors:0. Report presence does not independently certify every function.
+
+Exact C# author callable receipts: **5754/11653**; **5899 missing**. Independent depth total remains UNKNOWN.17 additional non-C# AST identities/receipts have a separate denominator. Legacy507 name/heading records are not extra reviewed functions.
+
+Author receipt methods: `{"AUTHOR_REASONING_RECEIPT_METHOD_NOT_SEPARATELY_CLASSIFIED": 3457, "MANUAL_CHANGED_BLOCK_AND_CURRENT_CONTEXT": 108, "EXACT_SOURCE_EQUIVALENCE_PLUS_MANUAL_CURRENT_MODEL_CONTEXT": 2189}`.
+
+Canonical registry has46 historical finding records, not46 independently runtime-reproduced distinct defects. FLOW001/UI003 overlap one owner workflow requirement; qualifications and grouping still need final reconciliation. No live application/DB exploit reproduced.
+
+## All15 original phases
+
+|Phase|Actually saved work|Remaining|Evidence|
+|---|---|---|---|
+|1 — Verified source of truth (IN_PROGRESS)|690 baseline identities, normalized hashes and Roslyn syntax inventory verified; semantic probes remain partial.|Full semantic/build-generated correspondence and final architecture consistency gate.|[saved evidence](Source-Inventory/Current/FUNCTION_INDEX.json)|
+|2 — Per-file and per-function review (IN_PROGRESS)|All690 file-pass reports now present; exact callable reasoning remains incomplete and includes explicitly classified source-equivalence reuse.|Every remaining stable callable and independent report-depth quality.|[saved evidence](File-Reports/)|
+|3 — Adversarial security (IN_PROGRESS)|SEC001 binding mechanism isolated; SEC002/003 source challenges; backup policy counterevidence saved. Plugin scan never launched successfully.|SQL boundary review active; native/process/network/timer/permission completeness and canonical qualification.|[saved evidence](Security/SECURITY_AND_BACKDOOR_AUDIT.md)|
+|4 — Dependency security (IN_PROGRESS)|210 component versions joined to all advertised saved NuGet pages;59 parser comparisons and61 static test manifests independently rechecked;210 nuspec metadata read.|License content/provenance/signatures, final deployment/runtime/native servicing and compatibility.|[saved evidence](Dependency-Security/DEPENDENCY_SECURITY_AND_SBOM.md)|
+|5 — Pickup workflow (IN_PROGRESS)|Positive cash pickup requires payment in current rules; independent bounded requirement-gap challenge saved, overlapping UI003.|Finish global lifecycle synthesis and shared requirement grouping; no real order test.|[saved evidence](Printing/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md)|
+|6 — Delivery workflow (IN_PROGRESS)|Saved checkout/dispatch/COD/settlement and ticket traces exist.|Reconcile financial/state findings and final delivery workflow tests/limits.|[saved evidence](Printing/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md)|
+|7 — Printing and preview (IN_PROGRESS)|71 file passes,388 exact author callable receipts;130 route challenges with explicit corrections; unsafe verification-script risk documented.|Final rendering/preview/Arabic/retry synthesis and explicit physical/native validation plan.|[saved evidence](Printing/PRINTING_RELIABILITY_AND_PREVIEW.md)|
+|8 — Visual UI and accessibility (IN_PROGRESS)|274 static file passes;11 HIGH UI findings independently challenged with counterevidence; exact callable review still active.|Remaining UI callable analysis, final thematic report and unexecuted native/DPI/contrast state plan.|[saved evidence](UI-UX/Independent-Challenges/README.md)|
+|9 — Database and finance (IN_PROGRESS)|327 file passes;FIN001-014 retain static source challenges, including new post-restore outcome defect.|Remaining exact financial functions, model-context quality, synthesis and transaction/concurrency test plans.|[saved evidence](Database-and-Finance/financial-parent-challenges.json)|
+|10 — Performance and hardware (IN_PROGRESS)|Focused12-record/36-symbol source challenge saved; provisional hardware envelopes explicitly uncertified.|Integrate remaining source findings; runtime benchmark/capacity measurements NOT EXECUTED.|[saved evidence](Performance/PERFORMANCE_AND_MINIMUM_HARDWARE.md)|
+|11 — Duplication and architecture (IN_PROGRESS)|Known shared/duplicated client journal and lifecycle observations retained in file reports.|Comprehensive duplicate-function clustering/manual challenge and final architecture report.|[saved evidence](../Knowledge/coverage-index.json)|
+|12 — Recommendations (IN_PROGRESS)|Finding-local proposed fixes/tests exist; no fixes implemented.|Prioritized immediate/near-term/future feature synthesis, tradeoffs and implementation roadmap.|[saved evidence](MASTER_FINDINGS.json)|
+|13 — Evidence and independence (IN_PROGRESS)|Canonical source challenges retain conditional severities and rejected subclaims; no live exploit claim.|Final canonical mandatory-field, evidence hash/symbol/span and duplicate-group reconciliation.|[saved evidence](MASTER_FINDINGS.json)|
+|14 — Coverage and quality gates (IN_PROGRESS)|690 identities/report receipts verified; stable callable ledger distinguishes reused evidence and depth uncertainty.|Missing callable reasoning and final JSON/link/privacy/source-identity gates.|[saved evidence](../Knowledge/coverage-index.json)|
+|15 — Final deliverables (IN_PROGRESS)|Existing substantive drafts and supporting evidence preserved; presence is not final acceptance.|Complete and reconcile all19 deliverables, then final-only normal main commit/push.|[saved evidence](PHASE_PROGRESS_REPORT.md)|
+
+Per-phase source/function totals remain UNKNOWN: current ledgers identify ownership and exact symbols, not a nonoverlapping phase allocation. No percentages estimated.
+
+## Required deliverable presence — not acceptance
+
+|Deliverable|Saved paths/state|
+|---|---|
+|EXECUTIVE_SUMMARY.md|MISSING exact final deliverable|
+|ARCHITECTURE_AND_SOURCE_MAP.md|MISSING exact final deliverable|
+|SOURCE_INVENTORY.csv|Deep-Audit/Source-Inventory/Current/SOURCE_INVENTORY.csv|
+|FUNCTION_INDEX.json|Deep-Audit/Source-Inventory/Current/FUNCTION_INDEX.json|
+|SECURITY_AND_BACKDOOR_AUDIT.md|Deep-Audit/Security/SECURITY_AND_BACKDOOR_AUDIT.md|
+|DEPENDENCY_SECURITY_AND_SBOM.md|Deep-Audit/Dependency-Security/DEPENDENCY_SECURITY_AND_SBOM.md|
+|PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md|Deep-Audit/Printing/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md|
+|PRINTING_RELIABILITY_AND_PREVIEW.md|Deep-Audit/Printing/PRINTING_RELIABILITY_AND_PREVIEW.md|
+|UI_UX_VISUAL_AUDIT.md|MISSING exact final deliverable|
+|DATABASE_AND_FINANCIAL_INTEGRITY.md|MISSING exact final deliverable|
+|PERFORMANCE_AND_MINIMUM_HARDWARE.md|Deep-Audit/Performance/PERFORMANCE_AND_MINIMUM_HARDWARE.md|
+|CODE_DUPLICATION_AND_ARCHITECTURE.md|MISSING exact final deliverable|
+|TEST_COVERAGE_AND_MISSING_TESTS.md|MISSING exact final deliverable|
+|IMMEDIATE_FIXES_AND_FEATURES.md|MISSING exact final deliverable|
+|FUTURE_IMPROVEMENTS_AND_FEATURES.md|MISSING exact final deliverable|
+|MASTER_FINDINGS.json|Deep-Audit/MASTER_FINDINGS.json|
+|AUDIT_COVERAGE.json|MISSING exact final deliverable|
+|IMPLEMENTATION_ROADMAP.md|MISSING exact final deliverable|
+|FILE_REPORTS/|690 reports under File-Reports/; final depth acceptance remains open|
+
+Domain377 existing-binary tests and SEC00110 isolated binding assertions are separate limited evidence. No DB-backed integration test, native visual session, physical print, benchmark or software/schema change was executed for this progress refresh.
+
+## Historical progress follows
+
+# Latest verified progress — 2026-10-17 07:23 UTC
+
+This snapshot supersedes counts in historical assessments below. The audit remains incomplete; no new commit/push is authorized until all original final gates pass.
+
+- Source baseline: c35816ecae49633674775dd32061c6ee92f94aaf. All690 original files hash-identical after newline normalization; latest check has no mismatches. Local main1605b0a4cb2a57c485633e9e942647daeaefdf74; remote main independently read at same SHA during this continuation.
+-655 complete-file static receipts;35 financial model metadata files remain. UI274,printing71,parent18 file passes complete; finance292/327. Individual reports are under File-Reports, exact paths in [current evidence](Progress-20261017-Current.json). This is not exhaustive function-depth certification.
+-2855/11653 exact C# callable author reasoning receipts;8798 lack such receipts. Financial1288,UI1179,printing388; unique global union validated. Old507UIheading matches remain separate. Independent global depth total UNKNOWN.
+-All130 previously generic route receipts now independently challenged against wrappers and actual typed callees. Parent accepted depth with explicit qualifications; rejected packaging multiplicity/station fallback subclaims and corrected nonexistent CustomerRules.cs reference. Details: [parent decisions](../Knowledge/Quality-Reviews/printing-parent-decisions.json). This does not certify all388printing functions or whole audit.
+-377Domain tests passed from existingReleasebinary,0failed/0skipped; no rebuild provenance guarantee. Separate10in-memoryMinimalAPIcase assertions passed using fake session, no live privileged operation. [Sanitized test result](Test-Coverage/domain-tests-20261017-sanitized.json).
+-Canonical44 finding/candidate records preserve history.16legacy static corroborations plusSEC001 mechanism; SEC003 independent specialist challenge underway. No count of allHigh findings as verified. No actual private employee/customer record accessed.
+-Dependency metadata210components checked against completeadvertised NuGetfeed and candidateGitHubdetails,2historicaltest-onlyrange matches; actual runtime exposure not established. Substantive performance report exists pending parent review; no certified hardware minimum or benchmark inferred.
+
+## All15phase gates at this snapshot
+
+| Original phase | Verified advance | Remaining gate |
+|---|---|---|
+|1Source truth|690hash checks, corrected syntax inventory, all18parent docs reconciled|Final architecture/source map and semantic/configuration limits|
+|2Per-file/function|655reports,2855stable callable receipts|35files,8798C#callable gaps,10nonC#identities and independent depth|
+|3Adversarial security|SEC001binding10cases,closedByalias trace,SEC003HRreadchain|Fullsink/authmatrix,SEC002record,High challenges, no exhaustive backdoor verdict|
+|4Dependencies|210componentSBOM/feedchecks and runtimeassetcounterevidence|Parentindependentmetadata challenge,compatibility/update/license synthesis|
+|5Pickup|Substantive static lifecycle report|Independentfinalstate/contract/testplan synthesis; noorderwrites|
+|6Delivery|Dispatch/result/settlement/receipt source chains challenged|Finalrelatedfindings/report reconciliation and safe integration testplan|
+|7Printing/preview|71filepasses,130routequalitychallengecomplete|Otherfunctiondepth,Arabic/paper/native NOT_EXECUTED plans and final synthesis|
+|8VisualUI|274filepasses,1179exactUIcallables|1282UIcallables and High/native-state challenges; noactualscreenshots inferred|
+|9Finance/database|292financialfilepasses,1288exactreceipts,10FINstaticcrosschecks|35metadatafiles,manyfunctions,3FINcandidates andtest-oracle concerns|
+|10Performance/hardware|Substantive specialist source report/12behaviorrecords|Parentchallenge; measurements/SQLplans/UIlatencyunexecuted;profilesuncertified|
+|11Duplication/architecture|Componentinteractionsobserved in savedreviews|Substantivecomplete duplication analysis/report and crosschecks|
+|12Recommendations|Per-finding proposed fixes and missingtests|Final immediate/future recommendations and tradeoffs|
+|13Evidence/verification|Stableidentity/hash/schema and preservedobjections|Canonicalmandatoryfields,line/pathquality,deduplication,allHigh challenges|
+|14Coveragequality|Machinequeue/snapshot and truthful unknowns|Materialsource/functiongaps and finalqualitychecks|
+|15Finaldeliverables|Substantiveexisting drafts/inventories/findings|All19finaloutputs completeness,Arabicexecutivesummary/roadmap,publicationprivacygates|
+
+Per-phase genuine file/function counts remain UNKNOWN where no phase-tagged ledger exists; counts above are stream/global snapshots, not falsely assigned to each phase. Exact expected deliverable existing/missing paths are enumerated in Progress-20261017-Current.json; existence means draft, not final acceptance.
+
+Read [NEXT_ACTION](../Conversation-Recovery/NEXT_ACTION.md) first on resume, then [entire remaining queue](../Conversation-Recovery/remaining-audit-queue.json). Agent progress can advance beyond this snapshot; do not overwrite newer evidence.
+
+---
+
+# Historical assessments retained below
+
 > Latest recovery checkpoint: **610 file reports;80 files remaining**. Persistent stable callable receipts743, with130 awaiting depth-quality challenge; independently certified global function total remainsUNKNOWN. Canonical MASTER_FINDINGS.json now exists with42 preserved records. See [current recovery](../Conversation-Recovery/Recovery-After-08f1fad.json) and [knowledge coverage](../Knowledge/coverage-index.json). The original dated15-phase assessment below is preserved, not silently rewritten.
 
 # FALE7 POS — progress against the original 15 audit phases

@@ -1,0 +1,19 @@
+{
+  "at_utc": "2026-10-17T21:52:27.335513+00:00",
+  "status": "ADDITIVE_IDENTITIES_VERIFIED_REVIEW_GAPS_OPEN",
+  "detected_by": "financial_integrity; root acknowledged",
+  "source": "src/Falah.Domain/Orders/Order.cs:64",
+  "example": "Expression-bodied Refunds property has implicit executable getter but PropertyDeclaration was indexed isCallable=false.",
+  "cause": "Original Roslyn callable predicate covers BaseMethod/LocalFunction/Accessor/AnonymousFunction nodes, omitting property/indexer expression-body getter facets.",
+  "coverage_impact": "11653 is valid count of original callable syntax categories only, not exhaustive executable behavior denominator. Existing stableIDs/receipts retained; no completed work reset.",
+  "next_action": "Review all supplementary getter/context records alongside original remaining exact functions; no original reviews reset.",
+  "publication_gate": "BLOCKED_BY_MATERIAL_REVIEW_GAP_UNTIL_RECONCILED",
+  "runtime_source_changes": "NONE",
+  "ast_expression_getter_count": 684,
+  "ast_generated_behavior_input_count": 1331,
+  "raw_ast_errors": [],
+  "facet_index": "Knowledge/Source-Symbols-CallableFacets/index.json",
+  "getter_count": 684,
+  "generated_context_count": 1334,
+  "review_queue": "Knowledge/callable-facet-coverage.json"
+}

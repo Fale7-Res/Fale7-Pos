@@ -1,0 +1,588 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.DepositRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.DepositRequest::record-generated-behavior",
+      "startLine": 8,
+      "startColumn": 1,
+      "endLine": 11,
+      "endColumn": 63,
+      "origin_declaration_stable_id": "sym-3b4de2f979df863b4e229f7d2d706b6b0621d339147ae60cea5dca221b643b47",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "DepositRequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Type",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "DestinationAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Reference",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedByUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-38604a40ed582a509827e0775e2d0cad3707b2441340ab84003e9cdb6484571f",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.DepositResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.DepositResult::record-generated-behavior",
+      "startLine": 13,
+      "startColumn": 1,
+      "endLine": 13,
+      "endColumn": 136,
+      "origin_declaration_stable_id": "sym-e16fe85346e662fec313b7b984b416142690397e22dc94012c9c434ce052b891",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "MovementId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Type",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "DestinationAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-7542e44fc317e39033f6de0d1fd4401e436295670ea44d728b62f06daab009ed",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.WithdrawalRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.WithdrawalRequest::record-generated-behavior",
+      "startLine": 18,
+      "startColumn": 1,
+      "endLine": 21,
+      "endColumn": 63,
+      "origin_declaration_stable_id": "sym-f413f6876c7d8b1cd980efc51f93b87bda256c2e072d5c9771553833ec8da2f1",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "WithdrawalRequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "SourceAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Reference",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedByUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-c82942705ca568927ae65a05d915caa3239c379d36dbbb10786a2f48f8ab899f",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.WithdrawalResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.WithdrawalResult::record-generated-behavior",
+      "startLine": 23,
+      "startColumn": 1,
+      "endLine": 23,
+      "endColumn": 121,
+      "origin_declaration_stable_id": "sym-a6617eb11e60b441f7e47dd85b35eb252d30c30dbf78efcf2d3dc8f95237da14",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "MovementId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "SourceAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-2d4eb31f4ed2b2e3cd5bce382df99343b900d2758d1d453d3fca6795d1eac951",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.TransferRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.TransferRequest::record-generated-behavior",
+      "startLine": 27,
+      "startColumn": 1,
+      "endLine": 29,
+      "endColumn": 102,
+      "origin_declaration_stable_id": "sym-09cf5dfaa62f8ffd6aceea0165813578ea4c12c27e1733701cdb4b7f25cedf73",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "TransferRequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SourceAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DestinationAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedByUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-f90e4dbe11118ba430043338c6258f0c876407e465c36e92078a740a879e7481",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.TransferResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.TransferResult::record-generated-behavior",
+      "startLine": 31,
+      "startColumn": 1,
+      "endLine": 31,
+      "endColumn": 148,
+      "origin_declaration_stable_id": "sym-beaf98dc143a8580304bb31a6e5db36da16b829a6a773ddf64883f2bf51e2b07",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "MovementId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "SourceAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DestinationAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-f73146b36759e72e1ae41b698d78caf37e421b0c2b02e69ceff0a3a72ae45438",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.SafeDropRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.SafeDropRequest::record-generated-behavior",
+      "startLine": 37,
+      "startColumn": 1,
+      "endLine": 39,
+      "endColumn": 63,
+      "origin_declaration_stable_id": "sym-76daf7592409dcb3413ec4b42dab3a1540ac120451e17c06c48b9468d68e8bff",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "DropRequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ShiftId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedByUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-5948187e80b7c922e9f6dd49ab4265558833c839aa51afaa74278d68a1641afa",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.SafeDropResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.SafeDropResult::record-generated-behavior",
+      "startLine": 41,
+      "startColumn": 1,
+      "endLine": 41,
+      "endColumn": 95,
+      "origin_declaration_stable_id": "sym-d8ae2451e52d56cdb8ba74b6e6c7f33d98ad4ea75e6ff36f74ef8c39dfabf375",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "MovementId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-c4737d3eeb9565afb4635b774f55fcba3655b97dc861e1820cc7e61520e47ec1",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.TreasuryMovementDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.TreasuryMovementDto::record-generated-behavior",
+      "startLine": 47,
+      "startColumn": 1,
+      "endLine": 56,
+      "endColumn": 36,
+      "origin_declaration_stable_id": "sym-47c0738a89d68a082351be6c2fa3806c78eea6b1da9a44b70b6d42c69ad4aaf2",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Type",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SourceAccountId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "DestinationAccountId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "ReferenceType",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ReferenceId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ShiftId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ApprovedBy",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "ReferenceLabel",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-b274d6cdf082acfd302062b28c7334e98514d488886b503228cf13a368b4c327",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.TreasuryAccountBalanceDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.TreasuryAccountBalanceDto::record-generated-behavior",
+      "startLine": 60,
+      "startColumn": 1,
+      "endLine": 60,
+      "endColumn": 88,
+      "origin_declaration_stable_id": "sym-e49d624f579463179a1cb88fdcba5d9e33c95f73f07eff07a94e801b81795bc6",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "AccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "BalancePiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-315395d68a96f591084d6d18ea338c0f4d5f638a9ef26c8693bdbece9817d426",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+      "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Treasury.TreasuryPositionDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Treasury.TreasuryPositionDto::record-generated-behavior",
+      "startLine": 69,
+      "startColumn": 1,
+      "endLine": 73,
+      "endColumn": 68,
+      "origin_declaration_stable_id": "sym-9db6a4b39685575b6da8ba292eddda3fff43bbd7a7fc40f8be9b46606163ada9",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Accounts",
+          "type": "IReadOnlyList<TreasuryAccountBalanceDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalInAccountsPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PendingElectronicPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PendingElectronicOrderCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "UnsettledDriverCustodyPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "UnsettledDriverCount",
+          "type": "int",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-b883fee2e75982351bb277a119598c0c9b0aa7f7f485fcddd34f26909d1e16fa",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

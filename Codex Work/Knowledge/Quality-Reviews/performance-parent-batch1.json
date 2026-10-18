@@ -1,0 +1,61 @@
+{
+  "recorded_utc": "2026-10-17T12:39:06.333426+00:00",
+  "reviewer": "root",
+  "scope": "Focused source challenge only, not exhaustive callable promotion",
+  "evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+      "baseline_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+      "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+      "hash_matches_index": true
+    },
+    {
+      "path": "src/Falah.Domain/Backup/BackupRules.cs",
+      "baseline_sha256": "c2b4b6d3523da6f903f2f8627dbf0e4ad034e0bafeddacdd192598ac6de79131",
+      "worktree_sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e",
+      "hash_matches_index": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "baseline_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "hash_matches_index": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/MenuQueryService.cs",
+      "baseline_sha256": "90e1091a22eb19c817a9c4192644246980105aa1839fbd386827f01d48655608",
+      "worktree_sha256": "90e1091a22eb19c817a9c4192644246980105aa1839fbd386827f01d48655608",
+      "hash_matches_index": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "baseline_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "hash_matches_index": true
+    }
+  ],
+  "conclusions": [
+    {
+      "topic": "backup retention counterevidence",
+      "source": [
+        "ScheduledBackupService.cs:124-157",
+        "BackupRules.cs:105-118"
+      ],
+      "result": "Rejected preliminary hypothesis that pruning after failed verification necessarily deletes the last known good backup. Prune passes verification flags to SelectPrunableBackups, which preserves newest verified-valid ID even outside keep count. Scheduling uses succeeded age, so repeated integrity failure alert/retry policy still deserves separate review; no demonstrated destructive retention defect."
+    },
+    {
+      "topic": "menu",
+      "result": "Source confirms narrow ID sort then full product read and separate variants. Best-seller ToList precedes grouping/Take(12); lower date bound but no upper bound. No observed latency."
+    },
+    {
+      "topic": "employee balances",
+      "result": "All persisted deltas materialized; Added ChangeTracker deltas intentionally included. Any SQL aggregation proposal must preserve these and evaluate transaction concurrency separately."
+    },
+    {
+      "topic": "sales reports",
+      "result": "Source lines35-51 confirm unbounded all-history materialization when optional filters absent. Correct report end line51; prose approximate span should not override exact symbol index."
+    }
+  ],
+  "runtime_tests": "NOT_EXECUTED",
+  "remaining": "Finish remaining performance source evidence verification and qualification, then dependency independent review; entire global audit queue remains in NEXT_ACTION."
+}

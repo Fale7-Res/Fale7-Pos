@@ -1,0 +1,200 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T18:42:36.683570+00:00",
+  "records": [
+    {
+      "id": "CFG-BOUNDARY-005",
+      "category": "Local print agent configuration/destination/secret",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/AgentOptions.cs",
+          "startLine": 13,
+          "endLine": 41,
+          "source_git_blob_sha256": "7b940f8aed07130a6af1cf621aa3a1dfcf5c1174d3b34051ad11df2076802a5f",
+          "worktree_sha256": "678b4396c34d4b3885fa2d17087b8ef31c5c303820da18c97cb3cd4ec31cb5a7",
+          "symbol": {
+            "stable_id": "sym-0ac7196e9947903b33768a3ee7af1e48038554ab45c14542afb44081ae6840ec",
+            "kind": "GetAccessorDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.AgentOptions.ServerBaseAddress.get",
+            "startLine": 13,
+            "endLine": 13,
+            "startColumn": 39,
+            "endColumn": 43,
+            "isCallable": true
+          },
+          "evidence": "Properties configure server URL, PIN/reported actor, explicit transport and printer/file destination; no concrete operational config values collected."
+        },
+        {
+          "path": "src/Falah.PrintAgent/AgentOptions.cs",
+          "startLine": 86,
+          "endLine": 127,
+          "source_git_blob_sha256": "7b940f8aed07130a6af1cf621aa3a1dfcf5c1174d3b34051ad11df2076802a5f",
+          "worktree_sha256": "678b4396c34d4b3885fa2d17087b8ef31c5c303820da18c97cb3cd4ec31cb5a7",
+          "symbol": {
+            "stable_id": "sym-9c02a8102d3284c6ddbb61f5399e4cab2580c7fc6548c71f5826586706fbf4d5",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.AgentOptions.CreateTransport()",
+            "startLine": 86,
+            "endLine": 95,
+            "startColumn": 5,
+            "endColumn": 7,
+            "isCallable": true
+          },
+          "evidence": "Transport switch restricted to network/serial/windows/file; route enum validated and canonicalized, poll>=1; host/queue/port basic checks only."
+        },
+        {
+          "path": "src/Falah.PrintAgent/AgentOptions.cs",
+          "startLine": 130,
+          "endLine": 138,
+          "source_git_blob_sha256": "7b940f8aed07130a6af1cf621aa3a1dfcf5c1174d3b34051ad11df2076802a5f",
+          "worktree_sha256": "678b4396c34d4b3885fa2d17087b8ef31c5c303820da18c97cb3cd4ec31cb5a7",
+          "symbol": {
+            "stable_id": "sym-5307622c73acb364be576e80ea6e6ef260a0a41123088255f4b63d3732bf8dd7",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.AgentOptions.Load(string)",
+            "startLine": 130,
+            "endLine": 138,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Config loaded from caller path JSON, no signature/ACL check/encryption in loader."
+        },
+        {
+          "path": "src/Falah.PrintAgent/Program.cs",
+          "startLine": 5,
+          "endLine": 15,
+          "source_git_blob_sha256": "3d2abe5009bb8b4de474f8d85d90bbc30e23d80874d947feee45b76e6cb249da",
+          "worktree_sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453",
+          "symbol": {
+            "stable_id": "sym-f3bdb62e990d19d3226e00953ee1ddd060d07b58c7b75456ee064d023cf7c6f1",
+            "kind": "VariableDeclarator",
+            "qualifiedSymbol": "testPrint",
+            "startLine": 5,
+            "endLine": 5,
+            "startColumn": 5,
+            "endColumn": 80,
+            "isCallable": false
+          },
+          "evidence": "First nonflag CLI arg chooses config, otherwise app base appsettings.json; Validate failures stop before startup."
+        }
+      ],
+      "inputs": "Local CLI config path and JSON properties; no remote request chooses transport at runtime.",
+      "outputs_side_effects": "Normal startup can transmit credential to configured server and ticket bytes to configured sink.",
+      "legitimate_purpose": "Explicit station setup, default transport=file and backend localhost.",
+      "trust_boundaries": "Trusted station config controls secrets and destinations; config access controls/deployment outside this source review.",
+      "counterevidence_limitations": [
+        "PIN public JSON property may be plaintext in deployment config; no actual config or PIN read.",
+        "Validation does not require HTTPS/allowlist host or validate printer TCP range/timeouts/raster dimensions here.",
+        "Server login result actor identity is not compared to ReportedByUserId in PrintServerClient; normal middleware can reject mismatched report actor, not arbitrary identity-proof success."
+      ],
+      "classification": "LOCAL_CONFIG_CONTROLLED_SECRETS_AND_DESTINATIONS"
+    },
+    {
+      "id": "BG-BOUNDARY-006",
+      "category": "Print test mode and periodic queue worker",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/Program.cs",
+          "startLine": 23,
+          "endLine": 94,
+          "source_git_blob_sha256": "3d2abe5009bb8b4de474f8d85d90bbc30e23d80874d947feee45b76e6cb249da",
+          "worktree_sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453",
+          "symbol": null,
+          "evidence": "Explicit --test-print branch directly sends rendered sample to configured physical/file transport; not executed."
+        },
+        {
+          "path": "src/Falah.PrintAgent/Program.cs",
+          "startLine": 96,
+          "endLine": 125,
+          "source_git_blob_sha256": "3d2abe5009bb8b4de474f8d85d90bbc30e23d80874d947feee45b76e6cb249da",
+          "worktree_sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453",
+          "symbol": null,
+          "evidence": "Route-specific named Global mutex prevents same-host second worker; authenticates configured PIN once then constructs processor/store."
+        },
+        {
+          "path": "src/Falah.PrintAgent/Program.cs",
+          "startLine": 127,
+          "endLine": 155,
+          "source_git_blob_sha256": "3d2abe5009bb8b4de474f8d85d90bbc30e23d80874d947feee45b76e6cb249da",
+          "worktree_sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453",
+          "symbol": {
+            "stable_id": "sym-8b93c209c1bab13b566921365f669a356e7733e7b359e9fa874cbb188aa1e8ef",
+            "kind": "VariableDeclarator",
+            "qualifiedSymbol": "shutdown",
+            "startLine": 127,
+            "endLine": 127,
+            "startColumn": 11,
+            "endColumn": 51,
+            "isCallable": false
+          },
+          "evidence": "CtrlC cancellation; serial DrainAsync then configured delay, failures logged and next poll continues."
+        }
+      ],
+      "inputs": "Local CLI flag and config; backend pending queue determines normal jobs.",
+      "outputs_side_effects": "Physical printing/attempt reporting in normal loop; test mode bypasses API queue/auth after config validation by explicit request.",
+      "legitimate_purpose": "Visible queue worker and installer printer test, not covert malicious timer.",
+      "trust_boundaries": "OS/process config and API jobs to print outputs; same-host mutex not distributed queue claim.",
+      "counterevidence_limitations": [
+        "--test-print is physically side-effectful; documentation/test mode name does not make it safe to run without owner authorization.",
+        "Same route on different machines can still compete; mutex local protection only.",
+        "App top-level worker statements not all represented in callable index; exact source spans retained without function-count invention."
+      ],
+      "classification": "EXPLICIT_PERIODIC_PRINT_WORKER_WITH_OPERATIONAL_SIDE_EFFECTS"
+    },
+    {
+      "id": "FS-BOUNDARY-007",
+      "category": "Unreported print journal",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+          "startLine": 35,
+          "endLine": 55,
+          "source_git_blob_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+          "worktree_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+          "symbol": {
+            "stable_id": "sym-9b86541217a34240126464ce36f38879f456574876634102f65da28ea0a65ccb",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.UnreportedAttemptStore.ForRoute(string, string)",
+            "startLine": 35,
+            "endLine": 44,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Enum canonical route used in base-directory journal path, migrates legacy dictionary records; corrupt load throws and stops rather than silently reprint."
+        },
+        {
+          "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+          "startLine": 59,
+          "endLine": 89,
+          "source_git_blob_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+          "worktree_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+          "symbol": {
+            "stable_id": "sym-ba42c4e0929753cda9fcea07cae8b05e5739aac9c640d50bfe8437b407d11b81",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.UnreportedAttemptStore.Save()",
+            "startLine": 59,
+            "endLine": 69,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Attempts written plain JSON to temp then move; local lock serializes in-process modifications."
+        }
+      ],
+      "inputs": "AppContext.BaseDirectory and validated route, server job IDs/attempt outcomes/errors.",
+      "outputs_side_effects": "Durable local print-attempt journal and migration copies; no raw ticket receipt payload intentionally stored here.",
+      "legitimate_purpose": "Prevent duplicate physical printing after lost report acknowledgement.",
+      "trust_boundaries": "Local filesystem affects whether jobs reprinted/reported; errors may contain operational detail.",
+      "counterevidence_limitations": [
+        "No actual journal read; records could contain sensitive errors/IDs and must stay out of Git.",
+        "Local gate not crossprocess integrity/authentication; config/shared directory ACL unverified.",
+        "Failure timing and power-loss duplication windows addressed by printing audit, not cleared by atomic temp-move pattern."
+      ],
+      "classification": "LEGITIMATE_RECOVERY_STORAGE_WITH_FILESYSTEM_TRUST"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

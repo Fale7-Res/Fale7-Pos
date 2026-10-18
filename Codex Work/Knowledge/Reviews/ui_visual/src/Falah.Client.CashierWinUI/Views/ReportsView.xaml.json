@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+  "source_git_blob_sha256": "c651254a3cf46fde7d9b8337061f87603c0d54e06dc2e7d20c3392bd94e0e99a",
+  "worktree_sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:44:26.385987+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Period report presentation for sales, collection, products/hourly, delivery, tax, cost, refunds and actions.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "IsSpecificDay",
+      "reasoning": "Period combobox named for accessibility; specific-day stepper only visible chosen-day, previous/next names explicit. Datepicker bridge existsVM but no datepicker in this markup, so arbitrarypastday requires repeated stepping."
+    },
+    {
+      "anchor": "HasData",
+      "reasoning": "Contenthiddenwhile loading/error byVMHasData, preventing visible partial sequential report. HeaderRangeLabel updates while reload; displaydatawaits coherent finalsuccess. No reportprint/exportbutton."
+    },
+    {
+      "anchor": "Sales.CollectedSalesPiastres",
+      "reasoning": "Net and actuallycollected headline distinct; pendingelectronic and drivercash banners expresslyexcludeduntilconfirmation/settlement. Fourchannel totals do not themselves fullyexplaincollecteddriver settlementcontribution here, unlikeowner."
+    },
+    {
+      "anchor": "Sales.OffersValuePiastres",
+      "reasoning": "Ordertypes andoffers/comps/manualdiscount separate fields, avoidsmerging differentdiscountsources. Large monetarytitles fixedfourcolumns mayneedwrap."
+    },
+    {
+      "anchor": "TopItems",
+      "reasoning": "Top-selling table and emptyperiodtext, no topNcount disclosed. CategorySalesloadedbyVM but noCategorySalesbinding exists here, so serverreadcost has novisualoutput onthisview."
+    },
+    {
+      "anchor": "ProductHours",
+      "reasoning": "Horizontal-only internal scroll handles24hourgrid,200name+70total+70peak+40perhour. Peak markedcoloronly, though PeakLabel textualcolumn gives sameinformation. VMcaps15rowsbutviewdoesnotstatecap, so headingmayappearcomplete."
+    },
+    {
+      "anchor": "Delivery.FailedCount",
+      "reasoning": "Label combines failed/returned but bindingonlyFailedCount; whetherDTOalreadycombines mustverifyquerycontract, notassumemissingreturned. UnsettledcustodyExpected maybecurrentposition versusperiodoutcomes;needsdatebasis."
+    },
+    {
+      "anchor": "FoodCostBasisNote",
+      "reasoning": "Explicitcurrentrecipe/currentingredientpricebasis and knownlinecoverage; incompletemissingcostwarnsvalueunderstatestruecost. Thisisstrongerhistoricaldisclosurethanowner. Taxbase/gross/refundimpact/netallseparate."
+    },
+    {
+      "anchor": "SignificantActions",
+      "reasoning": "Refundlist includesapprover/reason, noteworthyactionswholeDTOcategoryconverter+actor/nullableamount/reason/approver. No timestampcolumns and eagerrowrealization. No actualrefund/physicalprintperformed."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need missingcategoryoutput,15hourlycapdisclosure, deliveryfailedreturnedsemantics, arbitrarydateaccess, datasetcompleteness/largeamounts and nativehorizontalkeyboardscroll. No callabledeclarations.",
+  "recommendations": "Disclose cappedsections and datebasis, expose arbitrarydayselection and onlyfetchrenderedreportsections. Preserveunknowncost/currentbasis warnings.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

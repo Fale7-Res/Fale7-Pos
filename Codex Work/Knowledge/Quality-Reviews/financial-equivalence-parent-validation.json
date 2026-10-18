@@ -1,0 +1,248 @@
+{
+  "at_utc": "2026-10-18T03:24:29.432625+00:00",
+  "reviewer": "root",
+  "files": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.Designer.cs",
+      "verified_exact_reused_spans": 33,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Manually inspected complete file diff and current method identity/order: only Shift close-key/treasury links and filtered unique index added. Entity registration ordering, all existing relationships/delete behaviors, all navigations and sequence seed unchanged. Historical initial PIN/stock limitations remain historical; this stage does not fix them.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.Designer.cs",
+      "verified_exact_reused_spans": 34,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Manually inspected whole textual diff and parent target identity: new BusinessDay shape inserted first, existing entity relative order unchanged; all relationship/delete/navigation bodies and sequence seed identical. No relation binds existing Order/Treasury BusinessDayId strings or SnapshotId. All preexisting stage-specific semantics remain; one additional business-day model does not add financial posting logic.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.Designer.cs",
+      "verified_exact_reused_spans": 35,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Full current-vs-predecessor diff read: Expense entity only inserted afterCategory; existing relative registrationorder, relationship/delete behavior, navigation blocks andsequence seed unchanged. No FK bindsExpense shift/account/day/movement strings; exact-bodied existing modelreasoning remainsvalid atthishistorical stage.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.Designer.cs",
+      "verified_exact_reused_spans": 36,
+      "manual_changed_ids_declared": 9,
+      "context_claim": "Whole model diff manuallyread: sixnewdeliveryshapes inserted afterCategory, two newRestrictFKblocks insertedbeforeOrder; existingrelativeorder, allpreviousrelationships/navigations andsequence seedunchanged. NewDelivery OrderRestrict addsdeletionconstraint onOrders, DriverRestrict/CustodyRestrict preserveobligations. Event/Reassignment/Settlement scalarreferences remain withoutnewFKs; no print-job component introduced.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.Designer.cs",
+      "verified_exact_reused_spans": 42,
+      "manual_changed_ids_declared": 10,
+      "context_claim": "Fullchangedmodeldiff read andparentregistration/order checked:3newinventory-related shapes,3FKblocks,1navigation; Inventory/Stock shapes extended. Alloldrelativeentityorder/FKs/seeds identical. NewRestrictFKs constrainingredient deletion butnocycle/quantity constraints. ActualUpdefaults separatelyinspected; do notinfer safeexistingdata upgradefromtargetmetadata.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.Designer.cs",
+      "verified_exact_reused_spans": 49,
+      "manual_changed_ids_declared": 7,
+      "context_claim": "Fulltargetdiffread: Customer/Address andrelationship/navigation insertedbeforeexistingblocks; Orderdeliverysnapshotfields addedwithoutCustomer/ServiceFK; ShiftStatusbounded andglobaluniqueOpenfilter introduced. Oldrelativeorder, otherFK/deletionbehavior andsequence seed unchanged. New cascade affects savedaddressonly, historicalordersretain copiedfields.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.Designer.cs",
+      "verified_exact_reused_spans": 54,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Wholemodeldiff hasone new monetary snapshotproperty inOrders; exactunchanged entity registrationorder/relationships/deletebehavior/navigations/seed unchanged. ExistingOrderfinancialarithmetic remainsapplication responsibility. Currenthistoricalmigrationidentity checked, sourceequivalence notfreshindependentreread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.Designer.cs",
+      "verified_exact_reused_spans": 54,
+      "manual_changed_ids_declared": 6,
+      "context_claim": "Fullmodeldiff/currentparentcontext checked:2queue shapes,1CascadeFK/1navigation andProductstation scalar; existing entityrelativeorder/FKs/seeds unchanged. PrintJobOrderId remainsunconstrainedscalar toOrders, CreateRequestIdnonunique despiteindex, nolease/concurrencytoken. NewattemptCascade onlychangesqueue auditretention, notfinancialtables.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.Designer.cs",
+      "verified_exact_reused_spans": 58,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Fulltargetdiff/currentmethodcontext verified: onlyOrderItemnullablePreparationStation, allregistrationorder/FK/deletebehavior/navigations/seed unchanged. ActualUpaddscolumnwithoutdata backfill, so olditemsnullable; no claimnewsource fixeslegacyrouting. Existingmodelbodyequality explicit evidence, notindependentfreshread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.Designer.cs",
+      "verified_exact_reused_spans": 57,
+      "manual_changed_ids_declared": 13,
+      "context_claim": "Completechangedmodeldiff/currentparent checked:5newpurchasing/supplier shapes,4newFKblocks/Purchase navigation andStock supplierfield+RestrictFK. Existingrelativeentityorder,oldFKs/seed intact; newPurchaseCascadechildren raisefinancialretention implications butnoactualdeleteendpointclaimed. Cachedinvoicebalanceslackconcurrencytoken, distinct-keylockingremainscurrenthandler responsibility.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.Designer.cs",
+      "verified_exact_reused_spans": 68,
+      "manual_changed_ids_declared": 8,
+      "context_claim": "Fullcurrentdiff,parentidentity/order checked: fivecontrolentities andoneSnapshotDayRestrictFK plusDayreopenfields. Existingoldrelativeentity/FK/navigationorder/sequence identical; newchecklistseed explicitlyreasoned. NoCompletionDay/ItemFK orsnapshotrevision/authoritativeuniqueconstraint added, so currenttransaction/policyproof remainsseparate.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.Designer.cs",
+      "verified_exact_reused_spans": 74,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Completecurrenttargetdiff andparentcontext inspected: Users credentialshape only changed; allrelativeentityorder/FKs/deletebehavior/checklist+sequence seeds identical. ExistingCashierFK remainsUserPK notPin. Nullablecredentials andremovedPINuniqueindex do notthemselvesconvertaccounts; actualmigrationoperationscontainnohashbackfill.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.Designer.cs",
+      "verified_exact_reused_spans": 74,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Fullcurrentdiff,parentmodelidentity/order andsameFK/seedcontext checked: hash-onlyschema removesplaintext withoutconvertingdata inactualUp; requiredfields notrealhashvalidityconstraint. ExistingCashier/userFKs remainintact so accountrows survivebutcredentialusabilityneedsproof. No freshindependentread of74identicalbodies; exactequality backed predecessor receipts.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.Designer.cs",
+      "verified_exact_reused_spans": 75,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Wholecurrentmodeldiff,parentidentity/order checked: standaloneGeneralAudit table insertedfirst, allotherentityrelativeorder/FKs/navigations/checklistandsequence seeds identical. NoAudit foreignkey/cascade introduced; historicalControlAudit remainsdistinctandnewtable doesnotautomaticallycapturewrites.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.Designer.cs",
+      "verified_exact_reused_spans": 76,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Completeparentdiff/context read: oneCashDrawerOpenrecordshape andshiftindex inserted, noaccount/financialschema/FK/seed/navchanges. Alloldrelativeentityorder/relationships unchanged. Hardwareandfinancialtruthmustremainseparate; exactmodelreuse isnotruntimeverification.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.Designer.cs",
+      "verified_exact_reused_spans": 77,
+      "manual_changed_ids_declared": 3,
+      "context_claim": "Fullparenttargetdiff checked: count/settingsshapes insertedalphabetically, nooldentityrelativeorder/FK/delete/nav/checklist+sequence seed changes. Cashcountdayreferenceunconstrained, SettingsnoSingleton/Version/seed; defaultsandvalidationmustbetracedactualapplication. Exactreusedbodies notfreshindependentread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.Designer.cs",
+      "verified_exact_reused_spans": 78,
+      "manual_changed_ids_declared": 3,
+      "context_claim": "Completeparentdiff/modelidentity/order verified: oneDeliveryService shape plusOrdertaxmetadata, nooldFK/delete/nav/checklist/sequence seedchanges. Service remainsstandalone andexistingserviceIDstringsnotbound; frozenmonetaryvalues dependcheckout ratherthanlivejoin. Source-equivalence reuse explicitlyclassified.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.Designer.cs",
+      "verified_exact_reused_spans": 80,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Completecurrentparentdiff/modelcontext read: singleCashHandover shape inserted, existingrelativeorder/FKs/navigations/checklist+sequence seeds unchanged. Movementlinkunique butnoforeignkey/accountenforcement; do notinfercashreality orpostingatomicity. Exactunchangedbodyevidence notindependentreread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.Designer.cs",
+      "verified_exact_reused_spans": 81,
+      "manual_changed_ids_declared": 3,
+      "context_claim": "Completecurrentparentdiff/context checked: twoHRshapes insertedafterDriverSettlement, existingrelativeorder/relationships/navigations/checklist+sequence seeds identical. NoEmployeeFK forledger/user/driver association oractive/typefinancialchecks. Exactunchangedbodyreuse notfreshindependentreading.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.Designer.cs",
+      "verified_exact_reused_spans": 83,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Wholecurrenttargetdiff,parentidentity/order checked: oneAttendance shape first; oldrelativeentityorder/FKs/navigations/checklist+sequence seeds identical. EmployeeIdindexedunique withDate butnorelationship, eventIDs scalar; noautomatic payrollcalculation. Exactsourcebodyreuse separatedfromfreshmanualnewblock.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.Designer.cs",
+      "verified_exact_reused_spans": 84,
+      "manual_changed_ids_declared": 4,
+      "context_claim": "Completecurrenttargetdiff,parentidentity/order checked: Backup/PayrollLine/Run shapes only, alloldFK/nav/checklist+sequence seed identical. PayrollLineRun isscalarindexnotFK, backupFilePathnonunique andPayrollPeriodnotyetconstrained; currentlatermigration/runtimepaths mustbeinformedbythisstage ratherthanclaimcurrentabsence.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.Designer.cs",
+      "verified_exact_reused_spans": 87,
+      "manual_changed_ids_declared": 3,
+      "context_claim": "Wholecurrenttargetdiff/parentidentity/order checked: ProductImageentity andProductCascadeFK only; nooldrelativeentity/FK/navigation/checklist/sequence seedchanges. Binarypayload/tablelimits andnon-concurrencyVersion reasoned; noimage/file execution. Exactsourceequivalence explicitlynotfreshindependentread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.Designer.cs",
+      "verified_exact_reused_spans": 88,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Wholecurrenttargetdiff/currentparentidentity/context read: onePurchase nullable DueDateproperty, alloldrelativeentity/FK/nav/seed contentidentical. Noagingmaterialization orcachedbalancechanges; nullabledatepolicy belongsquery. Exactunchangedbody evidence notrepeatedindependentread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.Designer.cs",
+      "verified_exact_reused_spans": 88,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Wholecurrenttargetdiff,parentidentity/order checked: nullableInventoryestimatedcost only; oldentityrelativeorder/FK/delete/nav/checklist+sequence seed identical. No automaticbackfill/valuationeffect frommetadata. Exactsourceequivalence remainsdistinctfromfreshindependentread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Fulltargetdiff/currentparent checked: UserSession shape only, alloldentityrelativeorder/FK/navigations/checklist+sequence seeds identical. Uniquehashlookup doesnotestablishcryptographicstrength orcoverage ofAPI gates; source-equivalent existingmodels notrepeatedindependentread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Fullparentdiff/currentidentity/order inspected: PayrollRun Period bounded/filterunique added; nooldrelativeentity/FK/nav/seeds change. Earliermodelunconstrainedperiod remainshistoricalevidence, currentstageaddsrealDBprotection. Actualmigrationrefusesduplicateaccounts ratherthanmutatingfinancialtruth.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Completecurrenttargetdiff/parentcontext checked: Settingsholdflag only; alloldrelativeentityorder/FK/nav/checklist+sequence seeds unchanged. Noorder-levelholdsnapshot/concurrencytoken introduced; actualsettings/confirmation/routinglogic mustbetraced, notrepresentedbyfieldexistence.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Fullmodeldiff/currentparentidentity/order checked: oneOrderTableNumber scalar, alloldFK/nav/seed/context unchanged. NoTableentity orrelationalstate enforcement. HistoricalfieldcanpersistwhilecurrentUI/requestpolicychanges; do notinferliveDineInfromschema.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs",
+      "verified_exact_reused_spans": 90,
+      "manual_changed_ids_declared": 1,
+      "context_claim": "Fullfilediff showsclass/migrationidentity only, allparentbody/childentity/FK/nav/seedtext equal. Parentcurrentidentity independentlyreasoned andactualdata-onlyUp/Down read: wirevaluescanonicalized, schemaunchangeddoesnotmeannoactualdataeffects. OldFK andtablehistorystillpreserved.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Wholeparenttargetdiff/identity/order checked: oneoptionalOrder requestedtime only, noexistingFK/delete/nav/checklist/sequence seed changes. Schema doesnotimplementfuture-time gate orpreparation scheduler; storedinstant andactualprint time mustbevalidatedseparately. Exactsourceequivalence notfreshindependentread.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Completeparentdiff/modelidentity/order checked: optionalSettingsURL only; existingrelativeentity/FK/nav/seeds unchanged. No automaticvalidation/network/render, URLprotocolsize andoldticketpolicy ownedactualhandlers/composers. Exactbodyreuse classification explicit.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs",
+      "verified_exact_reused_spans": 88,
+      "manual_changed_ids_declared": 3,
+      "context_claim": "Wholeparenttargetdiff checked: PrintJob kindfield andManagerApprovalConsumed concurrencytoken only; existingrelativeentityorder/FK/navigation/seed unchanged. ActualUponlycolumnaddition, EFtokenmetadata notmissedSQLmigration. Nonorderdocumentlookup andlegacyNullkindpolicy reasonedseparately; no printing/approval actions.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs",
+      "verified_exact_reused_spans": 89,
+      "manual_changed_ids_declared": 2,
+      "context_claim": "Completeparentdiff/currentfinalmigrationidentity checked: onlySettingsdefaultfloat; oldrelativeentity/FK/navigations/checklist+sequence seeds unchanged. Configurationdefault cannotreplaceaccountliquidity check insideactualtransaction orretroactivelyrepriceoldshifts. Exactsource reuse separatelyclassified.",
+      "errors": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+      "verified_exact_reused_spans": 90,
+      "manual_changed_ids_declared": 1,
+      "context_claim": "Fullcurrent-vs-finaltargetfilediff checked: snapshotclass inheritsModelSnapshot andBuildModel method, noMigrationattribute/using; allmodelbodyentities/registrationorder/FKs/deletebehavior/navigation/checklist+sequence seed contents identical. SnapshotnotactualDB/runtimeconfigurationproof; allreusedbodyevidence explicitlypredecessor-linkedandnotfreshindependentread.",
+      "errors": []
+    }
+  ],
+  "equivalence_spans_checked": 2456,
+  "errors": [],
+  "scope": "Exact text/hash/stable-ID/predecessor reasoning provenance only; no claim of fresh independent semantic review.",
+  "remaining": "Independent source challenge of changed model contexts and base reasoning; all non-metadata function review gaps remain."
+}

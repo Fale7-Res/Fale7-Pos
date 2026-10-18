@@ -11,7 +11,7 @@ for p in sorted((WORK/'Knowledge/Source-Symbols').rglob('*.json')):
         if s['stable_id']!=expected or expected in identities:errors.append({'path':path,'error':'UNSTABLE_OR_DUPLICATE_ID'})
         identities[s['stable_id']]=(path,s)
 required=('reasoning','inputs','outputs','side_effects','trust_boundaries','database','printing_ui','performance','duplicates_conflicts','issues_hypotheses','tests_missing','verified_callers_callees')
-counts={};receipts=[];quality=[];all_callables=set()
+counts={};receipts=[];quality=[];all_callables=set();receipt_methods={}
 for folder in sorted((WORK/'Knowledge/Reviews').iterdir()):
     if not folder.is_dir():continue
     analyzed=set();callables=set();files=0;reasoning=defaultdict(list)
@@ -27,18 +27,31 @@ for folder in sorted((WORK/'Knowledge/Reviews').iterdir()):
             if missing or not isinstance(s['reasoning'],str) or len(s['reasoning'].strip())<50:
                 errors.append({'path':str(p),'error':'INCOMPLETE_REASONING_SCHEMA','id':sid,'missing':missing});continue
             analyzed.add(sid);reasoning[s['reasoning']].append(sid)
-            if identities[sid][1]['isCallable']:callables.add(sid)
-            receipts.append({'stable_id':sid,'path':path,'reviewer':folder.name,'record':str(p.relative_to(WORK)).replace('\\','/'),'isCallable':identities[sid][1]['isCallable']})
+            method=s.get('coverage_classification','AUTHOR_REASONING_RECEIPT_METHOD_NOT_SEPARATELY_CLASSIFIED')
+            if identities[sid][1]['isCallable']:
+                callables.add(sid)
+                receipt_methods.setdefault(sid,set()).add(method)
+            receipts.append({'stable_id':sid,'path':path,'reviewer':folder.name,'record':str(p.relative_to(WORK)).replace('\\','/'),'isCallable':identities[sid][1]['isCallable'],'coverage_classification':method})
     for text,ids in reasoning.items():
         if len(ids)>3:quality.append({'reviewer':folder.name,'issue':'REPEATED_REASONING_REQUIRES_QUALITY_CHECK','stable_ids':ids,'count':len(ids)})
     counts[folder.name]={'review_shards':files,'analyzed_symbols':len(analyzed),'analyzed_callables':len(callables)}
     all_callables.update(callables)
 flagged={sid for q in quality for sid in q['stable_ids']}
+resolved=set()
+resolution_path=WORK/'Knowledge/Quality-Reviews/repeated-reasoning-resolutions.json'
+if resolution_path.exists():
+    for decision in json.loads(resolution_path.read_text(encoding='utf8'))['resolutions']:
+        if decision['disposition']=='ACCEPTED_IDENTICAL_THROW_BODY_REASONING' and sha256((ROOT/decision['path']).read_bytes())==decision['worktree_sha256']:
+            resolved.update(decision['stable_ids'])
 out={'schema_version':1,'baseline':BASELINE,'at_utc':now(),'source_identity_records':len(byfile),'indexed_declarations':len(identities),
      'indexed_callables':sum(x[1]['isCallable'] for x in identities.values()),'reviewers':counts,
+     'indexed_callable_scope':'Original syntax categories only; expression-property/indexer getters and generated contexts are additive in callable-facet-coverage.json. Not exhaustive CLR behavior denominator.',
      'unique_analyzed_callable_receipts':len(all_callables),'indexed_callables_without_stable_reasoning_receipt':sum(x[1]['isCallable'] for x in identities.values())-len(all_callables),
      'review_depth_certified_count':'UNKNOWN; schema and identity validation cannot certify reasoning depth',
+     'callable_author_receipt_method_counts':dict(Counter(' | '.join(sorted(v)) for v in receipt_methods.values())),
      'callables_flagged_for_repeated_reasoning':len(flagged),
+     'repeated_reasoning_ids_with_saved_qualified_challenge':sorted(flagged & resolved),
+     'unresolved_repeated_reasoning_callable_count':len(flagged-resolved),
      'meaning':'Exact identity/schema/source consistency verified; these are author-asserted analysis receipts, not independently approved deep function reviews. Legacy heading matches excluded. Repeated reasoning is an open quality gate, not automatic falsification.',
      'errors':errors,'quality_review_queue':quality,'receipts':receipts}
 atomic_json(WORK/'Knowledge/coverage-index.json',out)

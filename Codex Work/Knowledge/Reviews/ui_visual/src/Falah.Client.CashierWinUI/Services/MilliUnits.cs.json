@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Services/MilliUnits.cs",
+  "source_git_blob_sha256": "7bacd9ec6afd8fbf7b2e2dcfcbf176a79e9bf1f12a9e83aaa6893787a8c36efe",
+  "worktree_sha256": "7bacd9ec6afd8fbf7b2e2dcfcbf176a79e9bf1f12a9e83aaa6893787a8c36efe",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:40:48.086476+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Quantity normalization and precise scaling individually reconciled.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Services/MilliUnits.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-79ffdb5601a7cfc918e16e8b8bd7f5ff402f7d369160e031a2692358a7c7f0ba",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.MilliUnits.TryParse(string?, out long)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        15,
+        5,
+        25,
+        6
+      ],
+      "reasoning": "Initializes out value zero, normalizes Arabic/Persian digits and Arabic decimal mark, parses invariant decimal with decimal-point-only style, rejects negative/out-of-range or more than3 meaningful fractional digits, then scales by1000 and casts long. Integer division long.MaxValue/1000 conservatively excludes final fractional remainder near extreme upper bound.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Check 1.5=1500, Arabic/Persian input, signs/group separators, >3 decimals and max range; no tests run.",
+      "tests_missing": "Check 1.5=1500, Arabic/Persian input, signs/group separators, >3 decimals and max range; no tests run. NOT_EXECUTED.",
+      "verified_callers_callees": "digit Select lambda; decimal.TryParse; decimal.Round"
+    },
+    {
+      "stable_id": "sym-66b2cf83f33d0f904b0ad5c4d241a195bea89d932efeb47b30b1479ce3d6cbcc",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_kind": "SimpleLambdaExpression",
+      "exact_span": [
+        18,
+        67,
+        20,
+        80
+      ],
+      "reasoning": "Maps Arabic Indic or Persian digits to ASCII, Arabic decimal mark to period, preserves all other characters for strict parser rejection. No thousands separator stripping or sign rewriting.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Mixed scripts and rejected punctuation regression coverage missing.",
+      "tests_missing": "Mixed scripts and rejected punctuation regression coverage missing. NOT_EXECUTED.",
+      "verified_callers_callees": "TryParse -> string.Concat(text.Trim().Select)"
+    },
+    {
+      "stable_id": "sym-65c7a77399729ba6fdf9aeea4b827b7a6542bccccaff70a680763a7945eb9044",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.MilliUnits.Format(long)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        29,
+        5,
+        30,
+        89
+      ],
+      "reasoning": "Divides milliunits by decimal1000 and formats invariant 0.###, preserving at most3 meaningful fractional digits and trimming trailing zeroes. Negative values display as negative although input parser accepts only nonnegative.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Roundtrip nonnegative amounts and signed stock display tests missing.",
+      "tests_missing": "Roundtrip nonnegative amounts and signed stock display tests missing. NOT_EXECUTED.",
+      "verified_callers_callees": "decimal division; ToString invariant"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

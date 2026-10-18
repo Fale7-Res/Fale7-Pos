@@ -1,0 +1,110 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/ViewModels/MainViewModel.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:03:02.213898+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "df67ef07edbc787c31f367396f0a511105278abab0a5d8b5da8c71d49c0bce37",
+  "worktree_sha256": "df67ef07edbc787c31f367396f0a511105278abab0a5d8b5da8c71d49c0bce37",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-daab726e301867c73a6de3b3d90b3d50c34636b88aafab90f0d9737bc241bad5",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.MainViewModel._currentView::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        17,
+        42,
+        17,
+        54
+      ],
+      "reasoning": "Observable CurrentView stores root navigation VM object; active MainWindow manually maps types to real views, legacy uses WPF templates. No generated viewfactory or data load in setter.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Swapping view does not cancel old async work automatically.",
+      "tests_missing": "Swapping view does not cancel old async work automatically. NOT_EXECUTED.",
+      "verified_callers_callees": "ShowLogin; ShowMain/ShowCashier; MainWindow"
+    },
+    {
+      "stable_id": "sym-9432b084c1d987bd581ff39c765de7f90a4dc7009eebf829a1087c6406de8a4a",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.MainViewModel._isOnline::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        18,
+        39,
+        18,
+        55
+      ],
+      "reasoning": "Observable IsOnline initially true before first health check; later probe updates, only transport health status. Active stopped guard avoids poststop update, legacy lacks it.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Health success does not prove SQL/schema/auth/menu ready.",
+      "tests_missing": "Health success does not prove SQL/schema/auth/menu ready. NOT_EXECUTED.",
+      "verified_callers_callees": "CheckHealthNowAsync; health timer"
+    },
+    {
+      "stable_id": "sym-2e27ef78165721287d2b5dc4e776614d01b6d9dcd45b74999b0cac80e5e1881e",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.MainViewModel._isLoggedIn::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        19,
+        39,
+        19,
+        50
+      ],
+      "reasoning": "Observable IsLoggedIn toggles header/login state based on successful client flow, not fresh bearer verification each getter. Root ShowLogin changes it without clearing all cached identity fields.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Server remains authoritative; root auth/session semantics parent-owned.",
+      "tests_missing": "Server remains authoritative; root auth/session semantics parent-owned. NOT_EXECUTED.",
+      "verified_callers_callees": "ShowLogin; ShowMain/OnLoggedIn/ShowCashier"
+    },
+    {
+      "stable_id": "sym-a1553b7473ec8ef8b0330621b688e12bf869ce97f1fe9b5e75192f9292e3a967",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.MainViewModel.Lock()::relay-command-generator-input",
+      "exact_kind": "ToolkitRelayCommandGeneratorInput",
+      "exact_span": [
+        40,
+        5,
+        41,
+        40
+      ],
+      "reasoning": "Legacy LockCommand unconditionally swaps to login; no pending-outcome guard or draft retention. No generated auth revoke or session reset is implied.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Existing parent auth and recovery analysis applies; no UI/session action performed.",
+      "tests_missing": "Existing parent auth and recovery analysis applies; no UI/session action performed. NOT_EXECUTED.",
+      "verified_callers_callees": "Lock; ShowLogin"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

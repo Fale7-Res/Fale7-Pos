@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+  "source_git_blob_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+  "worktree_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T18:41:22.551929+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-6c62edba83be7653c29099962d0844a2eb368d36fc162d5e02ccdc18407b3cb6",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.CancelPendingElectronicPaymentHandler.CancelPendingElectronicPaymentHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Audit.IAuditLog)",
+      "span": [
+        25,
+        5,
+        29,
+        6
+      ],
+      "reasoning": "Storescontext/auditwriter; nojournal/gateway/inventory dependency. Cashmoneyreversal cannotoccurthroughinjectedservice here; codealsoaddsnoTreasuryentities.",
+      "inputs": "Context/audit",
+      "outputs": "Handler",
+      "side_effects": "Actualruntimecancelsorderstate/audit; noexecutionhere.",
+      "database": "No queryinconstructor",
+      "trust_boundaries": "Actorpos/cash_drawer_sale permission; reason/domainpendingstate gate; endpointsessionbinding separate.",
+      "printing_ui": "Nojobcancellation/reversal/printercall inhandler; existingkitchenjobs/stock remainbypolicy.",
+      "performance": "SingleOrderUPDLOCK/HOLDLOCK withItems/Refunds includes; no volume measurement.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 mixedpaymentordercancel leavesimmediatepostedmoney whilequeriesomitCancelled; noinventoryrestoreexplicitpolicy notfinding.",
+      "tests_missing": "DIcontextaudittransaction consistency",
+      "verified_callers_callees": "Handle31 usesdeps."
+    },
+    {
+      "stable_id": "sym-0b5d57a5b0ec5aba75cfe63cb24b0e01523be02f05da5afb7ae358180f2bba2e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.CancelPendingElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+      "span": [
+        31,
+        5,
+        73,
+        6
+      ],
+      "reasoning": "Entire74linesread. Activeactorpermissionfirst, beginsReadCommitted andlocksOrder thenloadsitems/refunds, mapsdomainCancel, copiescancelledstate/payment/times/reason/name andVersion++ regardlessreplay. Firstcancelauditwarning, Save/Commit. NoTreasuryreversal foralreadycollectedimmediateMultilegs FIN002; nostockrestoreexplicitintent. AlreadyCancelled returnsWasReplayedtrue butstillVersionwrite, so semanticnotbyte-identicalno-op. NoactiveShiftrequired andnoexplicitrequestkey/conflictreplaycatch, idempotencybystate.",
+      "inputs": "Cancelrequest/ct",
+      "outputs": "State/replayedDTO orDomain/DBexception",
+      "side_effects": "Actualruntimecancelsorderstate/audit; noexecutionhere.",
+      "database": "Order/Userreads;OrderVersion/state/auditwrites",
+      "trust_boundaries": "Actorpos/cash_drawer_sale permission; reason/domainpendingstate gate; endpointsessionbinding separate.",
+      "printing_ui": "Nojobcancellation/reversal/printercall inhandler; existingkitchenjobs/stock remainbypolicy.",
+      "performance": "SingleOrderUPDLOCK/HOLDLOCK withItems/Refunds includes; no volume measurement.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 mixedpaymentordercancel leavesimmediatepostedmoney whilequeriesomitCancelled; noinventoryrestoreexplicitpolicy notfinding.",
+      "tests_missing": "Mixedcashpendingcancellation FIN002 drawerexpectation, confirmvsCancelrace, repeatedcancelVersion/audit, unknown/confirmed/reason validation",
+      "verified_callers_callees": "Actor33; SQL42; DomainCancel50; Save69/Commit70; Domainmethodinternalsstrictqueued."
+    },
+    {
+      "stable_id": "sym-3726e95ebb72cf2f97bbaf8a78475d9a6ae06fb9aeaffc32a95f8f4953a91127",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        33,
+        78,
+        33,
+        108
+      ],
+      "reasoning": "Looks upcashierIDbeforetransaction thenToActor/HasPermission rejectsinactive/ungrantedcaller. No session binding/ownorderfilter, caller-basedauthoritypolicy separate.",
+      "inputs": "User/requestCashierID",
+      "outputs": "BooleanSQLpredicate",
+      "side_effects": "Actualruntimecancelsorderstate/audit; noexecutionhere.",
+      "database": "ReadUsers",
+      "trust_boundaries": "Actorpos/cash_drawer_sale permission; reason/domainpendingstate gate; endpointsessionbinding separate.",
+      "printing_ui": "Nojobcancellation/reversal/printercall inhandler; existingkitchenjobs/stock remainbypolicy.",
+      "performance": "SingleOrderUPDLOCK/HOLDLOCK withItems/Refunds includes; no volume measurement.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 mixedpaymentordercancel leavesimmediatepostedmoney whilequeriesomitCancelled; noinventoryrestoreexplicitpolicy notfinding.",
+      "tests_missing": "Forgedpayloadactor andinactiveuser",
+      "verified_callers_callees": "First33 actor35 permission36."
+    },
+    {
+      "stable_id": "sym-8be978a5dd2c5d20593a41f678737218b8b0addb6e64b316a91a8de9427911ce",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        43,
+        22,
+        43,
+        34
+      ],
+      "reasoning": "LoadsItems fordomainreconstitution underOrderrowlock; stockdeductedcheckoutneverrestoredbythisfunction. Childprice snapshotsreadonly.",
+      "inputs": "Order",
+      "outputs": "Items navigation",
+      "side_effects": "Actualruntimecancelsorderstate/audit; noexecutionhere.",
+      "database": "ReadOrderItems",
+      "trust_boundaries": "Actorpos/cash_drawer_sale permission; reason/domainpendingstate gate; endpointsessionbinding separate.",
+      "printing_ui": "Nojobcancellation/reversal/printercall inhandler; existingkitchenjobs/stock remainbypolicy.",
+      "performance": "SingleOrderUPDLOCK/HOLDLOCK withItems/Refunds includes; no volume measurement.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 mixedpaymentordercancel leavesimmediatepostedmoney whilequeriesomitCancelled; noinventoryrestoreexplicitpolicy notfinding.",
+      "tests_missing": "Preserveallitems/price/stock oncancel; largeInclude cost",
+      "verified_callers_callees": "Include43; mapper48."
+    },
+    {
+      "stable_id": "sym-2563fa55c03d4830c3235272951c3e7a2d2c85f599220bb93221c3c26df3722e",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        43,
+        44,
+        43,
+        58
+      ],
+      "reasoning": "LoadsRefunds fordomainstatevalidation; confirmed/refunded/cancelledcombinationhandleddomain. No refundmoneywrite inhandler.",
+      "inputs": "Order",
+      "outputs": "Refunds navigation",
+      "side_effects": "Actualruntimecancelsorderstate/audit; noexecutionhere.",
+      "database": "ReadOrderRefunds",
+      "trust_boundaries": "Actorpos/cash_drawer_sale permission; reason/domainpendingstate gate; endpointsessionbinding separate.",
+      "printing_ui": "Nojobcancellation/reversal/printercall inhandler; existingkitchenjobs/stock remainbypolicy.",
+      "performance": "SingleOrderUPDLOCK/HOLDLOCK withItems/Refunds includes; no volume measurement.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 mixedpaymentordercancel leavesimmediatepostedmoney whilequeriesomitCancelled; noinventoryrestoreexplicitpolicy notfinding.",
+      "tests_missing": "Contradictoryhistoriccancel+refund states andaggregation",
+      "verified_callers_callees": "Include43; DomainCancel50."
+    }
+  ],
+  "remaining_callable_ids": []
+}

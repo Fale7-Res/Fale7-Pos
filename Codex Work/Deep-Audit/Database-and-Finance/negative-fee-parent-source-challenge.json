@@ -1,0 +1,104 @@
+{
+  "at_utc": "2026-10-17T22:00:38.441449+00:00",
+  "reviewer": "root",
+  "candidate_key": "NEGATIVE_DELIVERY_FEE_BYPASSES_DISCOUNT_COMP_PERMISSIONS",
+  "disposition": "SURVIVES_INDEPENDENT_SOURCE_CHALLENGE_PENDING_ISOLATED_ARITHMETIC_PROBE",
+  "severity": "HIGH",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "evidence_spans": [
+        [
+          65,
+          73
+        ],
+        [
+          102,
+          143
+        ],
+        [
+          249,
+          280
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "evidence_spans": [
+        [
+          35,
+          39
+        ],
+        [
+          99,
+          121
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "source_git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "evidence_spans": [
+        [
+          13,
+          17
+        ],
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "evidence_spans": [
+        [
+          66,
+          110
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+      "source_git_blob_sha256": "6fa4b76e9a4abdce701c4db9571c19ab2bd3ff8694f64dff9aacc7e9745fadb5",
+      "worktree_sha256": "66cd885af3b6ddf84ea4a1629232490ba92e333be7626715be8614587b91dae1",
+      "evidence_spans": [
+        [
+          22,
+          38
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "evidence_spans": [
+        [
+          1370,
+          1393
+        ]
+      ]
+    }
+  ],
+  "evidence": [
+    "Signed Money accepts raw DeliveryFeePiastres. Handler does not zero non-delivery fee or reject negative fee in examined flow.",
+    "Base pos permission is required. Positive Discount and Comp fields have distinct permission/approval gates, but fee is added without such policy.",
+    "ComputePayableTotal adds fee then clamps negative result to zero. Zero amount-paid passes zero payable; plan DefersAllMoney suppresses sale collection while normal order/stock transaction still proceeds.",
+    "Order.Create copies plan fee/total rather than validating a nonnegative fee. No fee check constraint found in approved model/migration search."
+  ],
+  "preconditions": "Legitimate authenticated active pos actor; open shift; valid sellable order and ordinary database constraints. Does not require SEC001 actor mismatch. Negative-fee request is outside ordinary client validation paths; this is a server trust boundary.",
+  "counterevidence": [
+    "Legitimate full comps also permit zero payable but require separate approvals; this finding bypasses that intended route.",
+    "Foreign deployment trigger/additional validation not observed; no real HTTP/DB acceptance demonstrated.",
+    "Server still resolves product prices, quantities, tax and actor permission; no arbitrary unauthenticated sale claimed."
+  ],
+  "next_action": "Pure linked-baseline Domain arithmetic harness only, with positive/zero-fee controls; no server, SQL, application account or business records. Then assign canonicalFIN016 and preserve runtime limits."
+}

@@ -1,0 +1,302 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+      "source_git_blob_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "worktree_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Delivery.DeliveryTrip::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Delivery.DeliveryTrip::record-generated-behavior",
+      "startLine": 10,
+      "startColumn": 1,
+      "endLine": 20,
+      "endColumn": 2,
+      "origin_declaration_stable_id": "sym-f4e8557f9a91003cafda3e7bfea6a30bca69b8fb349f2978e63419e550a48008",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DriverId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderIds",
+          "type": "IReadOnlyList<string>",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-e3d50d94f278af491e5654119360db227f24e3d3f579f8e305d893d0ead40563",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+      "source_git_blob_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "worktree_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Delivery.DriverCustody::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Delivery.DriverCustody::record-generated-behavior",
+      "startLine": 24,
+      "startColumn": 1,
+      "endLine": 30,
+      "endColumn": 2,
+      "origin_declaration_stable_id": "sym-86b7dd11c00dc197ceb0c154c78593da82b18545015a196bd3283cd5fb40c4b7",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "TripId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DriverId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DeliveryId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Expected",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "Collected",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "Settled",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "Difference",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "CustodyStatus",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-5b9d9c842828504a7a4c3e472507ceeba342a6ef82d54a3fc2d177b93f2ad168",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+      "source_git_blob_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "worktree_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Delivery.DeliveryFacts::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Delivery.DeliveryFacts::record-generated-behavior",
+      "startLine": 35,
+      "startColumn": 1,
+      "endLine": 39,
+      "endColumn": 118,
+      "origin_declaration_stable_id": "sym-fbf7f32592b1117eb2e1ba9f7376f884b6f68b9a2a6165c2a3034337d180383f",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderNumber",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "DriverId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "DeliveryStatus",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentMethod",
+          "type": "PaymentMethod",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentAlreadySettled",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountToCollect",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderTotal",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "ShiftId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "TripId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CompAmount",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "DeliveredAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "FailedAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReturnedAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-195a4521f036b09b6acc48344b4215561b0e7f8c43cba42c6de06195e00a8a64",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+      "source_git_blob_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "worktree_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Delivery.Employee::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Delivery.Employee::record-generated-behavior",
+      "startLine": 41,
+      "startColumn": 1,
+      "endLine": 41,
+      "endColumn": 74,
+      "origin_declaration_stable_id": "sym-fe39be02356bb7b3beb849b75ed67548ee0a20d73d9501a8e16eb4a31c23c386",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "IsActive",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "CanDeliver",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-561e2ea3e6a5796ef02dbf687c7db704bec7aadaab63c6d329c5d4d5c8378980",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+      "source_git_blob_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "worktree_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Delivery.Driver::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Delivery.Driver::record-generated-behavior",
+      "startLine": 42,
+      "startColumn": 1,
+      "endLine": 42,
+      "endColumn": 86,
+      "origin_declaration_stable_id": "sym-9cb483644ac93fb05e1c891ab82daa07f0a3acd68c9b2d0a593c920d06148d6e",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Active",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "EmployeeId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-5d8f73ae66acb824428a64b248c7847c9ce4f584d0e2fe161145cf2fd5595d90",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

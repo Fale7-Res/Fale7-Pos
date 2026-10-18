@@ -1,0 +1,27 @@
+{
+  "at_utc": "2026-10-17T22:03:26.942129+00:00",
+  "reviewer": "root",
+  "resolutions": [
+    {
+      "path": "src/Falah.Client.Cashier/Converters/Converters.cs",
+      "worktree_sha256": "74073cc5fad0043260fb5b682404e13b1518216fa99ed221bad513f910703372",
+      "source_git_blob_sha256": "74073cc5fad0043260fb5b682404e13b1518216fa99ed221bad513f910703372",
+      "stable_ids": [
+        "sym-dac1146345c61156fee5069b60708912f48c180d30fa83a5c6f775fd29eaceae",
+        "sym-7a4dd5d92977b740fbc9e1e8689a10f63c21ac50c7b5479892b0e737f9b1fe7f",
+        "sym-d762ac46a2726b679db3037a8c11ca962e48ff7c57e8e894dcbd049c0dd8b291",
+        "sym-13ebec1373bb0551802b46aa5fa741859e9b0df466e83feb7057fa2478e0cd99",
+        "sym-45a6c96dfa51c7fa2bf13dfaef7558e379188a6307485a4619e1105ea0d8b5ac",
+        "sym-2217ebbd321be945047c874e89145948bcdfbb535ac458b1dbfd282f8afc8b4e",
+        "sym-278d927f2bff5bede7df2511aac8549aaad77821f3e2b100df1e7138c46e3c8c",
+        "sym-c5636dbd77848c1127c0a0750a61c2c8582f46e5d04a70edbb7cc1d98636cf63",
+        "sym-895bfdd366dad98fbc95a349348a8b66806cb5272d3597ca794cdf4ca5693498",
+        "sym-77034821b1390caad73e46d4820f74d60a32b1e5383d000883309d2f774d5545",
+        "sym-67c0b25afcf2a9b1c70f52beffccd29a9d48d3997bee3fa6b62b80d81d30bd08"
+      ],
+      "disposition": "ACCEPTED_IDENTICAL_THROW_BODY_REASONING",
+      "evidence": "Individually read all11 exact ConvertBack bodies at11,18,25,44,57,64,71,78,91,98,105. Each unconditionally throws new NotSupportedException; two multi-value methods return object[] signature but never return.",
+      "qualification": "Identical source behavior warrants same narrow reasoning. This does not prove every XAML binding is OneWay or native-safe; reverse binding remains explicit test requirement. No artificial wording variation needed to pass quality checker."
+    }
+  ]
+}

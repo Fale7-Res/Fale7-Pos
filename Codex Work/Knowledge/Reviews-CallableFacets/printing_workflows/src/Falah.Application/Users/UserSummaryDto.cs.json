@@ -1,0 +1,105 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Users/UserSummaryDto.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:05:06.165680+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "ccd44316d3741e88dbdb98bff379ae22d6bb626e4c9331153b2c22fe83ecfafd",
+  "worktree_sha256": "ccd44316d3741e88dbdb98bff379ae22d6bb626e4c9331153b2c22fe83ecfafd",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-5314dac75926cd515d526d6f91ef423a1f6a6a405cbe84c7339a7c5598a44ec8",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Users.UserSummaryDto::record-generated-behavior",
+      "source_span": [
+        3,
+        3
+      ],
+      "reasoning": "UserSummaryDto carries Id,Name,Role and IReadOnlyList Permissions;no Pin/hash/token. Server ToUserSummary splits stored comma permission string into list. Generated constructor/copy keeps permission list reference,so IReadOnlyList is not deep immutable and record equality compares list reference rather than effective permission-set equivalence. UI may use it for navigation,but backend reloads permissions for commands and summary equality cannot authorize requests.",
+      "inputs": "Identity/display role and permission-name list from server.",
+      "outputs": "Login picker/current-user summary transport.",
+      "side_effects": "Allocation only,no user creation or permission mutation.",
+      "trust_boundaries": "Server user metadata disclosure separate endpoint gate;client can mutate own backing list without acquiring server authority.",
+      "database": "Program.ToUserSummary2257+ producer,record no SQL.",
+      "printing_ui": "Role/permissions drive shell visibility,not authoritative capability token.",
+      "performance": "Permission list serialization/copy proportional count;no secret fields in ToString but permission list may be nontrivial metadata.",
+      "duplicates_conflicts": "Order/duplicates in list do not give set equality;with shares list. Use content/set comparison if caching UI changes.",
+      "issues_hypotheses": [
+        "Do not rely on record== for permission-change detection or backend authorization"
+      ],
+      "tests_missing": [
+        "Equivalent differently allocated permission lists,with alias,duplicate/order entries and no secret serialization"
+      ],
+      "verified_callers_callees": [
+        "UserSummaryDto.cs3",
+        "Program.csToUserSummary2257+",
+        "MainViewModel.HasAnyManagementPermission",
+        "AppSession.HasPermission"
+      ]
+    },
+    {
+      "stable_id": "sym-04c5998de90eba952d1cc6bab0ef94bdae96d00aeae986e44b9b3a2f45b08512",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Users.LoginByPinRequest::record-generated-behavior",
+      "source_span": [
+        7,
+        7
+      ],
+      "reasoning": "LoginByPinRequest has one plaintext Pin positional string. Generated public property enables JSON binding and normal value equality;no length/rate/hash validation in constructor. Program login loads active candidates and calls PinHasher.Verify,then rate-limit policy endpoint applies externally. Compiler ToString contains the secret Pin,so logging whole DTO would leak;inspected endpoint logs failed event Actor unknown without storing Pin and clients send JSON rather than explicit ToString.",
+      "inputs": "Single PIN string from login UI/PrintAgent startup.",
+      "outputs": "JSON login body,not authenticated session.",
+      "side_effects": "Record allocation only;login handler may persist session/failure audit separately.",
+      "trust_boundaries": "Anonymous secret input boundary;record equality is not constant-time and unused as authentication mechanism.",
+      "database": "Program1853-1871 user lookup/hash verification/session issue;DTO no DB.",
+      "printing_ui": "PIN screen request,no menu or printer operation itself.",
+      "performance": "Constant object/string reference storage;PBKDF cost/rate limiting belongs handler.",
+      "duplicates_conflicts": "with copy shares immutable secret string;cannot erase memory via resetting one record. Equal requests do not imply safe replay/session reuse.",
+      "issues_hypotheses": [
+        "Generated ToString secret hazard remains potential,not observed actual logging leak"
+      ],
+      "tests_missing": [
+        "Null/empty PIN binding behavior,ToString disclosure regression check and failed audit must omit PIN;no auth calls"
+      ],
+      "verified_callers_callees": [
+        "UserSummaryDto.cs7",
+        "Program.cs1853-1871",
+        "PrintServerClient.AuthenticateAsync33-40",
+        "CashierWinUI/ApiClient login method"
+      ]
+    },
+    {
+      "stable_id": "sym-3fe3d56ff82d2b312d14c10cb1d341f4531d8ea257eeb2d071556b72bb18264e",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Users.LoginResultDto::record-generated-behavior",
+      "source_span": [
+        12,
+        13
+      ],
+      "reasoning": "LoginResultDto adds Token to user identity/role/permission-list response. SessionService.IssueAsync generates plaintext bearer token once and persists hash;Program returns this DTO,clients install authorization header. Generated ToString includes Token even though no explicit logging sink found;copy duplicates string reference and shares permission list. Equality is not session validity:revocation,expiry and deactivation live server-side and can change while DTO fields stay identical.",
+      "inputs": "Server-produced Id/Name/Role/Permissions reference and secret Token string.",
+      "outputs": "Successful login JSON response carrying bearer session;not persisted plaintext by SessionService.",
+      "side_effects": "Record allocation itself no persistence;HTTP response deliberately discloses token to authorized caller.",
+      "trust_boundaries": "Highly sensitive server-to-client capability boundary;never put generated ToString or raw JSON in audit artifacts/logs.",
+      "database": "SessionService.IssueAsync stores TokenHash,Resolve/Revoke authoritative;record no database hook.",
+      "printing_ui": "Client visible user name/permissions and header token distinct;UI lock does not prove server session revoked.",
+      "performance": "Shallow permission list copy,string token;no automatic expiry timer or refreshing methods generated.",
+      "duplicates_conflicts": "with changed Id/Role/Permissions does not alter token-bound server principal;copying Token remains same capability. Reference-list equality not deep.",
+      "issues_hypotheses": [
+        "ToString/serialization token confidentiality;no actual leak sink established",
+        "DTO field identity not server authority"
+      ],
+      "tests_missing": [
+        "No raw token logging,hash-only persistence,revoked token despite same DTO,permission-list equality/alias fixture;no live login"
+      ],
+      "verified_callers_callees": [
+        "UserSummaryDto.cs12-13",
+        "Program.cs1866-1871",
+        "Infrastructure/Authorization/SessionService.cs22-35,43-76",
+        "Client ApiClient authorization setup"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

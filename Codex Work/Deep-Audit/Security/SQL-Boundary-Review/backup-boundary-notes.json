@@ -1,0 +1,18 @@
+{
+  "updated_at_utc": "2026-10-17T18:35:50.724039+00:00",
+  "identifier_guard": {
+    "path": "src/Falah.Domain/Backup/BackupRules.cs",
+    "source_git_blob_sha256": "c2b4b6d3523da6f903f2f8627dbf0e4ad034e0bafeddacdd192598ac6de79131",
+    "worktree_sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e",
+    "stable_id": "sym-7be19f28a010000a4eca833a47a600a320e220bc9e30e2c84428dd06c32a1efa",
+    "startLine": 64,
+    "endLine": 68,
+    "behavior": "Rejects blank or nonmatching ^[A-Za-z0-9_]+$ identifier; apostrophe/bracket/semicolon cannot pass. .NET $ may allow terminal newline, which alone cannot escape either SQL literal/bracket context; not SQLi proof."
+  },
+  "non_sql_injection_limits": [
+    "Destination validation only blank/invalid-path chars, no approved-root/UNC allowlist. Whether privileged backup users may select arbitrary path is owner policy.",
+    "Bound disk path blocks syntax injection, not SQL service filesystem/network authority.",
+    "No SQL/file operation executed; FIN007/008/014 are not cleared."
+  ],
+  "source_read": "BackupRules119/CreateBackup104/VerifyBackup70 lines full; Restore specific control/command/cleanup spans and earlier UI014110-194."
+}

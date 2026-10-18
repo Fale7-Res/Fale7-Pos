@@ -1,0 +1,426 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.CreatePrintJobsRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.CreatePrintJobsRequest::record-generated-behavior",
+      "startLine": 15,
+      "startColumn": 1,
+      "endLine": 21,
+      "endColumn": 28,
+      "origin_declaration_stable_id": "sym-bf6283e274647e6db38999ee60cfd43ff01b1e661be8ed5d465d6d7001ecc309",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CustomerRoute",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "IsReprint",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "IncludeKitchenRoutes",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-5029cdb4479a97adc717c680057a3b2801e2bb5e6f6cafcbd52f28b33bead951",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.ReprintDocumentRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.ReprintDocumentRequest::record-generated-behavior",
+      "startLine": 26,
+      "startColumn": 1,
+      "endLine": 27,
+      "endColumn": 106,
+      "origin_declaration_stable_id": "sym-3482757948b90e893311a4a143f6db675c69dde23716da1fcedca7418035470b",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DocumentKind",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DocumentId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-c24fd652df188a97191f3f6c4b62b2cff2f5b0889236729b078ee6b1e1c873cb",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.PrintJobDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.PrintJobDto::record-generated-behavior",
+      "startLine": 29,
+      "startColumn": 1,
+      "endLine": 31,
+      "endColumn": 103,
+      "origin_declaration_stable_id": "sym-91fff814152360b74a46cf575a698f702196a59105fed6d928f468370ea403c4",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OrderNumber",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Route",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AttemptCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "LastAttemptAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "LastError",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "IsReprint",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-0c11a61c215d3e2674a34a6402e300af349279a4d1ff7ba6a0b79b9e45cd5f60",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.PrintRouteStatusDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.PrintRouteStatusDto::record-generated-behavior",
+      "startLine": 40,
+      "startColumn": 1,
+      "endLine": 42,
+      "endColumn": 77,
+      "origin_declaration_stable_id": "sym-f9692d905a80f3d9207121296e37f6cd992472814b5711aea5a686283eb344ad",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Route",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PendingCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "FailedCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "StuckCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "OldestPendingAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "LastSucceededAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-5fa74c36d8070f7eee7e86f9b5f1dd10b4b83e44102b6c0aa305732b24dd66ce",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.PrintingOverviewDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.PrintingOverviewDto::record-generated-behavior",
+      "startLine": 44,
+      "startColumn": 1,
+      "endLine": 47,
+      "endColumn": 71,
+      "origin_declaration_stable_id": "sym-8468363b9201ff72abbe5523eaf2b338771395a6a187813b69cf9c9faec82189",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Routes",
+          "type": "IReadOnlyList<PrintRouteStatusDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "NeedsAttention",
+          "type": "IReadOnlyList<PrintJobDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPendingCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalFailedCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalStuckCount",
+          "type": "int",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-0afde8f5ac542b6cf4cd9d0b5e77adbeebdc6bb1b2c30517d330371fb00d5320",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.CreatePrintJobsResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.CreatePrintJobsResult::record-generated-behavior",
+      "startLine": 49,
+      "startColumn": 1,
+      "endLine": 49,
+      "endColumn": 95,
+      "origin_declaration_stable_id": "sym-8f9fda393aa648b464fe71f25dd238fd78f104f127aceb442d5cbc2cfdf5b416",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Jobs",
+          "type": "IReadOnlyList<PrintJobDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-d9becc95ec77928cd2dc2b2123a72a8b4a31e506a2f14a56a1b750d8618c5d93",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.ReportPrintJobResultRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.ReportPrintJobResultRequest::record-generated-behavior",
+      "startLine": 56,
+      "startColumn": 1,
+      "endLine": 56,
+      "endColumn": 143,
+      "origin_declaration_stable_id": "sym-a4218c272f33ace39173c5fa406b1ab5e37c34e9321011716f0e728b48543460",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PrintJobId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Succeeded",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "Error",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReportedByUserId",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-bb8ef2ae33030258bae34f1a88c101a4592116127192110f5980056c0d6e856e",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.PrintJobAttemptDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.PrintJobAttemptDto::record-generated-behavior",
+      "startLine": 58,
+      "startColumn": 1,
+      "endLine": 58,
+      "endColumn": 122,
+      "origin_declaration_stable_id": "sym-179128e28f4c7a6b3ae5ca3e562239d9eb0c49828eb8e7d32f7c910a32dce1c5",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "AttemptedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "Succeeded",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "Error",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReportedBy",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-438d909789f0df2818cf238d07f74ffb0010b85a6009ef596c123a9ac00b85a9",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Printing.PrintJobDetailsDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Printing.PrintJobDetailsDto::record-generated-behavior",
+      "startLine": 60,
+      "startColumn": 1,
+      "endLine": 60,
+      "endColumn": 102,
+      "origin_declaration_stable_id": "sym-9a8bea1cd0f7b108a9cf16820a8e07128ff1ae425abb3690d2efd185a3d37c67",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Job",
+          "type": "PrintJobDto",
+          "modifiers": ""
+        },
+        {
+          "name": "Attempts",
+          "type": "IReadOnlyList<PrintJobAttemptDto>",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-07f685667c30c711b6dedebc522e46689d50dc14314fd31b1c1956bd1c1d1d53",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

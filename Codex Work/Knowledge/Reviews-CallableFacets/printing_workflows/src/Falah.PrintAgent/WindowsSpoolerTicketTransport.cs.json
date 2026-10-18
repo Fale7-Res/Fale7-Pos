@@ -1,0 +1,43 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:01:24.749443+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-7bbcea2a77fa3b4fd7da364479df0ba2333759b06a916166e8399c7722b92922",
+      "status": "ANALYZED",
+      "source_name": "Falah.PrintAgent.WindowsSpoolerTicketTransport.Description::get()",
+      "source_span": [
+        27,
+        27
+      ],
+      "reasoning": "WindowsSpoolerTicketTransport.Description wraps configured queue name in quotes with RAW annotation. No Win32 OpenPrinter/GetPrinter call occurs;getter can return for nonexistent queue. RAW states selected transport datatype,not verified driver capability or completed physical output. Processor reports transport description after Send returns,retaining PRT002 spooler-accepted versus paper distinction.",
+      "inputs": "_printerName set by constructor.",
+      "outputs": "windows printer \"name\" (RAW) diagnostic.",
+      "side_effects": "String allocation,no spooler/native call.",
+      "trust_boundaries": "Configured queue names flow to logs and server error detail;getter performs no escaping beyond quotes.",
+      "database": "No SQL in getter.",
+      "printing_ui": "Device label and intended datatype only;no completion acknowledgement.",
+      "performance": "No blocking call,unlike Send synchronous Win32 path.",
+      "duplicates_conflicts": "Quoted names may contain quotes/newlines;not executable shell string in this getter.",
+      "issues_hypotheses": [
+        "Log formatting for unusual names;no command execution path from interpolation established"
+      ],
+      "tests_missing": [
+        "Missing queue still description,embedded quotes,RAW marker,no physical job"
+      ],
+      "verified_callers_callees": [
+        "WindowsSpoolerTicketTransport.cs25-32",
+        "Send38+",
+        "PrintJobProcessor.cs111,121"
+      ]
+    }
+  ],
+  "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+  "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

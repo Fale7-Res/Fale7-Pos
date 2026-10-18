@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/InventoryView.xaml",
+  "source_git_blob_sha256": "2ae63654d2aa2d8b5d8ba6fbc3571edd5a7f33a66b078268072b4a86bbd0c132",
+  "worktree_sha256": "7827f5daf0c56d8258754883dd4c9df76814175a01390884bc172a3375d4d81a",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:41:20.404355+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Stock overview, detailed cost/movement trace and multi-item physical count sheet.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "StockValueCaveat",
+      "reasoning": "Unknown-cost item count and stock-value caveat explicitly separate unpriced stock from known total. Negativebalance warning distinct from low-stock filter. Top260px search and multiple auto metric columns can leave stockvalue narrow."
+    },
+    {
+      "anchor": "SelectedItem",
+      "reasoning": "Browse ListView rather than unvirtualized top ItemsControl, selection2way drives detail. Fixed480 columns plus action and380rail leave name star constrained. Nested names horizontal badge can defeat text wrapping; native unknown."
+    },
+    {
+      "anchor": "RecentMovements",
+      "reasoning": "No-selection rail shows item/type/actor/quantity/time; selected detail shows costsource/asof, received/used/lost/count totals and unexplainedvariance. These are evidence-rich real DTO fields, not frontend mock balance."
+    },
+    {
+      "anchor": "DetailMovements",
+      "reasoning": "Trace shows type/quantity/time/actor/reference/reason; detail load error overlay only movementarea, upperdetail may retain prior data ifVMfails to clear. Closeicon tooltip exists but no explicit AutomationProperties.Name."
+    },
+    {
+      "anchor": "CountSheet",
+      "reasoning": "Physical count description explicitly encourages current search results and shelf-by-shelf filtering. Search remains available during counting. PriorVM filter-rebuild preservation candidate therefore has real user path; this markup alone cannot retain off-filter entered rows."
+    },
+    {
+      "anchor": "CountedText",
+      "reasoning": "Countsheet quantity inputs have no CanEditAction/IsBusy disable, unlike singleitem modals. Reason/PIN/cancel similarly alwaysenabled; SubmitCountSheetCommand must prevent editing/abandoning in-flight per-line results. Prior batchcount directAPI/no durable unknown flow candidate not contradicted by UI."
+    },
+    {
+      "anchor": "CountSheetProgressLabel",
+      "reasoning": "Per-row Result and sheet progress/value/summary communicate partial writes, no atomic-all-items promise. Error and summary occupy same footer row1 and could overlap ifbothset; VMmustclear consistently."
+    },
+    {
+      "anchor": "InventoryModalsView",
+      "reasoning": "Individual count/waste overlays spanall3rows, unlike Shifts row0 issue. Darkwhite-onTextPrimarytoast repeats semanticcontrast; no actual stock adjustment performed."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need filterA→B→A preservation, response loss after per-item commit, edit/cancel during batch, partial success+error footer, detail race and narrow layouts. No callable declarations.",
+  "recommendations": "Retain immutable per-item batch requests and off-filter count drafts, register global unknown outcome, and verify real operator flow with isolated fixtures before source fixes.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

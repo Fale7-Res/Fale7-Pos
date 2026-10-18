@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs",
+  "source_git_blob_sha256": "a96b5ebff8d106481219546f910cb9b88e49e4b99d6437e47b34f4c3af929484",
+  "worktree_sha256": "d670f96b32b6239616a9f6ba3085b3e8563873cb89929fe67356a8990e6d821c",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T07:24:46.589077+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Read complete ProductTile/CategoryTile source per client; all3 indexed callable spans reconciled plus expression resource/display responsibilities. Cashier IsBestSeller flag differs from CallCenter.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-1296fb71f80c1f37c94baac7d1a1575873a867edb7bab06c2de0ee4fbbb68b5d",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_kind": "SimpleLambdaExpression",
+      "exact_span": [
+        23,
+        85,
+        23,
+        105
+      ],
+      "reasoning": "Projects each variant PricePiastres to Min for starting-price badge. With>1 variants prepends from, zero variants base price. Does not account offer fixed price in starting label, but separate offer buttons/banner explain deal.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Min/base/offer label clarity; backend authoritative pricing.",
+      "tests_missing": "Min/base/offer label clarity; backend authoritative pricing. NOT_EXECUTED.",
+      "verified_callers_callees": "StartingPriceDisplay -> Product.Variants.Min"
+    },
+    {
+      "stable_id": "sym-abd84291bd059663145b61947d7568d1d3ed33cde172411157020cc8e3959b76",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Models.CategoryTile.Category.get",
+      "exact_kind": "GetAccessorDeclaration",
+      "exact_span": [
+        43,
+        39,
+        43,
+        43
+      ],
+      "reasoning": "Returns immutable category DTO wrapped by observable selection flag. VM selection compares ReferenceEquals to this object, so identity reference matters to chip highlight.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Equal cloned DTO versus original reference fixture.",
+      "tests_missing": "Equal cloned DTO versus original reference fixture. NOT_EXECUTED.",
+      "verified_callers_callees": "OnSelectedCategoryChanged; SelectCategory"
+    },
+    {
+      "stable_id": "sym-e5c22bf0a90c528be36e3d1e43df781e31d6df65383cce9e27ab13455843003f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto)",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        44,
+        5,
+        44,
+        74
+      ],
+      "reasoning": "Constructor retains category without network or event subscription. ProductTile and OfferChoice records pair product/offer immutably; expression HasImage/FallbackIcon/StationLabel inspected but not counted as separate callable declarations by map.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Null category contract; native fallback images and RTL layout not observed.",
+      "tests_missing": "Null category contract; native fallback images and RTL layout not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "CategoryTile Category assignment"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

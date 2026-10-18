@@ -1,0 +1,50 @@
+{
+  "checked_at_utc": "2026-10-17T01:48:16.563163+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Primary GitHub advisory version ranges compared to existing restore graph. No network code/packages executed.",
+  "coverage": "Three specific advisory/package version comparisons only; not exhaustive210-component or framework/native review",
+  "checks": [
+    {
+      "package": "Newtonsoft.Json",
+      "observed_version": "13.0.1",
+      "advisory": "GHSA-5crp-9r3c-p9vr / CVE-2024-21907",
+      "source_url": "https://github.com/advisories/GHSA-5crp-9r3c-p9vr",
+      "affected_range": "<13.0.1",
+      "patched_version": "13.0.1",
+      "disposition": "NOT_AFFECTED_BY_THIS_ADVISORY_VERSION_RANGE",
+      "reasoning": "Resolved version equals the first patched version; do not report it vulnerable solely because a scanner/search result mentions Newtonsoft. Other usage/advisories remain unassessed."
+    },
+    {
+      "package": "System.Text.Encodings.Web",
+      "observed_version": "6.0.0",
+      "advisory": "GHSA-ghhp-997w-qr28 / CVE-2021-26701",
+      "source_url": "https://github.com/advisories/GHSA-ghhp-997w-qr28",
+      "affected_ranges": [
+        ">=4.0.0,<4.5.1",
+        ">=4.6.0,<4.7.2",
+        "=5.0.0"
+      ],
+      "patched_versions": [
+        "4.5.1",
+        "4.7.2",
+        "5.0.1"
+      ],
+      "disposition": "NOT_AFFECTED_BY_THIS_ADVISORY_VERSION_RANGE",
+      "reasoning": "An upstream issue about System.Text.Json4.7.2 referenced old encoder4.7.1. This restore graph resolves encoder6.0.0 instead; package-name inference alone would be a false positive."
+    },
+    {
+      "package": "Microsoft.Extensions.Caching.Memory",
+      "observed_version": "8.0.1",
+      "advisory": "GHSA-qj66-m88j-hmgj / CVE-2024-43483",
+      "source_url": "https://github.com/advisories/GHSA-qj66-m88j-hmgj",
+      "affected_net8_range": ">=8.0.0-preview.1.23110.8,<=8.0.0",
+      "patched_net8": "8.0.1",
+      "disposition": "NOT_AFFECTED_BY_THIS_ADVISORY_VERSION_RANGE",
+      "reasoning": "Existing graph selects8.0.1; do not transplant SqlClient release notes about a different6.0.x caching dependency to the actual selected graph."
+    }
+  ],
+  "additional_primary_release_evidence": {
+    "source": "https://github.com/dotnet/SqlClient/blob/main/release-notes/5.1/5.1.7.md",
+    "observation": "Upstream5.1.7 lists dependency changes after observed5.1.6; not proof current resolved graph contains each older vulnerable dependency."
+  }
+}

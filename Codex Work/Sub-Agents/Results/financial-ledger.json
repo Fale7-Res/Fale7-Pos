@@ -1,8 +1,8 @@
 {
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "scope_count": 327,
-  "reviewed_count": 279,
-  "remaining_count": 48,
+  "reviewed_count": 327,
+  "remaining_count": 0,
   "coverage_complete": false,
   "records": [
     {
@@ -6257,200 +6257,1111 @@
       "tests_and_evidence": "395 lines fully read in two bounded chunks;51 stable callable receipts already saved with current verified source hash; no execution.",
       "recommendations": "Add controlled cross-handler liquidity race, concurrent distinct business-day opening, funded invalid-account guards, nonzero pending/custody position and exact handover movement identity.",
       "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
-    }
-  ],
-  "remaining": [
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/CheckoutVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
     },
     {
       "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/PrintAgentTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/PrintingVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
-    },
-    {
-      "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "git_blob_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          324
+        ]
+      ],
+      "functionality_and_reasoning": "Tests partial/full/overpayment, later credits, same-key and distinct-key races, account authority, exact movement fields, audit, Settlement classification versus Advance and range-flow/current-balance reporting. Advances intentionally permit negative employee entitlement. Drawer rejection also lacks funds so status alone not account-rule proof. Main payment versus payroll-run creation reconciliation absent; Adjustment credits absent. Single-by-movement-ID does not prove no logical duplicate rows; earlier reference-based count is stronger.",
+      "significant_methods": "All41 exact callable spans individually reasoned in Knowledge shard",
+      "interactions_and_risks": "Tests partial/full/overpayment, later credits, same-key and distinct-key races, account authority, exact movement fields, audit, Settlement classification versus Advance and range-flow/current-balance reporting. Advances intentionally permit negative employee entitlement. Drawer rejection also lacks funds so status alone not account-rule proof. Main payment versus payroll-run creation reconciliation absent; Adjustment credits absent. Single-by-movement-ID does not prove no logical duplicate rows; earlier reference-based count is stronger.",
+      "findings": [
+        "FIN-012"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "324 lines fully read;41 symbol receipts saved with verified source hash; no test execution.",
+      "recommendations": "Test payroll after standalone settlement, corrections, precise rejected source error and per-account conservation; enforce deterministic race barriers.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
     },
     {
       "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs",
-      "status": "NOT_ANALYZED"
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+      "git_blob_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          253
+        ]
+      ],
+      "functionality_and_reasoning": "Checks shift open/close slips, employee advance reconciliation, expense voucher recomposition, operational and order reprint marking/replay/audit with selected financial footprint. Pure software queue/ticket reads do not physically print. Footprint only counts selected tables and treasury sum, so same-count/value-preserving mutation or omitted ledgers not detected. Closing amounts both equalwhole EGP; test cannot expose swapped expected/actual or cents. No recipe means stock immutability weaker. Kitchen exclusion uses no kitchen-bound product.",
+      "significant_methods": "All40 actual callable identities individually reasoned",
+      "interactions_and_risks": "Checks shift open/close slips, employee advance reconciliation, expense voucher recomposition, operational and order reprint marking/replay/audit with selected financial footprint. Pure software queue/ticket reads do not physically print. Footprint only counts selected tables and treasury sum, so same-count/value-preserving mutation or omitted ledgers not detected. Closing amounts both equalwhole EGP; test cannot expose swapped expected/actual or cents. No recipe means stock immutability weaker. Kitchen exclusion uses no kitchen-bound product.",
+      "findings": [
+        "FIN-004"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "253 lines fully read;40 stable callable receipts saved with verified source identity; no execution.",
+      "recommendations": "Use full state/row snapshots, recipe-backed sale, kitchen-eligible item, cents/discrepancy and changed historical refund/config fixtures; verify banner per segment not count only.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
     },
     {
       "path": "tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs",
-      "status": "NOT_ANALYZED"
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "6507c7deedcd751a74d4d9c1c7c8e3823821405faa450fee11a9b9d59e6f1f58",
+      "git_blob_sha256": "b4dd8f5d6fb8f9498388b18576c343dcaa61475774d51980c371eb5f926ebf07",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          555
+        ]
+      ],
+      "functionality_and_reasoning": "Covers user/PIN/permission lifecycle, same-key replay, login limiter, owner and administrative survival guards. Reports omit credentials. Static fixture defect: concurrent self-revocation496 does not remove seeded demo manager/all, so both named revocations may legitimately succeed; Assert.Single505 overconstrains invariant. Confirmed source startup Program202-215/Factory37-68/Seeder16,34-37. Last-admin deactivate528 ends self-deactivate, already forbidden separately, so not independent guard proof. Role-based approval authority with allowed permission subset, distinct-key credential races and inactive reactivation collisions absent.",
+      "significant_methods": "All78 exact callable spans including getters, constructor, helper methods and lambdas individually reasoned",
+      "interactions_and_risks": "Covers user/PIN/permission lifecycle, same-key replay, login limiter, owner and administrative survival guards. Reports omit credentials. Static fixture defect: concurrent self-revocation496 does not remove seeded demo manager/all, so both named revocations may legitimately succeed; Assert.Single505 overconstrains invariant. Confirmed source startup Program202-215/Factory37-68/Seeder16,34-37. Last-admin deactivate528 ends self-deactivate, already forbidden separately, so not independent guard proof. Role-based approval authority with allowed permission subset, distinct-key credential races and inactive reactivation collisions absent.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "555 lines read in three bounded chunks;78 exact stable callable records saved and source hash validated; no tests run.",
+      "recommendations": "Isolate exact admin set, remove self-rule confound, assert entire credential redaction, effective permission use/session lifecycle and distinct-operation uniqueness races. No new security finding promoted by this test review.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+      "git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          281
+        ]
+      ],
+      "functionality_and_reasoning": "Tests expected cash,balanced/shortage/overage directions and actual handover,approval rejection leaves shift open,approved close,replay/samekey concurrency,oneactive shift and permissions/current endpoint. Concurrent distinct opens use zero floats, so do not challenge FIN011 protected Main check; no sale-versus-close race or crossshift refund FIN004. Some setup responses unchecked; several counts narrower than wholeoperation. Preview onlyone shift cannot prove historical isolation by testtitle.",
+      "significant_methods": "All52 exact callable identities individually reasoned",
+      "interactions_and_risks": "Tests expected cash,balanced/shortage/overage directions and actual handover,approval rejection leaves shift open,approved close,replay/samekey concurrency,oneactive shift and permissions/current endpoint. Concurrent distinct opens use zero floats, so do not challenge FIN011 protected Main check; no sale-versus-close race or crossshift refund FIN004. Some setup responses unchecked; several counts narrower than wholeoperation. Preview onlyone shift cannot prove historical isolation by testtitle.",
+      "findings": [
+        "FIN-004",
+        "FIN-011"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "281lines fully read;52stable callable receipts saved; noexecution.",
+      "recommendations": "Add controlled sale/refund/close races,positivefloat competing spend,exactthreshold,fullsnapshot and historicalrefund currentdrawer cases.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CheckoutVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "5b33be2a2aa866d704a0d89fa1e0b3c9bef9a0d3f8ac3bf37a5fe50261571e44",
+      "git_blob_sha256": "9c7cec64a70c1fac53f18abb1fedc922ee862009ba504eae2c5252f3c89db47a",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          303
+        ]
+      ],
+      "functionality_and_reasoning": "Covers cashsale identity/moneycount,sequential/eightway replay,12distinct-order allocatoruniqueness,missing shift,single InstaPay defer,readback noextra rows,conflicting journal gate andcomp/discount authorities/reasontaxonomy. Single electronic onlydoesnotcountermixed FIN001/002/010. No truefaultinjectionafterstagedsave; orphancompletedjournalispreexisting gate. Reprint-namedtestonlyGETsorder. Severalcountassertionscannotdetectexistingrowchanges.",
+      "significant_methods": "All57 exact callable spans individually reasoned",
+      "interactions_and_risks": "Covers cashsale identity/moneycount,sequential/eightway replay,12distinct-order allocatoruniqueness,missing shift,single InstaPay defer,readback noextra rows,conflicting journal gate andcomp/discount authorities/reasontaxonomy. Single electronic onlydoesnotcountermixed FIN001/002/010. No truefaultinjectionafterstagedsave; orphancompletedjournalispreexisting gate. Reprint-namedtestonlyGETsorder. Severalcountassertionscannotdetectexistingrowchanges.",
+      "findings": [
+        "FIN-001",
+        "FIN-002",
+        "FIN-010"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "303lines read in two bounded chunks;57stablecallable receipts saved; noexecution.",
+      "recommendations": "Add fullmoney/stock/journal snapshots,changedpayload/restart/barrierraces,mixedconfirmation/cancellation andexactdiscountresult. Noapplicationfixes performed.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          551
+        ]
+      ],
+      "functionality_and_reasoning": "Tests sales/expenses/refunds/day/headline/tax/cost/history/custody and empty-shift query regression. Class documentation stale about absentpurchasing/payroll. No mixedpendingpayment orcancelledorder fixturehere,contraryto othercomments claiming exhaustiveSalesRulescoverage. Offerbucket namedbutnotseeded/asserted; frozentaxsnapshot namedbutnoruleedit. Currentrecipecostexplicitintent. Negativeunapprovedexpense significance test canpassifuncheckedexpensePOSTfails. COD settlesexactexpectedonly. Hourclockrace possible.",
+      "significant_methods": "All48 exact callable identities individually reasoned",
+      "interactions_and_risks": "Tests sales/expenses/refunds/day/headline/tax/cost/history/custody and empty-shift query regression. Class documentation stale about absentpurchasing/payroll. No mixedpendingpayment orcancelledorder fixturehere,contraryto othercomments claiming exhaustiveSalesRulescoverage. Offerbucket namedbutnotseeded/asserted; frozentaxsnapshot namedbutnoruleedit. Currentrecipecostexplicitintent. Negativeunapprovedexpense significance test canpassifuncheckedexpensePOSTfails. COD settlesexactexpectedonly. Hourclockrace possible.",
+      "findings": [
+        "FIN-004",
+        "FIN-010"
+      ],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "551lines read in three bounded chunks;48stable callable receipts saved; noexecution.",
+      "recommendations": "Add deterministicdates,actualsnapshotedits,typedidentitycorrelation,mixed/crossshiftfinancial paths,partial/failedcustody andcompletepermissionresponseassertions.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PrintAgentTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "971c4739d41221b832270de9d7e29a23dfbf37d9d0201f649067690db86d0163",
+      "git_blob_sha256": "c520fc4e0cf71b132b600b0e934bc9bf8ca91de9c4a4a567566cb4f13385149e",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          377
+        ]
+      ],
+      "functionality_and_reasoning": "Fake server/transport tests loop outcome truth,cancellation uncertainjournal,failclosed corruptstore,routefilter/order,retryidentity,noresendafterreportfailure,DTOmapping/cuts/config. No actual server orprinter. Tempfiles ifexecutednotcleaned. Cancel token alreadycancelled andfakefailurebeforecapture,notrealmidwrite. Sharedstorerecoveryfactdoesnotreloadprocess/disk; cancellationfactdoesnewstore. Queueoldesttitle onlyinsertionorder.Fakeauthalwayssuccess. Cross-hostunclaimedqueuePRT001notcountered.",
+      "significant_methods": "All55 exact callable identities including accessors and nested lambdas individually reasoned",
+      "interactions_and_risks": "Fake server/transport tests loop outcome truth,cancellation uncertainjournal,failclosed corruptstore,routefilter/order,retryidentity,noresendafterreportfailure,DTOmapping/cuts/config. No actual server orprinter. Tempfiles ifexecutednotcleaned. Cancel token alreadycancelled andfakefailurebeforecapture,notrealmidwrite. Sharedstorerecoveryfactdoesnotreloadprocess/disk; cancellationfactdoesnewstore. Queueoldesttitle onlyinsertionorder.Fakeauthalwayssuccess. Cross-hostunclaimedqueuePRT001notcountered.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "377lines read in two bounded chunks;55stable callable receipts saved; no test execution,filesystemfixturewrites orprinting.",
+      "recommendations": "Add partialwrite/barrier/crash/store-reload,realserialization,logs/payloadassertions andcrosshostclaimcases in safe isolated verification.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "53f5c23c7f83daca94e2aa452fe130a6770de729a17724bddb1ddc88484bf096",
+      "git_blob_sha256": "4aa06d65f469d7efb99341f408561e7747edbba975788d61782b9fa100d8992d",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          405
+        ]
+      ],
+      "functionality_and_reasoning": "All 405 source lines read. Category creation/update/delete/replay and product variant identity retention are asserted with API readbacks. Tax checkout-named cases only assert rule presence/Enabled, never actual checkout totals or history. Offer scheduled days and time range are posted without proving clock-dependent applicability. Category concurrency checks primary ID presence rather than absence of logical duplicate IDs. Availability no-op proves success but not absence of extra audit/version writes. Ordering deliberately creates categories 3,1,2 and variants 9000,5000,7000 and verifies management/POS ascending sequences; ties untested. Variant update retains A ID, deletes B, adds C; sold variant FK history not exercised.",
+      "significant_methods": "Category, product, variant, tax and offer management facts; replay helpers and ordering projections",
+      "interactions_and_risks": "All 405 source lines read. Category creation/update/delete/replay and product variant identity retention are asserted with API readbacks. Tax checkout-named cases only assert rule presence/Enabled, never actual checkout totals or history. Offer scheduled days and time range are posted without proving clock-dependent applicability. Category concurrency checks primary ID presence rather than absence of logical duplicate IDs. Availability no-op proves success but not absence of extra audit/version writes. Ordering deliberately creates categories 3,1,2 and variants 9000,5000,7000 and verifies management/POS ascending sequences; ties untested. Variant update retains A ID, deletes B, adds C; sold variant FK history not exercised.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "66 exact manually reasoned callable receipts saved; static source only, no tests executed. Audit assertions mostly action/ID predicates rather than complete snapshots.",
+      "recommendations": "Add actual priced checkout and tax history assertions, offer boundary clock tests, sold variant preservation, rollback, case/numeric enums, stale updates and exact audit counts.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "66cc5719ec12a81881b02ba08468417f62e63b18e5fb63984fb79d2bfed06347",
+      "git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          602
+        ]
+      ],
+      "functionality_and_reasoning": "All 602 source lines read in three bounded segments and 81 exact callables reasoned. Covers open-shift, missing-checklist, pending electronic and custody blockers; custody necessarily coexists with open shift. Same-key six-request close concurrency checks one snapshot/revision/nonreplay but not distinct keys or simultaneous new money. Zero-sales reproducible snapshot fact checks JSON field presence and unchanged treasury row count, not complete immutable totals or all financial rows. Reclose checks revision2 authority but not revision1 demotion. Checklist reset Assert.All may pass empty set. Unknown exception plus emptyreason test does not isolate reason validation. Ready-delivery warning predicate omits stable exception type, assigned negative uses localized message. Audit exact-codes title checks only OPEN_SHIFT presence. Settings live threshold and 41500 cashcount replay assertions are useful but lack invalid arithmetic/mixed-permission patch tests.",
+      "significant_methods": "Lifecycle/helpers; open/close blockers; close snapshots/replay; reopen/checklist; exceptions/audit; settings/cashcount facts and query predicates",
+      "interactions_and_risks": "All 602 source lines read in three bounded segments and 81 exact callables reasoned. Covers open-shift, missing-checklist, pending electronic and custody blockers; custody necessarily coexists with open shift. Same-key six-request close concurrency checks one snapshot/revision/nonreplay but not distinct keys or simultaneous new money. Zero-sales reproducible snapshot fact checks JSON field presence and unchanged treasury row count, not complete immutable totals or all financial rows. Reclose checks revision2 authority but not revision1 demotion. Checklist reset Assert.All may pass empty set. Unknown exception plus emptyreason test does not isolate reason validation. Ready-delivery warning predicate omits stable exception type, assigned negative uses localized message. Audit exact-codes title checks only OPEN_SHIFT presence. Settings live threshold and 41500 cashcount replay assertions are useful but lack invalid arithmetic/mixed-permission patch tests.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "81 exact callable receipts saved; no execution. Read-only source reasoning distinguishes tested assertions from comments/titles.",
+      "recommendations": "Add populated snapshot/hash/old-authority assertions; barrier-controlled distinct-key closes and business writes; exact blocker/audit fields; nonempty checklist IDs; valid exception reason rejection; code-based delivery states; settings mixed patches and cashcount invalid/replayed payload cases.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "5f27a9a4e14f4f98cacbf6fcc6bb3b50ba05c3fc41e5e058577d9f39f365036c",
+      "git_blob_sha256": "7fc4808d3814ae22c425c3afffd0c198d3093d56969bb834a87851fc47264220",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          641
+        ]
+      ],
+      "functionality_and_reasoning": "All 641 source lines read in three bounded segments; 120 exact callable receipts saved. Pure tests compose ticket element models, never DB/renderer/printer. Coverage includes station partition, cut-separated stub/detail identity, item-note adjacency, menu QR placement and suppression, unsigned money and handover fixture arithmetic. TextOf drops QR/style/structure; route duplicate test counts one without verifying route; kitchen no-price checks only fixed formatting. Pickup time tests assert caption not actual time/timezone. Reprint actor assertion reuses original cashier name so cannot prove attribution added, timestamp unasserted. Three-column test filters rows to count3 then checks count3, excluding old four-column rows. Handover arithmetic proves handcrafted fixture, not production reconciliation, and does not assert every displayed numeric value. Comments about old four-column items remain outdated. No production defect inferred solely from weaker tests.",
+      "significant_methods": "Text flattening/split/item/header helpers; route partition; customer/detail layout; QR/menu suppression; pickup/payment labels; reprint; shift and expense slips",
+      "interactions_and_risks": "All 641 source lines read in three bounded segments; 120 exact callable receipts saved. Pure tests compose ticket element models, never DB/renderer/printer. Coverage includes station partition, cut-separated stub/detail identity, item-note adjacency, menu QR placement and suppression, unsigned money and handover fixture arithmetic. TextOf drops QR/style/structure; route duplicate test counts one without verifying route; kitchen no-price checks only fixed formatting. Pickup time tests assert caption not actual time/timezone. Reprint actor assertion reuses original cashier name so cannot prove attribution added, timestamp unasserted. Three-column test filters rows to count3 then checks count3, excluding old four-column rows. Handover arithmetic proves handcrafted fixture, not production reconciliation, and does not assert every displayed numeric value. Comments about old four-column items remain outdated. No production defect inferred solely from weaker tests.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "120 individual exact symbol records; source-only review. No physical output, test execution or runtime actions.",
+      "recommendations": "Add structured all-item-row assertions, distinct reprint actor plus timestamp and original deep equality, exact pickup/Cairo boundary time, all slip amounts, rendering/QR decode validation in safe harness, arbitrary text and long ticket cases.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1192
+        ]
+      ],
+      "functionality_and_reasoning": "All 1192 source lines read in six bounded segments. Lifecycle, COD vs prepaid custody, explicit distinct-key assignment/settlement concurrency, old/new driver account transfer and frozen dispatch driver snapshots have substantive assertions. Races launch tasks without barriers; rejected writes often lack no-side-effect checks. Service-fee freeze test999-1016 creates/edits a DIFFERENT service from hardcoded svc-1 on order and checks only serviceID, not fee; cannot prove used-service fee snapshot stability. Ticket tests inspect DTO text/PrintJobs only, no hardware. Driver statistics use current clock, no boundary/reassignment range cases. No-activity statistics title allzero checks only two counters and nullable fields. Shift-with-custody fact833-860 explicitly permits close and preserves custody with slipwarning, superseding contrary stale comments159-163 in BusinessDayClose tests. COD reporting1095-1131 verifies20000 stays excluded until settlement; pure InstaPay1135 does not cover mixed pending bugFIN010. Board terminal exclusion covers Delivered only, not Failed/Returned/Settled. Full strict callable receipts in progress, not inferred from this file receipt.",
+      "significant_methods": "Lifecycle/assignment/results/reassignment; order and dispatch ticket snapshots; driver statistics/settlement; shift custody; board/accounts/services/read-model tests",
+      "interactions_and_risks": "All 1192 source lines read in six bounded segments. Lifecycle, COD vs prepaid custody, explicit distinct-key assignment/settlement concurrency, old/new driver account transfer and frozen dispatch driver snapshots have substantive assertions. Races launch tasks without barriers; rejected writes often lack no-side-effect checks. Service-fee freeze test999-1016 creates/edits a DIFFERENT service from hardcoded svc-1 on order and checks only serviceID, not fee; cannot prove used-service fee snapshot stability. Ticket tests inspect DTO text/PrintJobs only, no hardware. Driver statistics use current clock, no boundary/reassignment range cases. No-activity statistics title allzero checks only two counters and nullable fields. Shift-with-custody fact833-860 explicitly permits close and preserves custody with slipwarning, superseding contrary stale comments159-163 in BusinessDayClose tests. COD reporting1095-1131 verifies20000 stays excluded until settlement; pure InstaPay1135 does not cover mixed pending bugFIN010. Board terminal exclusion covers Delivered only, not Failed/Returned/Settled. Full strict callable receipts in progress, not inferred from this file receipt.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "Source-only review, no API/database or printer execution. File-level review complete; individual callable receipts separately tracked.",
+      "recommendations": "Use same real service in priced checkout then edit fee and assert frozen fee/total/ticket; race barriers and no-write-on-denial; report clock/range edges; failed/returned board, partialcash/shortage/overage and printing renderer verification.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          827
+        ]
+      ],
+      "functionality_and_reasoning": "All 827 lines read in four bounded segments and 79 exact callable records saved. Good tests cover explicit negative-stock waste policy, latestdated cost arithmetic, one-key concurrent waste, unit immutability after movements, direct/two-node cycles and shared-leaf noncycle, legacy circular prep readback classified Circular, unknown costs null and incomplete margins withheld. Direct stock/prep seed lambdas bypass production purchasing/recipes intentionally. Update-no-history title has empty history and no historical comparison; waste-freeze asserts current response only without later reprice. Shared consumption expects consumed10000/standard4000 but only nonnull average/variance, so wrong numbers pass; comment incorrectly calls3333 above4000. Small waste only-warning title checks presence without absencecritical. Costcoverage seeds only complete class. Packaging only checks item/type, not1000quantity. Replay PK count cannot exclude logical duplicate item IDs; concurrency no barrier. No business bug inferred from intended negative inventory.",
+      "significant_methods": "Inventory CRUD/units/balance/count/waste; purchased/estimated/prep costing; recipe graph guards and legacy-cycle read defence; overview/detail/profitability/history; report permission/audit/shared usage facts",
+      "interactions_and_risks": "All 827 lines read in four bounded segments and 79 exact callable records saved. Good tests cover explicit negative-stock waste policy, latestdated cost arithmetic, one-key concurrent waste, unit immutability after movements, direct/two-node cycles and shared-leaf noncycle, legacy circular prep readback classified Circular, unknown costs null and incomplete margins withheld. Direct stock/prep seed lambdas bypass production purchasing/recipes intentionally. Update-no-history title has empty history and no historical comparison; waste-freeze asserts current response only without later reprice. Shared consumption expects consumed10000/standard4000 but only nonnull average/variance, so wrong numbers pass; comment incorrectly calls3333 above4000. Small waste only-warning title checks presence without absencecritical. Costcoverage seeds only complete class. Packaging only checks item/type, not1000quantity. Replay PK count cannot exclude logical duplicate item IDs; concurrency no barrier. No business bug inferred from intended negative inventory.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "79 individual symbol receipts, source only; no fixture/database/test execution. StockOut arithmetic in detailed overview distinct from OwnerDashboard FIN013.",
+      "recommendations": "Strengthen priced/history freeze and exact average/variance assertions; signed movements/range/tie/rounding/overflow tests, concurrent graph saves, no partial writes on rejection, exact audit action and all costcoverageclasses, packaging quantities with real checkout deduction.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PrintingVerticalSliceTests.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "1fc09dadf93db845d38d53eec0b08ff8abcb7e40bc98dc94957a66b6f8a3782c",
+      "git_blob_sha256": "1fc09dadf93db845d38d53eec0b08ff8abcb7e40bc98dc94957a66b6f8a3782c",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          801
+        ]
+      ],
+      "functionality_and_reasoning": "All 801 lines read in four bounded segments,96 exact callable receipts saved. Explicit fixtures disable auto receipt/preparation so manual endpoint counts remain isolated; later facts reenable flags. Substantive tests prove old per-item station snapshots despite swaps, route partition, samekey job/report replay and failures isolated to another pending station, accepted-report state/history. All output is API DTO/queue metadata, not actual transport or physical success. Stock/treasury invariance compares counts only, no rowcontent/account/journal equality; report statuses often ignored so failed branch may not be reached. Pickup future timestamp persisted toseconds but printedcaption only; missing both name/phone isolates phone, not name. Pending-route fixture has no failed/succeeded jobs so doesnot prove statusfilter. Total-present receipt checks label/ordercode not amount. Menu URL protocol validation,trim,patch preservation,clear all use newlycreatedreceipts, no historicalURL immutability proof. Explicitcreate helper ContinueWith+Result lacks status check and direct diagnostics.",
+      "significant_methods": "Fixture/settings/product/checkout/job helpers; pickup validation/snapshot; route selection and historical station freeze; job replay/reprint/report; movement invariance; overview/pending queries; automatic printing; menu QR settings",
+      "interactions_and_risks": "All 801 lines read in four bounded segments,96 exact callable receipts saved. Explicit fixtures disable auto receipt/preparation so manual endpoint counts remain isolated; later facts reenable flags. Substantive tests prove old per-item station snapshots despite swaps, route partition, samekey job/report replay and failures isolated to another pending station, accepted-report state/history. All output is API DTO/queue metadata, not actual transport or physical success. Stock/treasury invariance compares counts only, no rowcontent/account/journal equality; report statuses often ignored so failed branch may not be reached. Pickup future timestamp persisted toseconds but printedcaption only; missing both name/phone isolates phone, not name. Pending-route fixture has no failed/succeeded jobs so doesnot prove statusfilter. Total-present receipt checks label/ordercode not amount. Menu URL protocol validation,trim,patch preservation,clear all use newlycreatedreceipts, no historicalURL immutability proof. Explicitcreate helper ContinueWith+Result lacks status check and direct diagnostics.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "96 individual exactsymbol records; no tests/DB/printer execution. Correct routing snapshots stronger than unrelatedservicefee test FIN-TST003.",
+      "recommendations": "Add exact movementcontents/balances/journal unchanged; require report success and failure persisted; mixedstatus queue fixtures; distinct-name/phone errors; exact rendered pickup time andmoney; fullauto flagmatrix; URL changes onoldjobs; safe renderer/QRdecode separate fromprinter.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "4f6ae5c93e030c2ddbab9e3201e10fa9fb45d75b0bb6e76497a4cead6132620f",
+      "git_blob_sha256": "16e01826ccd7c8762e016f1a725f3809344037585c939dce9b22d4a29d4335f0",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "reviewed_line_spans": [
+        [
+          1,
+          961
+        ]
+      ],
+      "functionality_and_reasoning": "All 961 lines read in four bounded segments and35 exact generated callables reasoned individually. Historical EF8.0.11 SQLServer target model, not current runtime schema or migration execution. Orders monetarybigint snapshots/manualVersion concurrencytoken and uniqueCheckoutRequestId/globalSequenceNumber; journal keygloballyunique. Refunds preserveoriginal/operationalshift as strings butonlyOrderFK; treasuryaccount/day/shift references scalarunbounded. Stock initial lacksDirection/UnitCost andinventorylacksUnit/Active, requiring laterpopulatedupgrade analysis. UsersplaintextPin is historical target, laterhash/drop mustbeconsidered beforecurrentsecurityclaims. Restrictcatalog/item/history FKs preserve referencedrecords; ordercascade removesitems/refunds andproductcascade variants/recipes subjectrestrictsolditemFK. Composite offerday/product keys preventduplicatemembership, noSQLrange/money/enum checks. OrderSequence seedId1=127 recorded; metadata HasData doesnotexecuteSQLduringthisreview. No new finding from laterfeaturesabsent ininitialschema.",
+      "significant_methods": "BuildTargetModel;20 entity property/index lambdas;10 relationship lambdas;4 navigation lambdas",
+      "interactions_and_risks": "All 961 lines read in four bounded segments and35 exact generated callables reasoned individually. Historical EF8.0.11 SQLServer target model, not current runtime schema or migration execution. Orders monetarybigint snapshots/manualVersion concurrencytoken and uniqueCheckoutRequestId/globalSequenceNumber; journal keygloballyunique. Refunds preserveoriginal/operationalshift as strings butonlyOrderFK; treasuryaccount/day/shift references scalarunbounded. Stock initial lacksDirection/UnitCost andinventorylacksUnit/Active, requiring laterpopulatedupgrade analysis. UsersplaintextPin is historical target, laterhash/drop mustbeconsidered beforecurrentsecurityclaims. Restrictcatalog/item/history FKs preserve referencedrecords; ordercascade removesitems/refunds andproductcascade variants/recipes subjectrestrictsolditemFK. Composite offerday/product keys preventduplicatemembership, noSQLrange/money/enum checks. OrderSequence seedId1=127 recorded; metadata HasData doesnotexecuteSQLduringthisreview. No new finding from laterfeaturesabsent ininitialschema.",
+      "findings": [],
+      "evidence": "Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.",
+      "tests_and_evidence": "35 precise stable callable receipts. Baseline hashverified by persistence helpers. No database/schema/tool execution.",
+      "recommendations": "Compare every latermodel/migration operation withpopulatedbackfills; concurrencyVersion increments/uniqueness underdistinctkeys; soldvariant update/delete constraints; appendonlyfinancialretention; exact SQLrange/sign checks; queryindexes onhistorydates ifneeded.",
+      "uncertainties": "Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "48c5d95700004c77b95e1206c642d18356a5dfa0161d4cf755901c714c3daed2",
+      "git_blob_sha256": "f272554f7e858e8b77eef5d2db430c53bd15619b5eb8d281dad3eac41a36a197",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          974
+        ]
+      ],
+      "functionality_and_reasoning": "Historical close-idempotency target; Shift gains nullable CloseRequestId nvarchar450 with unique IS NOT NULL filter plus nullable handover/reconciliation movement strings without FK. Existing manualVersion and unique openkey unchanged. Legacy/open rows may share null closekey; nonnull keys globally unique. Complete diff manually inspected, current builder/class/order/relationships/seeds checked;33 unchanged blocks source-equivalent to fully read initial model,2 changed blocks individually reasoned. This doesnot fix historical plaintext PIN, stockdirection or missingfinancial constraints; no currentstate inference.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Historical close-idempotency target; Shift gains nullable CloseRequestId nvarchar450 with unique IS NOT NULL filter plus nullable handover/reconciliation movement strings without FK. Existing manualVersion and unique openkey unchanged. Legacy/open rows may share null closekey; nonnull keys globally unique. Complete diff manually inspected, current builder/class/order/relationships/seeds checked;33 unchanged blocks source-equivalent to fully read initial model,2 changed blocks individually reasoned. This doesnot fix historical plaintext PIN, stockdirection or missingfinancial constraints; no currentstate inference.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 33 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify actual CloseShift transaction/replay/movement linkage and populated upgrade, unique closekey acrossshifts, legacy nullkeys and reopen semantics; no database execution during audit.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "bf258381d959f7b11fae703f3601a33f58b174bbc5cfeea5946a306ff163d524",
+      "git_blob_sha256": "f0035381272cc99e5deeeaf497af6faf089a2091853f2801273bbeffe26f9283",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1017
+        ]
+      ],
+      "functionality_and_reasoning": "Historical target adds standalone BusinessDays table withdate/revision/status/open/reopen/snapshot metadata anduniqueOpenRequestId only. No uniqueactive/date orVersion token, noFK fromexistingOrder/Treasury daystrings orSnapshotId; candidate FIN009 requirescurrenthandler independentvalidation. Fulltextualdiff andcurrentparent registration/relationshipschecked; all35 previouscallablebodies exacttext/hashmatched, newmethod/dayblock manuallyreasoned. No schema applied.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Historical target adds standalone BusinessDays table withdate/revision/status/open/reopen/snapshot metadata anduniqueOpenRequestId only. No uniqueactive/date orVersion token, noFK fromexistingOrder/Treasury daystrings orSnapshotId; candidate FIN009 requirescurrenthandler independentvalidation. Fulltextualdiff andcurrentparent registration/relationshipschecked; all35 previouscallablebodies exacttext/hashmatched, newmethod/dayblock manuallyreasoned. No schema applied.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 34 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify populated migration Up, concurrentdistinct-key opens, oneactive/day policy, oldorderday association andsnapshot existence withcurrenthandlers; do not infer DBstate frommetadata.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "53ccc194b0a477d89149acb63f9d40d991844e9841306e7446fbd424578025bb",
+      "git_blob_sha256": "03bb21c746f41971f30fb7d8e6049b6f32409c2ebba479ec2cba545b8ff07d85",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1083
+        ]
+      ],
+      "functionality_and_reasoning": "Adds Expense metadata withrequired money/category/actor/shift/account/op fields, nullable treasury/day/approval links, uniqueidempotency, date andshift/drawer indexes. NoFK, positiveamount check, Version orautomaticposting logic. Manuallyread complete diff/currentparent/changedExpense block;35 existing blocks exactsource-equivalent toreviewed predecessor,2 newchanged blocks manuallyreasoned. Historicaltarget only.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds Expense metadata withrequired money/category/actor/shift/account/op fields, nullable treasury/day/approval links, uniqueidempotency, date andshift/drawer indexes. NoFK, positiveamount check, Version orautomaticposting logic. Manuallyread complete diff/currentparent/changedExpense block;35 existing blocks exactsource-equivalent toreviewed predecessor,2 newchanged blocks manuallyreasoned. Historicaltarget only.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 35 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Validate expense-to-treasury atomicity,positiveamount/day/shift/account linkage,replaypayload semantics and actual upgrade operations separately.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "5345226e6cc6c9c9a210ef617e33b6f73a9aa09278b4b34278b86c7e9208b78b",
+      "git_blob_sha256": "88ce433d8a0b942f5319b8d45f61819be5c8c4762455da680526644dc97ca9f9",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1434
+        ]
+      ],
+      "functionality_and_reasoning": "Historical delivery stage adds6entity shapes+2RestrictFK blocks. Delivery uniqueOrderId/manualVersion andDriver/Shift lookups; Custody uniqueDeliveryId/Driver index butnoVersion. Event/Reassignment indexedDeliveryId scalarreferences noFK; Settlement uniqueIdempotency butDriver/Treasury links scalar, noamount/JSON/state constraints. RequiredOrderRestrict nowpreventsphysicalorderdeletewithdelivery, CustodyRestrict preservesdriverobligations. Fullchangedsource/diff andparentregistration/order/relationships read;36 existingcallablebodies exacttextmatched,9changed/newblocks reasoned. No DBstate inference.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Historical delivery stage adds6entity shapes+2RestrictFK blocks. Delivery uniqueOrderId/manualVersion andDriver/Shift lookups; Custody uniqueDeliveryId/Driver index butnoVersion. Event/Reassignment indexedDeliveryId scalarreferences noFK; Settlement uniqueIdempotency butDriver/Treasury links scalar, noamount/JSON/state constraints. RequiredOrderRestrict nowpreventsphysicalorderdeletewithdelivery, CustodyRestrict preservesdriverobligations. Fullchangedsource/diff andparentregistration/order/relationships read;36 existingcallablebodies exacttextmatched,9changed/newblocks reasoned. No DBstate inference.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 36 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 9 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify currenttransaction/rowlocks for distinctkeyassign/settle/reassign, eventtimeline/replay, softarchive andhistoricalsnapshots; populatedUp migration; no runtimeactions authorizedhere.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "8c04b2380c616947f972290907014f7480aa0ff1de2cfaa853997c7336dadb6a",
+      "git_blob_sha256": "e9efcecacb8ed2545cf876642d3d9e51e37aee7ed61bc7b0e99ef6010bc913b2",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1588
+        ]
+      ],
+      "functionality_and_reasoning": "Adds inventory metadata/signed-direction/cost snapshots andpackaging/prep recipe graph entities;3newRestrict/CascadeFKblocks plusPrep.Linesnavigation. Noquantity/yield/cycle SQLchecks oruniqueactiveoutput; graphvalidity andtransactionalconsumption application-owned. ActualUp addsrequiredDirection defaultempty andolditemActivefalse/Unitempty, soexistingdata repaircannotbeassumed. Fullchangedsource/diff andparentcontext inspected,42 exactunchangedspans preserved,10changed/newspans manuallyreasoned. Historicalmetadata only; no migrationrun.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds inventory metadata/signed-direction/cost snapshots andpackaging/prep recipe graph entities;3newRestrict/CascadeFKblocks plusPrep.Linesnavigation. Noquantity/yield/cycle SQLchecks oruniqueactiveoutput; graphvalidity andtransactionalconsumption application-owned. ActualUp addsrequiredDirection defaultempty andolditemActivefalse/Unitempty, soexistingdata repaircannotbeassumed. Fullchangedsource/diff andparentcontext inspected,42 exactunchangedspans preserved,10changed/newspans manuallyreasoned. Historicalmetadata only; no migrationrun.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 42 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 10 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Trace all migration SQL/seeder hooks foroldmovement direction anditem metadata beforeupgradingpopulatedDB; protectgraphcycles underconcurrentsaves; positiveyield/quantity andduplicateingredient/rule semantics.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "1fd2cd955c8dd57d876bd151b58f0429ac358c7c023e88b2821854150770dcca",
+      "git_blob_sha256": "4663e6882f76fdb45084a7b22a8ff242423db8a83b0feffd519ff650489ee5fa",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1705
+        ]
+      ],
+      "functionality_and_reasoning": "Adds uniquePhone Customers, childaddressdetails/cascadeFK/navigation, optionalcopiedOrdersdelivery/servicefields withoutCustomer/ServiceFK. Also addsglobaluniqueStatusOpen Shift index afternarrowingStatus450; atmostoneOpen globally, upgrade requiresnoexistingduplicateOpen. Currentparent/completechangedsource andrelationship/order implications manuallyread;49exactoldbodies and7new/changedblocks separatelyclassified. Identical FK body ambiguity resolved by exact outer Entity registration prefix plus actual body equality, not namesalone. Metadata noDBstate proof.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds uniquePhone Customers, childaddressdetails/cascadeFK/navigation, optionalcopiedOrdersdelivery/servicefields withoutCustomer/ServiceFK. Also addsglobaluniqueStatusOpen Shift index afternarrowingStatus450; atmostoneOpen globally, upgrade requiresnoexistingduplicateOpen. Currentparent/completechangedsource andrelationship/order implications manuallyread;49exactoldbodies and7new/changedblocks separatelyclassified. Identical FK body ambiguity resolved by exact outer Entity registration prefix plus actual body equality, not namesalone. Metadata noDBstate proof.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 49 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 7 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify phonecanonicalization/duplicateupgrade, savedcustomer/service historicalsnapshot invariance, nulloldfields, globaltill policy andmultipleOpen upgradeblocker; do notautocloseexisting shifts.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "c60d31246e4db3f5160e4e0d265d9cde5a367d6a8b4ee5affa61af13c36e7f00",
+      "git_blob_sha256": "35416a1403080e3732e3b0ad40a02b32fd2e779f435d54beda12f825c54489d7",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1708
+        ]
+      ],
+      "functionality_and_reasoning": "Adds onlyOrderDiscountPiastres bigintsnapshot; noSQLpositivity/sumconstraint, index/FK/Version/seed/registrationchanges. Fullchangedsource/currentmodel manuallychecked,54existinglambdas exactmatched and2changedblocks reasoned. Olddiscountprovenance/default mustbecheckedactualUp ratherthanassuminghistoricamounts reconstruction. No DBmigration ormoneyrecalculationexecuted.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds onlyOrderDiscountPiastres bigintsnapshot; noSQLpositivity/sumconstraint, index/FK/Version/seed/registrationchanges. Fullchangedsource/currentmodel manuallychecked,54existinglambdas exactmatched and2changedblocks reasoned. Olddiscountprovenance/default mustbecheckedactualUp ratherthanassuminghistoricamounts reconstruction. No DBmigration ormoneyrecalculationexecuted.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 54 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify oldorder discountdefault/backfill andcheckout/receipt/refund consistency; positive/cappeddiscount validations andimmutablehistoricalsnapshot tests.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "a1bf8f8436a475941e9a3faf095f146b30d26e86d95e4a65336efc5bd8b1fb09",
+      "git_blob_sha256": "3c0489f451c379e56f5a03eddede029c8af517b6c763250d80008b4a6dc09c27",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1819
+        ]
+      ],
+      "functionality_and_reasoning": "Adds PrintJobs/Attempts withunique reportkey, nonuniquecreatekey, order androute/status lookupindexes, CascadeAttempts FK/navigation; Product gainsnullablePreparationStation alongsidelegacySendToGrill. NojobOrderFK, uniquecreatekey+route, lease/claim/Version orpayload snapshot. Fullchangedsource/parentorder/FKs manuallyread;54exactexistingblocks and6changed/newblocks classified. No queue/runtime/physicalprint proof.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds PrintJobs/Attempts withunique reportkey, nonuniquecreatekey, order androute/status lookupindexes, CascadeAttempts FK/navigation; Product gainsnullablePreparationStation alongsidelegacySendToGrill. NojobOrderFK, uniquecreatekey+route, lease/claim/Version orpayload snapshot. Fullchangedsource/parentorder/FKs manuallyread;54exactexistingblocks and6changed/newblocks classified. No queue/runtime/physicalprint proof.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 54 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 6 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Validate creationjournal namespace/perrouteuniqueness, currentmultiagentclaim PRT001, reportbodybinding/attemptcount, deleteauditretention, legacygrill-to-station mapping andfutureorderitemsnapshotbackfill.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "c46f1c8ce348152f376497a867f175a774fa3dabb32ff20fe7a7a9c7674c4e0a",
+      "git_blob_sha256": "5dc47d471727d8a8657162737541c85b2ede8e167a6559e98da9cee242de91a9",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          1822
+        ]
+      ],
+      "functionality_and_reasoning": "OnlyOrderItemnullablePreparationStation added, alongsidelegacySendToGrill andallfinancial/catalogsnapshots. ActualUpentirefileaddsnullablecolumnonly, no backfill; historicalnullstationrouting requirescurrenthandlerfallbackreview. Fullparent/diff checked;58exactunchangedblocks,2changedmanual. NoDB/printing execution.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "OnlyOrderItemnullablePreparationStation added, alongsidelegacySendToGrill andallfinancial/catalogsnapshots. ActualUpentirefileaddsnullablecolumnonly, no backfill; historicalnullstationrouting requirescurrenthandlerfallbackreview. Fullparent/diff checked;58exactunchangedblocks,2changedmanual. NoDB/printing execution.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 58 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify oldnullstation/legacygrill reprint policy andnewfrozenstation; preservehistorywithoutguessingcurrentproductconfiguration.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "d3057cf53a763b01727390fdebf2624d556d42010b8c80371acc652aa41b378b",
+      "git_blob_sha256": "41b15d96fa2b8182f4ee0631e24d870746bc8af9f6b895ce1d874d7799591c10",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2128
+        ]
+      ],
+      "functionality_and_reasoning": "Adds5purchasing/supplier shapes,4newFKblocks/Purchasecollections, StockoptionalSupplierFK/index. Replaykeys unique butinvoicecachedpaid/remaining lackVersion/checks, payment/ledger account/movement/invoice references largelyscalar. RequiredSupplierRestrict preservesobligations; PurchaseCascade removeslines/payments withoutFKcascade tostock/treasury, so actualdeletepolicycritical butunprovenpath. Completechangedsource,parentregistration/FKs read;57exactoldbodies,13manualnew/changed. NoDB/finance action.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds5purchasing/supplier shapes,4newFKblocks/Purchasecollections, StockoptionalSupplierFK/index. Replaykeys unique butinvoicecachedpaid/remaining lackVersion/checks, payment/ledger account/movement/invoice references largelyscalar. RequiredSupplierRestrict preservesobligations; PurchaseCascade removeslines/payments withoutFKcascade tostock/treasury, so actualdeletepolicycritical butunprovenpath. Completechangedsource,parentregistration/FKs read;57exactoldbodies,13manualnew/changed. NoDB/finance action.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 57 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 13 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Traceinvoicecap underdistinctkeysFIN005, positivequantity/cost/ledgerdirection, duplicateitemreceipt keys, receivepretransactionbalanceFIN011, archivefinancialretention andsafeUp constraints.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "7ea5f57e48b9b5c5b8e846d916550e1681dfad1f327bbcd73a83e90e20575505",
+      "git_blob_sha256": "fcdf98882a75e4bc97540c33192c6647c115f0c32505ca8c41fa452053322034",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2396
+        ]
+      ],
+      "functionality_and_reasoning": "AddscloseSnapshot/controlaudit/exception/checklist entities,7staticchecklistseedentries, Dayclosed/reopenmetadata andSnapshotDayRestrictFK. NoDay+Revision/oneauthority unique, JSONvalidation, dayVersion orcompletionDay/ItemFK. ReopenRequestIdscalarunindexed; SnapshotIdlinks scalar. Fullchangedsource/seed/parent/FKs read;68exactoldblocks and8manualchanged/new. Operationalticks notautomatedtaskproof; noDBwrites.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddscloseSnapshot/controlaudit/exception/checklist entities,7staticchecklistseedentries, Dayclosed/reopenmetadata andSnapshotDayRestrictFK. NoDay+Revision/oneauthority unique, JSONvalidation, dayVersion orcompletionDay/ItemFK. ReopenRequestIdscalarunindexed; SnapshotIdlinks scalar. Fullchangedsource/seed/parent/FKs read;68exactoldblocks and8manualchanged/new. Operationalticks notautomatedtaskproof; noDBwrites.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 68 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 8 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Traceclose/reopen transactionlocks andauthority switch, snapshotimmutability/version, exactrequest/auditreplay, checklistunknownitems/nonemptyrequiredreset andderivedexceptionoverlay stability.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "753bb76c2c5de269cbe191a144cfa85b34b0d78ed8340c5d153fa8ca1f177c1b",
+      "git_blob_sha256": "774d3f551e7d90787650b61b43b8abdd4d4886764b9b43caa6e231e39ca46137",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2401
+        ]
+      ],
+      "functionality_and_reasoning": "Intermediate Users target makesplaintextPin nullablemax/removesuniqueindex, introducesnullableHash/Salt/Iterations. Noiterationsminimum/hashalgorithm/credentialformat oruniquePIN schema checks. ActualUp/Down whollyread hasnohashconversion beforelaterdrop; currentstartup repairmustbeverified. Wholechangedmodel/currentparent checked;74exactoldblocks,2manualchanged. No credentials read orprinted, noDB/authentication run.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Intermediate Users target makesplaintextPin nullablemax/removesuniqueindex, introducesnullableHash/Salt/Iterations. Noiterationsminimum/hashalgorithm/credentialformat oruniquePIN schema checks. ActualUp/Down whollyread hasnohashconversion beforelaterdrop; currentstartup repairmustbeverified. Wholechangedmodel/currentparent checked;74exactoldblocks,2manualchanged. No credentials read orprinted, noDB/authentication run.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 74 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Trace actualbackfillinvocation beforeDropPlaintext, preservepopulatedusers viaapprovedisolatedupgradefixtures, enforcevalidhashiterations andapplicationPIN uniqueness; parentSecurity ownscredentialvulnerability conclusions.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "2bca4fea7f61c61133c19b92e6098d34901400492a5e7e1873cb517be9c7317b",
+      "git_blob_sha256": "aaf288f84cf142622860b12a459a564746283d84e9dcd2ccded63f13f81a3c38",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2400
+        ]
+      ],
+      "functionality_and_reasoning": "Hash-onlyUserstarget removesPin, requiresHash/Salt/intIterations butnoempty/hashvalidity checks orcredentialuniqueindex. ActualUp dropsPin thenconvertsnullhashfields toempty/0,nohashbackfill; DownrecreatesnullablePinwithoutrecoveringoldvalues. Legacyaccount usability requiresstartup/backfilltrace beforeupgradeclaim. Wholechangedmodel/currentparent checked;74exactoldbodies,2changedmanual. NoDB/drop/auth run.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Hash-onlyUserstarget removesPin, requiresHash/Salt/intIterations butnoempty/hashvalidity checks orcredentialuniqueindex. ActualUp dropsPin thenconvertsnullhashfields toempty/0,nohashbackfill; DownrecreatesnullablePinwithoutrecoveringoldvalues. Legacyaccount usability requiresstartup/backfilltrace beforeupgradeclaim. Wholechangedmodel/currentparent checked;74exactoldbodies,2changedmanual. NoDB/drop/auth run.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 74 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify legacyper-userconversion happensbeforeDrop, protectrollbackdata/provisionrecovery mechanism andvalidhashiterations; distinguishfreshDemoSeeder successfrompopulatedexistinguserupgrade.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "b765fd34687b532d77466eb677dc482b09f901204c4ce781e0c5ea37f20a8847",
+      "git_blob_sha256": "c5974f6e87813b6fb7f16915336b0585d348e87a14beeb5f688b828176fd2b90",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2471
+        ]
+      ],
+      "functionality_and_reasoning": "AddsstandaloneGeneralAuditEvent flexibleactor/action/category/details/new/previous/device/op/ref snapshots andseparateCategory/Time/User indexes; noFK/opunique/append-only/redaction constraints. ExistingControlAudit independent. Fullchangedmodel/currentparent checked;75exactoldbodies and2manualchanged/new. No automaticcapture orredaction inferredfromschema.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsstandaloneGeneralAuditEvent flexibleactor/action/category/details/new/previous/device/op/ref snapshots andseparateCategory/Time/User indexes; noFK/opunique/append-only/redaction constraints. ExistingControlAudit independent. Fullchangedmodel/currentparent checked;75exactoldbodies and2manualchanged/new. No automaticcapture orredaction inferredfromschema.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 75 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Traceeverymutationauditwriter/atomicity, identitybinding, secrets/PIIredaction, bodylimits andretention; benchmarkcombinedfilters beforeaddingindexes.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "612c356e319cb3c63fc2a6b6aca3967d349d8173eb1867bc435e6fc0d2b3fb15",
+      "git_blob_sha256": "29452770bfe51f2494385701a16f4e75ab59471bdb8537927ee718c2e6315a76",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2511
+        ]
+      ],
+      "functionality_and_reasoning": "Adds standaloneCashDrawerOpen request/reportstatus/error/approver/shiftmetadata withShiftId index only; noShiftFK, replay/reportunique, Version oraccountmoneystructure. Fullchangedsource/currentparent checked;76exactoldbodies and2manualnew/changed. Doesnotprovehardwarepulse orcashmovement, noneexecuted.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds standaloneCashDrawerOpen request/reportstatus/error/approver/shiftmetadata withShiftId index only; noShiftFK, replay/reportunique, Version oraccountmoneystructure. Fullchangedsource/currentparent checked;76exactoldbodies and2manualnew/changed. Doesnotprovehardwarepulse orcashmovement, noneexecuted.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 76 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Tracecurrentdrawerrequest/report lifecycle, actualactorapproval, duplicatepulse risk andno-financial-effects underfailure/replay; safehardwaretest requiresseparateauthorization.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "a8a19d6cd0ae1994fe3230386768d0031f58f7dba7cbc14bafb01cb730145b9b",
+      "git_blob_sha256": "e908e8369417378165979861a436a72f61915968ea5159a6c50af5f277687b59",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2646
+        ]
+      ],
+      "functionality_and_reasoning": "AddsCashDenominationCount withIdPK/replayidentity, dayindex/rowsJSON/expectedtotaldifference/finalized butnoFK/JSONsum/range/Version constraints. Settingscontainsidentity/print/fee/discrepancy/attendanceparameters; nosingleton/seed/Version; floatmultipliers needfinite/roundingvalidation. Wholechangedmodel/currentparent checked;77exactoldbodies and3newchangedmanual. No settingssystemchange orDBwrite.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsCashDenominationCount withIdPK/replayidentity, dayindex/rowsJSON/expectedtotaldifference/finalized butnoFK/JSONsum/range/Version constraints. Settingscontainsidentity/print/fee/discrepancy/attendanceparameters; nosingleton/seed/Version; floatmultipliers needfinite/roundingvalidation. Wholechangedmodel/currentparent checked;77exactoldbodies and3newchangedmanual. No settingssystemchange orDBwrite.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 77 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 3 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Traceactualdefaults/patchauthorization/omittedfields/concurrentupdates, safe cashcountarithmetic/finalizedimmutability andpayrollsnapshot policy underchangedsettings.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "99cb8a98160a204cbd00fc6ac66334a7b41c4e7d209e8b8570874eecd00c5837",
+      "git_blob_sha256": "b4e3e4633df519c511d962e5752ca248796083aa58e46f8972e7920e2a797e9a",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2685
+        ]
+      ],
+      "functionality_and_reasoning": "Adds standaloneDeliveryService nullableFee/Active/name/creator, no existingOrder/Address ServiceFK orfeecheck; Ordersadds taxmode/rate/name/base snapshots withoutliveRuleFK orformulacheck. Completechangedsource/currentparent read;78exactoldbodies and3manualnew/changed. Historicaloldtaxmetadata/defaultbase needcompatibilitypolicy; schemaalone notfee lookup/freezeproof.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds standaloneDeliveryService nullableFee/Active/name/creator, no existingOrder/Address ServiceFK orfeecheck; Ordersadds taxmode/rate/name/base snapshots withoutliveRuleFK orformulacheck. Completechangedsource/currentparent read;78exactoldbodies and3manualnew/changed. Historicaloldtaxmetadata/defaultbase needcompatibilitypolicy; schemaalone notfee lookup/freezeproof.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 78 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 3 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify sameusedservicefee freeze andnull/0 fallback, taxformula/rounding/oldrowdisplay, active service gating andimmutablehistoricaltaxrule changes.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "3baf46d4eb2075dec74cb9fb3d7b7c6280a63f93cff4074b521902b4566e3628",
+      "git_blob_sha256": "d17aacf326047e655fbd03f09ebdb786010ac93e8da554c2b740287f7e9acb9a",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2730
+        ]
+      ],
+      "functionality_and_reasoning": "Adds standaloneCashHandover amount/accounts/actors/shift/notes withfilteredunique optionalTreasuryMovementId, noFK/account/requestkey/amountchecks. Multipleunlinkedhandoverrowspermitted. Fullchangedsource/currentparentcontext read;80exactoldbodies plus2manualchanged/new. No actualcash/transfer/DB operation.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Adds standaloneCashHandover amount/accounts/actors/shift/notes withfilteredunique optionalTreasuryMovementId, noFK/account/requestkey/amountchecks. Multipleunlinkedhandoverrowspermitted. Fullchangedsource/currentparentcontext read;80exactoldbodies plus2manualchanged/new. No actualcash/transfer/DB operation.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 80 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Traceatomic treasurytransfer+handoverjournal, receiveridentity, positiveamount/distinctaccounts, nullmovementlegacy/replay semantics andretention.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "9dcc1ff3c4956f1e52c2c70b517dbff86d3380a5c5a49b9f63881b7003ce2f86",
+      "git_blob_sha256": "1c47a374932b89f924b2200beb80461911e42699864a75d22774fa298a9ada66",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2886
+        ]
+      ],
+      "functionality_and_reasoning": "AddsEmployees uniqueEmployeeNumber andpersonnel/compensation snapshots; EmployeeLedger Credit/Debit/cachedBalanceAfter withEmployeeindex/optionalfilteredunique key. NoEmployee/user/driverFK, Version/sign/rate/typeconsistency orduplicatebiometricindex. Fullchangedsource/currentparentcontext read;81exactoldbodies and3manualnew/changed. Nullmanualledgerkeys allowunkeyedrows, applicationreplay/serializationmustbetraced.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsEmployees uniqueEmployeeNumber andpersonnel/compensation snapshots; EmployeeLedger Credit/Debit/cachedBalanceAfter withEmployeeindex/optionalfilteredunique key. NoEmployee/user/driverFK, Version/sign/rate/typeconsistency orduplicatebiometricindex. Fullchangedsource/currentparentcontext read;81exactoldbodies and3manualnew/changed. Nullmanualledgerkeys allowunkeyedrows, applicationreplay/serializationmustbetraced.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 81 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 3 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify numberallocation, enumcanonicalization/rates, ledgerconcurrency/BalanceAfter, optionalkeyretrybehavior, biometricidentityduplicates andpayrollAdjustment directionsFIN012.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "4c2aa5848c02d243d487ea6f457946aa9d65aaf6221276fe2f86065cd277f6be",
+      "git_blob_sha256": "0a78fe1318168563aab0dad786a39926007fa8a297364b91da7e2b8c6f7a7343",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          2957
+        ]
+      ],
+      "functionality_and_reasoning": "AddsAttendanceRecord uniqueEmployee/date, stringcheckin/out, doublehours, correction/lastevent/shift/status metadata. NoEmployee/eventFK, Version/time/rangechecks; indexignoresShiftName sooneperemployee/day. Entirechangedsource/currentparent read;83exactoldbodies and2newchangedmanual. Clock/biometrictrust/payrollledger synchronization notprovidedbytargetmetadata.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsAttendanceRecord uniqueEmployee/date, stringcheckin/out, doublehours, correction/lastevent/shift/status metadata. NoEmployee/eventFK, Version/time/rangechecks; indexignoresShiftName sooneperemployee/day. Entirechangedsource/currentparent read;83exactoldbodies and2newchangedmanual. Clock/biometrictrust/payrollledger synchronization notprovidedbytargetmetadata.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 83 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify Cairodate/time andovernight/DST, multiple-shiftpolicy, uniqueinsert race/repeatedeventsemantics, correctioncreditFIN012 andpayrollfreeze behavior.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "d5007d2c08fc3799c7755a638f513e39fb7307746bf077363867f15e54c02063",
+      "git_blob_sha256": "3f9bffce2a467f1ac764c9621b097bc12c6f9d71058a02105ecd55aed6776197",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3111
+        ]
+      ],
+      "functionality_and_reasoning": "AddsBackupRecord filename/status/verification metadata noPathunique/checksum/databaseidentity; PayrollRun optionalunique replay andunboundedPeriod/status; PayrollLine moneycomponents/net andRunindex butnoRun/EmployeeFK/peremployeeunique/Version/formula. Laterperiodindex mustbeconsideredbeforecurrentduplicateclaim. Completechangedsource/currentparent read;84exactoldbodies and4manualnew/changed. No backup/restore/payment executed.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsBackupRecord filename/status/verification metadata noPathunique/checksum/databaseidentity; PayrollRun optionalunique replay andunboundedPeriod/status; PayrollLine moneycomponents/net andRunindex butnoRun/EmployeeFK/peremployeeunique/Version/formula. Laterperiodindex mustbeconsideredbeforecurrentduplicateclaim. Completechangedsource/currentparent read;84exactoldbodies and4manualnew/changed. No backup/restore/payment executed.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 84 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 4 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "TracepaidstatusactualmovementFIN006, correctioncreditsFIN012, periodindexupgrade, frozenline/net validation, filenamecollisionFIN007 andactualrestoreexclusion/verificationFIN008.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "087ba3340a3e21e8a91cb7db1d862743b9d5a8cea4044f50e5d81bcada2013b5",
+      "git_blob_sha256": "990bfdebad2343fca09400a6519bb9b1e37f1b756944b41fd9c7b5d58f128361",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3151
+        ]
+      ],
+      "functionality_and_reasoning": "AddsProductImages ProductIdPKone-to-one/CascadeProductFK, varbinarymaxbytes,MIME80/version40/timeactor. NoDBsize/imageformat constraint orVersionconcurrencytoken; existinghistoricalOrderItemRestrict mayblockproductdeletebeforeimagecascade. Fullchangedsource/currentparent checked;87exactoldbodies and3manualnew/changed. No upload/DB/network/printeractions.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsProductImages ProductIdPKone-to-one/CascadeProductFK, varbinarymaxbytes,MIME80/version40/timeactor. NoDBsize/imageformat constraint orVersionconcurrencytoken; existinghistoricalOrderItemRestrict mayblockproductdeletebeforeimagecascade. Fullchangedsource/currentparent checked;87exactoldbodies and3manualnew/changed. No upload/DB/network/printeractions.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 87 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 3 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verifyuploadlimits/MIMEdecode andversionETag/staleupdate, binarybackup/queryoverhead, softarchive/deletion cleanup andhistoricalcatalogretention.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "f5196e3b5572715efa5cdc437c6876847859f8c934508653aff42dcb93fbe4da",
+      "git_blob_sha256": "a5da1a2d864985ca2d84817d00d84dab9c53b1152acb76c9d4941918c0be5969",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3154
+        ]
+      ],
+      "functionality_and_reasoning": "AddsPurchase nullableDateOnly DueDate only; noindex/datebounds/cachedbalance/Version/relationship changes. Nulloldinvoices needexplicitagingfallback. Fullchangedsource/currentparent checked;88exactoldbodies plus2manualchanged. Noinvoice/query/DB actions.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsPurchase nullableDateOnly DueDate only; noindex/datebounds/cachedbalance/Version/relationship changes. Nulloldinvoices needexplicitagingfallback. Fullchangedsource/currentparent checked;88exactoldbodies plus2manualchanged. Noinvoice/query/DB actions.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 88 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verifyagingdateboundaries/nullpolicy/unpaidbalances andactualqueryplans, maintainFIN005 invoicecap serialization underdistinctkeys.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "ab5d0ef68b6c8b103fb5d257087d84ef62e2d4c1621d6ce2f090797a38f278fb",
+      "git_blob_sha256": "054ffce9f9d45f4f3a5fc67b85d11b6a0e02ded764b5041cc698cffd62e903db",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3157
+        ]
+      ],
+      "functionality_and_reasoning": "AddsInventorynullableEstimatedUnitCost bigint only,noasof/provenance/positivity/index changes. Nullunknown mustbedistinctfrom0 andmanualestimate differspurchasedtruth; actualresolver/financialhistorypolicy separate. Fullchangedsource/currentparent checked;88exactoldbodies and2manualchanged. No valuation/DB actions.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsInventorynullableEstimatedUnitCost bigint only,noasof/provenance/positivity/index changes. Nullunknown mustbedistinctfrom0 andmanualestimate differspurchasedtruth; actualresolver/financialhistorypolicy separate. Fullchangedsource/currentparent checked;88exactoldbodies and2manualchanged. No valuation/DB actions.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 88 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verifycostsource precedence, auditprovenance andnegative/overflow, unknowncosttransparentreports andcurrent-versus-frozen historicalcost semantics.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "7f473a9dff7066c05819bed202371000a7528a3c0d42f3744a7782a339689dae",
+      "git_blob_sha256": "58d64b57ccf6dde915865b84a3c4f25e243931ff273cdde98b9551debea1911c",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3188
+        ]
+      ],
+      "functionality_and_reasoning": "AddsUserSession uniqueTokenHash64, scalarrequiredUserID withCreated/LastSeen/Revoked timestamps; noUserFK/Userindex/ExpiresAt/Version. Runtime mayimplementidletimeout fromLastSeen butschemaalone notcoverage/actorbinding/crypto proof. Fullchangedsource/currentparent checked;89exactoldbodies and2manualnew/changed. No login/token/session/DB actions.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsUserSession uniqueTokenHash64, scalarrequiredUserID withCreated/LastSeen/Revoked timestamps; noUserFK/Userindex/ExpiresAt/Version. Runtime mayimplementidletimeout fromLastSeen butschemaalone notcoverage/actorbinding/crypto proof. Fullchangedsource/currentparent checked;89exactoldbodies and2manualnew/changed. No login/token/session/DB actions.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "ParentSecurity traceactualsession creation/hash/expiry/revocation/identitybinding; verify inactiveuserdenial, parallelrevoke/LastSeen andcleanupqueries.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "f64431efb76c8ed11d1967119e7dbf3953af2ada1c171189e1a8d18879d1478e",
+      "git_blob_sha256": "cab5e9dd62433d92ed2fc368373f96e89ff37f0893e58e2dc385c692cd33878b",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3193
+        ]
+      ],
+      "functionality_and_reasoning": "NarrowsPayrollPeriod450 andaddsuniqueIX_PayrollRuns_Period_Live whereStatus<>Cancelled, sooneLiveincludingPaid perperiod, manyCancelledallowed. ActualUp/Down read, duplicatesintentionallyblockupgrade requiringaccountingdecision,noautofix. Fullchangedmodel/currentparent checked;89exactoldbodies and2manualchanged. Earlierperiodunconstrainedstage notcurrentstate.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "NarrowsPayrollPeriod450 andaddsuniqueIX_PayrollRuns_Period_Live whereStatus<>Cancelled, sooneLiveincludingPaid perperiod, manyCancelledallowed. ActualUp/Down read, duplicatesintentionallyblockupgrade requiringaccountingdecision,noautofix. Fullchangedmodel/currentparent checked;89exactoldbodies and2manualchanged. Earlierperiodunconstrainedstage notcurrentstate.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify distinctkeyrunrace, cancel/recreate andPaidperioduniqueness, canonicalYYYY-MM/status, safepopulatedduplicateupgrade blockerwithoutdeletingdata.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "b9c0d02487159027d11c4c28a72737b3037bb525903d421d262061223f6a4466",
+      "git_blob_sha256": "5e9933cde0b2b85c5bf2efd71a88dcaedb508f19814fa77b4f6157effe0f8c6e",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3196
+        ]
+      ],
+      "functionality_and_reasoning": "AddsSettingsHoldPreparationUntilPaymentConfirmed bitonly; noorder-levelholdsnapshot orstate/routeenforcement/concurrency changes. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. Actualmanual/autoprint/confirmation paths musthonorpolicy; fieldexistence nofunctionalproof.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsSettingsHoldPreparationUntilPaymentConfirmed bitonly; noorder-levelholdsnapshot orstate/routeenforcement/concurrency changes. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. Actualmanual/autoprint/confirmation paths musthonorpolicy; fieldexistence nofunctionalproof.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify default/upgradedsettings, toggledflagwhilepending, pure/mixedpaymentsFIN001 andallmanual/autoprint routeexceptions withconfirmedmoney.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "1b4fdaa29a43b8f773e5b1e832d4d65e16d5498fd06a91309f0dd1f2fa6760d3",
+      "git_blob_sha256": "9cbd375db073701f3835e2c33c6d150388c9689bb7b9157e442d615c833e75e1",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3199
+        ]
+      ],
+      "functionality_and_reasoning": "AddsOrdernullableTableNumber snapshotonly, noTableFK/entity/length/stateconstraint. Historicalfield remainsdespitecurrentPickup/Takeawaystrippingnewinput. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. Schemafield noactiveDineInfeature proof.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsOrdernullableTableNumber snapshotonly, noTableFK/entity/length/stateconstraint. Historicalfield remainsdespitecurrentPickup/Takeawaystrippingnewinput. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. Schemafield noactiveDineInfeature proof.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verifylegacyreadback/print andactualDineIn-to-Pickup migrationintent withoutalteringmoney, currentnewrequesttablestrip andoversizelabelsafehandling.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "ba660aaf1cce2028eeb04e01626a73cd25fa8fd16bee40a64d81c18e0d0abb2b",
+      "git_blob_sha256": "4284438c91d29a8ea60efe6677206603622df1b1135225ce3c1528e10957940e",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3199
+        ]
+      ],
+      "functionality_and_reasoning": "Targetmodelidenticalexceptclass/migrationidentity;90childbodies exacttextmatched andcurrentparent manuallyreasoned. ActualUp/Down whollyread: UPDATEold dine_in/dinein to pickup; DownALLpickup to dine_in includingnativepickup, sosemanticreversal lossy. No schema/moneychanges butdata-onlymigration hasrealOrderType effects ifexecuted; none run.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Targetmodelidenticalexceptclass/migrationidentity;90childbodies exacttextmatched andcurrentparent manuallyreasoned. ActualUp/Down whollyread: UPDATEold dine_in/dinein to pickup; DownALLpickup to dine_in includingnativepickup, sosemanticreversal lossy. No schema/moneychanges butdata-onlymigration hasrealOrderType effects ifexecuted; none run.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 90 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 1 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Reviewbusinessapproval/rollbackpolicy andmixedold/nativePickup isolatedmigration fixtures, currentwirealiasparser andhistoricaltable/customer/ticketlabels.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "481c572ba7e33ee13af7521cc0fbfaab925c4bdaec5c06493446098e8998df33",
+      "git_blob_sha256": "f4ad978f88d698a521cd490a9cb0e00f77100c89226e0615f60e4a60558e4768",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3202
+        ]
+      ],
+      "functionality_and_reasoning": "AddsOrdernullableRequestedPickupAtUtc datetimeoffsetonly; nofuture/ordertype/preparation-schedule SQLconstraints/index. Nulloldpickup policy andactualUTC/Cairoconversion/printedtime needhandler tests. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. No DB/time/printeractions.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsOrdernullableRequestedPickupAtUtc datetimeoffsetonly; nofuture/ordertype/preparation-schedule SQLconstraints/index. Nulloldpickup policy andactualUTC/Cairoconversion/printedtime needhandler tests. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. No DB/time/printeractions.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify past/future/timezone/DST/precision andtypegating, oldnullcompatibility andactualreceipt/kitchen displayedtime beyondcaptionpresence.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "50ef974c7b9784596517838b3d8e4a2af16bc591ddab0122ea0024ceb41a4678",
+      "git_blob_sha256": "6955207bc00e3f2ba5f47e7385c76ea51859fbdcba1392039be12f61c5504ce2",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3205
+        ]
+      ],
+      "functionality_and_reasoning": "AddsSettings nullableMenuUrl nvarcharmaxonly; noprotocol/length/Version orsnapshot guarantee. Fullchangedsource/currentparent checked;89exactoldbodies and2manualchanged. URLvalidation/QRrendering/currentvsoldticket semantics separate; noURLfetch/printer/DB action.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsSettings nullableMenuUrl nvarcharmaxonly; noprotocol/length/Version orsnapshot guarantee. Fullchangedsource/currentparent checked;89exactoldbodies and2manualchanged. URLvalidation/QRrendering/currentvsoldticket semantics separate; noURLfetch/printer/DB action.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verifyprotocol/maxpayload/clearvsomit, patchespreserveURL andactualgraphicQRdecode in safeharness; defineoldreceiptURL policy.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "d5921f9235d9680a773a2bd73f35b2ffdcefb7756a337abfee593d8c4100e387",
+      "git_blob_sha256": "ef0f8c2d51b0bad2f7f1cd24b836a03faad466bd13d62d2515a69d5f30876033",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3209
+        ]
+      ],
+      "functionality_and_reasoning": "AddsnullablePrintJobDocumentKind andalsoEFManagerApprovalConsumedConcurrencyToken despitemigrationname. ActualUp/Down add/dropkindonly; tokenneedsnoSQL. EFtrackedfalse->truecanserializeconsumeifallwritershonor/handleit; nottransactionatomicityproof. KindguardneededwhenOrderIdstoresnonorderentity IDs, nulloldjobs requirefallback. Wholechangedsource/currentparent checked;88exactoldbodies and3manualchanged.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "AddsnullablePrintJobDocumentKind andalsoEFManagerApprovalConsumedConcurrencyToken despitemigrationname. ActualUp/Down add/dropkindonly; tokenneedsnoSQL. EFtrackedfalse->truecanserializeconsumeifallwritershonor/handleit; nottransactionatomicityproof. KindguardneededwhenOrderIdstoresnonorderentity IDs, nulloldjobs requirefallback. Wholechangedsource/currentparent checked;88exactoldbodies and3manualchanged.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 88 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 3 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Test sameapprovalconcurrentconsume/rollback withrealregistry EFhandling, legacykindnull/typedslip targetcollision/reprint, no rawSQLtokenbypass orunvalidatedkind.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "68b1c1bf6b69150abb661b48044cc178a28d1c65359e8246a198d744e8daae95",
+      "git_blob_sha256": "300520cb611e793b5d70f4e02272dd99109aed47e777caccb4597b600a6370ff",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3212
+        ]
+      ],
+      "functionality_and_reasoning": "Finalmigrationtarget addsSettingsDefaultOpeningCashPiastres bigint only, noamountcap/nonnegative/defaultannotation/Version. Configurationproposesfloat notaccountbalance orcashmovement; previousShiftfloatsimmutable. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. FIN011 transactionorder unaffected, noDB/settings/shift actions.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "Finalmigrationtarget addsSettingsDefaultOpeningCashPiastres bigint only, noamountcap/nonnegative/defaultannotation/Version. Configurationproposesfloat notaccountbalance orcashmovement; previousShiftfloatsimmutable. Wholechangedsource/currentparent checked;89exactoldbodies and2manualchanged. FIN011 transactionorder unaffected, noDB/settings/shift actions.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 89 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 2 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Verify actualUpdefault/applicationfallback andclientchosenamount, finitepositivecaps, fundedliquidity checkinsidetransaction FIN011 andhistoricalshiftimmutability.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sha256": "093a3e5624243140c20cbec9e064d9cf76b814cd3c97e6371fad91821df64917",
+      "git_blob_sha256": "45caa6a4242ae5749072b14d761a5a58039322b638574d8767270540512d9bd9",
+      "baseline_comparison": "EQUIVALENT_NORMALIZED_LINE_ENDINGS",
+      "status": "REVIEWED_STATIC_COMPLETE_FILE",
+      "coverage_classification": "CHANGED_BLOCK_REVIEW_PLUS_VERIFIED_EXACT_SOURCE_EQUIVALENCE",
+      "reviewed_line_spans": [
+        [
+          1,
+          3209
+        ]
+      ],
+      "functionality_and_reasoning": "FinalModelSnapshot BuildModel matcheslastmigrationtarget body exactly:59entityshape/23relationship/8navigationblocks,sequences/checklistseeds,allindexes andtoken metadata. Onlyclassinheritance/using/attribute/methodname differ.90childexactsourcebodies predecessor-linked,1parentmanualcurrentrole. Snapshotisfuturemigrationdiffbaseline, notrealappliedDBstate orproofruntimeOnModelCreating conforms. Fulloriginal327filepass nowcovered,butstrictoldfunctions/independent/runtimegates incomplete.",
+      "significant_methods": "BuildTargetModel plus individually mapped generated entity/index/FK/navigation lambdas; exact stable identities in Knowledge shard.",
+      "interactions_and_risks": "FinalModelSnapshot BuildModel matcheslastmigrationtarget body exactly:59entityshape/23relationship/8navigationblocks,sequences/checklistseeds,allindexes andtoken metadata. Onlyclassinheritance/using/attribute/methodname differ.90childexactsourcebodies predecessor-linked,1parentmanualcurrentrole. Snapshotisfuturemigrationdiffbaseline, notrealappliedDBstate orproofruntimeOnModelCreating conforms. Fulloriginal327filepass nowcovered,butstrictoldfunctions/independent/runtimegates incomplete.",
+      "findings": [],
+      "evidence": "Current parent model applicability/registration order/relationships and all changed blocks manually inspected. 90 exact source spans verified by SHA256 AND actual text equality to analyzed predecessor; 1 changed blocks manually reasoned. Reused evidence is NOT fresh independent rereading or runtime validation.",
+      "tests_and_evidence": "Static only; no migration/DB/test execution. Exact equivalence evidence: Sub-Agents/Results/financial-model-equivalence-ledger.json",
+      "recommendations": "Reconcile actualOnModelCreating runtime metadata andallhistoricalUpgrade/Down semantics; verify financialconstraints/transactions andsavedcandidatechallenges separatelywithoutDBwrites.",
+      "uncertainties": "Historical target metadata is not applied database state or proof of upgrade safety. Independent depth total UNKNOWN; current handler/callpath coverage separate."
     }
-  ]
+  ],
+  "remaining": []
 }

@@ -1,0 +1,38 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:22.751862+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-d2cb821a7752c6233d34bacf8e19d03df44285e014bd9b1bfacbec76ab44a2c1",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Services.AppSession.HasUnresolvedOperation::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        38,
+        5,
+        38,
+        96
+      ],
+      "reasoning": "Global unresolved checks cached CallCenter drafts where CanEditOperation false; CanEditOperation encapsulates pending/busy state in reviewed VM. No separate management owner set in this client.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Uninstantiated operator pending journal not automatically counted by this getter.",
+      "tests_missing": "Uninstantiated operator pending journal not automatically counted by this getter. NOT_EXECUTED.",
+      "verified_callers_callees": "_drafts.Values.Any; CallCenterViewModel.CanEditOperation"
+    }
+  ],
+  "source_git_blob_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+  "worktree_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

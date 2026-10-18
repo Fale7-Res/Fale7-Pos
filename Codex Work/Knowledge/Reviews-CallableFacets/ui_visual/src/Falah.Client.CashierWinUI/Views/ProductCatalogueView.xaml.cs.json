@@ -1,0 +1,38 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:02:07.236969+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-7912d132bc36b3a2e682cad2c7fc7b3262f7818cd618abb8b990d28aed7f2095",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.ProductCatalogueView.ViewModel::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        10,
+        5,
+        10,
+        76
+      ],
+      "reasoning": "Casts current DataContext to the expected CashierViewModel and returns null for incompatible context; evaluates on every access rather than caching. Event handlers type-check before dispatch, and this getter neither initializes VM nor authorizes operations.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "DataContext replacement/lifetime differs between views; explicit subscriptions reviewed separately, no native binding run.",
+      "tests_missing": "DataContext replacement/lifetime differs between views; explicit subscriptions reviewed separately, no native binding run. NOT_EXECUTED.",
+      "verified_callers_callees": "DataContext; code-behind event handlers"
+    }
+  ],
+  "source_git_blob_sha256": "6f4871ad97b4ea75bfcbe65da8708d2e1eacad6ce2950741961c2dd6155f79b9",
+  "worktree_sha256": "6f4871ad97b4ea75bfcbe65da8708d2e1eacad6ce2950741961c2dd6155f79b9",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

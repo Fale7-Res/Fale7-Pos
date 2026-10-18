@@ -1,0 +1,175 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "classification": "Separate test-quality observations; not additional confirmed financial vulnerabilities or Security plugin results",
+  "observations": [
+    {
+      "id": "FIN-TST-001",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "kind": "TEST_ORACLE_DEFECT",
+      "severity": "MEDIUM_TEST_RELIABILITY",
+      "confidence": "HIGH_STATIC",
+      "status": "CANDIDATE_NOT_RUNTIME_EXECUTED_NOT_SECURITY_FINDING",
+      "title": "Concurrent last-admin self-revocation test retains seeded third administrator",
+      "sources": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs",
+          "start": 496,
+          "end": 508,
+          "worktree_sha256": "6507c7deedcd751a74d4d9c1c7c8e3823821405faa450fee11a9b9d59e6f1f58",
+          "git_blob_sha256": "b4dd8f5d6fb8f9498388b18576c343dcaa61475774d51980c371eb5f926ebf07",
+          "excerpt": "    [Fact]\n    public async Task Concurrent_self_revocations_leave_an_active_administrator()\n    {\n        using var setup = new NoOwnerSetup();\n        var first = await setup.Factory.SeedUserAsync(\"مدير أول\", \"manager\", \"users_manage\");\n        var second = await setup.Factory.SeedUserAsync(\"مدير ثانٍ\", \"manager\", \"users_manage\");\n        var responses = await Task.WhenAll(new[] { first, second }.Select(id =>\n            setup.Client.PostAsJsonAsync($\"/api/users/{id}/permissions\",\n                new UpdateUserPermissionsRequest(id, Array.Empty<string>(), new[] { \"users_manage\" }, id))));\n        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));\n        var permissions = await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Active).Select(u => u.Permissions).ToListAsync());\n        Assert.Contains(permissions, p => UserManagementRules.CanManageUsers(p.Split(',')));\n    }"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs",
+          "start": 461,
+          "end": 474,
+          "worktree_sha256": "6507c7deedcd751a74d4d9c1c7c8e3823821405faa450fee11a9b9d59e6f1f58",
+          "git_blob_sha256": "b4dd8f5d6fb8f9498388b18576c343dcaa61475774d51980c371eb5f926ebf07",
+          "excerpt": "    /// <summary>Stands down every other active account that can administer users, so the named one\n    /// really is the last. A fresh database is never empty of administrators - the demo seed writes\n    /// a manager holding \"all\" - and the guard is only reachable once they are out of the way.</summary>\n    private static async Task LeaveOnlyOneAdministratorAsync(HttpClient client, string keepUserId)\n    {\n        var everyone = await client.GetFromJsonAsync<List<UserDetailsDto>>($\"/api/users/all?actorUserId={keepUserId}\");\n        foreach (var other in everyone!.Where(u => u.Id != keepUserId && u.Active\n                                                   && UserManagementRules.CanManageUsers(u.Permissions.ToHashSet())))\n        {\n            (await client.PostAsJsonAsync($\"/api/users/{other.Id}/active\",\n                new SetUserActiveRequest(other.Id, false, \"إخلاء الساحة للاختبار\", keepUserId)))\n                .EnsureSuccessStatusCode();\n        }\n    }"
+        }
+      ],
+      "related_source_spans": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/FalahApiFactory.cs",
+          "start": 37,
+          "end": 68
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "start": 202,
+          "end": 215
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/DemoDataSeeder.cs",
+          "start": 14,
+          "end": 38
+        }
+      ],
+      "trigger": "Fresh NoOwnerSetup starts normal server on empty database; demo manager/all exists. Two explicitly seeded managers revoke their own users_manage concurrently, while demo admin untouched.",
+      "root_cause": "Test omits LeaveOnlyOneAdministratorAsync or equivalent exact-admin setup. Assert.Single successful responses encodes two-admin precondition not established.",
+      "expected_actual_static": "Both named revocations can legitimately succeed while seeded third admin survives. The final CanManageUsers assertion can pass on demo account. This can produce test failure despite correct invariant; no runtime failure claimed.",
+      "correction_design": "Explicitly remove seeded extra admins, assert exact initial set of two administrator IDs, synchronize request overlap, require exactly one successful revoke and inspect surviving named admin plus correct rejection status.",
+      "regression_tests": "Run only approved isolated SQL fixture; compare scenario with two admins against scenario with deliberate third admin, where two self-revocations should both be allowed.",
+      "counterevidence": "NoOwnerSetup means no owner, not empty administrator catalog. Helper comment explicitly acknowledges seeded admin. No evidence of configuration override disabling DemoSeeder in FalahApiFactory.",
+      "independent_challenge": "Parent notified with source chain; confirmation pending.",
+      "no_execution": true
+    },
+    {
+      "id": "FIN-TST-002",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "kind": "TEST_GUARD_CONFOUND",
+      "severity": "LOW_COVERAGE_GAP",
+      "confidence": "HIGH_STATIC",
+      "status": "CANDIDATE_NOT_RUNTIME_EXECUTED_NOT_SECURITY_FINDING",
+      "title": "Last-admin deactivation test ends in independently forbidden self-deactivation",
+      "sources": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs",
+          "start": 528,
+          "end": 554,
+          "worktree_sha256": "6507c7deedcd751a74d4d9c1c7c8e3823821405faa450fee11a9b9d59e6f1f58",
+          "git_blob_sha256": "b4dd8f5d6fb8f9498388b18576c343dcaa61475774d51980c371eb5f926ebf07",
+          "excerpt": "    [Fact]\n    public async Task Deactivating_the_last_administrator_is_refused()\n    {\n        using var setup = new NoOwnerSetup();\n        var first = await setup.Factory.SeedUserAsync(\"مدير أول\", \"manager\", \"users_manage\");\n        var second = await setup.Factory.SeedUserAsync(\"مدير ثانٍ\", \"manager\", \"users_manage\");\n        await LeaveOnlyOneAdministratorAsync(setup.Client, first);\n\n        // Two administrators again, deliberately: standing one of them down is ordinary and allowed.\n        (await setup.Client.PostAsJsonAsync($\"/api/users/{second}/active\",\n            new SetUserActiveRequest(second, true, \"اختبار\", first))).EnsureSuccessStatusCode();\n        (await setup.Client.PostAsJsonAsync($\"/api/users/{second}/active\",\n            new SetUserActiveRequest(second, false, \"اختبار\", first))).EnsureSuccessStatusCode();\n\n        // \"first\" is now the last administrator. Self-deactivation was already refused before this\n        // guard existed, so the case that needed covering is a colleague doing it - here the\n        // stood-down administrator is brought back solely to aim at the last one.\n        (await setup.Client.PostAsJsonAsync($\"/api/users/{second}/active\",\n            new SetUserActiveRequest(second, true, \"اختبار\", first))).EnsureSuccessStatusCode();\n        (await setup.Client.PostAsJsonAsync($\"/api/users/{first}/active\",\n            new SetUserActiveRequest(first, false, \"اختبار\", second))).EnsureSuccessStatusCode();\n\n        var response = await setup.Client.PostAsJsonAsync($\"/api/users/{second}/active\",\n            new SetUserActiveRequest(second, false, \"اختبار\", second));\n\n        Assert.False(response.IsSuccessStatusCode);\n    }"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs",
+          "start": 225,
+          "end": 230,
+          "worktree_sha256": "6507c7deedcd751a74d4d9c1c7c8e3823821405faa450fee11a9b9d59e6f1f58",
+          "git_blob_sha256": "b4dd8f5d6fb8f9498388b18576c343dcaa61475774d51980c371eb5f926ebf07",
+          "excerpt": "    [Fact]\n    public async Task An_actor_cannot_deactivate_their_own_account()\n    {\n        var response = await SetActiveAsync(_managerId, false, _managerId);\n        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);\n    }"
+        }
+      ],
+      "trigger": "Final request sets second user inactive while ActorUserId is same second user, after first user deactivated.",
+      "root_cause": "Self-deactivation guard already rejects this exact final operation regardless last-admin lockout protection; test cannot distinguish absence of latter guard.",
+      "expected_actual_static": "Test could pass if last-admin deactivation guard were removed while self-deactivation remains. Current source does not demonstrate production lockout failure.",
+      "correction_design": "Design an authorized distinct actor/target scenario or pure policy/transaction test isolating administrator-cardinality check, and verify expected failure reason. If self guard makes endpoint state unreachable, document redundancy rather than claim independent coverage.",
+      "regression_tests": "Controlled mutation test or policy unit fixture proving last-admin branch reached; no app patch performed. Preserve positive case disabling one of multiple admins.",
+      "counterevidence": "Self-deactivation is intentionally denied and other tests cover it. This observation limits coverage claim, not business behavior.",
+      "independent_challenge": "Parent notified; confirmation pending.",
+      "no_execution": true
+    },
+    {
+      "id": "FIN-TST-003",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "kind": "TEST_ORACLE_COVERAGE_GAP",
+      "severity": "LOW_COVERAGE_GAP",
+      "confidence": "HIGH_STATIC",
+      "status": "CANDIDATE_NOT_RUNTIME_EXECUTED_NOT_SECURITY_FINDING",
+      "title": "Delivery fee freeze test edits an unrelated service and never checks fee",
+      "sources": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "start": 999,
+          "end": 1016,
+          "worktree_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+          "git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "excerpt": "    [Fact]\n    public async Task Editing_a_delivery_services_fee_never_changes_an_already_frozen_order_snapshot()\n    {\n        var service = await (await _client.PostAsJsonAsync(\"/api/delivery/services\",\n            new CreateDeliveryServiceRequest($\"req-{Guid.NewGuid():N}\", \"توصيل عادي\", 1500, _dispatcherId, null, null)))\n            .Content.ReadFromJsonAsync<DeliveryServiceDto>();\n\n        var shiftId = await OpenShiftAsync();\n        var order = await CheckoutDeliveryOrderAsync(shiftId, 10000);\n\n        await _client.PutAsJsonAsync($\"/api/delivery/services/{service!.Id}\",\n            new UpdateDeliveryServiceRequest(service.Id, null, 5000, null, _dispatcherId, null, null));\n\n        var reloaded = await (await _client.GetAsync($\"/api/orders/{order.OrderId}\")).Content.ReadFromJsonAsync<OrderDetailsDto>();\n        // The order was checked out with its own DeliveryServiceId (svc-1, not this new service) -\n        // this proves editing a DIFFERENT service's fee never reaches back into any order snapshot.\n        Assert.Equal(\"svc-1\", reloaded!.DeliveryServiceId);\n    }"
+        }
+      ],
+      "trigger": "Create new service fee1500, checkout via helper46-61 whose request uses svc-1 and fee0, edit new service to5000, then assert order.ServiceId svc-1.",
+      "root_cause": "Wrong target service and assertion only ID, no DeliveryFeePiastres/Total or print snapshot.",
+      "expected_actual_static": "Could pass if historical amounts using edited service were rewritten; no production rewrite bug established.",
+      "correction_design": "Checkout using actual newly created service with nonzero fee; mutate that same service; assert original fee,total and ticket snapshots unchanged.",
+      "regression_tests": "Approved isolated fixture only: compare new order uses5000 versus original retains1500; assert update success and both service IDs equal intended testservice.",
+      "counterevidence": "Comment1013-1014 acknowledges DIFFERENT service, narrowing actual guarantee to unrelated-service edit isolation; helper always hardcodes svc-1.",
+      "independent_challenge": "Parent notified; confirmation pending.",
+      "no_execution": true
+    },
+    {
+      "id": "FIN-TST-004",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "kind": "TEST_ORACLE_COVERAGE_GAP",
+      "severity": "LOW_COVERAGE_GAP",
+      "confidence": "HIGH_STATIC",
+      "status": "CANDIDATE_NOT_RUNTIME_EXECUTED_NOT_SECURITY_FINDING",
+      "title": "Reprint attribution assertion reuses a name already present on original ticket",
+      "sources": [
+        {
+          "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs",
+          "start": 510,
+          "end": 529,
+          "worktree_sha256": "5f27a9a4e14f4f98cacbf6fcc6bb3b50ba05c3fc41e5e058577d9f39f365036c",
+          "git_blob_sha256": "7fc4808d3814ae22c425c3afffd0c198d3093d56969bb834a87851fc47264220",
+          "excerpt": "    [Fact]\n    public void A_reprint_is_marked_at_the_top_of_every_piece_it_prints()\n    {\n        var original = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeaderWithMenu(), CashierItems(), CashierTotals());\n        var pieceCount = original.Lines.Count(e => e is TicketCut) + 1;\n\n        var reprint = PrintRules.MarkAsReprint(original, Now.AddHours(1), \"مدير المحل\");\n\n        var banners = reprint.Lines.Count(e => e is TicketText { Text: \"إعادة طباعة\" });\n        Assert.Equal(pieceCount, banners);\n        Assert.Equal(\"إعادة طباعة\", Assert.IsType<TicketText>(reprint.Lines[0]).Text);\n        // Immediately after each cut, before anything else on the next piece.\n        for (var i = 0; i < reprint.Lines.Count - 1; i++)\n            if (reprint.Lines[i] is TicketCut)\n                Assert.Equal(\"إعادة طباعة\", Assert.IsType<TicketText>(reprint.Lines[i + 1]).Text);\n\n        // Who and when, so a reproduced receipt can be traced back.\n        Assert.Contains(TextOf(reprint.Lines), l => l.Contains(\"مدير المحل\"));\n        // The original composition is untouched - marking adds lines, it never edits a ticket.\n        Assert.DoesNotContain(original.Lines, e => e is TicketText { Text: \"إعادة طباعة\" });"
+        }
+      ],
+      "trigger": "Original CashierHeader135-138 already cashier manager name; MarkAsReprint516 uses same actor; Contains527 checks that name anywhere.",
+      "root_cause": "Actor presence precondition already satisfied by original content; requested timestamp also not asserted.",
+      "expected_actual_static": "Could pass if reprint operation omitted actor/time metadata while still adding banners. No production omission proven.",
+      "correction_design": "Use distinct reprint actor absent from original, exact expected local timestamp, inspect each cut-separated piece attribution and deep-compare original immutable composition.",
+      "regression_tests": "Pure composition regression cases one/two pieces, different cashier and reprint operator, expected hour/date boundary.",
+      "counterevidence": "Banner count/start/aftercut and original banner absence are substantive tests retained; this only limits attribution/time proof.",
+      "independent_challenge": "Parent notified; confirmation pending.",
+      "no_execution": true
+    },
+    {
+      "id": "FIN-TST-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "kind": "TEST_ORACLE_COVERAGE_GAP",
+      "severity": "LOW_COVERAGE_GAP",
+      "confidence": "HIGH_STATIC",
+      "status": "CANDIDATE_NOT_RUNTIME_EXECUTED_NOT_SECURITY_FINDING",
+      "title": "Shared consumption test leaves average and variance numerical correctness unasserted",
+      "sources": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+          "start": 782,
+          "end": 815,
+          "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+          "git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+          "excerpt": "    [Fact]\n    public async Task Shared_consumption_report_computes_actual_daily_average_and_variance()\n    {\n        var itemId = await CreateItemAsync(\"زيت قلي\");\n        await _client.PutAsJsonAsync($\"/api/inventory/items/{itemId}\",\n            new UpdateInventoryItemRequest(itemId, \"زيت قلي\", \"خامات\", \"liter\", 0, true, false, \"Purchase\", 4000, _inventoryManagerId));\n\n        var now = DateTimeOffset.UtcNow;\n        await _factory.QueryAsync(db =>\n        {\n            db.StockMovements.Add(new StockMovementEntity\n            {\n                IdempotencyKey = $\"seed-usage-{Guid.NewGuid():N}\", InventoryItemId = itemId,\n                Type = \"Usage\", Direction = \"Out\", QuantityMilliUnits = 10000,\n                ReferenceType = \"test_seed\", ReferenceId = \"seed\", Reason = \"seed\",\n                CreatedBy = \"seed\", OperationId = $\"op-{Guid.NewGuid():N}\", CreatedAtUtc = now,\n            });\n            return db.SaveChangesAsync();\n        });\n\n        var from = now.AddDays(-2);\n        var to = now.AddDays(1);\n        var response = await _client.GetAsync(\n            $\"/api/inventory/items/{itemId}/shared-consumption?from={Uri.EscapeDataString(from.ToString(\"O\"))}&to={Uri.EscapeDataString(to.ToString(\"O\"))}&actorUserId={_managerId}\");\n        response.EnsureSuccessStatusCode();\n        var report = await response.Content.ReadFromJsonAsync<Falah.Application.Inventory.SharedConsumptionDto>();\n\n        Assert.Equal(4000, report!.StandardDailyUsageMilliUnits);\n        Assert.Equal(10000, report.ConsumedMilliUnits);\n        // 10000 consumed over a 3-day window (from - to) rounds to ~3333/day, well above the 4000\n        // standard for a single day but the ratio itself is what matters here - the point is the\n        // figure is actually computed, not that this specific arithmetic is the interesting part.\n        Assert.NotNull(report.ActualDailyAvgMilliUnits);\n        Assert.NotNull(report.VarianceMilliUnitsPerDay);"
+        }
+      ],
+      "trigger": "Insert Usage10000 over explicit three-day range with standard4000, require consumed10000 and merely nonnull average/variance.",
+      "root_cause": "Expected numerical results absent; comment calls approx3333 above4000 though it is below.",
+      "expected_actual_static": "Wrong nonnull metrics could pass; actual endpoint arithmetic not proven wrong by this test gap.",
+      "correction_design": "Freeze from/to, assert documented day denominator and exact rounded daily average plus signed variance; remove misleading arithmetic comment.",
+      "regression_tests": "Three days, fractional duration, inclusive/exclusive boundaries, zero/negative range, usage type and Direction sign; no execution performed.",
+      "counterevidence": "Consumed and standard quantities do have exact assertions; application may correctly compute metrics despite weaker test.",
+      "independent_challenge": "Parent notified; confirmation pending.",
+      "no_execution": true
+    }
+  ],
+  "updated_at_utc": "2026-10-17T07:19:26.026787+00:00"
+}

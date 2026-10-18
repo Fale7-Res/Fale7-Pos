@@ -1,0 +1,42 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:01:24.764865+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+  "worktree_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-fb4205bc8ce23dfea9e282763cdd4d94ea4dce7e6ef16f934af76cedd5f54a34",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.PrintAgent.UnreportedAttemptStore.StoredAttempt::record-generated-behavior",
+      "source_span": [
+        27,
+        27
+      ],
+      "reasoning": "StoredAttempt positional record is the durable JSON journal value:AttemptRequestId,Succeeded,Error?,AtUtc. Constructor/with-copy do not validate nonblank id/timestamp or establish hardware success. System.Text.Json roundtrips public generated properties;Find returns immutable scalar/string record so no exposed mutable collection. Processor writes false uncertain state before transport,then actual transport result;restart reuses same AttemptRequestId for report rather than printing again. Generated ToString contains Error diagnostic and timestamp,so should not be treated sanitized telemetry automatically.",
+      "inputs": "AttemptRequestId string,Succeeded bool,Error nullable string,AtUtc DateTimeOffset.",
+      "outputs": "Journal serialization/deserialization record,not paper completion proof.",
+      "side_effects": "Record allocation itself noneexternal;Remember/Save persist entire dictionary separately.",
+      "trust_boundaries": "File deserialization trusts journal contents after JSONshape;malformed JSON fails closed but semantically malformed record fields not constructor-validated.",
+      "database": "No SQL in record;report result later writes server attempt.",
+      "printing_ui": "Succeeded means transport-returned status,PRT002,not physical output;uncertain false entries deliberately stop replay print.",
+      "performance": "Small record,whole journal serialization cost belongs Save;no generated observable notifications.",
+      "duplicates_conflicts": "Value equality exact strings/scalars;with changes can alter report identity,actual processor preserves it. Journal key is PrintJobId separate from record.",
+      "issues_hypotheses": [
+        "Manual journal tampering/semantic corruption not detected by record constructor;local trust issue"
+      ],
+      "tests_missing": [
+        "Missing/null AttemptRequestId,uncertain false/error roundtrip,same record across restart and no duplicate physical output;no hardware executed"
+      ],
+      "verified_callers_callees": [
+        "UnreportedAttemptStore.cs27,46-87",
+        "PrintJobProcessor.cs80-100,104-127,131-161"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,362 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T18:42:02.290584+00:00",
+  "records": [
+    {
+      "id": "NAT-BOUNDARY-001",
+      "category": "Native Windows spooler interop",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 29,
+          "endLine": 82,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-9114822493844d1924a79aa791c565f0a69e35f74434b151df2159160e751eb5",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.SendAsync(byte[], CancellationToken)",
+            "startLine": 29,
+            "endLine": 33,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "SendAsync invokes synchronous Send; native alloc/copy/write/free guarded finally; printer/page/doc lifecycle cleanup."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 95,
+          "endLine": 96,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-2350bbe5045d0dccca23581b7f4a7bf9871483d95f1734808e6f9d58c7cbb9fe",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.OpenPrinter(string, out IntPtr, IntPtr)",
+            "startLine": 95,
+            "endLine": 96,
+            "startColumn": 5,
+            "endColumn": 135,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 98,
+          "endLine": 99,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-8761f478d39b07f83253788423476602c05b42e89183fbc0e05a9861a92e0633",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.ClosePrinter(IntPtr)",
+            "startLine": 98,
+            "endLine": 99,
+            "startColumn": 5,
+            "endColumn": 61,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 101,
+          "endLine": 102,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-b44508feb848fffbb991eae19459eeaa4a51e010c32c27980f39ae8147a26a20",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.StartDocPrinter(IntPtr, int, Falah.PrintAgent.WindowsSpoolerTicketTransport.DocInfo)",
+            "startLine": 101,
+            "endLine": 102,
+            "startColumn": 5,
+            "endColumn": 101,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 104,
+          "endLine": 105,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-2212bb2a84950dfdc98be34f9a3a0164f0387b0f7eafb84adf55855436dad291",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.EndDocPrinter(IntPtr)",
+            "startLine": 104,
+            "endLine": 105,
+            "startColumn": 5,
+            "endColumn": 62,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 107,
+          "endLine": 108,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-bab4eb932c5d400ec86022a97caea9f98a8beb47c0fbed4c32e2a677f6c7402a",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.StartPagePrinter(IntPtr)",
+            "startLine": 107,
+            "endLine": 108,
+            "startColumn": 5,
+            "endColumn": 65,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 110,
+          "endLine": 111,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-9b1184bfae970f31283be63fbb27ffa74844512ddf23169e3bbaba2b26622f9e",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.EndPagePrinter(IntPtr)",
+            "startLine": 110,
+            "endLine": 111,
+            "startColumn": 5,
+            "endColumn": 63,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 113,
+          "endLine": 114,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-530d276b90b52191092229231e273963e6245e9c456b76587f8cd72fde42ec52",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.WritePrinter(IntPtr, IntPtr, int, out int)",
+            "startLine": 113,
+            "endLine": 114,
+            "startColumn": 5,
+            "endColumn": 103,
+            "isCallable": true
+          },
+          "evidence": "Static winspool.drv import with fixed EntryPoint; no caller-selected library or export."
+        },
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "startLine": 85,
+          "endLine": 85,
+          "source_git_blob_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "worktree_sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+          "symbol": {
+            "stable_id": "sym-b6148fd73881575bccc4bd94af2f2c93b033c119a2de40a57c622cd3d1915339",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.WindowsSpoolerTicketTransport.LastErrorMessage()",
+            "startLine": 85,
+            "endLine": 85,
+            "startColumn": 5,
+            "endColumn": 127,
+            "isCallable": true
+          },
+          "evidence": "Win32 last-error translated to managed error string; no dynamic module/procedure chosen."
+        }
+      ],
+      "inputs": "Configured printerName and renderer-produced payload byte[]; Windows local print permissions still apply.",
+      "outputs_side_effects": "Queues RAW physical print job, native allocation of payload.Length; reviewer executed none.",
+      "legitimate_purpose": "Explicit USB/Windows printer route, seven fixed native functions, not hidden process creation.",
+      "trust_boundaries": "Server ticket contents/config printer queue cross managed/native OS spooler boundary.",
+      "counterevidence_limitations": [
+        "Exact copied byte count equals allocated payload length; finally frees allocation and handles.",
+        "Short writes explicitly rejected. EndPage/EndDoc/Close return values ignored and cancellation not honored; queue submission not proof paper output.",
+        "Bare system library name uses platform loader policy; no claim loader hijacking impossible or demonstrated.",
+        "External printer driver/OS implementations not audited."
+      ],
+      "classification": "LEGITIMATE_NARROW_NATIVE_BOUNDARY_WITH_RELIABILITY_LIMITS"
+    },
+    {
+      "id": "NET-BOUNDARY-002",
+      "category": "Network/serial/file print destinations",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/Transports.cs",
+          "startLine": 14,
+          "endLine": 31,
+          "source_git_blob_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+          "worktree_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+          "symbol": {
+            "stable_id": "sym-0b28cd5ff624d79b1a05a5e5dcfd00e05fd9eb95498ac9f041072c45f8675acc",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.NetworkTicketTransport.NetworkTicketTransport(string, int, TimeSpan)",
+            "startLine": 14,
+            "endLine": 19,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Raw TCP host/port from transport constructor; linked timeout token controls connect/write/flush."
+        },
+        {
+          "path": "src/Falah.PrintAgent/Transports.cs",
+          "startLine": 42,
+          "endLine": 62,
+          "source_git_blob_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+          "worktree_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+          "symbol": {
+            "stable_id": "sym-698f5ce1fe4d4bc6efbf4d2717ebc0149eeeadf75afa4fb8b72e696a336f4a72",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.SerialTicketTransport.SerialTicketTransport(string, int, TimeSpan)",
+            "startLine": 42,
+            "endLine": 47,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Configured serial COM port/baud; WriteTimeout; synchronous open/write/flush, cancellation unused."
+        },
+        {
+          "path": "src/Falah.PrintAgent/Transports.cs",
+          "startLine": 74,
+          "endLine": 85,
+          "source_git_blob_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+          "worktree_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+          "symbol": {
+            "stable_id": "sym-37588fe9857f187f62652345a4f45f9e45f33a3e607d6a4870e89be9c2a009c7",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.FileTicketTransport.FileTicketTransport(string)",
+            "startLine": 74,
+            "endLine": 78,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Configured file output directory; generated timestamp escpos file, no physical printing."
+        }
+      ],
+      "inputs": "Host/port, COM/baud or directory chosen by local agent options; byte payload business ticket.",
+      "outputs_side_effects": "Raw TCP/serial bytes or .escpos file; destinations not validated as private/allowlisted here.",
+      "legitimate_purpose": "Declared deployment print transports. File is explicit mode, not automatic fallback.",
+      "trust_boundaries": "Local configuration directs receipt/customer content to network/device/disk; this can expose business data if misconfigured.",
+      "counterevidence_limitations": [
+        "No encryption/authentication on raw TCP printer protocol; expected LAN operational property, not covert exfiltration proof.",
+        "Configuration provenance still pending AgentOptions/Program trace in next batch.",
+        "Timestamp-only filename can collide at millisecond resolution; no actual output written."
+      ],
+      "classification": "EXPLICIT_CONFIGURED_DESTINATION_REQUIRES_CONFIG_TRUST"
+    },
+    {
+      "id": "NAT-BOUNDARY-003",
+      "category": "WinRT picker/user-selected image read",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Platform/ImageFilePicker.cs",
+          "startLine": 15,
+          "endLine": 40,
+          "source_git_blob_sha256": "255209e418f421aa749563c9dc2cedfd4f5ed59a22ee7845ecab737733ad5275",
+          "worktree_sha256": "6c354f62493fe359a802524930a881d825b21fc3c1359c47c162017020858bad",
+          "symbol": {
+            "stable_id": "sym-a2726d34833c5a2f3095d636596049c0ff34aae35901a3b2847b4eae84a10502",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Platform.ImageFilePicker.PickAsync()",
+            "startLine": 15,
+            "endLine": 41,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Fixed WinRT FileOpenPicker parented to current app HWND; user-selected image read to MemoryStream, extension content-type mapping."
+        }
+      ],
+      "inputs": "User explicitly selects .jpg/.jpeg/.png/.webp; returns null if canceled.",
+      "outputs_side_effects": "Reads selected file, allocates complete bytes; caller uploads to configured backend.",
+      "legitimate_purpose": "Menu product photo selection, no shell/process launch or invisible file crawl.",
+      "trust_boundaries": "User-chosen local file to managed bytes and authorized menu upload.",
+      "counterevidence_limitations": [
+        "File size check occurs after full file loaded in VM; large selected file may consume memory before512KB reject.",
+        "Extension filter/contentType are not content verification; server byte validation must be assessed separately.",
+        "No picker or file was opened by reviewer."
+      ],
+      "classification": "EXPLICIT_USER_FILE_READ_NATIVE_WINDOW_BINDING"
+    },
+    {
+      "id": "NET-BOUNDARY-004",
+      "category": "Print Agent HTTP API",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/PrintServerClient.cs",
+          "startLine": 28,
+          "endLine": 39,
+          "source_git_blob_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+          "worktree_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+          "symbol": {
+            "stable_id": "sym-dc0aa11e4c4aeae806f68c90e2bb0a87aaa1db5fbc0535e387a1c12291f747af",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.PrintServerClient.PrintServerClient(string, TimeSpan)",
+            "startLine": 28,
+            "endLine": 31,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "HttpClient baseAddress from constructor; login POST typed PIN; installs returned bearer in default header."
+        },
+        {
+          "path": "src/Falah.PrintAgent/PrintServerClient.cs",
+          "startLine": 42,
+          "endLine": 60,
+          "source_git_blob_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+          "worktree_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+          "symbol": {
+            "stable_id": "sym-d457a4ae16ef92fcadcb39bd64a20b43a3d4d3b63473f0fcf0935b5d396d7330",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.PrintServerClient.GetPendingAsync(string, CancellationToken)",
+            "startLine": 42,
+            "endLine": 47,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Only fixed API path prefixes; route/job IDs EscapeDataString; pending/ticket reads and result POST."
+        },
+        {
+          "path": "src/Falah.PrintAgent/PrintServerClient.cs",
+          "startLine": 63,
+          "endLine": 63,
+          "source_git_blob_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+          "worktree_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+          "symbol": {
+            "stable_id": "sym-a66ca0e932d6d00ac1ace1310573b0aedb667ef49526726d1428f6c8fa5b625c",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.PrintServerClient.Dispose()",
+            "startLine": 63,
+            "endLine": 63,
+            "startColumn": 5,
+            "endColumn": 46,
+            "isCallable": true
+          },
+          "evidence": "Dispose releases shared HttpClient."
+        }
+      ],
+      "inputs": "Configured server URL/timeout and credential/route/job; constructor URI accepts deployment authority, no host pinning here.",
+      "outputs_side_effects": "PIN sent to configured login; bearer on later requests, ticket business data read and attempts reported.",
+      "legitimate_purpose": "Real authenticated backend communication, no secondary hardcoded reporting host in this file.",
+      "trust_boundaries": "Credential/business data to configured HTTP(S) authority; local config compromise or HTTP transport can undermine secrecy.",
+      "counterevidence_limitations": [
+        "No real PIN/token printed/read, login/API not called.",
+        "No custom certificate validation bypass in this class.",
+        "Response disposals absent at login/report may be resource concern; no runtime resource measurement.",
+        "Endpoint authorization/ticket spoofing not certified by fixed network destination."
+      ],
+      "classification": "EXPLICIT_CONFIGURED_API_CREDENTIAL_BOUNDARY"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

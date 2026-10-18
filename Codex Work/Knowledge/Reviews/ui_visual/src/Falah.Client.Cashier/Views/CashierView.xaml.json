@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Views/CashierView.xaml",
+  "source_git_blob_sha256": "f4ad86f2f888998008880ff98facd4c9b027254296c1942b385b5c305649549c",
+  "worktree_sha256": "1144993977b6f66a46a50bb5cb31d5ebc448756cd8a12d4579dee0d3e82ceaad",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:45:19.351758+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Legacy WPF POS cart/menu/variant/checkout/result/refund surface; not active WinUI client.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "OpenShiftCommand",
+      "reasoning": "No-shift opening cash/error action inside rootfullgrid, no managerapproval/shiftname controls here. Actual backend/authguard separate. Delivery tab explicitlydisabledincomplete, whereasactiveWinUIdeliveryimplemented."
+    },
+    {
+      "anchor": "SetOrderTypeCommand",
+      "reasoning": "Pickup/takeaway triggers selectedcolors; UniformGridinheritsRTL. Cartline delete/quantity/note commands use ancestorItemsControlDataContext correctly; no globalpendingCanEdit bindings."
+    },
+    {
+      "anchor": "GrandTotalDisplay",
+      "reasoning": "Cart footerlabels finaltotal althoughlegacyVM onlysubtotal/no tax/delivery. Different fromactiveWinUIestimatedlabel, scopeexplicit. Lookup/refund and unconditionalClearCartcommands needVMguards."
+    },
+    {
+      "anchor": "SelectCategoryCommand",
+      "reasoning": "Horizontalcategoryscroll realcategoryIDs, selectedbuttonwhiteforegroundbutchildCategoryLabelTextexplicitTextBaseforegroundmayremain dark ratherthaninheritwhite. Neednativecontrast, notactiveUI002sameconsumer."
+    },
+    {
+      "anchor": "VisibleProducts",
+      "reasoning": "Fixed159x220WrapPanelcells contain145x180productplus variableofferstack: multipleofferscanexceedfixedcellheight/overlapnextrow. Displaybaseprice evenmultiplevariantproductmayhaveotherstartingprice, activetileusesStartingPriceDisplay."
+    },
+    {
+      "anchor": "ItemsSource=\"{Binding VisibleProducts}\"",
+      "reasoning": "No MenuError or IsLoadingMenu binding found in this complete view despite VM properties, so failed menu load may leave blank or stale catalog without error/retry feedback. Anchored real catalog binding; absence verified across file. No actual menu API request performed."
+    },
+    {
+      "anchor": "IsCheckoutOpen",
+      "reasoning": "520fixed unscrollablemodal withfourpaymentbuttons and4rowkeypad canexceedshortviewport. CashkeypadinheritsRTL unlikeactiveLTR. No directtexttenderentry; integerkeypad insufficientfractionaltender unless exactdefault."
+    },
+    {
+      "anchor": "ChangeDuePiastres",
+      "reasoning": "DisplayedlegacychangebindingexposesUI013 unitconversionbug inVM. Submitbusy disables button only,back/paymentmethods stillcommandrouted; outcomesunknown protectionnotestablishedbyview."
+    },
+    {
+      "anchor": "HasCheckoutResult",
+      "reasoning": "ShowsorderID/authoritativetotal andpendingelectronicconfirm; StartNewOrderindependentbutton. No printwarning/status/receiptpreview inmarkup. LookuprefundshowsrawEnglishstatus, priorrefunded/remaining andactualrefund fields."
+    },
+    {
+      "anchor": "IsVariantPickerOpen",
+      "reasoning": "Alloverlaysrootgridfullboundsbecause rootno rowdefinitions, unlikeShiftsissue. Variant/lookup/resultcards fixedwidth/no maxheight/scroll; manyvariants/longerrorscanoverflow. No nativefocusconfinement/accessiblenames forglyphclose."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No legacyruntime/businesswrites. Need productofferscellheight, absentloadfeedback, keypadRTL/decimalmoney, selectedcategorycontrast andcashoutrecovery onlyiflegacyactuallydeployed. No callable declarations.",
+  "recommendations": "Do not confuse legacyfeaturegaps withactiveWinUI. Prefercurrentfrontend operationally; anylegacysourcefixrequiresapproval.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

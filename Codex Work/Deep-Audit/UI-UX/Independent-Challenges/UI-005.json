@@ -1,0 +1,161 @@
+{
+  "id": "UI-005",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_RECOVERED_RETRY_UNREACHABLE",
+  "severity_assessment": "HIGH operational recovery dead end; no duplicate electronic settlement demonstrated.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "startLine": 19,
+      "endLine": 24,
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "symbol": {
+        "stable_id": "sym-eb6e85a4ce72cb323d1ab13426865849986a1087238d7a98c8559bb32bafc36e",
+        "kind": "ConstructorDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.RetainedRequest(string?, Falah.Client.CashierWinUI.Services.IRetainedRequestStore?)",
+        "startLine": 19,
+        "endLine": 25,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Constructor restores original DTO without rebuilding a checkout result."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "startLine": 113,
+      "endLine": 173,
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "symbol": null,
+      "evidence": "Both confirm/cancel require ElectronicPaymentPending and LastCheckoutResult before using retained original DTO. Fresh LastCheckoutResult starts null."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs",
+      "startLine": 22,
+      "endLine": 24,
+      "source_git_blob_sha256": "48a28a7c8351ffd0ec599ee599ea5d5de2495a09e8a0f238e515410e305149bd",
+      "worktree_sha256": "9826b8fc7ac4c90e688e59bccf35b9b47ec0d9eeca8e79db22aed5c47bf6675d",
+      "symbol": null,
+      "evidence": "Either recovered electronic request makes CanEditOperation false."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+      "startLine": 262,
+      "endLine": 270,
+      "source_git_blob_sha256": "b16994d5a208ffb06499671967fc9ff46f908b41863aa8c7160eaf63dffa19fa",
+      "worktree_sha256": "e4b4d4257703cbe135a8c821bb2075c7eb6d8b6e31dcb18622b0c8968fd38a06",
+      "symbol": {
+        "stable_id": "sym-60b77fc324e448a6bd32f365cd3671d00b4149c3ef995aaffeeaa2912b95bd5f",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenOrderLookup()",
+        "startLine": 261,
+        "endLine": 270,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Opening lookup requires CanEditOperation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+      "startLine": 124,
+      "endLine": 137,
+      "source_git_blob_sha256": "b6427c10ddcf4e6307ead2d5f77b7bd306811e1a5c30ca9009274ff7c9037e96",
+      "worktree_sha256": "bc399716e95c2a9b42e3c5db4ad92d6e3fe9879f2b042fa539ec6298d6adea7a",
+      "symbol": {
+        "stable_id": "sym-312ffc114f689661fdf84f643ef3d99dee6fe7e244adfa1fb389054817cecd16",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ReviewPendingOrder()",
+        "startLine": 124,
+        "endLine": 131,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Alternative ReviewPendingOrder writer also requires CanEditOperation; dismiss cannot clear pending result."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml",
+      "startLine": 163,
+      "endLine": 205,
+      "source_git_blob_sha256": "c3e33f47b210063aa40d753c28140ca73cd06f992558550cace9510c10c80e30",
+      "worktree_sha256": "4531af2dec4309d133530be9b28327dc14b7675c0179ac70a51bb300bc22a26f",
+      "symbol": null,
+      "evidence": "Result overlay hidden with null result; pending retry controls nested inside it."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs",
+      "startLine": 87,
+      "endLine": 110,
+      "source_git_blob_sha256": "48a28a7c8351ffd0ec599ee599ea5d5de2495a09e8a0f238e515410e305149bd",
+      "worktree_sha256": "9826b8fc7ac4c90e688e59bccf35b9b47ec0d9eeca8e79db22aed5c47bf6675d",
+      "symbol": {
+        "stable_id": "sym-6fcee6de01d4e133e4328816909057d766276ae5308b28e227bc6aea8c0bc744",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.InitializeAsync()",
+        "startLine": 86,
+        "endLine": 111,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Initialization loads shift/settings/menu only, no retained order context."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+      "startLine": 45,
+      "endLine": 57,
+      "source_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+      "worktree_sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+      "symbol": {
+        "stable_id": "sym-a94a9cdfcf3d8510c3d7ad58b4c56f96388fc386b2ac6e33e5bcc31953d3dd1a",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.DescribeRecoveredOperations()",
+        "startLine": 45,
+        "endLine": 54,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Recovered warning lists owner names and can dismiss message, but does not itself retry or clear operation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "startLine": 12,
+      "endLine": 27,
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "symbol": {
+        "stable_id": "sym-8a935e86319bb11a5b2299fa7c51164e2678ad1c28ee856d2f36e47446103931",
+        "kind": "SimpleLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 12,
+        "endLine": 12,
+        "startColumn": 97,
+        "endColumn": 145
+      },
+      "evidence": "Cached cashier pending state participates in unresolved-operation global navigation/close gate."
+    }
+  ],
+  "preconditions": [
+    "A confirm or cancel DTO was saved before dispatch and remains unresolved across forced restart.",
+    "Cashier VM subsequently constructed and retained store loads valid DTO."
+  ],
+  "counterevidence": [
+    "Same-process unknown response retains checkout result and remains retryable.",
+    "User may open management pages before constructing cashier; therefore not a guaranteed application-start freeze for every role.",
+    "Underlying record remains safe on disk; deletion is not appropriate reconciliation.",
+    "Repo-wide relevant writers searched; ReviewPendingOrder could reconstruct result only after a gate that pending recovery denies."
+  ],
+  "affected_workflows": [
+    "Electronic confirmation recovery",
+    "Pending electronic cancellation recovery"
+  ],
+  "recommended_remediation": "Provide a pending-operation recovery panel or reconstruct original order context by retained identity before ordinary edit gates.",
+  "required_tests": [
+    "Fake retained confirm/cancel store plus fresh VM must expose original retry without order lookup/new checkout.",
+    "Known completed/failed/unknown server outcomes maintain exact request and owner identity; no journal deletion workaround."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:44:23.579961+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent manual source and XAML reachability challenge; no runtime interaction",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local review, not exhaustive file/function certification"
+}

@@ -1,0 +1,62 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Models/ProductTile.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:21.801215+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "8f4a9081cffc8aac8fdb7a0b762d8e20b6e4648ae052cf83a9338c9d87284e58",
+  "worktree_sha256": "8f4a9081cffc8aac8fdb7a0b762d8e20b6e4648ae052cf83a9338c9d87284e58",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-c8af34d99eaa352e653a1005d9cc0bc1b6a0168901e5c3df6fbec2be370f231a",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.Models.OfferChoice::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        8,
+        1,
+        8,
+        78
+      ],
+      "reasoning": "Legacy OfferChoice record holds product and offer DTO references for command parameters; shallow equality/copy only, not deep backend business identity.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No native behavior or source-generated command inferred.",
+      "tests_missing": "No native behavior or source-generated command inferred. NOT_EXECUTED.",
+      "verified_callers_callees": "SelectOffer"
+    },
+    {
+      "stable_id": "sym-79eb5dc5efb559e0093421b56db2ef9ce2de078feb012b81a599f7668608fbbb",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.Models.ProductTile::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        10,
+        1,
+        10,
+        93
+      ],
+      "reasoning": "Legacy ProductTile record stores product and readonly-list interface of offer choices; readonly interface does not freeze underlying collection. No image/theme/station fields or computed prices here.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Compiler record behavior counted context, not authored method.",
+      "tests_missing": "Compiler record behavior counted context, not authored method. NOT_EXECUTED.",
+      "verified_callers_callees": "RefreshVisibleProducts; ProductCatalogue binding"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,69 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Orders/CancelPendingElectronicPaymentRequest.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:06:32.319025+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "7a7b7485b4ea1de6125622683f6e75bb0865dd54337f307c73f494d4d22505e9",
+  "worktree_sha256": "7a7b7485b4ea1de6125622683f6e75bb0865dd54337f307c73f494d4d22505e9",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-011af059da141be1e3ce20e588ce287fd9c96abe772b1471db1972866d69ba53",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.CancelPendingElectronicPaymentRequest::record-generated-behavior",
+      "source_span": [
+        8,
+        8
+      ],
+      "reasoning": "CancelPendingElectronicPaymentRequest carries OrderId,Reason and claimed CashierId,without refund amount or request ID. Generated constructor accepts empty reason but Order.CancelElectronicPayment validates pending leg/reason;handler authorizes pos/cash_drawer_sale and locks order. No generated member reverses cash/stock. FIN002 mixed pending cancellation can retain immediate cash movement while cancelled sales omitted reports;record name does not guarantee no money was collected.",
+      "inputs": "OrderId,Reason,CashierId strings.",
+      "outputs": "JSON pending-claim cancellation instruction.",
+      "side_effects": "Allocation only;handler writes status/audit,not treasury reversal.",
+      "trust_boundaries": "Body CashierId SEC001 sink;reason free text can appear in ToString/audit.",
+      "database": "CancelPendingElectronicPaymentHandler35-84 locked transaction;record no SQL.",
+      "printing_ui": "Cancel is not refund;UI must not infer mixed cash leg reversed or kitchen stock returned.",
+      "performance": "Scalar copy,reason string potential large payload.",
+      "duplicates_conflicts": "Status-based replay,not request equality;different reason retry after cancellation may preserve original state.",
+      "issues_hypotheses": "Summary comment no money ever collected fails mixed-leg scenario,FIN002 retained.",
+      "tests_missing": [
+        "Mixed cash+InstaPay cancel cash conservation,confirmed blocked,empty reason and repeated same/different reason"
+      ],
+      "verified_callers_callees": [
+        "CancelPendingElectronicPaymentRequest.cs8",
+        "CancelPendingElectronicPaymentHandler.cs35-84",
+        "Order.CancelElectronicPayment",
+        "FIN002"
+      ]
+    },
+    {
+      "stable_id": "sym-07018cf01c01d64c8133c6cdab465008849fd6be0fdcc21a2706a0e069be83e6",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.CancelPendingElectronicPaymentResult::record-generated-behavior",
+      "source_span": [
+        10,
+        11
+      ],
+      "reasoning": "CancelPendingElectronicPaymentResult exposes OrderId,order Status,electronic status and WasReplayed but no money/stock movement reversal fields. All scalar strings/bool generated semantics cannot certify financial settlement or kitchen cancellation. Handler returns actual persisted status after transaction,where WasReplayed tracks prior cancelled order;it may still increment Version/save on no-op. Generated equality does not distinguish such persistence activity.",
+      "inputs": "Four cancellation output fields.",
+      "outputs": "JSON status acknowledgement.",
+      "side_effects": "No mutation by record itself.",
+      "trust_boundaries": "Server result only status,not evidence customer refunded;do not trust client-created copy.",
+      "database": "Handler result83+ follows Save/Commit;record no SQL.",
+      "printing_ui": "Cancelled UI label insufficient financial net zero,FIN002;no ticket recall acknowledgement.",
+      "performance": "Constant scalar operations.",
+      "duplicates_conflicts": "with copy statuses not revalidated;repeated response same except replay flag.",
+      "issues_hypotheses": "Result lacks actual cash reversal/inventory-reversal evidence by design.",
+      "tests_missing": [
+        "Repeated cancelled shows WasReplayed,FIN002 status versus retained cash,confirmed cannot cancel"
+      ],
+      "verified_callers_callees": [
+        "CancelPendingElectronicPaymentRequest.cs10-11",
+        "CancelPendingElectronicPaymentHandler.cs74-84",
+        "FIN002"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

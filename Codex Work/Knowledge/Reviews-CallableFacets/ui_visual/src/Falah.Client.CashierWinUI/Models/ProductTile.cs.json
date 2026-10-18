@@ -1,0 +1,183 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Models/ProductTile.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:21.597140+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-62f2463078b3fd1e46b9fbfff6e22fc8ffb2767e6a6208a1b4a64d38004dd5b8",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.ProductTile.HasImage::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        17,
+        5,
+        17,
+        50
+      ],
+      "reasoning": "HasImage checks URI nonnull only, not file existence, successful decoding or network retrieval; fallback decisions need bitmap loading failure path separately.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Broken/unreachable image native rendering not observed.",
+      "tests_missing": "Broken/unreachable image native rendering not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "ImageUri"
+    },
+    {
+      "stable_id": "sym-57b2a61c8f14f0583d991f4a88c6c64c6719d64d7c006de5d6d5de255f321c27",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.ProductTile.FallbackIcon::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        21,
+        5,
+        21,
+        99
+      ],
+      "reasoning": "Returns category icon when nonblank, otherwise plate emoji fallback; null-forgiving only satisfies compiler after whitespace test, no text sanitization or image load.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Font glyph availability and accessibility label need native test.",
+      "tests_missing": "Font glyph availability and accessibility label need native test. NOT_EXECUTED.",
+      "verified_callers_callees": "CategoryIcon; string.IsNullOrWhiteSpace"
+    },
+    {
+      "stable_id": "sym-5efea8e89821d1b10ee5d088a192a4d2b846195671d36ad3511ced54653ad89f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.ProductTile.StartingPriceDisplay::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        23,
+        5,
+        24,
+        143
+      ],
+      "reasoning": "Shows minimum cached variant price or base price, prefixes from for multiple variants; scans all variants without availability filter, uses shared CashInput format.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Server pricing authoritative; stale/unavailable min-price semantics not runtime verified.",
+      "tests_missing": "Server pricing authoritative; stale/unavailable min-price semantics not runtime verified. NOT_EXECUTED.",
+      "verified_callers_callees": "Product.Variants.Min; CashInput.Format"
+    },
+    {
+      "stable_id": "sym-0d96fb1698737fe569b5e23c2ae48ea9309414753eab8e10394fb217d36dfd73",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.ProductTile.StationLabel::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        30,
+        5,
+        35,
+        7
+      ],
+      "reasoning": "Maps Grill/Charcoal to station label, unknown/no station null hides badge. No actual print route chosen by getter; PrintRules server owns routing.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No physical printing or station dispatch tested.",
+      "tests_missing": "No physical printing or station dispatch tested. NOT_EXECUTED.",
+      "verified_callers_callees": "Product.PreparationStation"
+    }
+  ],
+  "source_git_blob_sha256": "40b45d923f33b6a9a3edf1038491ab5e407f99f2f3ed3e2c6e018dbca6375917",
+  "worktree_sha256": "30e90ebda4f5752fd379f168be17c6541753fa7988ef6b14c316ce22cc9658ac",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-0040958723188bfdd501981992bde609c0102cccbb465584364aade45239c5c8",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.OfferChoice::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        9,
+        1,
+        9,
+        78
+      ],
+      "reasoning": "OfferChoice positional record stores Product/Offer DTO references for selection; generated value equality compares nested references/value semantics, not deep collection content, and ToString can include nested DTO names. No credentials.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Record immutability is shallow; DTO collections can remain mutable.",
+      "tests_missing": "Record immutability is shallow; DTO collections can remain mutable. NOT_EXECUTED.",
+      "verified_callers_callees": "SelectOfferCommand"
+    },
+    {
+      "stable_id": "sym-764c13b14fb2896a414334c9182e9b17eab8750d200f688e04928a7b4f56657d",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.ProductTile::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        11,
+        1,
+        36,
+        2
+      ],
+      "reasoning": "ProductTile positional record carries product, offer list, optional URI/icon, best-seller flag. Generated copy/equality are shallow for lists/DTOs; computed visual getters derive snapshot data and do not mutate backend.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No automatic observable notification when nested mutable DTO changes; fresh tile creation usual path.",
+      "tests_missing": "No automatic observable notification when nested mutable DTO changes; fresh tile creation usual path. NOT_EXECUTED.",
+      "verified_callers_callees": "VisibleProducts; ProductCatalogueView"
+    },
+    {
+      "stable_id": "sym-efb903fbbd47a12f62c5d0a80e085d338780b113d44a82271925167b9c7a6b77",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.CategoryTile._isSelected::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        47,
+        39,
+        47,
+        50
+      ],
+      "reasoning": "CategoryTile observable IsSelected controls selected styling; constructor stores ID/name/icon/count and owning category command must update flags coherently. No server permission or query generated.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Single selection exclusivity enforced by owner, not bool setter.",
+      "tests_missing": "Single selection exclusivity enforced by owner, not bool setter. NOT_EXECUTED.",
+      "verified_callers_callees": "SelectCategoryCommand; CategoryTile.IsSelected"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

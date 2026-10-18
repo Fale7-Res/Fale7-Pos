@@ -1,0 +1,62 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:02:07.354322+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-59e59f0ff62e5a1988639b88bfa34f0ca68078a135369f7b4a3af4e997a8001d",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.CashierView.ViewModel::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        21,
+        5,
+        21,
+        76
+      ],
+      "reasoning": "Returns current DataContext as CashierViewModel or null; helper used by shortcut routing, no state mutation or cache.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Typed null guard protects absent VM, not modal focus or command policy.",
+      "tests_missing": "Typed null guard protects absent VM, not modal focus or command policy. NOT_EXECUTED.",
+      "verified_callers_callees": "CashierView keyboard handlers"
+    },
+    {
+      "stable_id": "sym-e3ba82e2395e902c194dba20496ed03327320cebb7286781ade95953977bd530",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.CashierView.IsWorkspaceInteractive::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        27,
+        5,
+        28,
+        126
+      ],
+      "reasoning": "Workspace interactive requires editable operation and no checkout result, variant picker or checkout modal. It does not explicitly exclude refund, expense, shift, delivery/pickup overlays. Shortcut handlers rely this helper, UI010 source evidence; native key routing unobserved.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Existing parent challenge owns UI010 qualification, no screenshot or event-routing claim.",
+      "tests_missing": "Existing parent challenge owns UI010 qualification, no screenshot or event-routing claim. NOT_EXECUTED.",
+      "verified_callers_callees": "Handle shortcut methods; CashierViewModel.CanEditOperation"
+    }
+  ],
+  "source_git_blob_sha256": "b67a7964a83ddd519f5e605e9dd437f8d65838d5435ee0c1d521cc5d017cfb08",
+  "worktree_sha256": "e5de23e3dbcf7056ebaac0efbd4a65cdb7755e0fb48b3e58e46461eebac3f7d0",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,821 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.AddSupplierRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.AddSupplierRequest::record-generated-behavior",
+      "startLine": 5,
+      "startColumn": 1,
+      "endLine": 7,
+      "endColumn": 83,
+      "origin_declaration_stable_id": "sym-b09f65bac92fc2cb52528c4f3466572876c64036452ab19893d6be8fd1ae1ba2",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Phone",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Address",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Category",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Notes",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-686827f03c3495a93d6bc151468f40aa74116d3342c8193a5438c669bc5e485e",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.AddSupplierResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.AddSupplierResult::record-generated-behavior",
+      "startLine": 9,
+      "startColumn": 1,
+      "endLine": 9,
+      "endColumn": 77,
+      "origin_declaration_stable_id": "sym-656bc77feda5d7c879763566bd006349ded4eb246533721f63b0296a122b1a4f",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "SupplierId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-61c9d1abf351ab33ec67a3f2a427bf8768c05f298dda4a1744afc4c9dc30f0b6",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.SupplierDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.SupplierDto::record-generated-behavior",
+      "startLine": 11,
+      "startColumn": 1,
+      "endLine": 13,
+      "endColumn": 90,
+      "origin_declaration_stable_id": "sym-e368e9d72f224c692b821b5c37a46e2e3be5705460cdc39920a2ec354da663c6",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Phone",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Address",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Category",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Active",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "Notes",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalInvoicedPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPaidPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "OutstandingBalancePiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-f29f733c6c3e2900e105c6ce79085e379b3b941d4eb8e485cef2635274e2806a",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PurchaseLineRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PurchaseLineRequest::record-generated-behavior",
+      "startLine": 15,
+      "startColumn": 1,
+      "endLine": 15,
+      "endColumn": 114,
+      "origin_declaration_stable_id": "sym-6342b1763ed9cb1f348ae14507f86bf34205ca296e74a27002096f2597f3eb22",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "InventoryItemId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "QuantityMilliUnits",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "UnitCostPiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-b23a29150e20d2eccdfb3d8ebc8251d96836307f3d75c6c0c1f61455e255d977",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.ReceivePurchaseRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.ReceivePurchaseRequest::record-generated-behavior",
+      "startLine": 23,
+      "startColumn": 1,
+      "endLine": 29,
+      "endColumn": 31,
+      "origin_declaration_stable_id": "sym-9c877caa046355564e77caa5f68747f7bd0966b2ffe83dccbc483acbad136c4b",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SupplierId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "InvoiceNumber",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Lines",
+          "type": "IReadOnlyList<PurchaseLineRequest>",
+          "modifiers": ""
+        },
+        {
+          "name": "PaidPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentMethod",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Notes",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "DueDate",
+          "type": "DateOnly?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-a8da2ed0926e4cea6229ab8bbcec5e3ae9d9758c5f586304cfba973d1887791f",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.SetPurchaseDueDateRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.SetPurchaseDueDateRequest::record-generated-behavior",
+      "startLine": 34,
+      "startColumn": 1,
+      "endLine": 35,
+      "endColumn": 81,
+      "origin_declaration_stable_id": "sym-84ba60f29c1934bebd2d73da7fb5f7987b53da388b1c803e9a27cbe35e5c8901",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PurchaseId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DueDate",
+          "type": "DateOnly?",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-a93fe1c8a6bd82b80a41367ea5a38bd8551661560517c62e8089250a70e9b850",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PayPurchaseRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PayPurchaseRequest::record-generated-behavior",
+      "startLine": 40,
+      "startColumn": 1,
+      "endLine": 42,
+      "endColumn": 83,
+      "origin_declaration_stable_id": "sym-4fb8113c6c5dd2bb7cb80879711e086e5ab0e31d3c3ccce9a5b89b089c5fab24",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PurchaseId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentMethod",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-872cabd882eb0251a0b126e0dc8f6267b78728bfea788537aa7770bc575e3c87",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PurchaseLineDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PurchaseLineDto::record-generated-behavior",
+      "startLine": 44,
+      "startColumn": 1,
+      "endLine": 44,
+      "endColumn": 134,
+      "origin_declaration_stable_id": "sym-25c3dd8b9a6591721ba490f07f12433d90c3371381dcb3a9f295e70411adbb33",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "InventoryItemId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "QuantityMilliUnits",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "UnitCostPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "LineTotalPiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-030d33410194dc8085a279c67b3f53edb8095ceb72028dd41b748b427c96b450",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PurchasePaymentDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PurchasePaymentDto::record-generated-behavior",
+      "startLine": 46,
+      "startColumn": 1,
+      "endLine": 47,
+      "endColumn": 111,
+      "origin_declaration_stable_id": "sym-103eeeecd47a59471b628d34af64fd48b709c47f60d8f6f11ae619d5973860d1",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ApprovedBy",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-810b2a939dc9bb74fbe9f81101cd4f4f0e2d0175b9394e6e153254f32769efcf",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PurchaseDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PurchaseDto::record-generated-behavior",
+      "startLine": 49,
+      "startColumn": 1,
+      "endLine": 54,
+      "endColumn": 29,
+      "origin_declaration_stable_id": "sym-5546b082d5f5b320eccfdd2a0225ad1142d17c126374177a256ec688acd9baf7",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SupplierId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "InvoiceNumber",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Lines",
+          "type": "IReadOnlyList<PurchaseLineDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "SubtotalPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PaidPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "RemainingAmountPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentMethod",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentAccountId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentStatus",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ReceivedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "Payments",
+          "type": "IReadOnlyList<PurchasePaymentDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "DueDate",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-1fc98e2b1abf4f17a2f60e2b20b049f4cc1d27c3af76aa75aa99f77449294692",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PayableDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PayableDto::record-generated-behavior",
+      "startLine": 59,
+      "startColumn": 1,
+      "endLine": 62,
+      "endColumn": 73,
+      "origin_declaration_stable_id": "sym-09a70d054807ff9460d0c93ef78811ed0f06c47df96f2df42436635ca7bc90e7",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "PurchaseId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SupplierId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SupplierName",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "InvoiceNumber",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "RemainingPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "ReceivedOnBusinessDate",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DueDate",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "AgeInDays",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "DaysOverdue",
+          "type": "int?",
+          "modifiers": ""
+        },
+        {
+          "name": "Bucket",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "BucketLabel",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-b621622b91fb95271f86e391f204e3199e29032ed3de7c6460a760d04bafb17c",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PayablesBucketDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PayablesBucketDto::record-generated-behavior",
+      "startLine": 64,
+      "startColumn": 1,
+      "endLine": 64,
+      "endColumn": 107,
+      "origin_declaration_stable_id": "sym-55f485ba0f155ead59852e79fea40f05fee89a4ac4a7b4750a72dd1feb98ad94",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Bucket",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Label",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "InvoiceCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-ef57c035cbe928be7cf77f6b4a47304a17cace3dcc54ae4af1bc0f7b1def7ab6",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.PayablesAgingDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.PayablesAgingDto::record-generated-behavior",
+      "startLine": 68,
+      "startColumn": 1,
+      "endLine": 76,
+      "endColumn": 41,
+      "origin_declaration_stable_id": "sym-13708f441bc84580a2fae1334cef3e9c0a5991e3aa24bc6ec4c16239550ec96d",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "AsOfBusinessDate",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalOutstandingPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "OverduePiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "OverdueInvoiceCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "UnscheduledPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "UnscheduledInvoiceCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "Buckets",
+          "type": "IReadOnlyList<PayablesBucketDto>",
+          "modifiers": ""
+        },
+        {
+          "name": "Invoices",
+          "type": "IReadOnlyList<PayableDto>",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-cfe89d264bc16f6222ef350920719b7c13062855e5e3e292ff04de4c907a7822",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Purchasing.SupplierLedgerEntryDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Purchasing.SupplierLedgerEntryDto::record-generated-behavior",
+      "startLine": 78,
+      "startColumn": 1,
+      "endLine": 80,
+      "endColumn": 87,
+      "origin_declaration_stable_id": "sym-fd43f9125ee75942a506ae7f9ec543de439afd2e4c7b73e147a5d1f021e29ec8",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "SupplierId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Type",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DebitPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "CreditPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "PurchaseId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedBy",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-e7643b72c17321e5c4a9422d174740e0f2ef40262b3cc90e7e4d0c7f93187d11",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

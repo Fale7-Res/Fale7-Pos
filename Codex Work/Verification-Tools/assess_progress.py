@@ -19,10 +19,14 @@ for path in tracked:
  source_hashes[path]={'worktree':digest(raw),'git_blob':digest(blob)}
 proc.stdin.close();proc.wait()
 scopes={};reviewed=set();partial=set();reportpaths=[];receipt_errors=[]
-for name,key in [('financial','records'),('ui','files'),('printing','files')]:
+streams=[('financial','records'),('ui','files'),('printing','files')]
+if (W/'Sub-Agents/Results/parent-ledger.json').exists():streams.append(('parent','records'))
+for name,key in streams:
  j=load(f'Sub-Agents/Results/{name}-ledger.json');records=j[key]
  if name=='financial':records=records+j.get('remaining',[])
- counts=collections.Counter(r['status'] for r in records);scopes[name]={'scope':len(records),'counts':dict(counts)}
+ counts=collections.Counter(r['status'] for r in records)
+ if name=='parent':counts['NOT_ANALYZED']=j['remaining_count']
+ scopes[name]={'scope':j.get('scope_count',len(records)),'counts':dict(counts)}
  complete={'REVIEWED_STATIC_COMPLETE_FILE','REVIEWED_SOURCE','STATIC_FILE_REVIEWED'}
  for row in records:
   p=row['path'];st=row['status'];report=O/'File-Reports'/Path(p+'.md')
@@ -61,9 +65,20 @@ snapshot={'at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'sou
  'review_limits':'Full-file static review receipts verified for hashes/report presence; not all report reasoning independently re-audited. Full function review not implied.',
  'roslyn_declarations':len(declarations),'roslyn_callables':sum(bool(d.get('isCallable')) for d in declarations.values()),'semantic_project_statuses':dict(collections.Counter(p['status'] for p in semantic)),
  'ui_callable_reasoning_receipts':len(mapped),'ui_callable_receipt_errors':function_errors,'ui_callable_ledger_counts':ui['counts'],
- 'all_scope_genuinely_reviewed_function_total':'UNKNOWN: financial has no precise per-callable reasoning ledger; printing separate endpoint reasoning; UI uses name-heading mapping, not independent complete function validation.',
+ 'all_scope_genuinely_reviewed_function_total':'UNKNOWN: exact stable author reasoning receipts now exist in Knowledge/coverage-index.json; schema validation alone does not certify independent reasoning depth. Legacy UI heading counts remain separate.',
  'independently_corroborated_saved_finding_ids':sorted(set(ids)),'independently_corroborated_saved_finding_count':len(set(ids)),
  'runtime_reproduced_findings_during_audit':0,'canonical_finding_records':{'financial':len(financial),'printing_workflow':len(printing),'ui':len(uif)},
  'finding_statuses':{'financial':dict(collections.Counter(f.get('status','UNSPECIFIED') for f in financial)),'ui':dict(collections.Counter(f.get('status','UNSPECIFIED') for f in uif))},'deliverables':deliverables}
-out=O/(sys.argv[1] if len(sys.argv)>1 else 'phase-progress-evidence.json');out.write_text(json.dumps(snapshot,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
+knowledge=load('Knowledge/coverage-index.json') if (W/'Knowledge/coverage-index.json').exists() else None
+if knowledge:
+ snapshot['stable_symbol_coverage_snapshot']={k:knowledge[k] for k in ('at_utc','reviewers','unique_analyzed_callable_receipts','indexed_callables_without_stable_reasoning_receipt','review_depth_certified_count','errors')}
+snapshot['runtime_reproduction_scope']='No live application/DB exploit reproduced. Separate SEC001 in-memory real MinimalAPI harness executed10 asserted cases; not a privileged mutation or full end-to-end exploit.'
+canonical=load('Deep-Audit/MASTER_FINDINGS.json')
+snapshot['canonical_current_registry']={'records':len(canonical['findings']),
+ 'saved_independent_source_challenge_ids':[r['id'] for r in canonical['findings'] if r['independent_verification']['status']=='SAVED_STATIC_CORROBORATION'],
+ 'high_or_critical_without_saved_independent_challenge':[r['id'] for r in canonical['findings'] if str(r['severity']).startswith(('HIGH','CRITICAL')) and r['independent_verification']['status']!='SAVED_STATIC_CORROBORATION'],
+ 'qualification':'Read exact independent dispositions/counterevidence. Legacy16 count above is historical input, not current aggregate. Source challenge is not live exploit or full phase completion.'}
+if knowledge:snapshot['stable_symbol_coverage_snapshot']['callable_author_receipt_method_counts']=knowledge.get('callable_author_receipt_method_counts',{})
+from knowledge_store import atomic_json
+out=O/(sys.argv[1] if len(sys.argv)>1 else 'phase-progress-evidence.json');atomic_json(out,snapshot)
 print(json.dumps({k:v for k,v in snapshot.items() if k not in ('review_receipt_paths','deliverables','semantic_project_statuses')},ensure_ascii=False))

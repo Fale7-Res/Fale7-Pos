@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Views/AppHeaderView.xaml.cs",
+  "source_git_blob_sha256": "86f266128f91ec8c0e00d6d21f2804068beba04d387b643c7d280d8e8a8a75ba",
+  "worktree_sha256": "86f266128f91ec8c0e00d6d21f2804068beba04d387b643c7d280d8e8a8a75ba",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:55:23.444347+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "AppHeaderView legacy exact constructor source inspected.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Views/AppHeaderView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-6c915a14bc0d4f85396c07b88f6d732a216b7c8fe77707e9311d1d913adba45b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.Views.AppHeaderView.AppHeaderView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        7,
+        5,
+        7,
+        53
+      ],
+      "reasoning": "This AppHeaderView constructor only invokes InitializeComponent to create WPF XAML tree; bindings/commands and templates contain remaining visual behavior, not executable code-behind.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No native WPF layout or binding execution; prior XAML source report retained.",
+      "tests_missing": "No native WPF layout or binding execution; prior XAML source report retained. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

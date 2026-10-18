@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml.cs",
+  "source_git_blob_sha256": "99c907265651a0e40c5ae365c1724fa219ffb88474bda21eec1b44748d7485ae",
+  "worktree_sha256": "99c907265651a0e40c5ae365c1724fa219ffb88474bda21eec1b44748d7485ae",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:39:16.832910+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "CallCenter view event/constructor exact-body review with source-only state, command and lifetime reasoning.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-9a1bbce67aaa6117655baca464632626a5ac26749120d40dadf9a36e650d5f6c",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Views.CallCenterView.CallCenterView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        7,
+        5,
+        10,
+        6
+      ],
+      "reasoning": "Only builds composite CallCenter XAML view; main view model and child views own loading, cart and checkout operations.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Actual startup/menu rendering remains native not observed.",
+      "tests_missing": "Actual startup/menu rendering remains native not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

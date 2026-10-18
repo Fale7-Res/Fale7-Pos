@@ -1,0 +1,138 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-5crp-9r3c-p9vr",
+  "retrieved_at_utc": "2026-10-17T01:52:53.063976+00:00",
+  "http_status": 200,
+  "headers": {
+    "Date": "Sat, 17 Oct 2026 01:52:54 GMT",
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": "W/\"7ff42faef796fbaadca78e495efed636f9fc52f179fab4cf0ca5f7daf93a23ed\"",
+    "Last-Modified": "Wed, 03 Jan 2024 20:06:37 GMT"
+  },
+  "raw_body_utf8": "{\"ghsa_id\":\"GHSA-5crp-9r3c-p9vr\",\"cve_id\":\"CVE-2024-21907\",\"url\":\"https://api.github.com/advisories/GHSA-5crp-9r3c-p9vr\",\"html_url\":\"https://github.com/advisories/GHSA-5crp-9r3c-p9vr\",\"summary\":\"Improper Handling of Exceptional Conditions in Newtonsoft.Json\",\"description\":\"Newtonsoft.Json prior to version 13.0.1 is vulnerable to Insecure Defaults due to improper handling of expressions with high nesting level that lead to StackOverFlow exception or high CPU and RAM usage. Exploiting this vulnerability results in Denial Of Service (DoS). \\n\\nThe serialization and deserialization path have different properties regarding the issue.\\n\\nDeserializing methods (like `JsonConvert.DeserializeObject`) will process the input that results in burning the CPU, allocating memory, and consuming a thread of execution. Quite high nesting level (>10kk, or 9.5MB of `{a:{a:{...` input) is needed to achieve the latency over 10 seconds, depending on the hardware.\\n\\nSerializing methods (like `JsonConvert.Serialize` or `JObject.ToString`) will throw StackOverFlow exception with the nesting level of around 20k.\\n\\nTo mitigate the issue one either need to update Newtonsoft.Json to 13.0.1 or set `MaxDepth` parameter in the `JsonSerializerSettings`. This can be done globally with the following statement. After that the parsing of the nested input will fail fast with `Newtonsoft.Json.JsonReaderException`:\\n\\n``` \\nJsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 128 };\\n```\\n\\nRepro code:\\n```\\n//Create a string representation of an highly nested object (JSON serialized)\\nint nRep = 25000;\\nstring json = string.Concat(Enumerable.Repeat(\\\"{a:\\\", nRep)) + \\\"1\\\" +\\n string.Concat(Enumerable.Repeat(\\\"}\\\", nRep));\\n\\n//Parse this object (leads to high CPU/RAM consumption)\\nvar parsedJson = JsonConvert.DeserializeObject(json);\\n\\n// Methods below all throw stack overflow with nRep around 20k and higher\\n// string a = parsedJson.ToString();\\n// string b = JsonConvert.SerializeObject(parsedJson);\\n```\\n\\n### Additional affected product and version information\\n**The original statement about the problem only affecting IIS applications is misleading.** Any application is affected, however the IIS has a behavior that stops restarting the instance after some time resulting in a harder-to-fix DoS.**\",\"type\":\"reviewed\",\"severity\":\"high\",\"repository_advisory_url\":null,\"source_code_location\":\"https://github.com/JamesNK/Newtonsoft.Json\",\"identifiers\":[{\"value\":\"GHSA-5crp-9r3c-p9vr\",\"type\":\"GHSA\"},{\"value\":\"CVE-2024-21907\",\"type\":\"CVE\"}],\"references\":[\"https://github.com/JamesNK/Newtonsoft.Json/issues/2457\",\"https://github.com/JamesNK/Newtonsoft.Json/pull/2462\",\"https://github.com/JamesNK/Newtonsoft.Json/commit/7e77bbe1beccceac4fc7b174b53abfefac278b66\",\"https://alephsecurity.com/2018/10/22/StackOverflowException/\",\"https://alephsecurity.com/vulns/aleph-2018004\",\"https://security.snyk.io/vuln/SNYK-DOTNET-NEWTONSOFTJSON-2774678\",\"https://github.com/advisories/GHSA-5crp-9r3c-p9vr\"],\"published_at\":\"2022-06-22T15:08:47Z\",\"updated_at\":\"2024-01-03T20:06:37Z\",\"github_reviewed_at\":\"2022-06-22T15:08:47Z\",\"nvd_published_at\":null,\"withdrawn_at\":null,\"vulnerabilities\":[{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Newtonsoft.Json\"},\"vulnerable_version_range\":\"< 13.0.1\",\"first_patched_version\":\"13.0.1\",\"vulnerable_functions\":[]}],\"cvss_severities\":{\"cvss_v3\":{\"vector_string\":\"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H\",\"score\":7.5},\"cvss_v4\":{\"vector_string\":null,\"score\":0.0}},\"cwes\":[{\"cwe_id\":\"CWE-755\",\"name\":\"Improper Handling of Exceptional Conditions\"}],\"credits\":[{\"user\":{\"login\":\"ezsilmar\",\"id\":5860161,\"node_id\":\"MDQ6VXNlcjU4NjAxNjE=\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/5860161?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/ezsilmar\",\"html_url\":\"https://github.com/ezsilmar\",\"followers_url\":\"https://api.github.com/users/ezsilmar/followers\",\"following_url\":\"https://api.github.com/users/ezsilmar/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/ezsilmar/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/ezsilmar/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/ezsilmar/subscriptions\",\"organizations_url\":\"https://api.github.com/users/ezsilmar/orgs\",\"repos_url\":\"https://api.github.com/users/ezsilmar/repos\",\"events_url\":\"https://api.github.com/users/ezsilmar/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/ezsilmar/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"analyst\"},{\"user\":{\"login\":\"JamesNK\",\"id\":303201,\"node_id\":\"MDQ6VXNlcjMwMzIwMQ==\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/303201?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/JamesNK\",\"html_url\":\"https://github.com/JamesNK\",\"followers_url\":\"https://api.github.com/users/JamesNK/followers\",\"following_url\":\"https://api.github.com/users/JamesNK/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/JamesNK/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/JamesNK/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/JamesNK/subscriptions\",\"organizations_url\":\"https://api.github.com/users/JamesNK/orgs\",\"repos_url\":\"https://api.github.com/users/JamesNK/repos\",\"events_url\":\"https://api.github.com/users/JamesNK/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/JamesNK/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"analyst\"}],\"comments\":0,\"cvss\":{\"vector_string\":\"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H\",\"score\":7.5},\"epss\":{\"percentage\":0.32908,\"percentile\":0.98139}}",
+  "raw_bytes_sha256": "7fc1bf93d62b277dc0d048ddac0f8ff7b9aa0a5f25bac2dde5b41508b8c3c1a0",
+  "transport_bytes_sha256": "7fc1bf93d62b277dc0d048ddac0f8ff7b9aa0a5f25bac2dde5b41508b8c3c1a0",
+  "decompression": "none",
+  "data": {
+    "ghsa_id": "GHSA-5crp-9r3c-p9vr",
+    "cve_id": "CVE-2024-21907",
+    "url": "https://api.github.com/advisories/GHSA-5crp-9r3c-p9vr",
+    "html_url": "https://github.com/advisories/GHSA-5crp-9r3c-p9vr",
+    "summary": "Improper Handling of Exceptional Conditions in Newtonsoft.Json",
+    "description": "Newtonsoft.Json prior to version 13.0.1 is vulnerable to Insecure Defaults due to improper handling of expressions with high nesting level that lead to StackOverFlow exception or high CPU and RAM usage. Exploiting this vulnerability results in Denial Of Service (DoS). \n\nThe serialization and deserialization path have different properties regarding the issue.\n\nDeserializing methods (like `JsonConvert.DeserializeObject`) will process the input that results in burning the CPU, allocating memory, and consuming a thread of execution. Quite high nesting level (>10kk, or 9.5MB of `{a:{a:{...` input) is needed to achieve the latency over 10 seconds, depending on the hardware.\n\nSerializing methods (like `JsonConvert.Serialize` or `JObject.ToString`) will throw StackOverFlow exception with the nesting level of around 20k.\n\nTo mitigate the issue one either need to update Newtonsoft.Json to 13.0.1 or set `MaxDepth` parameter in the `JsonSerializerSettings`. This can be done globally with the following statement. After that the parsing of the nested input will fail fast with `Newtonsoft.Json.JsonReaderException`:\n\n``` \nJsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 128 };\n```\n\nRepro code:\n```\n//Create a string representation of an highly nested object (JSON serialized)\nint nRep = 25000;\nstring json = string.Concat(Enumerable.Repeat(\"{a:\", nRep)) + \"1\" +\n string.Concat(Enumerable.Repeat(\"}\", nRep));\n\n//Parse this object (leads to high CPU/RAM consumption)\nvar parsedJson = JsonConvert.DeserializeObject(json);\n\n// Methods below all throw stack overflow with nRep around 20k and higher\n// string a = parsedJson.ToString();\n// string b = JsonConvert.SerializeObject(parsedJson);\n```\n\n### Additional affected product and version information\n**The original statement about the problem only affecting IIS applications is misleading.** Any application is affected, however the IIS has a behavior that stops restarting the instance after some time resulting in a harder-to-fix DoS.**",
+    "type": "reviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "https://github.com/JamesNK/Newtonsoft.Json",
+    "identifiers": [
+      {
+        "value": "GHSA-5crp-9r3c-p9vr",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2024-21907",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/JamesNK/Newtonsoft.Json/issues/2457",
+      "https://github.com/JamesNK/Newtonsoft.Json/pull/2462",
+      "https://github.com/JamesNK/Newtonsoft.Json/commit/7e77bbe1beccceac4fc7b174b53abfefac278b66",
+      "https://alephsecurity.com/2018/10/22/StackOverflowException/",
+      "https://alephsecurity.com/vulns/aleph-2018004",
+      "https://security.snyk.io/vuln/SNYK-DOTNET-NEWTONSOFTJSON-2774678",
+      "https://github.com/advisories/GHSA-5crp-9r3c-p9vr"
+    ],
+    "published_at": "2022-06-22T15:08:47Z",
+    "updated_at": "2024-01-03T20:06:37Z",
+    "github_reviewed_at": "2022-06-22T15:08:47Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Newtonsoft.Json"
+        },
+        "vulnerable_version_range": "< 13.0.1",
+        "first_patched_version": "13.0.1",
+        "vulnerable_functions": []
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "score": 7.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-755",
+        "name": "Improper Handling of Exceptional Conditions"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "ezsilmar",
+          "id": 5860161,
+          "node_id": "MDQ6VXNlcjU4NjAxNjE=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/5860161?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/ezsilmar",
+          "html_url": "https://github.com/ezsilmar",
+          "followers_url": "https://api.github.com/users/ezsilmar/followers",
+          "following_url": "https://api.github.com/users/ezsilmar/following{/other_user}",
+          "gists_url": "https://api.github.com/users/ezsilmar/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/ezsilmar/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/ezsilmar/subscriptions",
+          "organizations_url": "https://api.github.com/users/ezsilmar/orgs",
+          "repos_url": "https://api.github.com/users/ezsilmar/repos",
+          "events_url": "https://api.github.com/users/ezsilmar/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/ezsilmar/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "analyst"
+      },
+      {
+        "user": {
+          "login": "JamesNK",
+          "id": 303201,
+          "node_id": "MDQ6VXNlcjMwMzIwMQ==",
+          "avatar_url": "https://avatars.githubusercontent.com/u/303201?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/JamesNK",
+          "html_url": "https://github.com/JamesNK",
+          "followers_url": "https://api.github.com/users/JamesNK/followers",
+          "following_url": "https://api.github.com/users/JamesNK/following{/other_user}",
+          "gists_url": "https://api.github.com/users/JamesNK/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/JamesNK/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/JamesNK/subscriptions",
+          "organizations_url": "https://api.github.com/users/JamesNK/orgs",
+          "repos_url": "https://api.github.com/users/JamesNK/repos",
+          "events_url": "https://api.github.com/users/JamesNK/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/JamesNK/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "analyst"
+      }
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "score": 7.5
+    },
+    "epss": {
+      "percentage": 0.32908,
+      "percentile": 0.98139
+    }
+  },
+  "status": "RETRIEVED"
+}

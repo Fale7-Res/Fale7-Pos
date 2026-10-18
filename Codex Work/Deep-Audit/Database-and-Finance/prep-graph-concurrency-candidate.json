@@ -1,0 +1,91 @@
+{
+  "candidate_id": "FIN-CAND-PREPGRAPH-001",
+  "at_utc": "2026-10-18T03:39:19.972216+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "SOURCE_SUPPORTED_MEDIUM_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "lines": [
+        25,
+        49
+      ],
+      "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+      "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "symbols": [
+        "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "lines": [
+        51,
+        73
+      ],
+      "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+      "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "symbols": [
+        "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6",
+        "sym-9bbeda666b454a98bba773a7571be440f283aef223ec8589f7f50f6b3233c0c2",
+        "sym-122f663756548959845d86027e990f3e9f0b2e8218b55e1707a64f80c1ab6627"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "lines": [
+        84,
+        109
+      ],
+      "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+      "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "symbols": [
+        "sym-16929df3b18ace24b5400bf287a8bfe8a53af5db705863f2233c1eed03842bfd"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "lines": [
+        28,
+        45
+      ],
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "symbols": [
+        "sym-b43d69b3394282fe5cf2c2b2512f84b5f0685bdf7ccf6d33e5df792fa5aa1ceb"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "lines": [
+        97,
+        127
+      ],
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "symbols": [
+        "sym-68c38ec3666ab8a76cc483782c9d631d417de98e152305dea4d4c0b2b2259e38"
+      ]
+    }
+  ],
+  "preconditions": "Two authorized concurrent menu_manage/valid-approval requests saving different recipe IDs and different output ingredients A/B; positive amounts; existing valid ingredient IDs; no other graph edges.",
+  "schedule": [
+    "T1 validates A produces input B; reads other active prep recipes before transaction49 and sees no B->A edge.",
+    "T2 validates B produces input A; reads same precommit graph and sees no A->B edge.",
+    "Both begin separate transactions after validation; write distinct recipes/lines, commit. Neither validator reruns under transaction or obtains shared graph-admission lock."
+  ],
+  "predicted_effect": "Stored active structural cycle A->B->A despite documented save rejection policy; dependent prep/dish costs become incomplete/unknown rather than valid margins. Actual SQL dual-commit not executed.",
+  "counterevidence": [
+    "Domain costing path-local resolving set prevents stack overflow and returns unknown; not infinite recursion/process termination.",
+    "Sequential second save sees first edge and rejects, so ordinary sequential test does not reproduce race.",
+    "Whole-line replacement atomicity prevents partial individual recipe update; does not serialize two distinct graph predicates.",
+    "No actual ledger/stock movement created by SavePrepRecipe; accounting effect is cost-coverage/report reliability rather than proven money loss."
+  ],
+  "recommendation": "Coordinate graph updates using transaction-scoped graph revision/locking and revalidate serializably with bounded retry; consistent multi-process semantics. Retain unknown-cost and recursion defenses. No implementation.",
+  "regression_tests": [
+    "Barrier before both graph reads/transaction; opposite-edge saves cannot both commit.",
+    "Independent acyclic concurrent saves remain possible as policy allows.",
+    "Pure circular-cost fixture retains Unknown and finite termination; report must not display full profit."
+  ],
+  "independent_review": "PENDING; root is originator",
+  "runtime": "NOT_EXECUTED"
+}

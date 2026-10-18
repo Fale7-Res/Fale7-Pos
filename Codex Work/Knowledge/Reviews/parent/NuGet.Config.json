@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "NuGet.Config",
+  "source_git_blob_sha256": "128e0bcd43789971ed21ac093b243c17676ee817ff04d749df358706e890d3bb",
+  "worktree_sha256": "128e0bcd43789971ed21ac093b243c17676ee817ff04d749df358706e890d3bb",
+  "reviewer": "parent",
+  "updated_at_utc": "2026-10-17T01:47:16.825287+00:00",
+  "responsibilities": "Repository restore configuration: global package cache path and NuGet package source.",
+  "symbols": [],
+  "callables": "NOT_APPLICABLE: no source callable declarations in this document/configuration",
+  "non_callable_analysis": {
+    "role": "Repository restore configuration: global package cache path and NuGet package source.",
+    "reasoning": "All9lines parsed as XML/read. globalPackagesFolder is an absolute E-drive path, so a fresh C-drive checkout depends on that drive or an explicit process/build override. The nuget.org v3 source is HTTPS, with no credential literal. There is no clear element, source mapping, trusted signer requirement or locked-restore configuration here; inherited machine/user settings therefore require separate inspection before claiming a single trusted source. Presence of a source does not establish advisory availability or package safety.",
+    "relationships": [
+      "12 tracked csproj PackageReference declarations",
+      "Existing obj/project.assets.json inventory",
+      "Historical Release restore used a local packages override"
+    ],
+    "tests": "Safe XML parse and existing restore metadata read. No restore/install/network feed execution performed for this file review.",
+    "recommendation": "Propose portable cache configuration and reproducible lock/source policy after full dependency compatibility assessment. Do not upgrade packages or modify config during audit.",
+    "risks": "Portability/permissions and dependency provenance risk; no app business rule or DB/UI/printing action directly implemented."
+  },
+  "reviewed_line_spans": [
+    [
+      1,
+      9
+    ]
+  ],
+  "status": "REVIEWED_STATIC_COMPLETE_FILE",
+  "scope_limit": "Full manual file read and specific claim reconciliation; no runtime acceptance inferred",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,35 @@
+{
+  "at_utc": "2026-10-17T18:34:06.087939+00:00",
+  "reviewer": "root",
+  "classification": "REJECTED_BYPASS_HYPOTHESIS_UNDER_DOCUMENTED_PERMISSION_OR_APPROVAL_POLICY",
+  "evidence": [
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "baseline_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0"
+    },
+    {
+      "path": "src/Falah.Application/Backup/BackupRequests.cs",
+      "baseline_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "worktree_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+      "baseline_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+      "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+      "baseline_sha256": "d35b9622b2d01aa0d96c9fa2bb6c97e42d89a6d3cdbb01acb3f5ebbc6fc2de69",
+      "worktree_sha256": "df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1"
+    }
+  ],
+  "reasoning": [
+    "AuthorizeCommand returns immediately for active holder of permission/all; requireApproval=true enables approval fallback when actor lacks permission. Flag name alone does not establish unconditional second-person approval policy.",
+    "RestoreBackupRequest documentation explicitly says permission-or-approval authorization. Mandatory new controls are reason, literal confirmation and zero-active-operations check.",
+    "ValidateApproval is explicitly separate ALWAYS-approval primitive and comp handler uses it; direct permission alternative is intentional generic policy rather than hidden role bypass."
+  ],
+  "remaining_candidate": "Delegated actor who passes outer restore approval but lacks backup_manage can fail mandatory safety CreateBackup.HandleAsync actor-only authorization. Availability/contract inconsistency, not permission escalation; source-only candidate not yet independently challenged or promoted.",
+  "tests": "No approval/account/SQL operation executed. Future fake-policy tests should distinguish documented alternatives from operations requiring unconditional validation.",
+  "limits": "Owner may request stronger two-person restore policy later; that would be explicit requirement change, not proof current permission-holder is unauthorized."
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+  "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+  "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T03:31:14.094823+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW_WITH_CALLER_LIMITS",
+  "evidence": "Manual complete source reads, individual methods/lambda reasoning and cross-file active-state comparison.",
+  "symbols": [
+    {
+      "stable_id": "sym-5302fe52cf38bc22dfd3b6bc6171ef7fcf6692e90c6e1e1d0e468662d1ead0bf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.BusinessDay.BusinessDayGate.RequireOpenAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+      "span": [
+        14,
+        5,
+        15,
+        122
+      ],
+      "reasoning": "Requires a nonnull active-day ID from TryGetActiveAsync or throws. Opens no transaction and takes no lock, so returned day ID is a snapshot rather than durable write-admission lease.",
+      "inputs": "Arguments/captured input facts declared in exact source span",
+      "outputs": "Declared domain record/result, predicate, nullable ID or exception according to explicit reasoning",
+      "side_effects": "Pure Domain functions and Gate queries do not persist; Open handler SaveChanges creates day in production. Audit executed none.",
+      "database": "No DB in Domain rules; Gate no-tracking query and Open handler reads/insert described per symbol.",
+      "trust_boundaries": "Fresh financial facts and actor authority supplied by caller; pure predicates do not authenticate or serialize DB writers.",
+      "printing_ui": "No UI mutation or printer access in these functions.",
+      "performance": "Linear scans over supplied close inputs; gate first-match query and active-day list. No measured SQL plan or throughput.",
+      "duplicates_conflicts": "Active-status sets mirrored in Domain, Gate and Open handler. Current sets agree exactly, but authority/lifecycle differs; duplication alone is not a defect.",
+      "issues_hypotheses": "FIN009 distinct-open race corroborated; cash denomination bounds/overflow lead awaits caller trace. No extra canonical issue without evidence.",
+      "tests_missing": "Pure state-edge and complete blocker cases; approved SQL distinct-open/close-admission interleavings; denomination bounds/overflow tests after caller validation review.",
+      "verified_callers_callees": "These three complete sources read; Gate used by inspected treasury commands; BusinessClock implementation not re-reviewed in this batch."
+    },
+    {
+      "stable_id": "sym-7c9ef5cd166574188e64b3145a04e915e577a36ca17e4c539049257f64d5b612",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+      "span": [
+        23,
+        5,
+        29,
+        6
+      ],
+      "reasoning": "No-tracking first active record, where Open, Closing and Reopened accepted; returns nullable ID. No ordering makes multi-active invariant violation ambiguous (FIN009). Plain checkout permits null by documented contract, unlike treasury requiring ID.",
+      "inputs": "Arguments/captured input facts declared in exact source span",
+      "outputs": "Declared domain record/result, predicate, nullable ID or exception according to explicit reasoning",
+      "side_effects": "Pure Domain functions and Gate queries do not persist; Open handler SaveChanges creates day in production. Audit executed none.",
+      "database": "No DB in Domain rules; Gate no-tracking query and Open handler reads/insert described per symbol.",
+      "trust_boundaries": "Fresh financial facts and actor authority supplied by caller; pure predicates do not authenticate or serialize DB writers.",
+      "printing_ui": "No UI mutation or printer access in these functions.",
+      "performance": "Linear scans over supplied close inputs; gate first-match query and active-day list. No measured SQL plan or throughput.",
+      "duplicates_conflicts": "Active-status sets mirrored in Domain, Gate and Open handler. Current sets agree exactly, but authority/lifecycle differs; duplication alone is not a defect.",
+      "issues_hypotheses": "FIN009 distinct-open race corroborated; cash denomination bounds/overflow lead awaits caller trace. No extra canonical issue without evidence.",
+      "tests_missing": "Pure state-edge and complete blocker cases; approved SQL distinct-open/close-admission interleavings; denomination bounds/overflow tests after caller validation review.",
+      "verified_callers_callees": "These three complete sources read; Gate used by inspected treasury commands; BusinessClock implementation not re-reviewed in this batch."
+    },
+    {
+      "stable_id": "sym-5892c0eabbb53e5606a78582067b0a90ca2f7ec592024a4d48eb48fe5263a311",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        26,
+        20,
+        26,
+        166
+      ],
+      "reasoning": "EF predicate compares only three fixed state names and includes Closing. No actor or date input; cannot by itself exclude writes during close.",
+      "inputs": "Arguments/captured input facts declared in exact source span",
+      "outputs": "Declared domain record/result, predicate, nullable ID or exception according to explicit reasoning",
+      "side_effects": "Pure Domain functions and Gate queries do not persist; Open handler SaveChanges creates day in production. Audit executed none.",
+      "database": "No DB in Domain rules; Gate no-tracking query and Open handler reads/insert described per symbol.",
+      "trust_boundaries": "Fresh financial facts and actor authority supplied by caller; pure predicates do not authenticate or serialize DB writers.",
+      "printing_ui": "No UI mutation or printer access in these functions.",
+      "performance": "Linear scans over supplied close inputs; gate first-match query and active-day list. No measured SQL plan or throughput.",
+      "duplicates_conflicts": "Active-status sets mirrored in Domain, Gate and Open handler. Current sets agree exactly, but authority/lifecycle differs; duplication alone is not a defect.",
+      "issues_hypotheses": "FIN009 distinct-open race corroborated; cash denomination bounds/overflow lead awaits caller trace. No extra canonical issue without evidence.",
+      "tests_missing": "Pure state-edge and complete blocker cases; approved SQL distinct-open/close-admission interleavings; denomination bounds/overflow tests after caller validation review.",
+      "verified_callers_callees": "These three complete sources read; Gate used by inspected treasury commands; BusinessClock implementation not re-reviewed in this batch."
+    }
+  ],
+  "remaining_callable_ids": []
+}

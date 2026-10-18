@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Services/CashInput.cs",
+  "source_git_blob_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+  "worktree_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T01:51:31.358853+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Complete file read and exact callable analysis including interface contracts, accessors and lambdas; legacy file report preserved.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Services/CashInput.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-98e06dae1402dbf99896541a516a6e924cbdfdca3336178f6979a46b926fa1fd",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Services.CashInput.TryParse(string?, out long)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        7,
+        5,
+        17,
+        6
+      ],
+      "reasoning": "Normalizes supported Arabic digits/decimal separator then parses invariant nonnegative decimal without sign/exponent/group separators. Rejects more than two nonzero fractional digits and scaled long overflow; exact decimal multiplication yields integer piastres. Blank fails; zero allowed so callers enforce positive amount when needed.",
+      "inputs": "money text/null",
+      "outputs": "bool/piastres",
+      "side_effects": "Static review only. Described file and financial/UI effects not executed; no live retained payload opened.",
+      "trust_boundaries": "Untrusted numeric input and local journal metadata/type identity versus server-authorized request; secrets excluded from artifacts.",
+      "database": "No SQL executed or direct SQL code in these files.",
+      "printing_ui": "Pending print and checkout guard source review; native controls and physical printing NOT_OBSERVED.",
+      "performance": "Store operations synchronous whole-file IO, List enumerates all json files; no real disk or UI profiling.",
+      "duplicates_conflicts": "Separate CallCenter source read; similar Cashier helper findings preserved rather than assumed inherited. Parent owns canonical dedup.",
+      "issues_hypotheses": "Boundary long maximum, .5, trailing decimal zeroes, comma grouping and unsupported whitespace tests.",
+      "tests_missing": "Boundary long maximum, .5, trailing decimal zeroes, comma grouping and unsupported whitespace tests. NOT_EXECUTED.",
+      "verified_callers_callees": "normalizer lambda; decimal.TryParse/Round"
+    },
+    {
+      "stable_id": "sym-bea6da4a1584264bb930deea74d66675c2e9de6264f54e1c507301313af35b3a",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_kind": "SimpleLambdaExpression",
+      "exact_span": [
+        10,
+        67,
+        12,
+        80
+      ],
+      "reasoning": "Maps Arabic Indic and Eastern Arabic Indic digits to ASCII and U066B decimal separator to dot; other characters remain unchanged for parser to reject. No thousands grouping removal or broad Unicode numeric coercion occurs.",
+      "inputs": "character",
+      "outputs": "normalized character",
+      "side_effects": "Static review only. Described file and financial/UI effects not executed; no live retained payload opened.",
+      "trust_boundaries": "Untrusted numeric input and local journal metadata/type identity versus server-authorized request; secrets excluded from artifacts.",
+      "database": "No SQL executed or direct SQL code in these files.",
+      "printing_ui": "Pending print and checkout guard source review; native controls and physical printing NOT_OBSERVED.",
+      "performance": "Store operations synchronous whole-file IO, List enumerates all json files; no real disk or UI profiling.",
+      "duplicates_conflicts": "Separate CallCenter source read; similar Cashier helper findings preserved rather than assumed inherited. Parent owns canonical dedup.",
+      "issues_hypotheses": "Mixed digit sets and unsupported decimal/group marks tests.",
+      "tests_missing": "Mixed digit sets and unsupported decimal/group marks tests. NOT_EXECUTED.",
+      "verified_callers_callees": "TryParse Select"
+    },
+    {
+      "stable_id": "sym-4e69b3ad9c7fb7149417d3996b05ae13c9ca922292c7845208c2c6b9b0754135",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Services.CashInput.Format(long)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        19,
+        5,
+        19,
+        116
+      ],
+      "reasoning": "Divides piastres by decimal100 then formats two invariant decimal places. It permits negative display for signed balances although parser disallows negative entry, an intentional input/display asymmetry.",
+      "inputs": "long piastres",
+      "outputs": "EGP text",
+      "side_effects": "Static review only. Described file and financial/UI effects not executed; no live retained payload opened.",
+      "trust_boundaries": "Untrusted numeric input and local journal metadata/type identity versus server-authorized request; secrets excluded from artifacts.",
+      "database": "No SQL executed or direct SQL code in these files.",
+      "printing_ui": "Pending print and checkout guard source review; native controls and physical printing NOT_OBSERVED.",
+      "performance": "Store operations synchronous whole-file IO, List enumerates all json files; no real disk or UI profiling.",
+      "duplicates_conflicts": "Separate CallCenter source read; similar Cashier helper findings preserved rather than assumed inherited. Parent owns canonical dedup.",
+      "issues_hypotheses": "Negative balance, zero and long extrema formatting tests; no integer truncation.",
+      "tests_missing": "Negative balance, zero and long extrema formatting tests; no integer truncation. NOT_EXECUTED.",
+      "verified_callers_callees": "decimal division and ToString"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

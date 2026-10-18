@@ -1,0 +1,123 @@
+{
+  "at_utc": "2026-10-17T12:46:23.074960+00:00",
+  "reviewer": "root",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "findings": [
+    {
+      "id": "FIN-007",
+      "disposition": "SURVIVES_INDEPENDENT_STATIC_CHALLENGE",
+      "severity": "MEDIUM",
+      "confidence": "HIGH_SOURCE;PHYSICAL_OUTCOME_NOT_REPRODUCED",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+          "source_git_blob_sha256": "d35b9622b2d01aa0d96c9fa2bb6c97e42d89a6d3cdbb01acb3f5ebbc6fc2de69",
+          "worktree_sha256": "df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1",
+          "start_line": 47,
+          "end_line": 101,
+          "containing_symbol": "sym-803e04758d0d10fe653f641c33c2d4241405ba769c447cd3dc5c8c75c5c64cae"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+          "source_git_blob_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+          "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+          "start_line": 124,
+          "end_line": 157,
+          "containing_symbol": "sym-cf358a0de1791d39b20e3452f79f6c94ae97c68b484f9f23837e6fd3c45a7c99"
+        }
+      ],
+      "reasoning": "Filename contains only database and UTC timestamp to seconds; two authorized same-directory requests in same second choose same path, regardless distinct row GUID. BACKUP WITH FORMAT permits media replacement. Simultaneous SQL calls can instead fail; no particular concurrency outcome asserted. Sequential short backups can collide too. Retention protects newest valid record ID but does not deduplicate underlying paths, so duplicate records undermine file identity protection.",
+      "counterevidence": "Destination requires authorized backup actor/configured directory, SQL permissions and actual engine file access. COPY_ONLY preserves external backup-chain semantics; values parameterized and database identifier validated. No anonymous SQL injection claim.",
+      "required_tests": "Pure fixed-clock destination uniqueness and record/path retention model; physical SQL reproduction only in approved disposable instance.",
+      "primary_source": "https://learn.microsoft.com/en-us/sql/t-sql/statements/backup-transact-sql?view=sql-server-ver17#--noformat--format-"
+    },
+    {
+      "id": "FIN-008",
+      "disposition": "SURVIVES_INDEPENDENT_STATIC_CHALLENGE",
+      "severity": "HIGH",
+      "confidence": "HIGH_SOURCE;RESTORE_RACE_NOT_REPRODUCED",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+          "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+          "start_line": 49,
+          "end_line": 194,
+          "containing_symbol": "sym-6169ef3c03b4842183f4796c30d34f069683908c295334130a886381ef1c3f97"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+          "source_git_blob_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+          "worktree_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+          "start_line": 21,
+          "end_line": 44,
+          "containing_symbol": "NONCALLABLE_MODEL_CONFIGURATION_OR_MULTI_SYMBOL_SPAN"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+          "start_line": 145,
+          "end_line": 154,
+          "containing_symbol": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+          "start_line": 275,
+          "end_line": 280,
+          "containing_symbol": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f"
+        }
+      ],
+      "reasoning": "Pending-count snapshot85-86 is not exclusive admission barrier. Checkout stages Pending and Complete in same scoped transaction before save/commit; another context cannot treat that as reliable census of running requests. After safety backup returns119 and before SINGLE_USER153, new financial request may commit and acknowledge. Restore replaces it, while earlier safety backup need not contain it. Later SQL exclusive access occurs too late to close this gap.",
+      "counterevidence": "Restore is intentionally destructive and strongly gated: permission/approval, literal confirmation, reason, file existence and mandatory successful safety backup. Planned rollback of post-backup history is inherent; finding concerns acknowledged work accepted during purported safe maintenance window. SINGLE_USER excludes/rolls back remaining connections only when reached. No actual lost transaction observed.",
+      "required_tests": "Pure admission/drain coordinator model; approved dedicated disposable SQL instance with injected checkpoints and last-acknowledged record recovery assertion."
+    },
+    {
+      "id": "FIN-009",
+      "disposition": "SURVIVES_INDEPENDENT_STATIC_CHALLENGE_WITH_REFERENCE_CORRECTION",
+      "severity": "MEDIUM",
+      "confidence": "HIGH_SOURCE;RACE_NOT_REPRODUCED",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "worktree_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "start_line": 26,
+          "end_line": 66,
+          "containing_symbol": "NONCALLABLE_MODEL_CONFIGURATION_OR_MULTI_SYMBOL_SPAN"
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "start_line": 24,
+          "end_line": 30,
+          "containing_symbol": "NONCALLABLE_MODEL_CONFIGURATION_OR_MULTI_SYMBOL_SPAN"
+        },
+        {
+          "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+          "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+          "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+          "start_line": 40,
+          "end_line": 44,
+          "containing_symbol": "sym-256137b0988157696e4e15f4210213997909f6b1b8c00fd96b2efb52064f42d7"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+          "start_line": 137,
+          "end_line": 141,
+          "containing_symbol": "sym-83e87963690239f68232a633d72f95d2e717595c01b7d297aa93a16714a3663a"
+        }
+      ],
+      "reasoning": "Two distinct request IDs can both observe no active days, pass pure rule and insert independent GUID rows. Current BusinessDay model has only PK and unique OpenRequestId; implicit SaveChanges transaction does not include earlier read or serialize distinct request IDs. Gate FirstOrDefault lacks deterministic disambiguation.",
+      "counterevidence": "Same-request replay and unique OpenRequestId constrain duplicate identical commands. Pure Open/Reopen rules reject already-visible other active day. These do not enforce atomic singleton across concurrent distinct requests.",
+      "reference_correction": "Original DbContext148-152 refers to Expense indexes. Correct BusinessDay block137-141. Correction preserved here and original reviewer notified.",
+      "required_tests": "Isolated concurrent distinct-open IDs and open/reopen interleavings; deterministic fail-closed behavior for preexisting multiple active rows. No DB tests executed."
+    }
+  ],
+  "scope": "Independent manual source challenge of original financial reviewer candidates. No live DB/backup/restore operations."
+}

@@ -1,0 +1,62 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:59:51.261507+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "41aa18460e93e1f8f147e979eda55d969a3142a81f6d8155d1d2b48e73c590c0",
+  "worktree_sha256": "41aa18460e93e1f8f147e979eda55d969a3142a81f6d8155d1d2b48e73c590c0",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-a35e4cb7e70171bab998d094021434436730c4d09e79fa66d7a3be078bc28d84",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.ThemeOption::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        14,
+        5,
+        14,
+        68
+      ],
+      "reasoning": "ThemeOption immutable-init record holds enum/Arabiclabel, value equality and ToString; no IO/auth. SelectedTheme initialization First requires defined enum among3 options.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Undefined numeric persisted enum context already noted; compiler-generated behavior not authored method count.",
+      "tests_missing": "Undefined numeric persisted enum context already noted; compiler-generated behavior not authored method count. NOT_EXECUTED.",
+      "verified_callers_callees": "ThemeOptions; InitializeAppearance"
+    },
+    {
+      "stable_id": "sym-85cc7039fdf42f140c5bf3b76b93557904c4dcf6290350418c54994b544fb7d9",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel._selectedTheme::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        23,
+        46,
+        23,
+        106
+      ],
+      "reasoning": "Observable SelectedTheme initializes System option and invokes OnSelectedThemeChanged -> ThemeService.Set for immediate local preference. Record equality means equal Value+Label replacement may suppress setter callback.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No server settings save or permission requirement; native theme not observed.",
+      "tests_missing": "No server settings save or permission requirement; native theme not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "OnSelectedThemeChanged; ThemeService.Set"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

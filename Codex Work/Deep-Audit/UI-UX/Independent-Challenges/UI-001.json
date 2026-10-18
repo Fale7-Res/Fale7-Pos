@@ -1,0 +1,141 @@
+{
+  "id": "UI-001",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_FOUR_MONEY_PATHS_PROCESS_LOSS_RECOVERY_GAP",
+  "severity_assessment": "HIGH conditional duplicate business-operation risk after forced process loss; duplicate database writes NOT reproduced.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "startLine": 401,
+      "endLine": 426,
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "symbol": null,
+      "evidence": "Submitted checkout retained in private field only; after process loss same immutable DTO/key cannot recover through this path."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs",
+      "startLine": 104,
+      "endLine": 121,
+      "source_git_blob_sha256": "b5d2195c3ca1de571754e75e5c7c7e4471af3111d749d6f3628b199de22127c4",
+      "worktree_sha256": "124a969a63f823004a0b4ee64ef499842ad61128518dc236124f122ed8a8deb9",
+      "symbol": null,
+      "evidence": "Expense field/request ID in memory, no durable save before API dispatch."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+      "startLine": 110,
+      "endLine": 121,
+      "source_git_blob_sha256": "b6427c10ddcf4e6307ead2d5f77b7bd306811e1a5c30ca9009274ff7c9037e96",
+      "worktree_sha256": "bc399716e95c2a9b42e3c5db4ad92d6e3fe9879f2b042fa539ec6298d6adea7a",
+      "symbol": {
+        "stable_id": "sym-23a8a6e2023370c65fa2d80abc93a7d6bfd21de8722e08093dc7b2c53bf02de8",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteRefundAsync(Falah.Application.Orders.RefundOrderRequest, bool)",
+        "startLine": 110,
+        "endLine": 122,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Refund field retained through unknown same-process response only; success/definite-first-failure clears field."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs",
+      "startLine": 162,
+      "endLine": 171,
+      "source_git_blob_sha256": "630f3437d0e0517fe71a2343afe3ac1e7d04e1b42c98df4b433e7cf6eaa4dd32",
+      "worktree_sha256": "7e6c0ca570caeb79efabacf0a0b381ac5e7e3a3a364fea390c7155c11d909158",
+      "symbol": null,
+      "evidence": "Treasury pending commit is in-memory delegate with global session registration."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs",
+      "startLine": 280,
+      "endLine": 291,
+      "source_git_blob_sha256": "630f3437d0e0517fe71a2343afe3ac1e7d04e1b42c98df4b433e7cf6eaa4dd32",
+      "worktree_sha256": "7e6c0ca570caeb79efabacf0a0b381ac5e7e3a3a364fea390c7155c11d909158",
+      "symbol": {
+        "stable_id": "sym-95e741595e69b94d1bc053ed1d6b82fd7f70f5ea54ebcfc37f15c98475a720c1",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OpenTreasuryAction(string)",
+        "startLine": 279,
+        "endLine": 293,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Opening fresh treasury action mints new request ID."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs",
+      "startLine": 305,
+      "endLine": 391,
+      "source_git_blob_sha256": "630f3437d0e0517fe71a2343afe3ac1e7d04e1b42c98df4b433e7cf6eaa4dd32",
+      "worktree_sha256": "7e6c0ca570caeb79efabacf0a0b381ac5e7e3a3a364fea390c7155c11d909158",
+      "symbol": {
+        "stable_id": "sym-d026180dc7ef4b8ffb5490762f0be33d1900c982c2cf222bbc925ce339be399d",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SubmitTreasuryActionAsync()",
+        "startLine": 304,
+        "endLine": 363,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Immutable requests captured in pending delegates for same-process retry, no journal write; process loss discards exact question."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "startLine": 19,
+      "endLine": 49,
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "symbol": {
+        "stable_id": "sym-eb6e85a4ce72cb323d1ab13426865849986a1087238d7a98c8559bb32bafc36e",
+        "kind": "ConstructorDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.RetainedRequest(string?, Falah.Client.CashierWinUI.Services.IRetainedRequestStore?)",
+        "startLine": 19,
+        "endLine": 25,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Existing durable helper loads owner-key DTO and saves before send; above sampled financial paths do not use it."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+      "startLine": 65,
+      "endLine": 82,
+      "source_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+      "worktree_sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+      "symbol": {
+        "stable_id": "sym-8da50f4655a3a675be7358259b4d0739161da46a6801e14a5eb6245bee1f06d7",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.TryClose()",
+        "startLine": 65,
+        "endLine": 69,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Normal close/lock blocked for unresolved operations but cannot prevent force termination or power loss."
+    }
+  ],
+  "preconditions": [
+    "Backend commits financial request while response is lost/unknown; process ends before reconciliation.",
+    "Operator reconstructs same business intent on restart with fresh request key rather than verifying history."
+  ],
+  "counterevidence": [
+    "Same-process retry correctly preserves immutable request and original key in sampled paths.",
+    "Normal close/lock gates mitigate accidental exit.",
+    "Backend same-key idempotency still works; loss of key does not itself prove duplicate transaction.",
+    "CallCenter normal checkout and other RetainedRequest-based operations must not be generalized into this sampled gap.",
+    "This review independently covered checkout/expense/refund/treasury only; additional safe-drop/cash-movement/shift paths need their own source evidence."
+  ],
+  "recommended_remediation": "Durably save immutable typed operation/key/owner before dispatch and reconcile original outcome before replacement; avoid persisting unnecessary credentials.",
+  "required_tests": [
+    "Fresh VM after fake committed-lost-response must recover original DTO/key for checkout, expense, refund and treasury.",
+    "Known rejection permits correction, unknown preserves exact request; isolated ledger integration validates no duplicates."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:48:29.457859+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source-only challenge; no application or service execution",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local challenge only"
+}

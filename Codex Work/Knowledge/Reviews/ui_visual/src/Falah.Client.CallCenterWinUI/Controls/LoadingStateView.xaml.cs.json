@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Controls/LoadingStateView.xaml.cs",
+  "source_git_blob_sha256": "d0975952d3ba71c0c9c2965f39c641ea7d86d4fb625b505b8814fa07d5addfb9",
+  "worktree_sha256": "d0975952d3ba71c0c9c2965f39c641ea7d86d4fb625b505b8814fa07d5addfb9",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:38:41.136590+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Reusable CallCenter LoadingStateView dependency properties and explicit visual/event callbacks individually reconciled; no native interaction.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Controls/LoadingStateView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-92d28cf0d0bf3c716187cfa1cd6564e88db12ad88f7cc17ae1686b2e26ffa49d",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Controls.LoadingStateView.LoadingStateView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        11,
+        5,
+        15,
+        6
+      ],
+      "reasoning": "Initializes loading-state XAML then copies current Message; it owns no task, timeout, cancellation token or network lifetime.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Native progress announcement and layout not observed.",
+      "tests_missing": "Native progress announcement and layout not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent; MessageBlock.Text"
+    },
+    {
+      "stable_id": "sym-18077f6bef531f2788bb70488aa34b474fe0f4acc8c567aeb99c54f6b6639b72",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Controls.LoadingStateView.Message.get",
+      "exact_kind": "GetAccessorDeclaration",
+      "exact_span": [
+        19,
+        9,
+        19,
+        50
+      ],
+      "reasoning": "Reads Message dependency property; localized loading text is supplied through metadata or owner binding.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Default loading caption test missing.",
+      "tests_missing": "Default loading caption test missing. NOT_EXECUTED.",
+      "verified_callers_callees": "GetValue(MessageProperty)"
+    },
+    {
+      "stable_id": "sym-2199e528b5406457a1692c47913277f100ef63406fdb3afc01566a417c641057",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Controls.LoadingStateView.Message.set",
+      "exact_kind": "SetAccessorDeclaration",
+      "exact_span": [
+        20,
+        9,
+        20,
+        49
+      ],
+      "reasoning": "Stores new loading Message and triggers registered text callback; does not restart or cancel underlying work.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Verify message changes during existing loading operation.",
+      "tests_missing": "Verify message changes during existing loading operation. NOT_EXECUTED.",
+      "verified_callers_callees": "SetValue(MessageProperty)"
+    },
+    {
+      "stable_id": "sym-b168e471e47f04f101c0dafdb846b426835f58b010716b7a717fd77334aaedc7",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Controls.LoadingStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        23,
+        5,
+        24,
+        70
+      ],
+      "reasoning": "Updates loading MessageBlock.Text directly from new string value; task completion must change parent loading visibility independently.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Long and null messages need binding/render tests.",
+      "tests_missing": "Long and null messages need binding/render tests. NOT_EXECUTED.",
+      "verified_callers_callees": "MessageProperty callback; MessageBlock.Text"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

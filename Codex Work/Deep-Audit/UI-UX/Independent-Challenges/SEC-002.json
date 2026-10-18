@@ -1,0 +1,236 @@
+{
+  "candidate_id": "SEC-002",
+  "title": "PIN-bearing user-management recovery DTOs retained as plaintext local JSON",
+  "instance_key": "cashier:users.create|users.change-pin:FileRetainedRequestStore.Save",
+  "ledger_row_id": "manual-security-findings:SEC-002",
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T18:31:44.289077+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "skill": "codex-security:validation",
+  "method": "CODE_UNDERSTANDING_SOURCE_ONLY",
+  "disposition": "REPORTABLE_SOURCE_RETENTION_BEHAVIOR_DEPLOYMENT_EXPOSURE_UNVERIFIED",
+  "severity": "MEDIUM",
+  "confidence": "HIGH for serialization path; actual credential access/exposure UNKNOWN",
+  "source": "Legitimate operator InitialPin or CurrentPin/NewPin held by public typed request records",
+  "root_control": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs:67-74",
+  "sink": "File.WriteAllText of serialized envelope Payload=request, then File.Move to per-station local profile journal",
+  "boundary": "Trusted secret-entry UI/API request becomes plaintext persisted filesystem data readable to principals with Windows profile/file access; no remote unauthenticated boundary demonstrated",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/App.xaml.cs",
+      "startLine": 19,
+      "endLine": 27,
+      "source_git_blob_sha256": "f593c13c1a64b9df886526c990093dd49c327498c7aec1e059ffe9e490c6a2c1",
+      "worktree_sha256": "0765214707a8c3d4e0f07b0feff9cb4f5c7bb278e666486088a51be222014dde",
+      "symbol": {
+        "stable_id": "sym-b3ced77dc58e3a49c34019488454f50e4002dbd2572a256298baca2746172210",
+        "kind": "ConstructorDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.App.App()",
+        "startLine": 19,
+        "endLine": 27,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Actual app initializes FileRetainedRequestStore for cashier before VM creation."
+    },
+    {
+      "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+      "startLine": 8,
+      "endLine": 9,
+      "source_git_blob_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+      "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+      "symbol": null,
+      "evidence": "Public positional InitialPin property, no JsonIgnore or masking converter."
+    },
+    {
+      "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+      "startLine": 23,
+      "endLine": 23,
+      "source_git_blob_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+      "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+      "symbol": null,
+      "evidence": "Public CurrentPin/NewPin properties; CurrentPin null only admin path."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+      "startLine": 13,
+      "endLine": 16,
+      "source_git_blob_sha256": "63eced5b523342ededc72f205db0a82b23c2aea1bfc041eeb52de6444cf99645",
+      "worktree_sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+      "symbol": null,
+      "evidence": "Durable fixed owner keys users.create and users.change-pin."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+      "startLine": 110,
+      "endLine": 136,
+      "source_git_blob_sha256": "63eced5b523342ededc72f205db0a82b23c2aea1bfc041eeb52de6444cf99645",
+      "worktree_sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+      "symbol": {
+        "stable_id": "sym-22cc6f6d5a43a07429d224d9dbc8dedaffe997992b1ff4d5f7d3e68cbf63c1d9",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.UsersViewModel.CreateUserAsync()",
+        "startLine": 109,
+        "endLine": 137,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "CreateUserRequest captures InitialPin and passes to durable _pendingCreate.SendAsync."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+      "startLine": 148,
+      "endLine": 179,
+      "source_git_blob_sha256": "63eced5b523342ededc72f205db0a82b23c2aea1bfc041eeb52de6444cf99645",
+      "worktree_sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+      "symbol": {
+        "stable_id": "sym-668fe7d416c76bd6bfdc131305b9fa5bf53eadec90c73a78b8b5f2a30b945645",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ChangePinAsync()",
+        "startLine": 147,
+        "endLine": 180,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "ChangePinRequest captures current/new PIN and passes durable _pendingPin.SendAsync; visible field clearing on success does not itself guarantee filesystem removal."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "startLine": 34,
+      "endLine": 49,
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "symbol": {
+        "stable_id": "sym-37892f3ec3dce1068241cae171cddc43d5d5d9cc6777030fcb21780eb68d88fd",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>)",
+        "startLine": 34,
+        "endLine": 51,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "First pending request saved before send; success/non-null or definite initial failure clears via store; unresolved record retained."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "startLine": 36,
+      "endLine": 44,
+      "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+      "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+      "symbol": null,
+      "evidence": "Serializer options only WriteIndented=false; no credential converter/encryption. Directory created without explicit custom ACL."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "startLine": 49,
+      "endLine": 56,
+      "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+      "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+      "symbol": {
+        "stable_id": "sym-e7e8cd8786ac0b4111d192b4930818ea974358e7d294f0fbaf04c176b53574aa",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.DirectoryFor(string)",
+        "startLine": 49,
+        "endLine": 51,
+        "startColumn": 5,
+        "endColumn": 49
+      },
+      "evidence": "Path derived from Windows LocalApplicationData/Falah/pending-operations/station plus safe owner key."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "startLine": 59,
+      "endLine": 82,
+      "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+      "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+      "symbol": {
+        "stable_id": "sym-4964a9a24fd133652373e1eb65e317a1c24e25f20dd6dfa1a90457dbcb900755",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.Save(string, object)",
+        "startLine": 59,
+        "endLine": 82,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Envelope includes original typed object as Payload; JSON written to .tmp in plaintext, moved to .json; errors callback optional and do not prevent network operation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "startLine": 84,
+      "endLine": 91,
+      "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+      "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+      "symbol": {
+        "stable_id": "sym-9210e9bedf58c6a50962f84b9fd8ed2d03d1d4dfb238dfc885aaa043156512e8",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.Clear(string)",
+        "startLine": 84,
+        "endLine": 92,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Clear attempts deleting primary .json only; failures swallowed through callback, no .tmp cleanup."
+    }
+  ],
+  "preconditions": [
+    "Legitimate account creation or PIN change is attempted with actual file store active and writable.",
+    "Local principal or another permitted collection mechanism can read that profile file/temp/copy while bytes persist.",
+    "No claim a lower-privilege Windows account bypasses profile ACLs."
+  ],
+  "counterevidence": [
+    "Per-user Windows LocalApplicationData commonly inherits profile access controls; deployed ACLs not inspected and no weakness asserted.",
+    "Known successful and first definite rejected outcomes normally attempt deletion, limiting primary-file lifetime.",
+    "Unwritable save can produce no primary file; existence on any real station not established.",
+    "Stored server PIN hashes are a separate control: this finding concerns client plaintext request retention only.",
+    "Station separation avoids inter-client collision, but does not encrypt credentials."
+  ],
+  "additional_source_observation": {
+    "status": "SOURCE_SUPPORTED_FAILURE_PATH_RISK_NOT_RUNTIME_REPRODUCED",
+    "description": "If writing .tmp succeeds and subsequent move fails, catch does not remove .tmp; later Clear deletes only .json. Thus main-record clearing is not proof every temporary secret copy was removed. No actual temp file examined or created."
+  },
+  "rubric_results": [
+    {
+      "criterion": "Actual production App initializes file store before user VM request restoration.",
+      "satisfied": true
+    },
+    {
+      "criterion": "PIN-bearing typed requests flow through durable owner-key helper before transport.",
+      "satisfied": true
+    },
+    {
+      "criterion": "Actual serializer/file sink retains public PIN properties without encryption/redaction.",
+      "satisfied": true
+    },
+    {
+      "criterion": "Lifecycle/ACL/local-access counterevidence and temp-file failures constrain exposure.",
+      "satisfied": true
+    },
+    {
+      "criterion": "Disposition separates source-confirmed retention from unverified real files/access/exfiltration.",
+      "satisfied": true
+    }
+  ],
+  "tested": "Actual code, public DTO properties, serializer options, caller ordering and clear/failure branches inspected; source/hash/span/symbol identities checked. No runtime serializer, file-store instance, user login, network request or database test executed.",
+  "proof_gaps": [
+    "No real pending record, PIN, ACL, process token, backup copy or live filesystem permissions collected.",
+    "No exploit or account takeover demonstrated.",
+    "Local secret-retention policy and Windows user sharing/deployment remain unknown."
+  ],
+  "recommended_remediation": "Prefer credential-free durable recovery/status keyed by server-owned operation identity. If credentials must briefly persist, approved OS-protected per-user storage and explicit cleanup/failure lifecycle are required; preserve ambiguous-outcome reconciliation.",
+  "regression_risks": [
+    "Removing secret-bearing recovery fields without protocol change can strand uncertain account creation/PIN changes or repeat credential writes."
+  ],
+  "required_tests": [
+    "Fake store/serializer tests assert no real or synthetic PIN values in durable representation.",
+    "Known success/rejection/ambiguous/recovered flows retain recovery correctness without secret persistence.",
+    "Controlled fake filesystem write-success/move-failure proves temp cleanup without operating on real journals."
+  ],
+  "minimal_next_step": "Design testable credential-free recovery contract and, under separate explicit authorization, validate isolated storage serialization/cleanup using synthetic secrets only.",
+  "operational_files_read": false,
+  "runtime_reproduction": "NOT_EXECUTED",
+  "plugin_scan_id": null,
+  "canonical_master_edited": false,
+  "related_findings": [
+    "UI-020"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Controls/SparklineView.xaml.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:22.532810+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-96ca38bf25d2e27c7f50a8b8d02ff03f51d1be4bff41b938a8ffea707e29fce9",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Controls.SparklineView.Series::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        51,
+        5,
+        51,
+        96
+      ],
+      "reasoning": "Casts Points to IReadOnlyList<long>, otherwise uses shared empty array. Other enumerable numeric types silently render empty dash, and in-place list mutation does not itself trigger render.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Binding type contract must match exact long-list interface; no native drawing executed.",
+      "tests_missing": "Binding type contract must match exact long-list interface; no native drawing executed. NOT_EXECUTED.",
+      "verified_callers_callees": "Points; Render"
+    }
+  ],
+  "source_git_blob_sha256": "92cf3353db34eff4e028bce981ccc5eee98a0d05b5351bdbec44137ff4991493",
+  "worktree_sha256": "92cf3353db34eff4e028bce981ccc5eee98a0d05b5351bdbec44137ff4991493",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,64 @@
+{
+  "at_utc": "2026-10-18T03:33:14.5352715+00:00",
+  "assertions": 6,
+  "failures": 0,
+  "cases": [
+    {
+      "name": "ordinary count",
+      "denomination": 20000,
+      "quantity": 2,
+      "expected": 40000,
+      "total": 40000,
+      "difference": 0,
+      "assertion_passed": true
+    },
+    {
+      "name": "negative quantity intentionally clamped",
+      "denomination": 100,
+      "quantity": -1,
+      "expected": 0,
+      "total": 0,
+      "difference": 0,
+      "assertion_passed": true
+    },
+    {
+      "name": "negative denomination accepted",
+      "denomination": -100,
+      "quantity": 1,
+      "expected": 0,
+      "total": -100,
+      "difference": -100,
+      "assertion_passed": true
+    },
+    {
+      "name": "unsupported denomination accepted",
+      "denomination": 1,
+      "quantity": 1,
+      "expected": 0,
+      "total": 1,
+      "difference": 1,
+      "assertion_passed": true
+    },
+    {
+      "name": "positive quantity multiplication wraps",
+      "denomination": 20000,
+      "quantity": 9223372036854775807,
+      "expected": 0,
+      "total": -20000,
+      "difference": -20000,
+      "assertion_passed": true
+    },
+    {
+      "name": "difference subtraction wraps",
+      "denomination": 25,
+      "quantity": 1,
+      "expected": -9223372036854775808,
+      "total": 25,
+      "difference": -9223372036854775783,
+      "assertion_passed": true
+    }
+  ],
+  "framework": ".NET 10.0.12",
+  "scope": "CASH_COUNT_PURE_ONLY",
+  "limits": "Separate net10 linked-baseline source executable. No server/API/user/session/database/count record or financial transaction. Assertions describe observed implementation, not desired valid-input policy."
+}

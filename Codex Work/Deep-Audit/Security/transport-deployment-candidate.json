@@ -1,0 +1,108 @@
+{
+  "at_utc": "2026-10-17T18:39:04.520478+00:00",
+  "candidate_id": "SEC-CAND-TRANSPORT-001",
+  "classification": "CONDITIONAL_REMOTE_DEPLOYMENT_RISK_NOT_CURRENT_LOOPBACK_EXPOSURE_PROOF",
+  "severity": "PENDING_DEPLOYMENT_CONTEXT",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "baseline_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "evidence_spans": [
+        [
+          10,
+          11
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+      "baseline_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+      "worktree_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+      "evidence_spans": [
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "baseline_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "evidence_spans": [
+        [
+          28,
+          31
+        ],
+        [
+          157,
+          170
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.PrintAgent/PrintServerClient.cs",
+      "baseline_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+      "worktree_sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56",
+      "evidence_spans": [
+        [
+          28,
+          40
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.PrintAgent/AgentOptions.cs",
+      "baseline_sha256": "7b940f8aed07130a6af1cf621aa3a1dfcf5c1174d3b34051ad11df2076802a5f",
+      "worktree_sha256": "678b4396c34d4b3885fa2d17087b8ef31c5c303820da18c97cb3cd4ec31cb5a7",
+      "evidence_spans": [
+        [
+          13,
+          13
+        ],
+        [
+          100,
+          100
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "baseline_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "evidence_spans": [
+        [
+          194,
+          196
+        ],
+        [
+          1853,
+          1871
+        ]
+      ]
+    },
+    {
+      "path": "docs/DEMO_READINESS.md",
+      "baseline_sha256": "33080a5efc484a417e57783a879a0c07f7eec2f42eef72c99debb0e5b346baca",
+      "worktree_sha256": "33080a5efc484a417e57783a879a0c07f7eec2f42eef72c99debb0e5b346baca",
+      "evidence_spans": [
+        [
+          155,
+          155
+        ]
+      ]
+    }
+  ],
+  "source_behavior": "Clients accept configured HTTP or HTTPS base URI. Login sends PIN DTO and later Bearer header through chosen transport. Default loopbackHTTP is explicit; CallCenter has LAN-configurable FALAH_SERVER_URL. No scheme enforcement shown at examined constructors or agent option validation.",
+  "preconditions": "Admin configures non-loopback HTTP endpoint reachable by a client; network observation/interference capability. No such active configuration or packet interception observed.",
+  "counterevidence": [
+    "Default server/client localhost scope does not demonstrate LAN exposure.",
+    "Owner baseline doc explicitly flags multi-device binding and TLS as a future deliberate decision.",
+    "HTTPS URL, valid certificate or properly secured proxy/tunnel may protect remote deployment; actual external topology unverified.",
+    "No hardcoded external collection host or malicious exfiltration behavior identified in examined paths."
+  ],
+  "recommendation": "Before multi-device deployment, require authenticated TLS endpoint/certificate validation and review HTTP exception policy for loopback. Keep service binding/proxy trust and credential logging explicit. No config or certificates changed.",
+  "verification": "SOURCE_ONLY;NO_NETWORK_CAPTURE_LOGIN_OR_RUNTIME_CHANGE",
+  "remaining": "Independent deployment threat-model qualification and canonical remediation grouping; do not report unverified production credential leak."
+}

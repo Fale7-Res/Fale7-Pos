@@ -1,3 +1,25 @@
+# CURRENT VERIFIED CHECKPOINT — 2026-10-17 02:00 UTC
+
+This section supersedes historical counts below, not original requirements. main remains1605b0a4cb2a57c485633e9e942647daeaefdf74; no new commit/push allowed until ALL final audit gates. Source690/690 hash-identical to c35816ecae49633674775dd32061c6ee92f94aaf after newline normalization.
+
+650/690 complete-file static receipts,40financial files remain; UI274/274,printing71/71,parent18/18 file reads. 1868/11653 exact C# callable author receipts,9785 lack receipts at snapshot; schema passes but independent deep-function total UNKNOWN. Original507legacyUIheading matches excluded. Printing all130 source self-revisions saved; parent independently accepted4,126pending. No automatic promotion from unique text.
+
+SEC001 actual MinimalAPI fake-session harness10assertions passed; no live server/account/DB mutation. ClosedByUserId omission independently traced and saved Knowledge/Flows/SEC-001/closed-by-alias-independent-trace.json; distinct omission variant, not executed. Dependency feed210component joins complete with2historicaltest-only range matches;61 existing test deps manifests omit old implementations, actual assembly reachability not observed. Agent now assigned performance/source/hardware investigation. Original financial/UI agents actively finishing exact symbols.
+
+Current Domain --no-build --no-restore test process60728 started01:54UTC is still pending; poll and save honest exit/TRX, no prior timeout relabelling. Raw TestResults ignored. Parent next: finish126route independent checks, stable-map10nonCfunctions, canonical security evidence, substantive final reports and remaining original15phase gates. Exact current progress can advance in own ledgers; do not rerun historical reset generators.
+
+---
+# AUTHORITATIVE CONTINUATION — 2026-10-17
+
+Latest user requires completing ALL15originalauditphases and finalqualitygates BEFOREANYnewcommit/push. Previouspartialpublication1605b0a4cb2a57c485633e9e942647daeaefdf74is historical; do not repeat partial commits. Application baselinec35816ecae49633674775dd32061c6ee92f94aaf remains hash-identical.
+
+Interrupted task is now completed: corrected audit-onlyharness APIpath, built, executed10 asserted in-memory real MinimalAPIbindingcases. Baseline middleware/DTO linked unchanged; fake session, no realserver/DB/permissionmutation. Results Knowledge/Flows/SEC-001/minimal-api-binding-results.json. Previous55stimeout and invalidnon-APIsetupfailure retained as tool limitations, not application defects. Parentcheckpoint current.
+
+Latest source receipt counts626/690files,64remaining(46financial+18parent;UI274/274sourcepass). Strictstablecallableauthorreceipts1044/11653,10609withoutreceipt; review-depthindependentcertificationUNKNOWN. UI507legacyheadingmatches remainunpromoted. Printing92/130qualityqueue self-revisions atcheckpointpendingparentacceptance,38remaining; exactqueuecanadvance, rereadowncheckpoint. Canonicalregistry and all receipts persist underCodexWork. All3originalsessionsresumed beyondreportedusage-reset; no replacements. No new Gitpublication until entireaudit actuallyfinished.
+
+---
+# HISTORICAL CONTEXT BELOW — preserve but do not use superseded publication instructions
+
 # CURRENT VERIFIED RECOVERY — 2026-10-16 after 08f1fad
 
 This top section supersedes older counts/instructions retained below as historical evidence. HEAD/reference publication08f1fadc9b31d6cd4a90fe7b0db5086dfd511471; source baselinec35816ecae49633674775dd32061c6ee92f94aaf remains hash-identical. Latest user explicitly authorizes normal safe Codex Work commit/push, no application changes or force/history rewrite.

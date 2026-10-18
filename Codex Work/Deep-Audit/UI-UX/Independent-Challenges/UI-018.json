@@ -1,0 +1,136 @@
+{
+  "id": "UI-018",
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:44:59.043444+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source/XAML asynchronous interleaving reasoning",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_WITH_VISIBLE_IDENTITY_COUNTEREVIDENCE",
+  "severity_assessment": "HIGH conditional menu/inventory integrity risk for authorized recipe editor; source interleaving supported, runtime corruption NOT tested.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "startLine": 299,
+      "endLine": 305,
+      "source_git_blob_sha256": "d8f01752ae087dfaa73071182398a71df1366745d92f4dd9ca35b7b879f4e67a",
+      "worktree_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "symbol": {
+        "stable_id": "sym-097b9c6ec9719898cbf9769014650e2ca8c5efb819883873f240ffbec3971010",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnSelectedRecipeChanged(Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RecipeRow?)",
+        "startLine": 299,
+        "endLine": 305,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Each actual selection property change invokes LoadDetailAsync directly, bypassing relay-command concurrency guard; no generation/cancellation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "startLine": 384,
+      "endLine": 407,
+      "source_git_blob_sha256": "d8f01752ae087dfaa73071182398a71df1366745d92f4dd9ca35b7b879f4e67a",
+      "worktree_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "symbol": {
+        "stable_id": "sym-2868a2482bdc1d42fb094c57400feaf3a31bab99b69d7be75ffea6ce6464c6fe",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadDetailAsync()",
+        "startLine": 383,
+        "endLine": 407,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Captures row before await, then unconditionally assigns Detail and sets shared IsDetailLoading false; no selected recipe recheck."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
+      "startLine": 78,
+      "endLine": 79,
+      "source_git_blob_sha256": "3c41757e4d1030f744ce7ee818066e61e204b942b1046dbaf1ea2171fdaf3a34",
+      "worktree_sha256": "6d6d87cd0703d327ddbd5210aa92c85e907e360097c14e223e1114b3690f1c63",
+      "symbol": null,
+      "evidence": "ListView selected item is TwoWay and selection remains enabled while loading detail."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "startLine": 473,
+      "endLine": 493,
+      "source_git_blob_sha256": "d8f01752ae087dfaa73071182398a71df1366745d92f4dd9ca35b7b879f4e67a",
+      "worktree_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "symbol": {
+        "stable_id": "sym-334b822551859a44f1cf24765cd0f880811ae92e7e9c64f157b5ecab2f14c3b4",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.StartEdit()",
+        "startLine": 472,
+        "endLine": 493,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "StartEdit copies current Detail lines to independent EditorLines and makes IsEditing true."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "startLine": 307,
+      "endLine": 325,
+      "source_git_blob_sha256": "d8f01752ae087dfaa73071182398a71df1366745d92f4dd9ca35b7b879f4e67a",
+      "worktree_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "symbol": {
+        "stable_id": "sym-db05aa47abfe374f111069e653d134a16beb876968b7f7833ebba524f86e957d",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnDetailChanged(Falah.Application.Inventory.RecipeCostDetailDto?)",
+        "startLine": 307,
+        "endLine": 329,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Later Detail change refreshes display DetailLines, but does not cancel edit or rebuild EditorLines."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "startLine": 532,
+      "endLine": 581,
+      "source_git_blob_sha256": "d8f01752ae087dfaa73071182398a71df1366745d92f4dd9ca35b7b879f4e67a",
+      "worktree_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "symbol": {
+        "stable_id": "sym-f34d5ebff63ea29e2de78862fae9de4c2f0e22dce9f8330e5638efa6d08c775d",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.SaveAsync()",
+        "startLine": 531,
+        "endLine": 600,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Save takes current Detail recipe/product/name identity and separately built EditorLines, enabling stale identity/editor mismatch."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
+      "startLine": 183,
+      "endLine": 195,
+      "source_git_blob_sha256": "3c41757e4d1030f744ce7ee818066e61e204b942b1046dbaf1ea2171fdaf3a34",
+      "worktree_sha256": "6d6d87cd0703d327ddbd5210aa92c85e907e360097c14e223e1114b3690f1c63",
+      "symbol": null,
+      "evidence": "Visible detail header names Detail.ProductName/Name, and edit entry is shown only CanStartEdit; this can warn attentive operator and prevents claiming invisible guaranteed corruption."
+    }
+  ],
+  "supported_interleavings": [
+    "Select A then B; B completes first; A completes later. SelectedRecipe stays B while Detail becomes A. Editing thereafter targets displayed A despite selected B.",
+    "Stronger mismatch: Select A then B; B completes; StartEdit(B) populates EditorLines B; late A completes and changes Detail only; SaveAsync then combines identity A with independent edited lines B."
+  ],
+  "preconditions": [
+    "Authorized recipe editor, at least two recipes, overlapping detail reads with reversed completion.",
+    "Operator performs edit/save after stale publication, or starts edit after B completion before late A."
+  ],
+  "counterevidence": [
+    "Right-hand detail header shows actual Detail name, so operator may notice mismatch.",
+    "Selection change cancels edit at selection time, but it does not cancel outstanding reads or edits started after the selection change.",
+    "Save snapshots d before its HTTP await; finding concerns mismatch before Save begins, not arbitrary retargeting after request dispatch.",
+    "No UI-native observation or actual recipe writes executed."
+  ],
+  "recommended_remediation": "Validate a selection generation after every asynchronous boundary; bind editor immutable recipe identity and invalidate stale detail completions before publishing.",
+  "required_tests": [
+    "Controlled TaskCompletionSource A/B reversed responses: Detail must remain B.",
+    "B completes and edit begins; A completes; Save request must retain B identity and B lines.",
+    "Clear selection and navigate away while request pending must not republish detail."
+  ],
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "UI-018 only; no global recipe function completion claimed"
+}

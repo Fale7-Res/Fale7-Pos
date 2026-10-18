@@ -970,6 +970,50 @@
       "runtimeReproduction": "NOT_EXECUTED",
       "screenshotEvidence": "NOT_OBSERVED",
       "independentChallenge": "Parent/peer challenge requested; not yet incorporated"
+    },
+    {
+      "id": "UI-022",
+      "title": "Recipe ingredient picker truncates to60 choices without exposing its search input",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 443,
+          "endLine": 453,
+          "explanation": "Active unchosen ingredient choices filtered by IngredientSearchText then Take60."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 441,
+          "endLine": 441,
+          "explanation": "Only search setter hook refreshes predicate; repositorysearch found no UI binding/writer except resetempty afteradd."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
+          "startLine": 341,
+          "endLine": 343,
+          "explanation": "Picker binds cappedIngredients andIngredientToAdd; editor has noIngredientSearchText field."
+        }
+      ],
+      "trigger": "Have more than60 active ingredients not already selected in recipe; try directly adding one after first60 returned items.",
+      "rootCause": "VM implemented bounded searchable choices but XAML exposes only ComboBox over current60 and no search binding to query full cached ingredients.",
+      "impact": "Operator cannot directly find later ingredients through normal picker. Recipe may remain incomplete or user may choose wrong similar item; no actual recipe mutation tested.",
+      "counterarguments": [
+        "Adding temporary earlier ingredients locally can move later ones into first60, then temporary lines can be removed; this workaround limits absolute-unreachability claim but is undisclosed and error-prone.",
+        "Existing recipe lines still display ingredients outside60; problem is directaddition, not loss of stored lines.",
+        "NativeComboBox textsearch, if available, searches current ItemsSource; no source path populates uncapped matches from it. Native behavior not observed."
+      ],
+      "regressionTests": [
+        "Load61+ active ingredients with nonechosen; entering target61 search should exposeit without adding unrelated ingredients.",
+        "Exclude chosenIDs while searching fullcached inventory; clearing search should preserve selected choice and exact recipe lines."
+      ],
+      "recommendation": "Bind explicit ingredient search to IngredientSearchText or provide searchable full-list picker; disclose bounds only as presentation optimization.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer source challenge requested; no canonical master mutation"
     }
   ],
   "rejectedCandidates": [

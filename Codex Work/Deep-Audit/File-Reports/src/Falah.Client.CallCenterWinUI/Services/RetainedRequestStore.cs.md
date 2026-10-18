@@ -12,17 +12,17 @@ Actual role: Station-local pending operation JSON journal.
 
 ## Source paths and function/resource analysis
 
-- `FileRetainedRequestStore` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:32`: Constructor creates directory immediately. App passes no error callback, so failures in subsequent Save/Load/Clear are silent to operator; constructor failure can still abort startup.
+- `FileRetainedRequestStore` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:40`: Constructor creates directory immediately. App passes no error callback, so failures in subsequent Save/Load/Clear are silent to operator; constructor failure can still abort startup.
 
 - `PathFor` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:53`: Replaces invalid filename chars; collisions possible between owner strings differing only by invalid character. Current stable literal/ID owner keys constrain this, no exploitable path traversal asserted.
 
-- `Save` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:19`: Writes serialized type, UTC time and payload to .tmp then move overwrite. Atomic rename reduces partial JSON exposure but no flush-to-disk guarantee; same owner concurrent processes share same .tmp/path without interprocess locking. Exceptions swallowed; financial request can still be sent with no recoverable journal.
+- `Save` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:59`: Writes serialized type, UTC time and payload to .tmp then move overwrite. Atomic rename reduces partial JSON exposure but no flush-to-disk guarantee; same owner concurrent processes share same .tmp/path without interprocess locking. Exceptions swallowed; financial request can still be sent with no recoverable journal.
 
-- `Clear` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:20`: Deletes known journal file; failure swallowed so successful operation may recover again next launch. Server idempotency is necessary to keep replay safe.
+- `Clear` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:84`: Deletes known journal file; failure swallowed so successful operation may recover again next launch. Server idempotency is necessary to keep replay safe.
 
-- `Load` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:25`: Resolves assembly-qualified Type then deserializes payload. Unknown types trigger actual deletion of original journal; corrupt/unreadable envelope returns null without durable quarantine/report. No allow-list, version migration, authentication/integrity or encryption; local-user tampering is a trust boundary to assess, not proven RCE.
+- `Load` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:94`: Resolves assembly-qualified Type then deserializes payload. Unknown types trigger actual deletion of original journal; corrupt/unreadable envelope returns null without durable quarantine/report. No allow-list, version migration, authentication/integrity or encryption; local-user tampering is a trust boundary to assess, not proven RCE.
 
-- `List` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:27`: Reads all JSON envelopes inside one catch; single malformed entry makes whole list empty, hiding even valid pending operations. No per-record error recovery; fresh UI notices can be falsely absent.
+- `List` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:115`: Reads all JSON envelopes inside one catch; single malformed entry makes whole list empty, hiding even valid pending operations. No per-record error recovery; fresh UI notices can be falsely absent.
 
 - `RetainedRequestStorage` at `src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:143`: Mutable process ambient hook configured before view models; no lock/per-user context. Cashier and CallCenter use separate station directories but duplicate implementation will drift.
 
@@ -41,3 +41,7 @@ Fail safely or prominently expose unavailable financial journal; retain/quaranti
 ## Coverage qualification
 
 Anchored paragraphs describe actual manually traced functions/resources, not semantic declaration enumeration. Generated toolkit methods/properties are compiler-generated and must be accounted for by the parent inventory. Other applicable file dimensions without evidence remain UNKNOWN; printing and DB transaction implementation inside a pure view/resource file are NOT_APPLICABLE. A partial file report must not be counted as exhaustive.
+
+## Anchor correction
+
+Implementation paragraphs now anchor the concrete constructor40, Save59, Clear84, Load94 and List115. Earlier19/20/25/27 were interface declarations, not implementation bodies. Existing analysis preserved; exact stable-symbol shards already distinguish interface and implementation receipts. Corrected after independent parent challenge; no source or runtime change.

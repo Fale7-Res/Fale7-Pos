@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml",
+  "source_git_blob_sha256": "e9771424cbe111d081d1b32b1e665700546d31fdd97456617b1d956b99f69b51",
+  "worktree_sha256": "a4719ca4c0b5f6ddd089aac9cf790f31fdd850c06506ab521a0d53461ccc2cbe",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:42:19.305324+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Owner selected-day statement composed of11 collapsible real-data sections.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SelectedDateDisplay",
+      "reasoning": "Yesterday/today/previous/next/refresh commands with next boundCanGoNext. Glyph-only day/refresh buttons lack explicit accessible names; large horizontal toolbar can crowd title."
+    },
+    {
+      "anchor": "Statement.Sales.NetSalesPiastres",
+      "reasoning": "Gross/refund/net, ordercount, channels, ordertypes and average distinct. Pending electronic, drivercash, manualdiscount, comps and nettax explicitly separate. Five unwrapped horizontal footnotes may overflow narrower than1100max sheet."
+    },
+    {
+      "anchor": "SoldProducts",
+      "reasoning": "Full sold-product categoryfilter/table includes quantity/ordercount/total/peak, no truncationnote/topN promise. Grouping/data completeness belongs server/VM; product/category labels unwrapped in star columns, risk large names clipping."
+    },
+    {
+      "anchor": "ProductHourly",
+      "reasoning": "Per-product total/peak/hour text separate, compact scrolling outer sheet; eager ItemsControls may instantiate many product rows when expanded. No chart mock data."
+    },
+    {
+      "anchor": "ExpenseLines",
+      "reasoning": "Real expense category/description/amount/entryactor/approvalactor and directCreatedAtUtc binding rather than localtime converter used in treasury. Timestamp presentation inconsistent. Expense reprint real command with automationID/name; no preview or physical print executed."
+    },
+    {
+      "anchor": "Statement.ShiftTotals.ShortagePiastres",
+      "reasoning": "Shortage and overage shown separately, preserving offsetting differences; per-shift rows remain distinct. Several monetary columns lack column header labels in detail rows, harder to interpret screen-reader/order context."
+    },
+    {
+      "anchor": "Statement.TreasuryBalancesNow",
+      "reasoning": "Main label explicitlynow while other accounts adjacent samecurrentDTO; historical statement contains live balances, not frozen close snapshot. Treasury movementtime uses localconverter and showsactor/reason."
+    },
+    {
+      "anchor": "Employees",
+      "reasoning": "Attendance times/late, wage/overtime accrued, total paid today and runningbalance displayed. Earnings-versus-payment distinct; seven unwrapped equal columns need layout check and row-level headers/accessibility."
+    },
+    {
+      "anchor": "Statement.Inventory.SaleConsumptionMilliUnits",
+      "reasoning": "Consumption/loss/count quantities displayed raw integer with unit/1000label, unlike MilliUnitsToDisplay elsewhere. Aggregating heterogeneous inventory units can mislead without backend semantics; not treated as monetary loss. Known cost coverage not stated for loss sum."
+    },
+    {
+      "anchor": "Statement.Delivery.UnsettledCustodyExpectedPiastres",
+      "reasoning": "Delivery counts, fees/time/settlementdifferences plus currentcustody explicitlynow, mixing daily events with live positions deliberately labeled. Physicaldelivery stateproof belongs server."
+    },
+    {
+      "anchor": "AuditTrail",
+      "reasoning": "Refund authorizedactor+reason and combined audit/controltrail source, no timestamp column shown for auditrows. Header claims all events today; actual caps/query completeness need serverchallenge."
+    },
+    {
+      "anchor": "Statement.Backup.LastVerifiedBackupAtUtc",
+      "reasoning": "System printing/backup cards are statuscounts/timestamps only; no realpaperhealth proof. Many rawnullable fields renderblank without unknown label. Source commenttheme-safe not accepted as visualtest."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No reprints or live data read. Need current-versus-selected-day disclosure, complete-list caps, rawmilliquantities, unknowncostcoverage, longlabels/footnotes and accessible columns. No callable declarations.",
+  "recommendations": "Keep11section boundaries but add snapshot-time and units/context, coherent timestamp formatting and responsive wrapping. Rendered usability/contrast remains unverified.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,294 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-x674-v45j-fwxw",
+  "retrieved_at_utc": "2026-10-17T01:52:56.656199+00:00",
+  "http_status": 200,
+  "headers": {
+    "Date": "Sat, 17 Oct 2026 01:52:57 GMT",
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": "W/\"139c296c972a8be31c4978eb1e64880f9f85e57d503b1186ad13a338ebe07fa4\"",
+    "Last-Modified": "Tue, 04 Feb 2025 23:06:48 GMT"
+  },
+  "raw_body_utf8": "{\"ghsa_id\":\"GHSA-x674-v45j-fwxw\",\"cve_id\":\"CVE-2024-27086\",\"url\":\"https://api.github.com/advisories/GHSA-x674-v45j-fwxw\",\"html_url\":\"https://github.com/advisories/GHSA-x674-v45j-fwxw\",\"summary\":\"MSAL.NET applications targeting Xamarin Android and .NET Android (MAUI) susceptible to local denial of service\",\"description\":\">[!IMPORTANT]\\n>**ONLY** applications targeting Xamarin Android and .NET Android (MAUI) are impacted. All others can safely dismiss this CVE.\\n\\n### Impact\\n\\n[MSAL.NET](https://www.nuget.org/packages/Microsoft.Identity.Client/) applications targeting Xamarin Android and .NET Android (e.g., MAUI) using the library from versions `4.48.0` to `4.60.3` (inclusive, except `4.59.1` and `4.60.3`) are impacted by a low severity vulnerability.   \\n\\nA malicious application running on a customer Android device can (1) inject HTML/JavaScript in an embedded web view exported by affected applications, or (2) cause local denial of service against applications that were built using MSAL.NET for authentication on the same device (i.e., prevent the user of the legitimate application from logging in) due to incorrect activity export configuration.\\n\\n### Patches\\n\\nMSAL.NET version 4.60.3 includes the fix. We recommend all users of MSAL.NET that are building public client applications for Android update to the latest version.\\n\\n### Workarounds\\n\\nWe recommend developers update to the latest version of MSAL.NET. If that is not possible, a developer may explicitly mark the MSAL.NET activity non-exported:\\n\\n```xml\\n<activity android:name=\\\"microsoft.identity.client.AuthenticationAgentActivity\\\" android:configChanges=\\\"orientation|screenSize\\\" android:exported=\\\"false\\\">\\n<intent-filter>\\n<action android:name=\\\"android.intent.action.VIEW\\\" />\\n<category android:name=\\\"android.intent.category.DEFAULT\\\" />\\n<category android:name=\\\"android.intent.category.BROWSABLE\\\" />\\n<data android:scheme=\\\"msalYOUR_CLIENT_ID\\\" android:host=\\\"auth\\\" />\\n</intent-filter>\\n</activity>\\n```\\n\\n### References\\n\\nRefer to [MSAL.NET documentation](https://learn.microsoft.com/entra/msal/dotnet/) for latest guidance and best practices on configuring client applications using the library.\\n\",\"type\":\"reviewed\",\"severity\":\"low\",\"repository_advisory_url\":\"https://api.github.com/repos/AzureAD/microsoft-authentication-library-for-dotnet/security-advisories/GHSA-x674-v45j-fwxw\",\"source_code_location\":\"https://github.com/AzureAD/microsoft-authentication-library-for-dotnet\",\"identifiers\":[{\"value\":\"GHSA-x674-v45j-fwxw\",\"type\":\"GHSA\"},{\"value\":\"CVE-2024-27086\",\"type\":\"CVE\"}],\"references\":[\"https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/security/advisories/GHSA-x674-v45j-fwxw\",\"https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/commit/413e319472ccf48c86647f19fa2aa49ff6038488\",\"https://www.nuget.org/packages/Microsoft.Identity.Client\",\"https://learn.microsoft.com/en-us/entra/msal/dotnet\",\"https://nvd.nist.gov/vuln/detail/CVE-2024-27086\",\"https://github.com/advisories/GHSA-x674-v45j-fwxw\"],\"published_at\":\"2024-04-16T21:41:57Z\",\"updated_at\":\"2025-02-04T23:06:48Z\",\"github_reviewed_at\":\"2024-04-16T21:41:57Z\",\"nvd_published_at\":\"2024-04-16T22:15:34Z\",\"withdrawn_at\":null,\"vulnerabilities\":[{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.Identity.Client\"},\"vulnerable_version_range\":\">= 4.48.0, < 4.59.1\",\"first_patched_version\":\"4.59.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.Identity.Client\"},\"vulnerable_version_range\":\">= 4.60.0, < 4.60.3\",\"first_patched_version\":\"4.60.3\",\"vulnerable_functions\":[]}],\"cvss_severities\":{\"cvss_v3\":{\"vector_string\":\"CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:N/I:L/A:L\",\"score\":3.9},\"cvss_v4\":{\"vector_string\":null,\"score\":0.0}},\"cwes\":[{\"cwe_id\":\"CWE-863\",\"name\":\"Incorrect Authorization\"},{\"cwe_id\":\"CWE-926\",\"name\":\"Improper Export of Android Application Components\"}],\"credits\":[{\"user\":{\"login\":\"localden\",\"id\":53200638,\"node_id\":\"MDQ6VXNlcjUzMjAwNjM4\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/53200638?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/localden\",\"html_url\":\"https://github.com/localden\",\"followers_url\":\"https://api.github.com/users/localden/followers\",\"following_url\":\"https://api.github.com/users/localden/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/localden/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/localden/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/localden/subscriptions\",\"organizations_url\":\"https://api.github.com/users/localden/orgs\",\"repos_url\":\"https://api.github.com/users/localden/repos\",\"events_url\":\"https://api.github.com/users/localden/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/localden/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"coordinator\"},{\"user\":{\"login\":\"ashok672\",\"id\":83938949,\"node_id\":\"MDQ6VXNlcjgzOTM4OTQ5\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/83938949?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/ashok672\",\"html_url\":\"https://github.com/ashok672\",\"followers_url\":\"https://api.github.com/users/ashok672/followers\",\"following_url\":\"https://api.github.com/users/ashok672/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/ashok672/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/ashok672/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/ashok672/subscriptions\",\"organizations_url\":\"https://api.github.com/users/ashok672/orgs\",\"repos_url\":\"https://api.github.com/users/ashok672/repos\",\"events_url\":\"https://api.github.com/users/ashok672/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/ashok672/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"remediation_developer\"},{\"user\":{\"login\":\"bgavrilMS\",\"id\":12273384,\"node_id\":\"MDQ6VXNlcjEyMjczMzg0\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/12273384?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/bgavrilMS\",\"html_url\":\"https://github.com/bgavrilMS\",\"followers_url\":\"https://api.github.com/users/bgavrilMS/followers\",\"following_url\":\"https://api.github.com/users/bgavrilMS/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/bgavrilMS/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/bgavrilMS/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/bgavrilMS/subscriptions\",\"organizations_url\":\"https://api.github.com/users/bgavrilMS/orgs\",\"repos_url\":\"https://api.github.com/users/bgavrilMS/repos\",\"events_url\":\"https://api.github.com/users/bgavrilMS/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/bgavrilMS/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"remediation_reviewer\"},{\"user\":{\"login\":\"gladjohn\",\"id\":90415114,\"node_id\":\"MDQ6VXNlcjkwNDE1MTE0\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/90415114?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/gladjohn\",\"html_url\":\"https://github.com/gladjohn\",\"followers_url\":\"https://api.github.com/users/gladjohn/followers\",\"following_url\":\"https://api.github.com/users/gladjohn/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/gladjohn/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/gladjohn/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/gladjohn/subscriptions\",\"organizations_url\":\"https://api.github.com/users/gladjohn/orgs\",\"repos_url\":\"https://api.github.com/users/gladjohn/repos\",\"events_url\":\"https://api.github.com/users/gladjohn/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/gladjohn/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"remediation_reviewer\"},{\"user\":{\"login\":\"pmaytak\",\"id\":34331512,\"node_id\":\"MDQ6VXNlcjM0MzMxNTEy\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/34331512?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/pmaytak\",\"html_url\":\"https://github.com/pmaytak\",\"followers_url\":\"https://api.github.com/users/pmaytak/followers\",\"following_url\":\"https://api.github.com/users/pmaytak/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/pmaytak/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/pmaytak/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/pmaytak/subscriptions\",\"organizations_url\":\"https://api.github.com/users/pmaytak/orgs\",\"repos_url\":\"https://api.github.com/users/pmaytak/repos\",\"events_url\":\"https://api.github.com/users/pmaytak/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/pmaytak/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"remediation_reviewer\"},{\"user\":{\"login\":\"jmprieur\",\"id\":13203188,\"node_id\":\"MDQ6VXNlcjEzMjAzMTg4\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/13203188?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/jmprieur\",\"html_url\":\"https://github.com/jmprieur\",\"followers_url\":\"https://api.github.com/users/jmprieur/followers\",\"following_url\":\"https://api.github.com/users/jmprieur/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/jmprieur/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/jmprieur/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/jmprieur/subscriptions\",\"organizations_url\":\"https://api.github.com/users/jmprieur/orgs\",\"repos_url\":\"https://api.github.com/users/jmprieur/repos\",\"events_url\":\"https://api.github.com/users/jmprieur/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/jmprieur/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"remediation_reviewer\"},{\"user\":{\"login\":\"christothes\",\"id\":1279263,\"node_id\":\"MDQ6VXNlcjEyNzkyNjM=\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/1279263?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/christothes\",\"html_url\":\"https://github.com/christothes\",\"followers_url\":\"https://api.github.com/users/christothes/followers\",\"following_url\":\"https://api.github.com/users/christothes/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/christothes/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/christothes/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/christothes/subscriptions\",\"organizations_url\":\"https://api.github.com/users/christothes/orgs\",\"repos_url\":\"https://api.github.com/users/christothes/repos\",\"events_url\":\"https://api.github.com/users/christothes/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/christothes/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":true},\"type\":\"remediation_reviewer\"},{\"user\":{\"login\":\"ntc-swiss-team\",\"id\":146006358,\"node_id\":\"U_kgDOCLPhVg\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/146006358?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/ntc-swiss-team\",\"html_url\":\"https://github.com/ntc-swiss-team\",\"followers_url\":\"https://api.github.com/users/ntc-swiss-team/followers\",\"following_url\":\"https://api.github.com/users/ntc-swiss-team/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/ntc-swiss-team/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/ntc-swiss-team/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/ntc-swiss-team/subscriptions\",\"organizations_url\":\"https://api.github.com/users/ntc-swiss-team/orgs\",\"repos_url\":\"https://api.github.com/users/ntc-swiss-team/repos\",\"events_url\":\"https://api.github.com/users/ntc-swiss-team/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/ntc-swiss-team/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"finder\"}],\"comments\":1,\"cvss\":{\"vector_string\":\"CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:N/I:L/A:L\",\"score\":3.9},\"epss\":{\"percentage\":0.00189,\"percentile\":0.0755}}",
+  "raw_bytes_sha256": "5c8bd17088c84966d41e1e8463978586adeb2d52efb99e3d7eb989ac730e8930",
+  "transport_bytes_sha256": "5c8bd17088c84966d41e1e8463978586adeb2d52efb99e3d7eb989ac730e8930",
+  "decompression": "none",
+  "data": {
+    "ghsa_id": "GHSA-x674-v45j-fwxw",
+    "cve_id": "CVE-2024-27086",
+    "url": "https://api.github.com/advisories/GHSA-x674-v45j-fwxw",
+    "html_url": "https://github.com/advisories/GHSA-x674-v45j-fwxw",
+    "summary": "MSAL.NET applications targeting Xamarin Android and .NET Android (MAUI) susceptible to local denial of service",
+    "description": ">[!IMPORTANT]\n>**ONLY** applications targeting Xamarin Android and .NET Android (MAUI) are impacted. All others can safely dismiss this CVE.\n\n### Impact\n\n[MSAL.NET](https://www.nuget.org/packages/Microsoft.Identity.Client/) applications targeting Xamarin Android and .NET Android (e.g., MAUI) using the library from versions `4.48.0` to `4.60.3` (inclusive, except `4.59.1` and `4.60.3`) are impacted by a low severity vulnerability.   \n\nA malicious application running on a customer Android device can (1) inject HTML/JavaScript in an embedded web view exported by affected applications, or (2) cause local denial of service against applications that were built using MSAL.NET for authentication on the same device (i.e., prevent the user of the legitimate application from logging in) due to incorrect activity export configuration.\n\n### Patches\n\nMSAL.NET version 4.60.3 includes the fix. We recommend all users of MSAL.NET that are building public client applications for Android update to the latest version.\n\n### Workarounds\n\nWe recommend developers update to the latest version of MSAL.NET. If that is not possible, a developer may explicitly mark the MSAL.NET activity non-exported:\n\n```xml\n<activity android:name=\"microsoft.identity.client.AuthenticationAgentActivity\" android:configChanges=\"orientation|screenSize\" android:exported=\"false\">\n<intent-filter>\n<action android:name=\"android.intent.action.VIEW\" />\n<category android:name=\"android.intent.category.DEFAULT\" />\n<category android:name=\"android.intent.category.BROWSABLE\" />\n<data android:scheme=\"msalYOUR_CLIENT_ID\" android:host=\"auth\" />\n</intent-filter>\n</activity>\n```\n\n### References\n\nRefer to [MSAL.NET documentation](https://learn.microsoft.com/entra/msal/dotnet/) for latest guidance and best practices on configuring client applications using the library.\n",
+    "type": "reviewed",
+    "severity": "low",
+    "repository_advisory_url": "https://api.github.com/repos/AzureAD/microsoft-authentication-library-for-dotnet/security-advisories/GHSA-x674-v45j-fwxw",
+    "source_code_location": "https://github.com/AzureAD/microsoft-authentication-library-for-dotnet",
+    "identifiers": [
+      {
+        "value": "GHSA-x674-v45j-fwxw",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2024-27086",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/security/advisories/GHSA-x674-v45j-fwxw",
+      "https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/commit/413e319472ccf48c86647f19fa2aa49ff6038488",
+      "https://www.nuget.org/packages/Microsoft.Identity.Client",
+      "https://learn.microsoft.com/en-us/entra/msal/dotnet",
+      "https://nvd.nist.gov/vuln/detail/CVE-2024-27086",
+      "https://github.com/advisories/GHSA-x674-v45j-fwxw"
+    ],
+    "published_at": "2024-04-16T21:41:57Z",
+    "updated_at": "2025-02-04T23:06:48Z",
+    "github_reviewed_at": "2024-04-16T21:41:57Z",
+    "nvd_published_at": "2024-04-16T22:15:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.Identity.Client"
+        },
+        "vulnerable_version_range": ">= 4.48.0, < 4.59.1",
+        "first_patched_version": "4.59.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.Identity.Client"
+        },
+        "vulnerable_version_range": ">= 4.60.0, < 4.60.3",
+        "first_patched_version": "4.60.3",
+        "vulnerable_functions": []
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:N/I:L/A:L",
+        "score": 3.9
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-863",
+        "name": "Incorrect Authorization"
+      },
+      {
+        "cwe_id": "CWE-926",
+        "name": "Improper Export of Android Application Components"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "localden",
+          "id": 53200638,
+          "node_id": "MDQ6VXNlcjUzMjAwNjM4",
+          "avatar_url": "https://avatars.githubusercontent.com/u/53200638?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/localden",
+          "html_url": "https://github.com/localden",
+          "followers_url": "https://api.github.com/users/localden/followers",
+          "following_url": "https://api.github.com/users/localden/following{/other_user}",
+          "gists_url": "https://api.github.com/users/localden/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/localden/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/localden/subscriptions",
+          "organizations_url": "https://api.github.com/users/localden/orgs",
+          "repos_url": "https://api.github.com/users/localden/repos",
+          "events_url": "https://api.github.com/users/localden/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/localden/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "coordinator"
+      },
+      {
+        "user": {
+          "login": "ashok672",
+          "id": 83938949,
+          "node_id": "MDQ6VXNlcjgzOTM4OTQ5",
+          "avatar_url": "https://avatars.githubusercontent.com/u/83938949?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/ashok672",
+          "html_url": "https://github.com/ashok672",
+          "followers_url": "https://api.github.com/users/ashok672/followers",
+          "following_url": "https://api.github.com/users/ashok672/following{/other_user}",
+          "gists_url": "https://api.github.com/users/ashok672/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/ashok672/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/ashok672/subscriptions",
+          "organizations_url": "https://api.github.com/users/ashok672/orgs",
+          "repos_url": "https://api.github.com/users/ashok672/repos",
+          "events_url": "https://api.github.com/users/ashok672/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/ashok672/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_developer"
+      },
+      {
+        "user": {
+          "login": "bgavrilMS",
+          "id": 12273384,
+          "node_id": "MDQ6VXNlcjEyMjczMzg0",
+          "avatar_url": "https://avatars.githubusercontent.com/u/12273384?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/bgavrilMS",
+          "html_url": "https://github.com/bgavrilMS",
+          "followers_url": "https://api.github.com/users/bgavrilMS/followers",
+          "following_url": "https://api.github.com/users/bgavrilMS/following{/other_user}",
+          "gists_url": "https://api.github.com/users/bgavrilMS/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/bgavrilMS/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/bgavrilMS/subscriptions",
+          "organizations_url": "https://api.github.com/users/bgavrilMS/orgs",
+          "repos_url": "https://api.github.com/users/bgavrilMS/repos",
+          "events_url": "https://api.github.com/users/bgavrilMS/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/bgavrilMS/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_reviewer"
+      },
+      {
+        "user": {
+          "login": "gladjohn",
+          "id": 90415114,
+          "node_id": "MDQ6VXNlcjkwNDE1MTE0",
+          "avatar_url": "https://avatars.githubusercontent.com/u/90415114?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/gladjohn",
+          "html_url": "https://github.com/gladjohn",
+          "followers_url": "https://api.github.com/users/gladjohn/followers",
+          "following_url": "https://api.github.com/users/gladjohn/following{/other_user}",
+          "gists_url": "https://api.github.com/users/gladjohn/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/gladjohn/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/gladjohn/subscriptions",
+          "organizations_url": "https://api.github.com/users/gladjohn/orgs",
+          "repos_url": "https://api.github.com/users/gladjohn/repos",
+          "events_url": "https://api.github.com/users/gladjohn/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/gladjohn/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_reviewer"
+      },
+      {
+        "user": {
+          "login": "pmaytak",
+          "id": 34331512,
+          "node_id": "MDQ6VXNlcjM0MzMxNTEy",
+          "avatar_url": "https://avatars.githubusercontent.com/u/34331512?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/pmaytak",
+          "html_url": "https://github.com/pmaytak",
+          "followers_url": "https://api.github.com/users/pmaytak/followers",
+          "following_url": "https://api.github.com/users/pmaytak/following{/other_user}",
+          "gists_url": "https://api.github.com/users/pmaytak/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/pmaytak/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/pmaytak/subscriptions",
+          "organizations_url": "https://api.github.com/users/pmaytak/orgs",
+          "repos_url": "https://api.github.com/users/pmaytak/repos",
+          "events_url": "https://api.github.com/users/pmaytak/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/pmaytak/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_reviewer"
+      },
+      {
+        "user": {
+          "login": "jmprieur",
+          "id": 13203188,
+          "node_id": "MDQ6VXNlcjEzMjAzMTg4",
+          "avatar_url": "https://avatars.githubusercontent.com/u/13203188?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/jmprieur",
+          "html_url": "https://github.com/jmprieur",
+          "followers_url": "https://api.github.com/users/jmprieur/followers",
+          "following_url": "https://api.github.com/users/jmprieur/following{/other_user}",
+          "gists_url": "https://api.github.com/users/jmprieur/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/jmprieur/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/jmprieur/subscriptions",
+          "organizations_url": "https://api.github.com/users/jmprieur/orgs",
+          "repos_url": "https://api.github.com/users/jmprieur/repos",
+          "events_url": "https://api.github.com/users/jmprieur/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/jmprieur/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_reviewer"
+      },
+      {
+        "user": {
+          "login": "christothes",
+          "id": 1279263,
+          "node_id": "MDQ6VXNlcjEyNzkyNjM=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1279263?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/christothes",
+          "html_url": "https://github.com/christothes",
+          "followers_url": "https://api.github.com/users/christothes/followers",
+          "following_url": "https://api.github.com/users/christothes/following{/other_user}",
+          "gists_url": "https://api.github.com/users/christothes/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/christothes/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/christothes/subscriptions",
+          "organizations_url": "https://api.github.com/users/christothes/orgs",
+          "repos_url": "https://api.github.com/users/christothes/repos",
+          "events_url": "https://api.github.com/users/christothes/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/christothes/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": true
+        },
+        "type": "remediation_reviewer"
+      },
+      {
+        "user": {
+          "login": "ntc-swiss-team",
+          "id": 146006358,
+          "node_id": "U_kgDOCLPhVg",
+          "avatar_url": "https://avatars.githubusercontent.com/u/146006358?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/ntc-swiss-team",
+          "html_url": "https://github.com/ntc-swiss-team",
+          "followers_url": "https://api.github.com/users/ntc-swiss-team/followers",
+          "following_url": "https://api.github.com/users/ntc-swiss-team/following{/other_user}",
+          "gists_url": "https://api.github.com/users/ntc-swiss-team/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/ntc-swiss-team/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/ntc-swiss-team/subscriptions",
+          "organizations_url": "https://api.github.com/users/ntc-swiss-team/orgs",
+          "repos_url": "https://api.github.com/users/ntc-swiss-team/repos",
+          "events_url": "https://api.github.com/users/ntc-swiss-team/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/ntc-swiss-team/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "finder"
+      }
+    ],
+    "comments": 1,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:N/I:L/A:L",
+      "score": 3.9
+    },
+    "epss": {
+      "percentage": 0.00189,
+      "percentile": 0.0755
+    }
+  },
+  "status": "RETRIEVED"
+}

@@ -1,0 +1,32 @@
+{
+  "at_utc": "2026-10-18T03:37:13.481660+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "NOT_PROMOTED_COUNTEREVIDENCE_RECORDED",
+  "source": "src/Falah.Domain/Inventory/CostingRules.cs",
+  "source_hash": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+  "comparison": "Price resolver only follows Prep-source ingredients; structural cycle detector follows any active prep producer.",
+  "counterevidence": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "lines": [
+        326,
+        344
+      ],
+      "reason": "BuildCostLine invokes cycle reason only when unitCost is null. If price actually resolves through Purchase/estimate, no false circular warning is displayed."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "lines": [
+        46,
+        47,
+        84,
+        109
+      ],
+      "reason": "Save explicitly forbids structural active dependency cycle regardless of CostSource; normal sequential saves cannot create the hypothetical cyclic stored graph."
+    }
+  ],
+  "disposition": "Difference is not sufficient evidence of confirmed defect. No costing/pricing result disagreement reproduced; no canonical finding created.",
+  "separate_unverified_concurrency_lead": "Validator runs before transaction49, reads other active recipes94. Concurrent distinct A->B and B->A saves could both pass stale snapshots; runtime/independent challenge and practical impact not established. Preserve separately from rejected false-warning claim.",
+  "type_correction": "RecipeLine.YieldUnitsPerBaseUnit is nullable long, not floating ratio; NaN/infinity hypothesis rejected. Double conversion precision remains separate bounded concern.",
+  "runtime_tested": false
+}

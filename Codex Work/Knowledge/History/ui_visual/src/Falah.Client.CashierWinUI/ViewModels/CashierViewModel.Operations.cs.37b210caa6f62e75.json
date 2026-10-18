@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+  "source_git_blob_sha256": "b16994d5a208ffb06499671967fc9ff46f908b41863aa8c7160eaf63dffa19fa",
+  "worktree_sha256": "e4b4d4257703cbe135a8c821bb2075c7eb6d8b6e31dcb18622b0c8968fd38a06",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T07:04:55.061589+00:00",
+  "file_review_status": "ANALYZED_STATIC_PARTIAL_EXACT_RECONCILIATION",
+  "file_reasoning": "Read exact manager-approval helper345-367; surrounding Operations methods remain unreviewed exact IDs. Prior full static file report preserved.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-90012514d66806f53d976f9b4e785c4d8eab86db7dfed03255ef7928da4597df",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ResolveManagerApprovalIfNeededAsync(bool, string, string, string, Action<string>)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        345,
+        5,
+        367,
+        6
+      ],
+      "reasoning": "Skips approval only when caller permission decision says unnecessary; otherwise rejects PIN shorter4 and sends one IssueManagerApprovalRequest with PIN/permission/reason. Returns server-issued IDs, never names manager client-side or invokes LoginByPin. Summary comment claiming login exchange is stale. It does not change bearer; unknown approval response produces error and later fresh approval may be issued, unlike retained financial command.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Pure mock verifies bearer unchanged, permission/reason preserved and unknown approval retry behavior; no real PIN transmitted.",
+      "tests_missing": "Pure mock verifies bearer unchanged, permission/reason preserved and unknown approval retry behavior; no real PIN transmitted. NOT_EXECUTED.",
+      "verified_callers_callees": "Checkout comp/Refund/Operations Submit methods -> Api.IssueManagerApprovalAsync; onError callback"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": [
+    "sym-9c7e22921eeb380f92a3ecac5539d8d151aa60db9e6e45e4e1d3f68564cc42dc",
+    "sym-e6d20f67894e31949d7762e43c157b41c592454d3615aeee6267c5687a2573eb",
+    "sym-5b6801f5cf3eda59cf9a71ee48357b8736797d3c95db97ce0517952ab66f28f7",
+    "sym-7e03fc45c23d0729ef7a4713cbc29c1e040371d9abeb5e23adf51cfd8e3d8977",
+    "sym-4b9922241f9021331198416a8288baf90162660a44a4f63961ddd9ebbfad4da4",
+    "sym-28f74230cbbc7be4ea8d311e2a3d3b9ad20e27ff3de6eef1f46d98bd0cc9185a",
+    "sym-6d20fa698be48a5b76a062000d70b696a755ffde4c338efc89763e4161698d27",
+    "sym-b7b6f20e7eee321453ce86f10116c429d2a33425479af430513b1f1f285f41f5",
+    "sym-23221f20ed22cb11cd68fd00928fc86bdd2d61094d5bf5c52b3b93778763f9c5",
+    "sym-0fc7d149382c1a76c561d39a4ad60ec7a6b5ab3ebbf5081786e549dcd108188e",
+    "sym-3fc0c681bda25901ec89d63cafdc5f74914a5aabcee2ea0c9c0fded217f768b6",
+    "sym-ee730259a89858d40ffadfb27f8e412a22c51534d95e64f9f67757dc7994e8a7",
+    "sym-ff6cc00ecc5facc65e53e84b0a32637fcccb0c86eac11b84ea83cc44f7b43f04",
+    "sym-6fe170fb462293fd6dd7d84b0b2994db05ae703863138c968c519565516d46f2",
+    "sym-60b77fc324e448a6bd32f365cd3671d00b4149c3ef995aaffeeaa2912b95bd5f",
+    "sym-98f68a11f5e0394ceaf02925aa17da4b3d7fcbc753b1e99e4f890e872c64e7eb",
+    "sym-fb650d38d2201b87db1c8565071822ba89d10c19e9ffdb188f4aac4d04c0fc1c",
+    "sym-65768a4f628bae1663eb791c4a9055dc66ac8bbeb36723945a7e289a7ac10f7d",
+    "sym-bc4a8d15c8e96dda4f6918a3e21598bb916908c49ace78d2d86fb31f40b50782",
+    "sym-5a30b285ac4fe8f64abb2ee04b300739bc71eb6c4f25b787bd37e7074433cb7a",
+    "sym-6475b1b50a5ac148748741633f1550ab050061c1bf1db684372cef51a2777656"
+  ]
+}

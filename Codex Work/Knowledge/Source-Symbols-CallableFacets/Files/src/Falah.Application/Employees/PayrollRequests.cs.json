@@ -1,0 +1,338 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Employees.CreatePayrollRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Employees.CreatePayrollRequest::record-generated-behavior",
+      "startLine": 10,
+      "startColumn": 1,
+      "endLine": 10,
+      "endColumn": 96,
+      "origin_declaration_stable_id": "sym-b84ed4dab4e4baf6c6ea48b1ead628e77f8431de4b2815c6753f2260fa9066b9",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "RequestId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Period",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-c0fa0795c0a4894dcc42e84f07722976322612d1078ce70328b8e7b0a2569ae8",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Employees.PayrollRunDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Employees.PayrollRunDto::record-generated-behavior",
+      "startLine": 12,
+      "startColumn": 1,
+      "endLine": 15,
+      "endColumn": 57,
+      "origin_declaration_stable_id": "sym-fb4cc47b917fa1478dd8469ceef861385b697d77577ff6308ad217f3f2acf893",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Period",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "ApprovedBy",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "PaidAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReviewedAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReviewedBy",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "TreasuryMovementId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentAccountId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-1ec4341e5c036ca947604625d205ff9dd0d0b6d4338d7e23ea8b99f91f984bc9",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Employees.PayrollLineDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Employees.PayrollLineDto::record-generated-behavior",
+      "startLine": 17,
+      "startColumn": 1,
+      "endLine": 20,
+      "endColumn": 72,
+      "origin_declaration_stable_id": "sym-106e145bef847e7a7b0aabb4b8a748f7626de80158bf9963d8b385838131382a",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PayrollRunId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "EmployeeId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "BasePiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "OvertimePiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "ExtraShiftsPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "BonusesPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "DeductionsPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "AdvanceDeductionsPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "NetPayablePiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PaidAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-70d4e113c63a22ab12e706263cd6517e67fe9c787c636554515d97f03a54f1c2",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Employees.TransitionPayrollRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Employees.TransitionPayrollRequest::record-generated-behavior",
+      "startLine": 26,
+      "startColumn": 1,
+      "endLine": 26,
+      "endColumn": 161,
+      "origin_declaration_stable_id": "sym-190ff45b239d7e903da87b366ee0560a0fc6ff08b8185c3586a1805d74a616a5",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "PayrollRunId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-6a1af1e4ad43afa0feae95d2a96d40b2e9adef701cf6b650072d8ac6d3b8d260",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Employees.PayPayrollRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Employees.PayPayrollRequest::record-generated-behavior",
+      "startLine": 33,
+      "startColumn": 1,
+      "endLine": 33,
+      "endColumn": 164,
+      "origin_declaration_stable_id": "sym-f307c65a094918ee6a2f5bdceed9febef3bf782a59f3ed58f0d6df9a51a030ee",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "PayrollRunId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "PaymentAccountId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-115b9fe6e70bd85d7c76aec94f6a2aa8f184cca1f53950b23ff92c3d5453d47b",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Employees.PayPayrollResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Employees.PayPayrollResult::record-generated-behavior",
+      "startLine": 35,
+      "startColumn": 1,
+      "endLine": 35,
+      "endColumn": 129,
+      "origin_declaration_stable_id": "sym-0a8b59b8259792efde8c2c91670b22239fa8eabe9ae9396edfaa05b74f0f9be1",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "TreasuryMovementId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPaidPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "SettlementCount",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "WasReplayed",
+          "type": "bool",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-fe02cfb49bcd4b569f3e1baa7a822a63a01bf34886255ffde14edef455c7d935",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

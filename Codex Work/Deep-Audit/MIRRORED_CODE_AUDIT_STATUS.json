@@ -1,0 +1,3626 @@
+{
+  "at_utc": "2026-10-18T04:03:47.638337+00:00",
+  "status": "INCOMPLETE",
+  "original_scope": "Original15phase request Phase11 repository-wide exact/semantic duplicate/mirrored business logic, architecture and recommendations. AST candidate inventory is only a bounded subset.",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "candidate_group_total": 218,
+  "status_counts": {
+    "GENERATED_HISTORY_REPETITION_ACCOUNTED_NOT_REFACTOR_DEBT": 102,
+    "SOURCE_CHALLENGED_TYPED_ADAPTER_PATTERN_NOT_DUPLICATE_BUSINESS_LOGIC": 13,
+    "PENDING_MANUAL_APPLICATION_CONTEXT": 72,
+    "MANUALLY_TRIAGED_DUPLICATED_CURRENCY_INPUT_HELPER": 1,
+    "MANUALLY_TRIAGED_DUPLICATED_CLIENT_JOURNAL_HELPER": 6,
+    "PENDING_MANUAL_TEST_FIXTURE_CONTEXT": 24
+  },
+  "manually_triaged_or_context_challenged_groups": 20,
+  "distinct_source_paths_in_those_groups": 5,
+  "distinct_callable_ids_in_those_groups": 66,
+  "source_paths": [
+    "src/Falah.Client.CallCenterWinUI/Services/CashInput.cs",
+    "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+    "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+    "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+    "src/Falah.Server/Program.cs"
+  ],
+  "callable_ids": [
+    "sym-01e0971719b4c26d50fc3ad180ac01862f9019c642c321fd7f3518ebbe7f6d37",
+    "sym-0238fad33964714b961da1fda469adbad6fa8e8a42387e2ff7156baa5417b625",
+    "sym-03d4a576b2940f76f732a43f71cf043139092f0c50213f11291dff9a87dada30",
+    "sym-0688ab7d32dfe6400657dc66d1fbbfd37c0d633d1c15ce13d1639bb1835f0da3",
+    "sym-094667cedc35900ceade839bcb82eb8ad5a2f026e18ab4a531200968747e0ab3",
+    "sym-11d7c137ffcba23bfb2b34e4d85c2390a1fb9961cfa4b7df0b019b5d890adec6",
+    "sym-1c5a67f73a12da6d4c855e812e29e7a74875dc9fb4d2c2ae0d4d337c0a2853df",
+    "sym-269903c4c27f07316e2fe45a5665f551b2368c3b58e180e36df4dc9ab246edb6",
+    "sym-2c7354f95736e0fc30eda26f59cab2db70b8f9dfd400f7605ac878b5c4996d68",
+    "sym-3523c4e648121252fd781086cb515c1ce492a1fe8416e80414a1ce4720775d03",
+    "sym-39087865c2bf5b1972694eb10d9f7271e1b9ad53a7059c6a37b6393695f9de96",
+    "sym-3c63c6a7a287857ca33f17c686d9ca25e72043ea751beedb4d99b20f2e82da4f",
+    "sym-3dc3e21c045704ef3d2315d891553a2fdf00c13b9f9ace48670ab4ab0ac25ead",
+    "sym-3ec880b99fc0ec24fda160d954bb4ee62664b0c563f64facc62983161dcba95d",
+    "sym-43ada00854a2640f8c394344b941a672a47691085039d6a673dbb34297e90e28",
+    "sym-47e9faee7ef04ee5606dd899f1da91a02e871cfe46db2317b9022093bceb9fb5",
+    "sym-491cae6d6e9bcbc671013e28f59a3c26c474e1f996d675ba1025f36b814c648c",
+    "sym-4964a9a24fd133652373e1eb65e317a1c24e25f20dd6dfa1a90457dbcb900755",
+    "sym-4d02fd21a3e53c191348fa65075f44c56768cf62ff02f5aec026ae2db21db11c",
+    "sym-4e119a78c115265968eeb28f7191b026967f5b9513b46aeddf3b3955cf5c02b1",
+    "sym-55b5caf7479498685c18be95d815a50683701d992f209540ce5bb16d1ccd0518",
+    "sym-5742dee0af0672bc0ba541cd1afc19455629619c62dd718b098a004c9fa8e64a",
+    "sym-5978993f08e8da33d9333331404eb75d68e20907d98c3f42ae1f1831a887f341",
+    "sym-5b14493b28e6a021dd07a1fae6598d310018738fea01d836ad9acb4d15976f1a",
+    "sym-5b8e0d4991ae1e00ce5900b1b1596b934683fe020c307493752850e8d2c3e65e",
+    "sym-5e6e8a29f9b7a7b4c467d15a4bc01d4c9c6c58b03b5405cc549cd775c0c90195",
+    "sym-62a91ddabacfa9b8830bdfd7551b64ef2363332b9b68acf6d54ab598d58692d5",
+    "sym-656229634498aae4cd2482acd06b9ec591e58ba1d5b36db5334fab9c0b9ee5cb",
+    "sym-6a9ccc11b2ea22cdbed2c45c214713ff98d1d60b7ae827874df1f15d33dd9802",
+    "sym-6b8237aa9f3a3705810377f92f0bb1c7c4015d26694b0467916c0b427c8a51d8",
+    "sym-6c214b3cc09557aa3049c671a4c2e30719aee0410be2e3b01239ed9404f9f3b1",
+    "sym-6cf0a7990f4a3f47d6121ca9860355fa8169a60aff5cf6aa72c6ab97ee9384c5",
+    "sym-6d42bf08d6bf4916ce24bc11e75ee18d061838340cda5aa124eb73609c947333",
+    "sym-710feab624add243b33553be872e2c173680099d4dde5747547e36f6fd59b92d",
+    "sym-7a158f4ae1a34024042ba7eef06d297bfb91250a158fb96641a4844ae0c2e281",
+    "sym-7baafb6421ffae3023a542c2b30a908aa4680d9f33a02e530d0d3633e803595a",
+    "sym-7c508a7f1fe806a26fcd3e3188a5320ee9069137d8ad2780ef481143d1e349d3",
+    "sym-82b05ba35b9429a2633c08c27a9d5d65c4e384f810ed79680d0287d1888798f3",
+    "sym-8662faf8864066677d5bc9f9f14ef503860c0fd3c5feb05f314268e9f5dec33b",
+    "sym-87f547266c66a8d5f13f8b3ea3fcd37312dc5f9627643c4ce7ecb8e32477d74e",
+    "sym-8bd100ee07b328790de179435f07495ec40ec33cdce493f9d68a3ee796f93f1d",
+    "sym-91da63f88c242551b598dcd0293b2a8eaa664417ee27a4e88afa4ecc18f12995",
+    "sym-9210e9bedf58c6a50962f84b9fd8ed2d03d1d4dfb238dfc885aaa043156512e8",
+    "sym-98e06dae1402dbf99896541a516a6e924cbdfdca3336178f6979a46b926fa1fd",
+    "sym-9e91287b91249f788752324d063edff0f9ec0eaadf02dc9400355af543640a07",
+    "sym-a1bdc409ba817758fab925ee661c7fd3a234d33a7af6de51f9539e82df16a3bb",
+    "sym-a5e2c58ed949ad8277b2a6a15daa90649e3f2ff0bc26714c6a066e2d28da8052",
+    "sym-aca98e6ea6166124dcb87eaf65577ff5bf1af8a19aba5d04d1f3bb39a0558746",
+    "sym-b7d3ca09f20dccbd7a03958ba2c1c3f4c80889204b4d0203bcddb572e5b2a5e0",
+    "sym-bb86fecf98b1d746b1870cd59e1cb0ba338defa8b14afcae2f82b9ff8a7b6fdb",
+    "sym-bde287cdb9daedb2de003f9768e115d2f098dae2ca17a1b8ee42f4d9e569eeed",
+    "sym-c1eaeee6a043bb5ca39c91ae6ead3368d3c33f4d7cb8ea83359a521f360a7b42",
+    "sym-c744317fb2456778324cd933326f12bd7072f500b5aea0842b4ca5e447811a11",
+    "sym-c98f66a0a520be18d59af238671af0969910469d4e15fafdad727a5eec87c374",
+    "sym-cf913a13eee9b02630fb1db82f0848a774bc9c4980c395dd857a9f3f295c18be",
+    "sym-d3eb1821fe47670db932405186253cd28f7196507de838566072817917405ab8",
+    "sym-e07003fb34db50b5e55dc41f3070cbb4ca92b81ef4c95635ebc1dcbf439957ee",
+    "sym-e0dea97e2adb36df2ff87f839327978c6540b2ff4cd63cda0b0aae24be30c821",
+    "sym-e43ecdd6da1799a3bdb9b9c712ebbcb756604c36f57711dbccf1c61641eacc23",
+    "sym-e7e8cd8786ac0b4111d192b4930818ea974358e7d294f0fbaf04c176b53574aa",
+    "sym-ec6ea5d0611fbe374e18f66871b39ab5732a5642adf059fe2ebfdb85cdfc5971",
+    "sym-f599f2f242577c5625adf5022787d8b81a912ffc4c8902caabf9717495fa03d5",
+    "sym-f7206e3fda8b8e44b9161f13b853355b46f0479e6e6ec357d9020e3ec12a7d34",
+    "sym-fc22fefb8d494fd3879de9f2efc6e86e13b1ad479e1004839569fec6ba40df28",
+    "sym-feb387519d4d6e22534991be65c90faab091a4c706a14b34374181d8fc17b6ed",
+    "sym-febfde0369fe715bdfdb7e3b27551f7606e1278749d76f3ddc19b0b04afa15df"
+  ],
+  "remaining_groups": [
+    {
+      "group_id": "clone-555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 117,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+          "stable_id": "sym-90012514d66806f53d976f9b4e785c4d8eab86db7dfed03255ef7928da4597df",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "b16994d5a208ffb06499671967fc9ff46f908b41863aa8c7160eaf63dffa19fa",
+          "start_line": 345,
+          "end_line": 367,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs",
+          "stable_id": "sym-f1e498a7982711b20b4239d5042a1da97055507b4c9f4eed3504d5cac5b56f4b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+          "start_line": 136,
+          "end_line": 153,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
+          "stable_id": "sym-7fd0ca6417ddba2ca34100adfbb8e14fb96fc78a4b48e11ec1a1836d386effd9",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "ab1cb0a573412633b4c33fce3282e37859163da8cecc156ff2df507fa8f468d8",
+          "start_line": 390,
+          "end_line": 410,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+          "stable_id": "sym-7294938e6572bbbfc2fb9ed85d8c8c42807fa63ae7613ac653ddb557b7fb011c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+          "start_line": 696,
+          "end_line": 716,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+          "stable_id": "sym-2a932e99bd1ce32cb3a3d038da8916e1e0c2c305d0cec9e9818a0061b2d5655f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "33b471f584fbd6eb5621807b28feaea76c127863f24f69ef399a016bb52bc14e",
+          "start_line": 604,
+          "end_line": 624,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 177,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-ce8892177d95c076ea58255a5542674481164cf0f69939bd51c49b0ed03a0b51",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 56,
+          "end_line": 82,
+          "token_count": 177,
+          "body_token_sha256": "d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-3b7deb7e35f2ff824a946daab34a9fcc0e74669b94795fb748a42a66ad5853b6",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 58,
+          "end_line": 84,
+          "token_count": 177,
+          "body_token_sha256": "d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 99,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-ba38b81cd62887c2f8b0addf41b818b591cddd057f4193660e90f8abe3bafb7b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "70dc69c12cf0df77ee7ddb3ac1b9ab151649d8fde1f111326435f6ce6c1b1e48",
+          "start_line": 53,
+          "end_line": 80,
+          "token_count": 99,
+          "body_token_sha256": "796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-73e7a2ae21b0edb639b5f016295d335deca836c1290642f25bf419ddcb034b44",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "fb8cda0af18c3b5073826704d1b72243fd196e6ddc084070a7a7b1e139791105",
+          "start_line": 51,
+          "end_line": 78,
+          "token_count": 99,
+          "body_token_sha256": "796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-108d6c6a3e8c2bc0d5baf81dd3f7f5dcafd08f9ef2783f81dae2b8e8f500a27d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "dece8eb51b3c8db5f1767395d8992eff8756afe3ee4c2c0b57c83b813ab7e8a1",
+          "start_line": 53,
+          "end_line": 80,
+          "token_count": 99,
+          "body_token_sha256": "796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 145,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-bff97485e41dad73fce78e8b0a5f923c01e6684d9e362654925479f0e136c19c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 115,
+          "end_line": 129,
+          "token_count": 145,
+          "body_token_sha256": "a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-2429d401662a38ec3d41aa1d3cf3d4b5bca73cd4d8bd24492b1a0a004e1e83e7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 157,
+          "end_line": 171,
+          "token_count": 145,
+          "body_token_sha256": "a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d9a43647f233bf352232598cb5dd2c5d8b06df688991a49423a41b878269adfd",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 105,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/EmployeeVerticalSliceTests.cs",
+          "stable_id": "sym-b74af90c61881c68a109545c91c368e52635158308458c5eea92bd9a90296d14",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "582f1333b04594dae58c3bad6b20d0f0669978376d001dfcfe1ce163ab1e8f10",
+          "start_line": 41,
+          "end_line": 49,
+          "token_count": 105,
+          "body_token_sha256": "d9a43647f233bf352232598cb5dd2c5d8b06df688991a49423a41b878269adfd",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+          "stable_id": "sym-615e3e08f788e791ded8e1f8261626931a029c9639ba51a5e47f0ecc5c9017b7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+          "start_line": 36,
+          "end_line": 44,
+          "token_count": 105,
+          "body_token_sha256": "d9a43647f233bf352232598cb5dd2c5d8b06df688991a49423a41b878269adfd",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 34,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-f1b7c02bc15b2609211c0b0fd3ac692e701a9f058b0994cf905580dc23915ae9",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 255,
+          "end_line": 256,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-d50f56ae3ffa9b6020b7260543a742e2ec78186e6850f0b5fadeda3ce6f0a124",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 276,
+          "end_line": 277,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-c99a5a166a2505a49c8eeb29fe4c3bb4049deffc8fe6d302e5ec45e8c5792159",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 311,
+          "end_line": 312,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-ae0bd97f5ce2f606a59f2ce3c1173d97f24cec07ff8a20f8b68c13a1a136b962",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 329,
+          "end_line": 330,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-514617f08c5bc61802339d5f7b86b5c403d45a07d7a3288209b9862b293106ae",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 353,
+          "end_line": 354,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-58e38c694f4d3d6cce669871c30e9fb26493d32bc68bc285adca918c051dcac7",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 362,
+          "end_line": 363,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 96,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-8f8b8c4190d3816926115630c9df176269090fa4a1b9b6eb6c65abd0d220efed",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 201,
+          "end_line": 214,
+          "token_count": 96,
+          "body_token_sha256": "623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-15f75c26962132b72113ba48d4f978f04e1e89585f4f14c1474d86b59779e235",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 678,
+          "end_line": 691,
+          "token_count": 96,
+          "body_token_sha256": "623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-334c1355eba61c034787ccfd29072a96ee27c3e49226feb22f16daac43356dbc",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 93,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryOrderIntakeTests.cs",
+          "stable_id": "sym-6197d1014bd4b0427c245047dc7a707a348d9d9fddeeacf9b5229ea4d1a079ea",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "3526609e5e5d3db76e621c433e0c7359adcc33ef84707f347535cbbaf470c291",
+          "start_line": 25,
+          "end_line": 35,
+          "token_count": 93,
+          "body_token_sha256": "334c1355eba61c034787ccfd29072a96ee27c3e49226feb22f16daac43356dbc",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs",
+          "stable_id": "sym-e1ce40c702e6a105d8dd63a3741129551ce8c15c855bdb7656ba0c16dde2e40f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "22c34ee767445893b62f4a58b60118b8643f832597c8579d8254d454dab81e91",
+          "start_line": 18,
+          "end_line": 27,
+          "token_count": 93,
+          "body_token_sha256": "334c1355eba61c034787ccfd29072a96ee27c3e49226feb22f16daac43356dbc",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 30,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/AuditWiringCoverageTests.cs",
+          "stable_id": "sym-f34e671002e0c3212682db431e2c4f46cda5373c230f9075e19819716fb5aaa6",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2f159d1801a07b3d26192c40a6c1eada961ac0b5ff191356a3c19b1a088313d2",
+          "start_line": 91,
+          "end_line": 91,
+          "token_count": 30,
+          "body_token_sha256": "d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+          "stable_id": "sym-459aed7860b5d66f00ac9f16f48420d37ce3a22dc87aa6417389e008109e6978",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+          "start_line": 178,
+          "end_line": 178,
+          "token_count": 30,
+          "body_token_sha256": "d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+          "stable_id": "sym-1a8240f33b6ba24472665ef5fea1e4330b7decf40d1630d13d08010abba09cfd",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+          "start_line": 478,
+          "end_line": 478,
+          "token_count": 30,
+          "body_token_sha256": "d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+          "stable_id": "sym-e1e853c499339e1965ebd45dc32d8a002cb2b7ca7ca83bfa811c0db38cadd97a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+          "start_line": 502,
+          "end_line": 502,
+          "token_count": 30,
+          "body_token_sha256": "d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+          "stable_id": "sym-29ee352c5c6e543a12de0541842f9ab719f8359227891937de4688880752b6b2",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+          "start_line": 216,
+          "end_line": 216,
+          "token_count": 30,
+          "body_token_sha256": "d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+          "stable_id": "sym-c1a1b1d9532a09a0115625158a9837c264e05242b57b0f868530775adb3bacd5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+          "start_line": 424,
+          "end_line": 424,
+          "token_count": 30,
+          "body_token_sha256": "d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 45,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/CashInput.cs",
+          "stable_id": "sym-bea6da4a1584264bb930deea74d66675c2e9de6264f54e1c507301313af35b3a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+          "start_line": 10,
+          "end_line": 12,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+          "stable_id": "sym-3c6fabe579968563067d3d8550534ece4e8093c5f7a25ffbb66400bc352670db",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+          "start_line": 10,
+          "end_line": 12,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/MilliUnits.cs",
+          "stable_id": "sym-66b2cf83f33d0f904b0ad5c4d241a195bea89d932efeb47b30b1479ce3d6cbcc",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7bacd9ec6afd8fbf7b2e2dcfcbf176a79e9bf1f12a9e83aaa6893787a8c36efe",
+          "start_line": 18,
+          "end_line": 20,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/AttendanceViewModel.cs",
+          "stable_id": "sym-0fddaf3a924982e52f3aec263ef7eaf44badf0e4fac6bccef4566e54df5bea2b",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7c278e9a5dae77559f3c7509edec07a74a931e1c19be1c534ab7f722c978cf79",
+          "start_line": 146,
+          "end_line": 148,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-01fde7092060d82358a6220530d2c35e4d351e9fd835733aa3a96b4791274c19",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 89,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+          "stable_id": "sym-069c3f8e41933fd8965a25b1aab7b0fb5d441ca8edd7ae9ed7c8c0534765d291",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+          "start_line": 230,
+          "end_line": 240,
+          "token_count": 89,
+          "body_token_sha256": "01fde7092060d82358a6220530d2c35e4d351e9fd835733aa3a96b4791274c19",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+          "stable_id": "sym-90f838c65857f1f262bce1f5c0100c447b4fdd88915e823e474179c86bb4bd63",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+          "start_line": 499,
+          "end_line": 509,
+          "token_count": 89,
+          "body_token_sha256": "01fde7092060d82358a6220530d2c35e4d351e9fd835733aa3a96b4791274c19",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-70cd7851f05a4ff705bf948a8ea170508ced426e32d2eeeaff1e572fa9666086",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 78,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Controls/StatusPillView.xaml.cs",
+          "stable_id": "sym-d33a4ec1b423ed296e0270cf96dd94ec5d670a0fea7f8e54c471851d3966a30c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "ddb23cb541032413834d77e347cf33c4ad54d7e9955af774eccde1107b8ecc6a",
+          "start_line": 22,
+          "end_line": 29,
+          "token_count": 78,
+          "body_token_sha256": "70cd7851f05a4ff705bf948a8ea170508ced426e32d2eeeaff1e572fa9666086",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs",
+          "stable_id": "sym-aa08135467131e50853c793e3d99f6224bf3c87ea4a0b2d4eb7993637f75ca85",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4d17c848e22bc8ee801ce2963109e5280c1faa97b876830dddb85b2310e4eb15",
+          "start_line": 22,
+          "end_line": 29,
+          "token_count": 78,
+          "body_token_sha256": "70cd7851f05a4ff705bf948a8ea170508ced426e32d2eeeaff1e572fa9666086",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 77,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-64349009d470a7f6478ad43aba0419c10d60bba2e4973f8603c36594d17e4a64",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 314,
+          "end_line": 325,
+          "token_count": 77,
+          "body_token_sha256": "dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-740d606d1733794dc2bd9d1484035cc306146b34f475cbafbf192b011e84c3d1",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 807,
+          "end_line": 818,
+          "token_count": 77,
+          "body_token_sha256": "dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 67,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-ef8ede9a94c2d0223771ee0272e47111088426082a8057006cad1ba9cb6814d8",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 84,
+          "end_line": 95,
+          "token_count": 67,
+          "body_token_sha256": "16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-fe37d781451f6d2a9c80f92ef6911497b18acb47d4ae0bd0923bd57c0a897121",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 112,
+          "end_line": 123,
+          "token_count": 67,
+          "body_token_sha256": "16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-ceb3bc69ef5390d9913f066cd901a6e162b78028e06c54bb640bb5fbf7655574",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 66,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-f74dc7bba31ef12fb3e79d7ae886affa55d2b39546cc48ca538f1f8a6693e40f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "eda170153810d5ed626be9017d2652b0db224a5977ddaf0b3dc0bd4b3ae273b1",
+          "start_line": 27,
+          "end_line": 39,
+          "token_count": 66,
+          "body_token_sha256": "ceb3bc69ef5390d9913f066cd901a6e162b78028e06c54bb640bb5fbf7655574",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-28644fdd3f5ad04bb20b35552d30453d1367ded63ea2fc5f7af24925b706a810",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f4871ad97b4ea75bfcbe65da8708d2e1eacad6ce2950741961c2dd6155f79b9",
+          "start_line": 27,
+          "end_line": 39,
+          "token_count": 66,
+          "body_token_sha256": "ceb3bc69ef5390d9913f066cd901a6e162b78028e06c54bb640bb5fbf7655574",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-2fdd8ea2efa4a5a6e7c0ddd8311ef62a7c4537c12922ad3fd5eb053b8d7841f7",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 43,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Domain.Tests/OrderPaymentQueriesTests.cs",
+          "stable_id": "sym-6153286c3f4baef5796221a340b1e499872bdcfc0555da287d29916aa8c5dc6a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6d4efbe18d40151ca25104a3b21f2f285a4f4e46085ae31bc89d35a8fdfb9609",
+          "start_line": 12,
+          "end_line": 13,
+          "token_count": 43,
+          "body_token_sha256": "2fdd8ea2efa4a5a6e7c0ddd8311ef62a7c4537c12922ad3fd5eb053b8d7841f7",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/OrderReconstituteTests.cs",
+          "stable_id": "sym-6e6d09ac31cc5008051769a97da487d3830f9a8e7b662707254c01cdff7e2854",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "86818b18e449dc9393f7a219a9fa1b92069a044270a8f3e22c4931be616b93f9",
+          "start_line": 12,
+          "end_line": 13,
+          "token_count": 43,
+          "body_token_sha256": "2fdd8ea2efa4a5a6e7c0ddd8311ef62a7c4537c12922ad3fd5eb053b8d7841f7",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/OrderRefundTests.cs",
+          "stable_id": "sym-b3f113019efdb8ed1ec03ce10fc64cd4cfba358798b76ee17ae2fcbd5fbc2269",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "060cdcfcfc8295b99077a53da4b23945696a605c3a2dbeb43074cb010507cabf",
+          "start_line": 13,
+          "end_line": 14,
+          "token_count": 43,
+          "body_token_sha256": "2fdd8ea2efa4a5a6e7c0ddd8311ef62a7c4537c12922ad3fd5eb053b8d7841f7",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 40,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-7fdc8dfbca09224924cd5c576f52daf79a63c6757706e4e0dedd22ba7ed523c7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "start_line": 38,
+          "end_line": 44,
+          "token_count": 40,
+          "body_token_sha256": "17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-77ae9e2cfbbbfac27f25af32222b373bf211b0f2d0f9e267f9456a2b295eaafb",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "start_line": 34,
+          "end_line": 40,
+          "token_count": 40,
+          "body_token_sha256": "17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-5ef7aeba3ded90f70b4787ccedda481042b28adf2083d7bbd1c2c106124316e0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "start_line": 39,
+          "end_line": 45,
+          "token_count": 40,
+          "body_token_sha256": "17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-6681a2c84a5a8cc148becf22e2f86f4f79ba95e0482fce785069604031f5a123",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 56,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/OrderHistoryVerticalSliceTests.cs",
+          "stable_id": "sym-4f175b3a5d435c16107943a6feb13be3680b0dd3cd65a359f1dbc798ef92fab7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a330d5d69066b1f682b55b755a26d5930573cc3562b7b4c106eaeb81c214d734",
+          "start_line": 19,
+          "end_line": 26,
+          "token_count": 56,
+          "body_token_sha256": "6681a2c84a5a8cc148becf22e2f86f4f79ba95e0482fce785069604031f5a123",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-1ffb006d7d5754cad09c1e2f10ee9b906a8fdf9ef58870432c89fbd726e78dbd",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 24,
+          "end_line": 31,
+          "token_count": 56,
+          "body_token_sha256": "6681a2c84a5a8cc148becf22e2f86f4f79ba95e0482fce785069604031f5a123",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-8ed19dac49ac38fb7d75123ffb1a50459ebfeac2f054c455f7266feed102d3c7",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 52,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs",
+          "stable_id": "sym-538dc7fd7cf6bf30fd68cf62c2c7941880d07d5ed160ac0b28f8fd873e69be67",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "d075891fc1aace2363fa85196441f2b4a0a5afa089ff32a49124795bb9787f87",
+          "start_line": 40,
+          "end_line": 54,
+          "token_count": 52,
+          "body_token_sha256": "8ed19dac49ac38fb7d75123ffb1a50459ebfeac2f054c455f7266feed102d3c7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/MainWindow.xaml.cs",
+          "stable_id": "sym-69b001e86c5a896da8edce232f8f1d784f6883b97807cf7e2212be81303c0d2f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "16c8f0f4a007bd2973e7a1a5ddbde64f0c75e188cc5360dcc6700757533d1c7f",
+          "start_line": 64,
+          "end_line": 78,
+          "token_count": 52,
+          "body_token_sha256": "8ed19dac49ac38fb7d75123ffb1a50459ebfeac2f054c455f7266feed102d3c7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 52,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-939ba342066b8db5a0e240e3067f59c7a01a94756227094956abd41ea156ade2",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 225,
+          "end_line": 230,
+          "token_count": 52,
+          "body_token_sha256": "18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-f90e341942437683bdce64e4a4bb95a257ee0db7674f5cf3517f02b15c91d93c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 702,
+          "end_line": 707,
+          "token_count": 52,
+          "body_token_sha256": "18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs",
+          "stable_id": "sym-6b7b044abfa5b0f5a25a12354d04f372a44deef38243fba0d33093777500ddce",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "22c34ee767445893b62f4a58b60118b8643f832597c8579d8254d454dab81e91",
+          "start_line": 203,
+          "end_line": 203,
+          "token_count": 20,
+          "body_token_sha256": "2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs",
+          "stable_id": "sym-7b297da4fc41805297f16f20251c19d68555576640efeae6d5cdd9f66703fcae",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "22c34ee767445893b62f4a58b60118b8643f832597c8579d8254d454dab81e91",
+          "start_line": 243,
+          "end_line": 243,
+          "token_count": 20,
+          "body_token_sha256": "2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/PrintingVerticalSliceTests.cs",
+          "stable_id": "sym-67234b87f24b9c6f9864a2f4db30974eb32522042c8853a2290c74b36fe4c3ba",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "1fc09dadf93db845d38d53eec0b08ff8abcb7e40bc98dc94957a66b6f8a3782c",
+          "start_line": 411,
+          "end_line": 411,
+          "token_count": 20,
+          "body_token_sha256": "2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-43d9a4c09ec5d8a06f1305a3e29ae553ad4bbd5a2c2ceb3c875ad85a90d7aed9",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 146,
+          "end_line": 146,
+          "token_count": 20,
+          "body_token_sha256": "2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-b2c8064e3b45286fb79771254f005f99695e8be1df15ca493f8075df3fe86471",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 236,
+          "end_line": 236,
+          "token_count": 20,
+          "body_token_sha256": "2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 50,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-a0dbfc42d4d5cdee7b6baca10496fdcb1a4568769775ac0e66742343c30d694c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "start_line": 61,
+          "end_line": 69,
+          "token_count": 50,
+          "body_token_sha256": "3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-8c8d6b588da227e85c13b87ba9fcafd6cd9cf4b9ecb1c3ebea0d85feb054843a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "start_line": 62,
+          "end_line": 70,
+          "token_count": 50,
+          "body_token_sha256": "3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs",
+          "stable_id": "sym-31fb25a99b65f5ad005660f250794d8ef8819efa5730d712a12223510c520bbc",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "3693c0da66e3187b850bbe00c9197aebf9705745b9beb2c48419f98a48067462",
+          "start_line": 134,
+          "end_line": 135,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+          "stable_id": "sym-05aa9477df9537de8d842118fe511ffcd7adc21fa76db2d9f5c7bd81a73c5e20",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+          "start_line": 108,
+          "end_line": 109,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+          "stable_id": "sym-7efb59b9c998578715030c5b6ee3e3f6f663ded16b14d81d1d9c38ace3b77203",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+          "start_line": 119,
+          "end_line": 120,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+          "stable_id": "sym-e1b3b0cd8bbfed6bc35cff6c67b4776c6f2c7da9a0ba14e9ca98ebc7b0b3a344",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+          "start_line": 121,
+          "end_line": 122,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+          "stable_id": "sym-042bce4b3208ab16e9638e06ce9edb5a46301f3d1fb1ae2484d0ef0cf51517fb",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "f6e7c05ee8a55b7c2d485365b2adf9ba86081e74a95b56f95d2791499ef3de14",
+          "start_line": 111,
+          "end_line": 112,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-e7fd938c061914281410281674d91f8b672d808bb804735793d57ef5851b373e",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 49,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Controls/SummaryCardView.xaml.cs",
+          "stable_id": "sym-c91070660971b2f5a70ea28ec985a0aaaf1c176173ff3844933390537d7ee9c0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "bd4c24804be905a1181a14fa1062cc76051a9470279fd65ac0bbd122de2fc341",
+          "start_line": 46,
+          "end_line": 52,
+          "token_count": 49,
+          "body_token_sha256": "e7fd938c061914281410281674d91f8b672d808bb804735793d57ef5851b373e",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Controls/SummaryCardView.xaml.cs",
+          "stable_id": "sym-b486bb856e1426c3c07c325a29b06dbf03e52fe302513800b729e0c067f93ecc",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "249ae70ade76578a6e67d3e9276fcc8d8a97154181ef0776ec063663e2f5473f",
+          "start_line": 46,
+          "end_line": 52,
+          "token_count": 49,
+          "body_token_sha256": "e7fd938c061914281410281674d91f8b672d808bb804735793d57ef5851b373e",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-b63fa2c78fdd19dad82723824eec86c168dfbf1f93c0c58dd4c4f4d95422fc11",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 47,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs",
+          "stable_id": "sym-fca1061e52ce115300f04137ace22896034dc00fc5291e6dce45d19316f7298b",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7fc4808d3814ae22c425c3afffd0c198d3093d56969bb834a87851fc47264220",
+          "start_line": 24,
+          "end_line": 29,
+          "token_count": 47,
+          "body_token_sha256": "b63fa2c78fdd19dad82723824eec86c168dfbf1f93c0c58dd4c4f4d95422fc11",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs",
+          "stable_id": "sym-34f7c9fa5ff0287828886397cea9ea2363908600d30855a754d4bede7c23d68a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7fc4808d3814ae22c425c3afffd0c198d3093d56969bb834a87851fc47264220",
+          "start_line": 158,
+          "end_line": 163,
+          "token_count": 47,
+          "body_token_sha256": "b63fa2c78fdd19dad82723824eec86c168dfbf1f93c0c58dd4c4f4d95422fc11",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-2eb704cf6bd757db2ed6a4cd1d89de7f9c7b5d00de6fd0459c72b724c0c8ab8f",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 47,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "stable_id": "sym-fcb7d1838f40e3e8bed9ca6a08de4efa9e823c418e5bdf166f10bdf699b1445a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "start_line": 41,
+          "end_line": 44,
+          "token_count": 47,
+          "body_token_sha256": "2eb704cf6bd757db2ed6a4cd1d89de7f9c7b5d00de6fd0459c72b724c0c8ab8f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-e305692c02bdd553346273a2700f62644750154f940819b4b347c3c315151a07",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 35,
+          "end_line": 38,
+          "token_count": 47,
+          "body_token_sha256": "2eb704cf6bd757db2ed6a4cd1d89de7f9c7b5d00de6fd0459c72b724c0c8ab8f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 45,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-2280d8e35332729545b4e3a55b8121a31660ce61f56e478bcec8331490c1c9e0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 13,
+          "end_line": 22,
+          "token_count": 45,
+          "body_token_sha256": "8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-bb658dd141ceecf6cb5f1e977e9cb99fef1879e7de5ac582942adc84d6e5e193",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 306,
+          "end_line": 315,
+          "token_count": 45,
+          "body_token_sha256": "8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 45,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-0256d90127a005b855d82349300c430671c0bbfbb4ad1da5f9c8117e6aa4d839",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "start_line": 20,
+          "end_line": 27,
+          "token_count": 45,
+          "body_token_sha256": "7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-acd8b8139bc324e6276dc4ee4e1962476c463888d5735deb9f3af350df6cbc73",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "start_line": 19,
+          "end_line": 26,
+          "token_count": 45,
+          "body_token_sha256": "7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-754aa0615c60b2006d0f0369fc4c13d89f07d2022b2a5e4870f9c2be263e3a5a",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 45,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs",
+          "stable_id": "sym-189c7062b46c5801d8964025c0d00e2b1e0f68dfe376899eb00d85d22a886f82",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "263dc6671313a9bbb74357b9a5f3d795b8d4efc7e84878aeb1e2f2f35f81cf96",
+          "start_line": 25,
+          "end_line": 30,
+          "token_count": 45,
+          "body_token_sha256": "754aa0615c60b2006d0f0369fc4c13d89f07d2022b2a5e4870f9c2be263e3a5a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs",
+          "stable_id": "sym-6c5cff53e3e8229cff561b29e01c705e3c229e933ba51102c38465963bd56526",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "56b96463748c0aa592df53edf2104e7044b20c56f8ff75379c147d7ed0c1cd0d",
+          "start_line": 59,
+          "end_line": 64,
+          "token_count": 45,
+          "body_token_sha256": "754aa0615c60b2006d0f0369fc4c13d89f07d2022b2a5e4870f9c2be263e3a5a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 43,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-1fa47926cdfa3584921051252ab0149e4a22c0d47504f487faa201babec24c13",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 36,
+          "end_line": 39,
+          "token_count": 43,
+          "body_token_sha256": "f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-1fde4faf0f9240ca0b5fc76be50016974322f0a41fafed7b37d657599ad1fe41",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 36,
+          "end_line": 41,
+          "token_count": 43,
+          "body_token_sha256": "f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 42,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-8b25b29dae2fcb87d5eb009bc6df9deba1b5f4cb06b32b495ea9538874b47469",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 133,
+          "end_line": 140,
+          "token_count": 42,
+          "body_token_sha256": "51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-a32dcfe7c7cadd52913a018860e42347286880d5fd8ea5bf0498a3aa5fa54f7c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 175,
+          "end_line": 182,
+          "token_count": 42,
+          "body_token_sha256": "51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 42,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "stable_id": "sym-ea645e17910030a0aedc01248917332a5881aaaa7904e937b17a12fd634e94a5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "start_line": 263,
+          "end_line": 267,
+          "token_count": 42,
+          "body_token_sha256": "94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "stable_id": "sym-cb5bf9ef6b893ff746b592fbc3b75019fc8e62b70fd21deb8e1fb15ccf5eb00b",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "start_line": 287,
+          "end_line": 291,
+          "token_count": 42,
+          "body_token_sha256": "94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 27,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+          "stable_id": "sym-93839261dd0ed8f72cf9a223caefcce279a8875b4d8828df53baf3f7dcc2a90a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+          "start_line": 75,
+          "end_line": 75,
+          "token_count": 27,
+          "body_token_sha256": "d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+          "stable_id": "sym-8c6df279b733bb7c0a0a54c8599186fa2519fa55b494a79d38b265f04097decc",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+          "start_line": 146,
+          "end_line": 147,
+          "token_count": 27,
+          "body_token_sha256": "d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-19e75575929d26a5e8e052ddaeee1285399a7215f46aa0bbf5cdfb428041ed88",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 179,
+          "end_line": 179,
+          "token_count": 27,
+          "body_token_sha256": "d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-ab89aa566e296313ab599ce939fedaafe8b063f4407d783b3b2b22a3be426d1a",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 40,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-19ea613bf76cd7647e6906db954913166ad9c0282d1a3df7b13a9873b40fe5a7",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "eda170153810d5ed626be9017d2652b0db224a5977ddaf0b3dc0bd4b3ae273b1",
+          "start_line": 18,
+          "end_line": 25,
+          "token_count": 40,
+          "body_token_sha256": "ab89aa566e296313ab599ce939fedaafe8b063f4407d783b3b2b22a3be426d1a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-773a302e484afad50481c59ae14999f56969c25a312ad517ad0bf5b3caa29ae5",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "6f4871ad97b4ea75bfcbe65da8708d2e1eacad6ce2950741961c2dd6155f79b9",
+          "start_line": 18,
+          "end_line": 25,
+          "token_count": 40,
+          "body_token_sha256": "ab89aa566e296313ab599ce939fedaafe8b063f4407d783b3b2b22a3be426d1a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-21f7b599520cd0377c8d6a3cb7bf7b2154acfa8b5ab12031fbb7046272c5237b",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 39,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+          "stable_id": "sym-47d476783921c2e02ecde79b77655c28632833c15d231027e17baaafdb11aa49",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+          "start_line": 82,
+          "end_line": 84,
+          "token_count": 39,
+          "body_token_sha256": "21f7b599520cd0377c8d6a3cb7bf7b2154acfa8b5ab12031fbb7046272c5237b",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "stable_id": "sym-57dd2d7b425983f7a920cdb79dd30295e85ec4f2c04de0c319c364d61978c2b3",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "start_line": 94,
+          "end_line": 96,
+          "token_count": 39,
+          "body_token_sha256": "21f7b599520cd0377c8d6a3cb7bf7b2154acfa8b5ab12031fbb7046272c5237b",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 25,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-8d4271940aecfeaded746d23d686c668a5573545bb38f460e31ee05e38a6fe42",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 28,
+          "end_line": 31,
+          "token_count": 25,
+          "body_token_sha256": "156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+          "stable_id": "sym-e9ff8fb60ea420b52cdaa5623dc49d64965c88733123145fb11c56122c71a872",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "start_line": 22,
+          "end_line": 25,
+          "token_count": 25,
+          "body_token_sha256": "156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-a90361360f7f2477338ed3956ba3a2eae1ff5b5b895dbe281b2f21a18a89df91",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 28,
+          "end_line": 31,
+          "token_count": 25,
+          "body_token_sha256": "156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 37,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-985c14e7400e9a6c11cc86f1cc59d57684e757de1ab60e70589bace63672cfe6",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 233,
+          "end_line": 236,
+          "token_count": 37,
+          "body_token_sha256": "3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-cb5a9d485028bd92305eb773a571c74410610eaa6f1f16bbad1d647030eca5ec",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 711,
+          "end_line": 714,
+          "token_count": 37,
+          "body_token_sha256": "3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 24,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+          "stable_id": "sym-44b3fc159498b85ba8b163964e2264b85f2bb0add8d519f70401c1cdabb7ea10",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+          "start_line": 40,
+          "end_line": 41,
+          "token_count": 24,
+          "body_token_sha256": "faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/AppSession.cs",
+          "stable_id": "sym-d9647144ec8d4c36e597aef56f7958247082c519a5264d97b1188639e0c57530",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "78f3827a4f5eed2126bef903204824b8bc3973aca3da12b079a30695c65e1d37",
+          "start_line": 15,
+          "end_line": 16,
+          "token_count": 24,
+          "body_token_sha256": "faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+          "stable_id": "sym-ebe9c8514f3bb69a36cd840ed97ebe3b879820994ed3a5955057258d7bfe4873",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+          "start_line": 33,
+          "end_line": 34,
+          "token_count": 24,
+          "body_token_sha256": "faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 36,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-065f27a05bf2a8bb953208a62e192b5cf141846e14f15f80d834c80f85dd701b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 292,
+          "end_line": 296,
+          "token_count": 36,
+          "body_token_sha256": "3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-bfa65a47cdb0a933af11f73e0015930e62a3f7a28fbea445201e41b9467cc9b1",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 280,
+          "end_line": 284,
+          "token_count": 36,
+          "body_token_sha256": "3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-ebda8b17c54b0a19ba69e2cd164b1479ee0292a4ce1a96935318ecca40671673",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 35,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-4a9274b1329502958a6822aad643cbfc15a5892f18d8bd20b7c09cfd2d28a4dd",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "eda170153810d5ed626be9017d2652b0db224a5977ddaf0b3dc0bd4b3ae273b1",
+          "start_line": 54,
+          "end_line": 59,
+          "token_count": 35,
+          "body_token_sha256": "ebda8b17c54b0a19ba69e2cd164b1479ee0292a4ce1a96935318ecca40671673",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-1c50b6c537825a9913c45d0e3e3a35b8aa76be8bd5551740f6ddeea83b776099",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f4871ad97b4ea75bfcbe65da8708d2e1eacad6ce2950741961c2dd6155f79b9",
+          "start_line": 54,
+          "end_line": 59,
+          "token_count": 35,
+          "body_token_sha256": "ebda8b17c54b0a19ba69e2cd164b1479ee0292a4ce1a96935318ecca40671673",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 35,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "stable_id": "sym-f33c7ef0be84264b2d82964c1716877a626c186ca967248249300ad47d6430ac",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "start_line": 39,
+          "end_line": 39,
+          "token_count": 35,
+          "body_token_sha256": "03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+          "stable_id": "sym-49cb295c981bfac1f9e84b4ffead27d46c282754d0e3f11d90004aa7db9d9a70",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+          "start_line": 67,
+          "end_line": 67,
+          "token_count": 35,
+          "body_token_sha256": "03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 23,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "stable_id": "sym-e67a8e78cf6248a4bc5530b9fccd7f48fae7ea08625e4894677f6929083a406e",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+          "start_line": 142,
+          "end_line": 142,
+          "token_count": 23,
+          "body_token_sha256": "599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
+          "stable_id": "sym-764d6887bda145fac5ab58d00d6bf360b9d686ef5679cf7a10636601b7a73e47",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "515219765f36ce15d4c0470c3f1272a191da27af2cc4508d8ce8bcaaec21bd33",
+          "start_line": 102,
+          "end_line": 102,
+          "token_count": 23,
+          "body_token_sha256": "599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "stable_id": "sym-14bf76bd9847ff238d5f50860e9d891e48d3bbb178a36fef8121c0367815717a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+          "start_line": 353,
+          "end_line": 353,
+          "token_count": 23,
+          "body_token_sha256": "599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 34,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-ce9cd176617dfc342486eb35b9182133fda3c443ca04892ff3d11f1538348cf2",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 281,
+          "end_line": 287,
+          "token_count": 34,
+          "body_token_sha256": "f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-651bf1a1219f3ccad1b548a999e36012c40ae9268958791b6d71a52648a16a5c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 266,
+          "end_line": 272,
+          "token_count": 34,
+          "body_token_sha256": "f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-ce9588b93795f36c244d39a1f4ea518c6933afbc96205f9c43e07b4241868ca6",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 34,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs",
+          "stable_id": "sym-2fd2eb6055b271399d3d5dcfed5a6ccff92d2f1abb38922d754a0d443806ae90",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "263dc6671313a9bbb74357b9a5f3d795b8d4efc7e84878aeb1e2f2f35f81cf96",
+          "start_line": 32,
+          "end_line": 36,
+          "token_count": 34,
+          "body_token_sha256": "ce9588b93795f36c244d39a1f4ea518c6933afbc96205f9c43e07b4241868ca6",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs",
+          "stable_id": "sym-178e44e13682aee0679a78cd99404f66499070057cffd308ab6d92c7d77a2e7d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "56b96463748c0aa592df53edf2104e7044b20c56f8ff75379c147d7ed0c1cd0d",
+          "start_line": 68,
+          "end_line": 72,
+          "token_count": 34,
+          "body_token_sha256": "ce9588b93795f36c244d39a1f4ea518c6933afbc96205f9c43e07b4241868ca6",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 34,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+          "stable_id": "sym-9f7830a35df50fcfc012c5fbbc6de35d5dcb4681dae776b67d606eae66643609",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+          "start_line": 146,
+          "end_line": 147,
+          "token_count": 34,
+          "body_token_sha256": "4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-b7e7492055cb2d21aed62a5753d616252adb29e1d2649d3d33d65bf9da130494",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 179,
+          "end_line": 179,
+          "token_count": 34,
+          "body_token_sha256": "4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 32,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "stable_id": "sym-5892c0eabbb53e5606a78582067b0a90ca2f7ec592024a4d48eb48fe5263a311",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "start_line": 26,
+          "end_line": 26,
+          "token_count": 32,
+          "body_token_sha256": "799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "stable_id": "sym-83c6c98852a8a973fab595e46c2150cc338a61b42f3b4bf8a96f02a0453db262",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "start_line": 36,
+          "end_line": 36,
+          "token_count": 32,
+          "body_token_sha256": "799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-419455eacc41dbe7761156aba264068b8f1c032b60cad92202df9540c1c90567",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 31,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Client.Tests/FinalVerificationTests.cs",
+          "stable_id": "sym-6fdc27a13562eb8736a40ff63dd1120b915e67944106f07a1d47bcbe79d4c501",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "c8764156b93073f68ee4017c1dc94be0f3434dd714bb45873653237ee5cc8299",
+          "start_line": 110,
+          "end_line": 113,
+          "token_count": 31,
+          "body_token_sha256": "419455eacc41dbe7761156aba264068b8f1c032b60cad92202df9540c1c90567",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Client.Tests/FinalVerificationTests.cs",
+          "stable_id": "sym-0e0b31e664d16b1c3b0b5afae4337ae270da73844332f8018c4ccdc9cf0d7191",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "c8764156b93073f68ee4017c1dc94be0f3434dd714bb45873653237ee5cc8299",
+          "start_line": 136,
+          "end_line": 139,
+          "token_count": 31,
+          "body_token_sha256": "419455eacc41dbe7761156aba264068b8f1c032b60cad92202df9540c1c90567",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-403e7bd9bfa73f4b970931efbe5ebfbd3142d3ccf7b8d6e92d0319bc93a9496f",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 31,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-1d0b300b760f2264299f0eaf225fdcf1fc034dd2b6b1ecbcac65009c70726924",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 91,
+          "end_line": 91,
+          "token_count": 31,
+          "body_token_sha256": "403e7bd9bfa73f4b970931efbe5ebfbd3142d3ccf7b8d6e92d0319bc93a9496f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-486e436519a9cd5fd25ecc7a9818b140caac48f207dd0062569e668362b11372",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 145,
+          "end_line": 145,
+          "token_count": 31,
+          "body_token_sha256": "403e7bd9bfa73f4b970931efbe5ebfbd3142d3ccf7b8d6e92d0319bc93a9496f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+          "stable_id": "sym-a7899e538b61b5708fe384896b18b3b589239cb3c62e471cd8794b483529a2bb",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+          "start_line": 48,
+          "end_line": 48,
+          "token_count": 20,
+          "body_token_sha256": "91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+          "stable_id": "sym-ee224b1f054eb8b1dd4aae3876ae10f54f96983762fdb32b7913ead36217047c",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+          "start_line": 118,
+          "end_line": 118,
+          "token_count": 20,
+          "body_token_sha256": "91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+          "stable_id": "sym-483a5e2b8d4ccf7c94f389c30e1da573212dd0a0f08b4dcb7672ac7add104ca3",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+          "start_line": 130,
+          "end_line": 130,
+          "token_count": 20,
+          "body_token_sha256": "91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 30,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-2b1fa437886c834801dd0d8bd4616b476eae6883d3add3569ee2e16eaa06e46f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 41,
+          "end_line": 52,
+          "token_count": 30,
+          "body_token_sha256": "9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-4fed0daeb772351dd8f2fed528f03df5659b2b061764216eb9c74fe11446980a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 43,
+          "end_line": 54,
+          "token_count": 30,
+          "body_token_sha256": "9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-3b4bc077ea119300c3add796a85b5cf3820766350cf33bed1f5888e25e2f35de",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "70dc69c12cf0df77ee7ddb3ac1b9ab151649d8fde1f111326435f6ce6c1b1e48",
+          "start_line": 34,
+          "end_line": 40,
+          "token_count": 20,
+          "body_token_sha256": "80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-d9375b6b489e13c6c13a6890d5b60ab321f97a56041a3ff23a840999b6df2f54",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "fb8cda0af18c3b5073826704d1b72243fd196e6ddc084070a7a7b1e139791105",
+          "start_line": 32,
+          "end_line": 38,
+          "token_count": 20,
+          "body_token_sha256": "80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-830c12a5038cad5828d36b2e014878452602500445e1180efad6e13a8ab865df",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "dece8eb51b3c8db5f1767395d8992eff8756afe3ee4c2c0b57c83b813ab7e8a1",
+          "start_line": 34,
+          "end_line": 40,
+          "token_count": 20,
+          "body_token_sha256": "80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
+          "stable_id": "sym-373a29a69e1d15ee091dac4c040dcafd8b6adca93a6bebce17b6720b4cdf596d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "c9e49112b32f8415f630a9f885695186d2b7bcc37ad2e7017d77315a6bed6792",
+          "start_line": 23,
+          "end_line": 27,
+          "token_count": 20,
+          "body_token_sha256": "8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+          "stable_id": "sym-f80285991fca8ef57c851039cb6cd9661e1366af275018dcc08697470728ad0f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+          "start_line": 32,
+          "end_line": 36,
+          "token_count": 20,
+          "body_token_sha256": "8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+          "stable_id": "sym-610123616afc79fdf3df690617ce4d21a10c4ecc4574f238f361ecec6cbf22a2",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "33b471f584fbd6eb5621807b28feaea76c127863f24f69ef399a016bb52bc14e",
+          "start_line": 29,
+          "end_line": 33,
+          "token_count": 20,
+          "body_token_sha256": "8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 29,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-74ead5b7c973d8696259ef2f9db4ce8c4b8f21a4afdc20f0e59f029ed33b6de5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 202,
+          "end_line": 202,
+          "token_count": 29,
+          "body_token_sha256": "d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-b6d25ab491e5e12948c725fcb578cc9deacecaa2380b9f4fe7c451172e122398",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 206,
+          "end_line": 206,
+          "token_count": 29,
+          "body_token_sha256": "d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 29,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-4717a90ffc05b3e01c6491ec0dc14c24c14e1507d2c8fd21e7d3774685098de3",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 434,
+          "end_line": 434,
+          "token_count": 29,
+          "body_token_sha256": "7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-958697b80f404a64f5dcd3a2aca793458ec43188c6cc904ec33282ee58d69a60",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 452,
+          "end_line": 452,
+          "token_count": 29,
+          "body_token_sha256": "7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 28,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-2a477e13600d3f95272144d21388daef760f2ef8fe746c340480f03f77d2d97b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 145,
+          "end_line": 151,
+          "token_count": 28,
+          "body_token_sha256": "88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-6a7e9dba69d8cc1bf4ea1920f61d586045495c7f0a1bf6bc1a01b841d2c43c62",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 622,
+          "end_line": 628,
+          "token_count": 28,
+          "body_token_sha256": "88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-443be0237f9e3373f9c634e1cc4510a8829d564b18951edaf3d51a4919e2e65e",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 28,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-c65350458537872c94e7cb7248323d2e79901418b74cfb69a0ec7ecefc3e482b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "eda170153810d5ed626be9017d2652b0db224a5977ddaf0b3dc0bd4b3ae273b1",
+          "start_line": 44,
+          "end_line": 48,
+          "token_count": 28,
+          "body_token_sha256": "443be0237f9e3373f9c634e1cc4510a8829d564b18951edaf3d51a4919e2e65e",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs",
+          "stable_id": "sym-7f3112ca084c51392be1dd9dd13c5d35956184fa38fd82c3a0aa616194564a1e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f4871ad97b4ea75bfcbe65da8708d2e1eacad6ce2950741961c2dd6155f79b9",
+          "start_line": 44,
+          "end_line": 48,
+          "token_count": 28,
+          "body_token_sha256": "443be0237f9e3373f9c634e1cc4510a8829d564b18951edaf3d51a4919e2e65e",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 27,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-f2ac9d8cc90d190ad5c63402572481529d76c878205a6e22d134b066324dd1aa",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 105,
+          "end_line": 106,
+          "token_count": 27,
+          "body_token_sha256": "fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-96cadc559790b37adfb7dec98025c9dd2e6119074075eb3e472e8cb9a4f0f5a5",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 147,
+          "end_line": 148,
+          "token_count": 27,
+          "body_token_sha256": "fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-57eeeb59771c0eed51e722b523201855f58b1dd9080f8b58dd50cc30a9674e1f",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 27,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+          "stable_id": "sym-27d3ca93dcc9856b675837cba315caf4e09ee1bf56b8380550ba170be414697d",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "e2b5553a921ea0d31937f6da513bde91613f88d0447576d6754f9c2a8b767fc7",
+          "start_line": 26,
+          "end_line": 26,
+          "token_count": 27,
+          "body_token_sha256": "57eeeb59771c0eed51e722b523201855f58b1dd9080f8b58dd50cc30a9674e1f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+          "stable_id": "sym-67e94e6b5104dfbaeafcb6e7f49eac719e74c2479dbcbd4714013bb29a16d43d",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "e2b5553a921ea0d31937f6da513bde91613f88d0447576d6754f9c2a8b767fc7",
+          "start_line": 30,
+          "end_line": 30,
+          "token_count": 27,
+          "body_token_sha256": "57eeeb59771c0eed51e722b523201855f58b1dd9080f8b58dd50cc30a9674e1f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 27,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "stable_id": "sym-283f8e91b9921ba7947ac0f211585f5004b1c2c39aaa7b6c2c20f87520351add",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "start_line": 486,
+          "end_line": 486,
+          "token_count": 27,
+          "body_token_sha256": "df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-82a0ef83cb481108bcb6d4acdd0d09689d92f7f627b79a5a99537eeefe49b354",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 376,
+          "end_line": 376,
+          "token_count": 27,
+          "body_token_sha256": "df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 27,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "stable_id": "sym-2a49e6a4d02bd39858d654f14caa67bb6b01a2b97dab4d316412cbff96868938",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "start_line": 494,
+          "end_line": 495,
+          "token_count": 27,
+          "body_token_sha256": "216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-fd8f7464d73a72a3c1c7edf4832ae22e93f5f0459c6ed8fe848a66b55fc167a0",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 382,
+          "end_line": 382,
+          "token_count": 27,
+          "body_token_sha256": "216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-4c7788e6adc55042ffd8d3362e10cf738be9b21573edcd6b7ff5cb057e618ff4",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 147,
+          "end_line": 150,
+          "token_count": 26,
+          "body_token_sha256": "d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-01ab54c6131d03aed2bebc78c0341cadc00b91ef2bc2addd2376540ad1e3f0b6",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 189,
+          "end_line": 192,
+          "token_count": 26,
+          "body_token_sha256": "d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-fc1f7207ce8b9d39422e47bce0ec9b0fe7855df14abcc41a3af5595db0d69ef7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 152,
+          "end_line": 155,
+          "token_count": 26,
+          "body_token_sha256": "8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-deb0ed463c67ea108165f21304cae3581ce469b4f331b19ee331fa8bcb404008",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 194,
+          "end_line": 197,
+          "token_count": 26,
+          "body_token_sha256": "8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-32b3f56adbca3b7dff95164a5a1efbf2edcffc956c7247bf405a522f394dbc40",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 157,
+          "end_line": 160,
+          "token_count": 26,
+          "body_token_sha256": "0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-986adbe8f7a6339fc12009c13d1712d77268746095650729023a87f2fa10a44b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 199,
+          "end_line": 202,
+          "token_count": 26,
+          "body_token_sha256": "0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-aabfda8669a79646d019c89a8d3c98b7af81081c97dba6a26c977182226b896a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 162,
+          "end_line": 165,
+          "token_count": 26,
+          "body_token_sha256": "343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-26efc35ddcdb1db4e3da7d285d4df8402809ff59bf30b7bd9e1c32f398bc5ee0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 204,
+          "end_line": 207,
+          "token_count": 26,
+          "body_token_sha256": "343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-a75c9cbb5f393e1639328b05c729fb73b497544cafbd18fbe7eccc8dce051247",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 167,
+          "end_line": 170,
+          "token_count": 26,
+          "body_token_sha256": "c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-ec0da1424d141b4679844e1a83dba86b4ddc416ea95b8a8a3abbde8f976c2eec",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 209,
+          "end_line": 212,
+          "token_count": 26,
+          "body_token_sha256": "c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-544f91711ecb4e51d5725880259a0d12577b58aed8cdcffa1e500f71736a8a37",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 172,
+          "end_line": 175,
+          "token_count": 26,
+          "body_token_sha256": "88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-65fb04a10341c3000ee7669291ddb18ef15eeb3567ee25c68325056b388f5834",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 214,
+          "end_line": 217,
+          "token_count": 26,
+          "body_token_sha256": "88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-5de671da1fcb68579111b3c76e74630f8488204c1533722ab1e89a51def04262",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 177,
+          "end_line": 180,
+          "token_count": 26,
+          "body_token_sha256": "c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-3fa28c5b3069f7f395814c68a37bb507e50bb9b7493f2819767cd7add61d22bd",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 219,
+          "end_line": 222,
+          "token_count": 26,
+          "body_token_sha256": "c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-cd626ecd0fa46f97e141d53e64348cb1761c6973153d745d2349077aee0f2920",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 197,
+          "end_line": 200,
+          "token_count": 26,
+          "body_token_sha256": "fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-6ba7ea01179f2c4cba52fe0421e2b466ca559daaa010a4d65f8a9916466d9705",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 675,
+          "end_line": 678,
+          "token_count": 26,
+          "body_token_sha256": "fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-4f2f33456e3348083b95a7f6acd043ba498f9b92f423a9da2909771544212813",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 202,
+          "end_line": 205,
+          "token_count": 26,
+          "body_token_sha256": "e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-54abe4385172de072eb35c3c8f525cb42aa23ff862fa4fe6ed58eb8a059d742f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 680,
+          "end_line": 683,
+          "token_count": 26,
+          "body_token_sha256": "e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-fc5c96ed582b17eef86da60fb05c872b4a45286d9c724e7acf12b01b1b938d32",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 209,
+          "end_line": 212,
+          "token_count": 26,
+          "body_token_sha256": "f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-bf7c14ab9db0007906245eaa9bb009a4aab117da25b92c87a30c26d28babdba5",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 687,
+          "end_line": 690,
+          "token_count": 26,
+          "body_token_sha256": "f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-68316dd7fbd5117b5b546ae094aae47a8f390720c8ba950449d0132fcb0e8c84",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 214,
+          "end_line": 217,
+          "token_count": 26,
+          "body_token_sha256": "8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-7f4bf1d3e3bb37b88da94388fb81a22b4ea6848ba79cdd711f4ef5d2b94620cb",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 692,
+          "end_line": 695,
+          "token_count": 26,
+          "body_token_sha256": "8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-047fb8c176024edbaaa245efd1d917c6e6dae544f0b341f9cbdddd08f868d803",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 219,
+          "end_line": 222,
+          "token_count": 26,
+          "body_token_sha256": "0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-35761f0922ca0129c156451f8c621fd3223aaa2ce134337c70910668e3c36b17",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 697,
+          "end_line": 700,
+          "token_count": 26,
+          "body_token_sha256": "0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-6263df38e8814523c4f5f3d8ae998e4bc41b5e6e552b917faf557a86269f95bc",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 83,
+          "end_line": 87,
+          "token_count": 26,
+          "body_token_sha256": "6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-15bceeb4fa912523bbcd28af88ec46a6f2a24bd3bd631a83aa4644bbb8213fbe",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 50,
+          "end_line": 54,
+          "token_count": 26,
+          "body_token_sha256": "6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-df5cb23dc946eccfc66eccb7d5067c39e9f1476225ba7799ed3f91c80c1548ef",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/CategoryStripView.xaml.cs",
+          "stable_id": "sym-b4fe7260c9a0591e4ac46bee7babe293f0f79d17bf60d2e2e8d4cb40d83da88b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "9813f953ffe567e932bc5a2a37dc458437cd8433c49c533651072ab72b4d2a9c",
+          "start_line": 13,
+          "end_line": 17,
+          "token_count": 26,
+          "body_token_sha256": "df5cb23dc946eccfc66eccb7d5067c39e9f1476225ba7799ed3f91c80c1548ef",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CategoryStripView.xaml.cs",
+          "stable_id": "sym-1679161df1806f0169205269fd466b5cef84d04b88310e01cc4f4cbc92cd1581",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "25006ba49574980ca8651714e2b79229a46108ef2880448f23e5c0ea36e8bc3c",
+          "start_line": 22,
+          "end_line": 26,
+          "token_count": 26,
+          "body_token_sha256": "df5cb23dc946eccfc66eccb7d5067c39e9f1476225ba7799ed3f91c80c1548ef",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 26,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-10d5bceb7cfbf3f79d5cc2feebe1c2d88b2b2fa2266408895ee5fca25e4365d6",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 121,
+          "end_line": 121,
+          "token_count": 26,
+          "body_token_sha256": "1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-e147e871a8e3b7ad8feedaeb0b06733dc4a3605031d79aa36ca8e12f6dfacbb5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 145,
+          "end_line": 145,
+          "token_count": 26,
+          "body_token_sha256": "1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-5693b1a9b62bd806dcd414fc79dd838880b353bc9771c7c5682a47afb6c9dd86",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 25,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Controls/ErrorStateView.xaml.cs",
+          "stable_id": "sym-d69306c3eb26c39093f994ba44bfb0560f1f9e4e57228ef375f6141dd1e8ef8c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "346a67e823479beef52f24957533b6585794c40deaeddbfbe9f16019f8051daf",
+          "start_line": 38,
+          "end_line": 39,
+          "token_count": 25,
+          "body_token_sha256": "5693b1a9b62bd806dcd414fc79dd838880b353bc9771c7c5682a47afb6c9dd86",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Controls/ErrorStateView.xaml.cs",
+          "stable_id": "sym-ae0737a1c0aaa66c40839a880626c47e8e99984032d683430ac3f5d7d9291770",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "9541e97c6c46392dd01a4e918088f04a0b17fa18a152fded206656076fea8037",
+          "start_line": 38,
+          "end_line": 39,
+          "token_count": 25,
+          "body_token_sha256": "5693b1a9b62bd806dcd414fc79dd838880b353bc9771c7c5682a47afb6c9dd86",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 24,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-c560a32c40ec9323ab430a0a00f8831e4bcf4d99477ed9f99b03dc1344401f06",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 123,
+          "end_line": 124,
+          "token_count": 24,
+          "body_token_sha256": "bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-47fe129ce5039f4f3e6dc3db0f8eac5a10bbbb3543fe1fc518a648281e5ce463",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 600,
+          "end_line": 601,
+          "token_count": 24,
+          "body_token_sha256": "bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 23,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+          "stable_id": "sym-bcaa7885b1cdf9f3d44f5be9bca5b6496b1c079063c4f8fcd2f8348e616dc8ce",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+          "start_line": 74,
+          "end_line": 74,
+          "token_count": 23,
+          "body_token_sha256": "1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+          "stable_id": "sym-8c73062292f9247f29fbdb92476f287272f318db97a1b6e564785d1d2afab069",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+          "start_line": 121,
+          "end_line": 121,
+          "token_count": 23,
+          "body_token_sha256": "1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 23,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Domain.Tests/ShiftTests.cs",
+          "stable_id": "sym-1b327f96e25197e10385ebc70c0523e9167dc049053630558caca9a85e03a0c6",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "b6330e6b8ef5b67e8cb1f60f47252ade8e359375a9725ba12beed8b45715e2f5",
+          "start_line": 54,
+          "end_line": 55,
+          "token_count": 23,
+          "body_token_sha256": "d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/ShiftTests.cs",
+          "stable_id": "sym-10cc80f97e5683bb2ddd895a41e7528721d8efb497d304319c865f2d8b5d3556",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "b6330e6b8ef5b67e8cb1f60f47252ade8e359375a9725ba12beed8b45715e2f5",
+          "start_line": 78,
+          "end_line": 79,
+          "token_count": 23,
+          "body_token_sha256": "d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 23,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+          "stable_id": "sym-56a639d2763c9f6be3d5a642eff0b969a6aa3d837562a54f11b1438b15ad56f5",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+          "start_line": 37,
+          "end_line": 41,
+          "token_count": 23,
+          "body_token_sha256": "faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+          "stable_id": "sym-1aa79084616853def877bf9e0dbae950903b15b1fd9cdcab4ee9b9ea8946d0be",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+          "start_line": 59,
+          "end_line": 63,
+          "token_count": 23,
+          "body_token_sha256": "faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 23,
+      "occurrences": [
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "stable_id": "sym-0f5e74cedf58427b83fd3940f4b7a42f4ce3ab87edca824c8fe062871ce95699",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "start_line": 18,
+          "end_line": 18,
+          "token_count": 23,
+          "body_token_sha256": "11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "stable_id": "sym-55e87bdf20a0b785f4878da0e987bcfd206694780b709459c90385f51bd8ea69",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "start_line": 27,
+          "end_line": 27,
+          "token_count": 23,
+          "body_token_sha256": "11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 22,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/AuthTests.cs",
+          "stable_id": "sym-291f0d7abe79cedc7936a65f182101056ffa2185bb52dfecc272abf1f8c82a9d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "9ccf2791e310b2d1889f6bb9b3f19a94b9e2d103e3698a3e622e79596fa0be06",
+          "start_line": 15,
+          "end_line": 20,
+          "token_count": 22,
+          "body_token_sha256": "1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CustomerVerticalSliceTests.cs",
+          "stable_id": "sym-e89414447927549ed38c2b8b253cf9ab3dee0fd1fc377c8c4cc22317890cf65e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a9cdc09c311eb34751f796504476e91b667b29ea1f463f6c8d9f7e0858cc8182",
+          "start_line": 21,
+          "end_line": 26,
+          "token_count": 22,
+          "body_token_sha256": "1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 22,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-6e10cdff103c0b008d96d6ac688fda84cd065211c2b4273dd1497aaf0a3aad7e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 172,
+          "end_line": 173,
+          "token_count": 22,
+          "body_token_sha256": "03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-1b36b5a2f72aa8007c1ffdf569833f821e0381dc628015ada191d3828ad64789",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 649,
+          "end_line": 650,
+          "token_count": 22,
+          "body_token_sha256": "03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 22,
+      "occurrences": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-73b798592ae6225efc53e02a8dc68b0ce9abc0e3794be1676b6b9837b3588154",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 115,
+          "end_line": 115,
+          "token_count": 22,
+          "body_token_sha256": "9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-b06aabb5d9635086e1608156bc53551ef2e35b19e8fdf762b727c3b8a5c7c34f",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 138,
+          "end_line": 138,
+          "token_count": 22,
+          "body_token_sha256": "9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 21,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs",
+          "stable_id": "sym-18cb1da1d27c06cd6c4400a315c7e45726f9cbcb7a18eaa95a856697442043c8",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+          "start_line": 208,
+          "end_line": 208,
+          "token_count": 21,
+          "body_token_sha256": "57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs",
+          "stable_id": "sym-74ebba99cd4dcc91fa216fbc66ce7ec6eedf0d4b9322bbe25fc8c837572817c0",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+          "start_line": 218,
+          "end_line": 218,
+          "token_count": 21,
+          "body_token_sha256": "57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 21,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-62fb40753c04f9fc7c99c69254f2f9591495e77cbe22d335c6f1fd3862034c38",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 133,
+          "end_line": 134,
+          "token_count": 21,
+          "body_token_sha256": "e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-efb5e35609cc726e82115d068f7f7be8a339d285d04bbae8ca5f11ac585b69d8",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 610,
+          "end_line": 611,
+          "token_count": 21,
+          "body_token_sha256": "e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 21,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-673d96a8fa31adc15863e9fa93e29b2c7421470257335b94d2c50df779543fd9",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 183,
+          "end_line": 184,
+          "token_count": 21,
+          "body_token_sha256": "cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-640764fcc694758a77d79c7ab9b073cb93f87edbdbc41cf02dbcb9f4c7cbaef4",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 660,
+          "end_line": 661,
+          "token_count": 21,
+          "body_token_sha256": "cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 21,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-53bb19dce489e9890916992dd8f1520dfb63b727c76402672e264e9d6860031a",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 235,
+          "end_line": 235,
+          "token_count": 21,
+          "body_token_sha256": "8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-f94ba0392ba96abd3d358f09c3503d8bef2a99bea85bb544571141f645335779",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 713,
+          "end_line": 713,
+          "token_count": 21,
+          "body_token_sha256": "8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs",
+          "stable_id": "sym-7e7e966267be68675d494207702f939f9ffec184a9205b0b3aa2f20ff36a5efe",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "c83d925533b572ac108851718afc95147390cc66aa32633375cc1c8bee57267f",
+          "start_line": 77,
+          "end_line": 77,
+          "token_count": 20,
+          "body_token_sha256": "7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs",
+          "stable_id": "sym-f4b6da41d25c484df3333a46d62401c9ba8a30e6ec35b9e6c30e96b4d225b0ac",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "c83d925533b572ac108851718afc95147390cc66aa32633375cc1c8bee57267f",
+          "start_line": 91,
+          "end_line": 91,
+          "token_count": 20,
+          "body_token_sha256": "7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "stable_id": "sym-53900116cf4d70521403604018bdb45231afe4025954c7f26884c45a056e34aa",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "start_line": 797,
+          "end_line": 797,
+          "token_count": 20,
+          "body_token_sha256": "50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "stable_id": "sym-e94c3aa6344fdba024fb0c66f1010b3b6bd510e703e58b1961035ce61bc12318",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "start_line": 819,
+          "end_line": 819,
+          "token_count": 20,
+          "body_token_sha256": "50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-292b2b1aa76f52a839502083efc170e97dc40e369d485d7b22b4f68558c3fa95",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 89,
+          "end_line": 89,
+          "token_count": 20,
+          "body_token_sha256": "968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-ebee11925411f3e6275cd6ae10c0f44312c9f355c1f172381755cbd365be5d20",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 111,
+          "end_line": 111,
+          "token_count": 20,
+          "body_token_sha256": "968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-68ad74a09d5fc0c8f1571175cd99d0b5ae7945b18ff9953058d03a5f045886b8",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 105,
+          "end_line": 105,
+          "token_count": 20,
+          "body_token_sha256": "333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-878177abb86102e635e22c3e90a3e50bc3e22bf16fe0bad1519a2567b8d8e6e7",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 122,
+          "end_line": 122,
+          "token_count": 20,
+          "body_token_sha256": "333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-a1ec94b366566c3d399f65e47b6bdc5981e502e07e5a0e314f2d18e86450126c",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 191,
+          "end_line": 191,
+          "token_count": 20,
+          "body_token_sha256": "39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-63648e0eacac9ffc156246bf65b89e091f34430ef7fb6670c8a7bf0dc52d7685",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 204,
+          "end_line": 204,
+          "token_count": 20,
+          "body_token_sha256": "39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
+      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
+      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+          "stable_id": "sym-5e7c5e44e71fbbfd99aa7491686b7bd8127cbad5be88af5265c9be190cdf451d",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+          "start_line": 105,
+          "end_line": 105,
+          "token_count": 20,
+          "body_token_sha256": "4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+          "stable_id": "sym-4956cbdfc3a580c784b0817620341e02701e90e38dc4dfe7c785df39af64d7a2",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+          "start_line": 194,
+          "end_line": 194,
+          "token_count": 20,
+          "body_token_sha256": "4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-a70f6ec68eb2b399dfb9c466bf8f085c198dd6559981488f0e436c95c2f3c51a",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Controls/ModalHeaderView.xaml.cs",
+          "stable_id": "sym-13b263359160c97e1a4106e330b9d1c5902299d4e19c218b1e39bb8d2b2a5504",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "28bacf2ea9d1c40ea3ad4d6feaf99485cb100dd47ea9d08f9240c1ae730929f5",
+          "start_line": 51,
+          "end_line": 52,
+          "token_count": 20,
+          "body_token_sha256": "a70f6ec68eb2b399dfb9c466bf8f085c198dd6559981488f0e436c95c2f3c51a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Controls/ModalHeaderView.xaml.cs",
+          "stable_id": "sym-2a1d3435c97a89f79a4d4632d1d8a47e2531d9111ef5feef535a9f3a0e08a5ad",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "77396fd63e05f090a77d2d8239c7049bbbdb5526dc8f549f1b05aacf7ddd2dd2",
+          "start_line": 51,
+          "end_line": 52,
+          "token_count": 20,
+          "body_token_sha256": "a70f6ec68eb2b399dfb9c466bf8f085c198dd6559981488f0e436c95c2f3c51a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    },
+    {
+      "group_id": "clone-dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
+      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
+      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "token_count": 20,
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-5933ae06808eb3a72fbd81ec9cdac3f936043fc0e743b3ab5adbfeeb017d2a20",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 289,
+          "end_line": 290,
+          "token_count": 20,
+          "body_token_sha256": "dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-1f7d041cf06300d707e38109fb9011618cc2b69495415f460fcd40bd9296eb6e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 274,
+          "end_line": 275,
+          "token_count": 20,
+          "body_token_sha256": "dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE"
+        }
+      ],
+      "independent_whole_method_correctness_claim": false
+    }
+  ],
+  "pending_application_groups": 72,
+  "pending_test_groups": 24,
+  "limitations": [
+    "Candidate lexical body equivalence only: signatures, types, bindings, captured context, constructor initializers and surrounding lifecycle may differ.",
+    "Generated model repetitions and test helpers are classified separately; no refactor/defect or function-review promotion inferred.",
+    "Bodies under20 tokens and inactive preprocessor regions are not examined for clone grouping; this is not exhaustive semantic duplicate detection.",
+    "Only source parsed; no POS assembly, handler, database, printer or runtime workload executed."
+  ],
+  "financial_mirror_supplements": [
+    "financial-mirror-comparison-20261018.json",
+    "business-day-authorization-mirrors.json"
+  ],
+  "final_report_exists": false,
+  "final_report_completed": false,
+  "next": "Root review remaining financial API client contract mirrors, update exact group decisions using actual source; financial specialists own distinct files. No unrelated visual/printing/performance audit resumed."
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/WindowClosingSafetyTests.cs",
+  "source_git_blob_sha256": "2c975e1b40951623b7acffc6f366ff42b471a926a6bd8a8e10ed5a96cd2bbc70",
+  "worktree_sha256": "2c975e1b40951623b7acffc6f366ff42b471a926a6bd8a8e10ed5a96cd2bbc70",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:57:05.946626+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Close-gate test exact branching and limits.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/WindowClosingSafetyTests.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-d9717d002bb48d115ead1e46a7dd9b5e75e7078b9f70d504b8e7256453d2cb94",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.WindowClosingSafetyTests.Handler.SendAsync(HttpRequestMessage, CancellationToken)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        11,
+        9,
+        12,
+        73
+      ],
+      "reasoning": "Fake handler returns empty200 for every request without routing; no actual server response or authentication validated.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Sufficient session fixture but not health/native startup proof.",
+      "tests_missing": "Sufficient session fixture but not health/native startup proof. NOT_EXECUTED.",
+      "verified_callers_callees": "Task.FromResult HTTP200"
+    },
+    {
+      "stable_id": "sym-24c965396f599a42ed17a77fe087d5ebd346ea2aba3573aa04fd27eb7c569d91",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.WindowClosingSafetyTests.Cashier_window_close_respects_both_pos_and_management_operations(bool)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        15,
+        5,
+        32,
+        6
+      ],
+      "reasoning": "Theory constructs source root/session, marks either POS processing or management pending owner, asserts TryClose blocked and IsCloseBlocked, clears state then asserts allowed and stops root. Tests synchronous domain close gate; does not simulate actual AppWindow close event, forced process kill, pending journal recovery or cashcount modal reachability.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "NOT_EXECUTED here; fixture timers/headless headers exclude native scheduling/rendering.",
+      "tests_missing": "NOT_EXECUTED here; fixture timers/headless headers exclude native scheduling/rendering. NOT_EXECUTED.",
+      "verified_callers_callees": "MainViewModel.TryClose; AppSession.SetManagementOperationPending; root.Stop"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

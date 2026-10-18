@@ -1,32 +1,16 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-10-16T17:40:15.255768+00:00",
+  "updated_at_utc": "2026-10-17T22:08:51.982860+00:00",
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
-  "last_completed_file": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
-  "last_completed_stable_id": "sym-a32dcfe7c7cadd52913a018860e42347286880d5fd8ea5bf0498a3aa5fa54f7c",
+  "last_completed_file": "tests/Falah.Client.Tests/UserWorkflowTests.cs",
+  "last_completed_stable_id": "sym-e3ec61a0b0eb13ad4eb894242275bac7b117fcad8e673fe8aa992cb86dbcce70",
   "current_partial_file": null,
   "current_partial_symbol": null,
   "legacy_file_counts": {
-    "REVIEWED_SOURCE": 260,
-    "NOT_ANALYZED": 14
+    "REVIEWED_SOURCE": 274
   },
-  "exact_remaining_files": [
-    "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
-    "src/Falah.Client.Cashier/Views/CashierView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/InventoryView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml",
-    "src/Falah.Client.CashierWinUI/Views/TreasuryView.xaml",
-    "tests/Falah.Client.Tests/CloseoutRegressionTests.cs",
-    "tests/Falah.Client.Tests/FinalVerificationTests.cs"
-  ],
-  "exact_remaining_symbols_reference": "Knowledge/Source-Symbols/** minus ANALYZED IDs in Knowledge/Reviews/ui_visual/**; legacy name-heading matches excluded",
+  "exact_remaining_files": [],
+  "exact_remaining_symbols_reference": "Codex Work/Sub-Agents/Results/ui-exact-symbol-coverage.json",
   "new_findings": [
     "UI-001",
     "UI-002",
@@ -47,12 +31,156 @@
     "UI-018",
     "UI-019",
     "UI-020",
-    "UI-021"
+    "UI-021",
+    "UI-022"
   ],
-  "pending_independent_challenges": "Source findings remain subject to parent canonical registry challenge; no screenshot verified",
+  "pending_independent_challenges": [
+    "UI findings parent canonical registry",
+    "UI018 added XAML corroboration",
+    "UI021 image editor target race",
+    "Shifts overlay row0",
+    "Inventory batch count retention/filter lifecycle",
+    "Waste date consistency",
+    "UI-022 ingredient picker60 cap/search binding"
+  ],
   "blockers": [
-    "Native observation unavailable"
+    "Native observation unavailable; screenshot claims forbidden"
   ],
-  "next_action": "Continue remaining original UI/test files with exact symbol reasoning; reconcile older reports separately",
-  "latest_review_shard": "Codex Work/Knowledge/Reviews/ui_visual/src/Falah.Client.CashierWinUI/Services/ApiClient.cs.json"
+  "next_action": "Review next exact additive getter/generated-context source from ui-additive-facet-coverage.json; original syntax queue2461 complete is not exhaustive mission completion.",
+  "latest_review_shard": "Codex Work/Knowledge/Reviews/ui_visual/tests/Falah.Client.Tests/UserWorkflowTests.cs.json",
+  "exact_symbol_counts": {
+    "total": 2461,
+    "analyzed": 2461,
+    "remaining": 0
+  },
+  "NEXT_ACTION": [
+    {
+      "order": 1,
+      "action": "Read and reconcile remaining CashierViewModel.Operations.cs exact bodies",
+      "source": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+      "completed_symbol_exclusion": "Only stable helper345:5 receipt saved; subtract existing shard IDs before work",
+      "status": "COMPLETED exact22 Operations"
+    },
+    {
+      "order": 2,
+      "action": "Continue active cashier Delivery and keyboard partial exact spans; POS Shift/ShiftClose completed",
+      "remaining_reference": "Codex Work/Sub-Agents/Results/ui-exact-symbol-coverage.json",
+      "status": "COMPLETED active POS Shift/ShiftClose/Delivery/Pickup/workspace keyboard spans"
+    },
+    {
+      "order": 3,
+      "action": "Continue remaining Purchasing63, Employees52, OwnerDashboard43, Delivery39, Shell38, DailyStatement36, Reports33; then remaining client/test/legacy callable IDs",
+      "remaining_reference": "Codex Work/Sub-Agents/Results/ui-exact-symbol-coverage.json",
+      "completed_subgroups": [
+        "Users49",
+        "Inventory66",
+        "Payroll33",
+        "Backup21",
+        "Printing17",
+        "CallCenter API55/main46/checkout21/customer26",
+        "Cashier Converters98",
+        "shared per-client tile/cart exact models"
+      ]
+    },
+    {
+      "order": 4,
+      "action": "Obtain independent challenge of high UI candidates; preserve native states NOT_OBSERVED and all15 final gates before publication",
+      "owner": "parent coordinates independent review"
+    }
+  ],
+  "source_anchor_corrections": {
+    "paths": [
+      "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs"
+    ],
+    "implementation_lines": {
+      "constructor": 40,
+      "Save": 59,
+      "Clear": 84,
+      "Load": 94,
+      "List": 115
+    },
+    "reason": "Parent independently challenged historical interface-versus-body anchors; analysis and stable-symbol receipts preserved."
+  },
+  "NEXT_ACTION_CURRENT": {
+    "action": "Continue additive source reasoning; original2461 syntax IDs complete, not exhaustive behavioral coverage.",
+    "additive_next": {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "kind": "ExpressionBodiedPropertyGetter",
+      "name": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.HasCheckoutResult::get()",
+      "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.HasCheckoutResult::get()",
+      "startLine": 25,
+      "startColumn": 5,
+      "endLine": 25,
+      "endColumn": 69,
+      "origin_declaration_stable_id": "sym-d1f39ce23fc8270287710ffc38466d2edc49960705425b0c6855664f5cfb8c21",
+      "status": "INDEXED_NOT_ANALYZED",
+      "body_span": [
+        25,
+        38,
+        25,
+        68
+      ],
+      "isCallable": true,
+      "facet": "get",
+      "stable_id": "sym-4b391cfe827b17ea4bc79f45f7004c26bc0ea48a052a3590b6bebf98f891f206",
+      "owner": "ui_visual",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "SOURCE_DERIVED_EXECUTABLE_GETTER"
+    },
+    "original_remaining": 0,
+    "additive_remaining": 1113,
+    "remainder_manifest": "Codex Work\\Sub-Agents\\Results\\ui-additive-facet-coverage.json"
+  },
+  "NEXT_ACTION_checkpoint_counts": {
+    "analyzed": 2461,
+    "total": 2461,
+    "remaining": 0,
+    "last_completed_file": "tests/Falah.Client.Tests/UserWorkflowTests.cs",
+    "current_partial_file": null,
+    "updated_at_utc": "2026-10-17T21:58:23.887273+00:00"
+  },
+  "additive_facet_counts": {
+    "facets": {
+      "total": 600,
+      "analyzed": 189,
+      "remaining": 411
+    },
+    "generated_behavior_inputs": {
+      "total": 986,
+      "analyzed": 284,
+      "remaining": 702
+    }
+  },
+  "additive_remaining_reference": "Codex Work\\Sub-Agents\\Results\\ui-additive-facet-coverage.json",
+  "NEXT_ACTION_CURRENT_ADDITIVE": {
+    "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+    "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+    "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+    "kind": "ExpressionBodiedPropertyGetter",
+    "name": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.HasCheckoutResult::get()",
+    "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.HasCheckoutResult::get()",
+    "startLine": 25,
+    "startColumn": 5,
+    "endLine": 25,
+    "endColumn": 69,
+    "origin_declaration_stable_id": "sym-d1f39ce23fc8270287710ffc38466d2edc49960705425b0c6855664f5cfb8c21",
+    "status": "INDEXED_NOT_ANALYZED",
+    "body_span": [
+      25,
+      38,
+      25,
+      68
+    ],
+    "isCallable": true,
+    "facet": "get",
+    "stable_id": "sym-4b391cfe827b17ea4bc79f45f7004c26bc0ea48a052a3590b6bebf98f891f206",
+    "owner": "ui_visual",
+    "review_status": "NOT_ANALYZED",
+    "counting_class": "SOURCE_DERIVED_EXECUTABLE_GETTER"
+  },
+  "last_additive_file": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs",
+  "last_additive_stable_id": "sym-59f2ff46c485f05bf66c80a68d77dbc2b4f69d5184d54d152ca16687638625dd"
 }

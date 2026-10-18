@@ -1,0 +1,227 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T21:54:59.869532+00:00",
+  "records": [
+    {
+      "id": "BG-BOUNDARY-014",
+      "category": "Scheduled backup startup/check/pruning worker",
+      "evidence": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+          "startLine": 38,
+          "endLine": 56,
+          "source_git_blob_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+          "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+          "symbol": {
+            "stable_id": "sym-d8539fba026a642efaa357f905f16998ccc32e2c899139f59269eaf93c3f0093",
+            "kind": "PropertyDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.ScheduledBackupService.Enabled",
+            "startLine": 38,
+            "endLine": 38,
+            "startColumn": 5,
+            "endColumn": 58,
+            "isCallable": false
+          },
+          "evidence": "Defaults enabled,90s startup,30min check,20h max age,60 retained; IConfiguration settings parser accepts numeric/bool/fallback."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+          "startLine": 59,
+          "endLine": 81,
+          "source_git_blob_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+          "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+          "symbol": {
+            "stable_id": "sym-bc173c86f9fd15543e6b75f244e9218245f0684aba29361dae473a3948e80dc7",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.ScheduledBackupService.ExecuteAsync(CancellationToken)",
+            "startLine": 59,
+            "endLine": 82,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Startup delay then sequential age-check cycles with cancellation/error logging; explicit disable flag."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+          "startLine": 84,
+          "endLine": 117,
+          "source_git_blob_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+          "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+          "symbol": {
+            "stable_id": "sym-68849531eb6802e3c9f234cf91d6b50ee88caa986beb63104fcd144b7371cab0",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.ScheduledBackupService.RunCycleAsync(CancellationToken)",
+            "startLine": 84,
+            "endLine": 118,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Only due backup invokes trusted System create then verify; success/failure logged; no hidden external endpoint."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+          "startLine": 124,
+          "endLine": 157,
+          "source_git_blob_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+          "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+          "symbol": {
+            "stable_id": "sym-cf358a0de1791d39b20e3452f79f6c94ae97c68b484f9f23837e6fd3c45a7c99",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.ScheduledBackupService.PruneAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+            "startLine": 124,
+            "endLine": 158,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Prunes recorded successful-file paths only selected by Domain retention, deletes files and marks FileSizeBytes null."
+        },
+        {
+          "path": "src/Falah.Domain/Backup/BackupRules.cs",
+          "startLine": 107,
+          "endLine": 117,
+          "source_git_blob_sha256": "c2b4b6d3523da6f903f2f8627dbf0e4ad034e0bafeddacdd192598ac6de79131",
+          "worktree_sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e",
+          "symbol": {
+            "stable_id": "sym-cc25e4771059c65cfccc04efae47a6070064d8adaaad35d8684596ccb367da15",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Domain.Backup.BackupRules.SelectPrunableBackups(IEnumerable<Falah.Domain.Backup.BackupRules.RetainedBackup>, int)",
+            "startLine": 107,
+            "endLine": 118,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Retention keeps newest configured count and always newest verified-valid backup, defeating claim failed recent verification necessarily deletes last valid."
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "startLine": 118,
+          "endLine": 118,
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "symbol": null,
+          "evidence": "ScheduledBackupService registered as actual hosted service in production startup; not dead/unregistered timer."
+        }
+      ],
+      "inputs": "Trusted Backup:Automatic configuration, DB backup metadata, OS UTC age.",
+      "outputs_side_effects": "Creates/verifies SQL backups, audit/metadata writes, old recorded-file deletion; may access configured backup destination including network path.",
+      "legitimate_purpose": "Documented automatic maintenance and bounded retention, not covert destructive date trigger.",
+      "trust_boundaries": "Deployment config and stored file paths control privileged backup/filesystem actions.",
+      "counterevidence_limitations": [
+        "Never run service for audit; side effects start automatically after host startup.",
+        "Last due check considers Succeeded without verified-valid status; retention separately protects last valid, so distinguish scheduling from retention.",
+        "Config negative/nonfinite intervals not range-validated here; malformed trusted config may stop worker/host instead of safe fallback.",
+        "Stored-path deletion trusts DB metadata, no canonical approved-root enforcement; DB tampering/path policy not dynamically tested."
+      ],
+      "classification": "INTENTIONAL_CONFIGURED_MAINTENANCE_WITH_REAL_WRITE_DELETE_EFFECTS"
+    },
+    {
+      "id": "TMR-BOUNDARY-015",
+      "category": "Financial lock-contention read retry",
+      "evidence": [
+        {
+          "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+          "startLine": 29,
+          "endLine": 36,
+          "source_git_blob_sha256": "a480d0b55f892a72df9ce61870b446281c962351a1b4b1fed51e077de393807a",
+          "worktree_sha256": "d982d3fadbec4f7dd42d41465f63c8c9f41fe25cf112374025bc450c3183d690",
+          "symbol": {
+            "stable_id": "sym-5ee1b89d59f9bc882ddd96a2ee856cb530b89ff7569b735ff4c9e60602da8053",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(Exception)",
+            "startLine": 29,
+            "endLine": 30,
+            "startColumn": 5,
+            "endColumn": 69,
+            "isCallable": true
+          },
+          "evidence": "Only SqlException1205/1222 identified through inner exception chain."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+          "startLine": 46,
+          "endLine": 53,
+          "source_git_blob_sha256": "a480d0b55f892a72df9ce61870b446281c962351a1b4b1fed51e077de393807a",
+          "worktree_sha256": "d982d3fadbec4f7dd42d41465f63c8c9f41fe25cf112374025bc450c3183d690",
+          "symbol": {
+            "stable_id": "sym-536e9d6eaa0396e47b562660ee268bdaf2ea43aba34d78495e67cc2e97c8bbea",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync<T>(Func<Task<T?>>, CancellationToken)",
+            "startLine": 46,
+            "endLine": 54,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "At most5 delays40/80/120/160/200ms then caller lookup; stops on found record or cancellation."
+        }
+      ],
+      "inputs": "Caller-supplied lookup delegate after lock-conflict catch; no timer daemon or configured endpoint.",
+      "outputs_side_effects": "Waits600ms maximum scheduled delay plus lookup durations; invokes caller query, no direct financial mutation here.",
+      "legitimate_purpose": "Find same-key concurrent winner receipt before reporting conflict.",
+      "trust_boundaries": "Exception classification and lookup correctness depend on caller; helper itself does not authenticate.",
+      "counterevidence_limitations": [
+        "Comment says every lost lock race implies same request, but different-key contention is possible; helper returns null rather than synthesizing success.",
+        "Fixed bounded retry not evidence time-triggered backdoor."
+      ],
+      "classification": "BOUNDED_CONCURRENCY_RECOVERY_DELAY"
+    },
+    {
+      "id": "TMR-BOUNDARY-016",
+      "category": "Print report retry and durable uncertain output",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+          "startLine": 81,
+          "endLine": 128,
+          "source_git_blob_sha256": "31051c0c991f43c10d1ab5335195e82db8b7f03a2b59f42707b35831a4d5d979",
+          "worktree_sha256": "2ef3ef9c1d54c7a16bfe506d95e2803aa1970a09e4fbecdf473a1b82fc3ea640",
+          "symbol": {
+            "stable_id": "sym-f88d78f9acd00be3317a0a316fa0024fb487f9146eded2adad7b935ac98d8aa9",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.PrintJobProcessor.ProcessAsync(Falah.Application.Printing.PrintJobDto, CancellationToken)",
+            "startLine": 81,
+            "endLine": 129,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Remembers uncertainty before sending printer bytes, keeps same attempt identity, catches output failures and records result."
+        },
+        {
+          "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+          "startLine": 131,
+          "endLine": 160,
+          "source_git_blob_sha256": "31051c0c991f43c10d1ab5335195e82db8b7f03a2b59f42707b35831a4d5d979",
+          "worktree_sha256": "2ef3ef9c1d54c7a16bfe506d95e2803aa1970a09e4fbecdf473a1b82fc3ea640",
+          "symbol": {
+            "stable_id": "sym-61be486321709002c5aac91293edc95e8eec2f50ff8b66c1cef466d68ee73e51",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.PrintJobProcessor.ReportAsync(Falah.Application.Printing.ReportPrintJobResultRequest, CancellationToken)",
+            "startLine": 131,
+            "endLine": 161,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Up to3 report attempts with400ms/800ms delays, preserving result on exhaustion; normal retry only reports, no reprint in this method."
+        }
+      ],
+      "inputs": "Configured backend/transport, server job ID/ticket, local journal; no calendar trigger.",
+      "outputs_side_effects": "Print/send and API result reporting plus local store.",
+      "legitimate_purpose": "Prevent duplicate tickets after reporting outage, not hidden timed financial operation.",
+      "trust_boundaries": "Printer transport acceptance !=physical paper; journal integrity and server report authorization remain separate.",
+      "counterevidence_limitations": [
+        "Cancellation after pre-send journal leaves uncertain attempt intentionally; no actual print/read performed.",
+        "Three report attempts total, delay only after first and second failures, no unbounded internal retry.",
+        "Outer poll persists activity by explicit configured worker; cross-machine claim safety not established."
+      ],
+      "classification": "BOUNDED_REPORT_RETRY_WITH_DURABLE_UNCERTAINTY"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

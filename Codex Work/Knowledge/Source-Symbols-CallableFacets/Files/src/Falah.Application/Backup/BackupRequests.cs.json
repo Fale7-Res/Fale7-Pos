@@ -1,0 +1,206 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Backup/BackupRequests.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Application/Backup/BackupRequests.cs",
+      "source_git_blob_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "worktree_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Backup.CreateBackupRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Backup.CreateBackupRequest::record-generated-behavior",
+      "startLine": 7,
+      "startColumn": 1,
+      "endLine": 7,
+      "endColumn": 99,
+      "origin_declaration_stable_id": "sym-98ed4bb2c2d672eb5f16091b99fdfd2eaf9353223882ac3e99f9ff65b1b978bc",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "DestinationDirectory",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-602edb5afe2bcd1c1b89f145c9c226800e2396b8f80617a02bbdf14ac68bcaab",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Backup/BackupRequests.cs",
+      "source_git_blob_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "worktree_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Backup.BackupRecordDto::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Backup.BackupRecordDto::record-generated-behavior",
+      "startLine": 9,
+      "startColumn": 1,
+      "endLine": 12,
+      "endColumn": 63,
+      "origin_declaration_stable_id": "sym-b024c36f47346fc02191b264f9388e2d240241789aeaffe4dfcb5826b7b927ed",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Kind",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "FilePath",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "FileSizeBytes",
+          "type": "long?",
+          "modifiers": ""
+        },
+        {
+          "name": "VerificationStatus",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "VerifiedAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "RequestedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "RequestedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "CompletedAtUtc",
+          "type": "DateTimeOffset?",
+          "modifiers": ""
+        },
+        {
+          "name": "ErrorMessage",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ApprovedBy",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-890f2c611528ac11574428da35c8fd94711904aa8bc9450625c8f4b5e66109e7",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Backup/BackupRequests.cs",
+      "source_git_blob_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "worktree_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Backup.VerifyBackupRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Backup.VerifyBackupRequest::record-generated-behavior",
+      "startLine": 17,
+      "startColumn": 1,
+      "endLine": 17,
+      "endColumn": 85,
+      "origin_declaration_stable_id": "sym-16c1e18aa244364a86d109c46789a9c3221069c2d17588e7e4e1ebf8efdb162e",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "BackupRecordId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-07b9789b4dc40f12fd68875097028db55ed23ea817de6a23acee701891f5adab",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Application/Backup/BackupRequests.cs",
+      "source_git_blob_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "worktree_sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Application.Backup.RestoreBackupRequest::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Application.Backup.RestoreBackupRequest::record-generated-behavior",
+      "startLine": 27,
+      "startColumn": 1,
+      "endLine": 29,
+      "endColumn": 63,
+      "origin_declaration_stable_id": "sym-5701d80139fe2f2b0fbeaa6a41d323e1d797c621159a690cbff365a7d89b4bc1",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "BackupRecordId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ConfirmationPhrase",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ActorUserId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApprovalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ManagerApproverUserId",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-a0cb12c8290b4727fd1478c96d9505a6d78bbfb54fcba2aee852afc8ef86eb77",
+      "owner": "printing_workflows",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

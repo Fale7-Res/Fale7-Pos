@@ -1,0 +1,1586 @@
+{
+  "reviewer": "printing_workflows",
+  "parent_quality_challenge": "Knowledge\\Quality-Reviews\\printing-generic-route-reasoning.json",
+  "original_flagged_count": 130,
+  "revised_symbols": [
+    {
+      "stable_id": "sym-bc34c11bf7dcb951e13dddcc9e43c69eeee24d4a3db045e7d284fb4287d38836",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 288,
+      "batch": "Quality batch01: shift open/close and print attempt detail",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "src/Falah.Server/Program.cs:288-307 -> Falah.Infrastructure.Shifts.OpenShiftHandler.HandleAsync(OpenShiftRequest,CancellationToken)",
+        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:33-109",
+        "src/Falah.Domain/Shifts/Shift.cs:36-50 Shift.Open/constructor",
+        "src/Falah.Application/Shifts/OpenShiftRequest.cs:5-7",
+        "src/Falah.Domain/Authorization/ApprovalRegistry.cs:135-141 AuthorizeShiftOpen",
+        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:37-47",
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs Build"
+      ]
+    },
+    {
+      "stable_id": "sym-6ddc0569a6defbdfdb7668effd54dc449e6789d9e7bae6a2c196e6ffff720046",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 337,
+      "batch": "Quality batch01: shift open/close and print attempt detail",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "src/Falah.Server/Program.cs:337-355 -> Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(CloseShiftRequest,CancellationToken)",
+        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-174",
+        "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs:42-81",
+        "src/Falah.Domain/Shifts/Shift.cs:97-129 PrepareBlindClose/Close",
+        "src/Falah.Domain/Authorization/ApprovalRegistry.cs:105-110 AuthorizeShiftClose",
+        "src/Falah.Application/Shifts/CloseShiftRequest.cs:15-20",
+        "src/Falah.Server/AuthenticationMiddleware.cs:86-88 ActorFields"
+      ]
+    },
+    {
+      "stable_id": "sym-0e5f4b2e3e6d6da1f9ea8b93dc7aea6ec6ff1d48d98468dfaaeb8d24f2f2535b",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2141,
+      "batch": "Quality batch01: shift open/close and print attempt detail",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "src/Falah.Server/Program.cs:2141-2145 -> Falah.Infrastructure.Printing.PrintJobQueryService.GetJobDetailsAsync(string,CancellationToken)",
+        "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs:88-97",
+        "src/Falah.Application/Printing/PrintingRequests.cs:30-32,58-60",
+        "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:102-104 ToDto"
+      ]
+    },
+    {
+      "stable_id": "sym-9bec8810dc54825ad7539bbe10625ba1eda5e9175f89b6c4a525e14eb36c94b9",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 384,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs384-385 -> Falah.Infrastructure.ControlCenter.ControlCenterQueryService.ListBusinessDaysAsync(CancellationToken)",
+        "ControlCenterQueryService.cs19-24",
+        "Application/BusinessDay/CloseBusinessDayRequest.cs BusinessDayDto"
+      ]
+    },
+    {
+      "stable_id": "sym-e4dd537b2982698e37513607b5dfbd01ed1c1ce904ea6e90e05701ad4f1df2e0",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 387,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs387-391 -> ControlCenterQueryService.GetBusinessDayAsync(string,CancellationToken)",
+        "ControlCenterQueryService.cs26-32"
+      ]
+    },
+    {
+      "stable_id": "sym-b5484ecee80fb1f8969a3925c7f0297275cddc5e54f1c549650c64814895598a",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 393,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs393-397 -> ControlCenterQueryService.PreviewCloseBlockersAsync",
+        "ControlCenterQueryService.cs34-40",
+        "BusinessDayCloseEvaluator.cs26-86",
+        "Domain/BusinessDay/BusinessDayRules.cs EvaluateCloseBlockers"
+      ]
+    },
+    {
+      "stable_id": "sym-0fa7ccbd03b5492521bf29037a49d4fe74a524a9a438d9821b6ef6f0c2fa1f0e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 421,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs421-425 -> ControlCenterQueryService.GetLatestCloseSnapshotAsync",
+        "ControlCenterQueryService.cs42-48",
+        "CloseBusinessDayHandler.ToDto"
+      ]
+    },
+    {
+      "stable_id": "sym-eee6642b4af7cdfcb182fefa4022c54046fe3c8693484ebf7e371aba4ab9c91e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 427,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs427-428 -> ControlCenterQueryService.ListCloseSnapshotsAsync",
+        "ControlCenterQueryService.cs50-53",
+        "CloseBusinessDayHandler.ToDto"
+      ]
+    },
+    {
+      "stable_id": "sym-47e9faee7ef04ee5606dd899f1da91a02e871cfe46db2317b9022093bceb9fb5",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 430,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs430-446 -> Falah.Infrastructure.ControlCenter.ReopenBusinessDayHandler.HandleAsync(ReopenBusinessDayRequest,CancellationToken)",
+        "ReopenBusinessDayHandler.cs29-109",
+        "Domain/BusinessDay/BusinessDayRules.cs46 Reopen",
+        "ControlCenterQueryService.cs26 BusinessDayDto"
+      ]
+    },
+    {
+      "stable_id": "sym-e22a9f5c85cb016045c62b4c56d215b7303f972e8f5cb3a734b5088ee818f07c",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 448,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs448-449 -> ControlCenterQueryService.GetChecklistAsync",
+        "ControlCenterQueryService.cs55-64"
+      ]
+    },
+    {
+      "stable_id": "sym-67fef4b65f50ec242214872b0aa53ad23e5ff8d493cc091a5f3d36363c3a02bb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 451,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs451-467 -> Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.HandleAsync",
+        "CompleteChecklistItemHandler.cs24-51",
+        "Application/BusinessDay/CloseBusinessDayRequest.cs CompleteChecklistItemRequest"
+      ]
+    },
+    {
+      "stable_id": "sym-08e29101a0bf19a7d8f406f97e5b398d4d9c17ac6ec193e437b38cdce7dad792",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 469,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs469 -> Falah.Infrastructure.Settings.SettingsQueryService.GetAsync",
+        "SettingsQueryService.cs16-44",
+        "Application/Settings/SettingsRequests.cs SettingsDto"
+      ]
+    },
+    {
+      "stable_id": "sym-1fb8e9949d4aca77bbd75b5e9e09137b921dc9583da8dbf3bd099f84adf37803",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 482,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs482-483 -> Falah.Domain.BusinessDay.BusinessDayRules.EgyptianDenominationsPiastres",
+        "BusinessDayRules.cs115-116 constant declaration"
+      ]
+    },
+    {
+      "stable_id": "sym-af8a62dd1510cf7286b484872bc140959ce017fdf86cfb71c04a57d8ab77f67c",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 485,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs485-486 -> ControlCenterQueryService.ListCashCountsAsync",
+        "ControlCenterQueryService.cs134-142",
+        "Application/BusinessDay/CloseBusinessDayRequest.cs CashDenominationCountDto"
+      ]
+    },
+    {
+      "stable_id": "sym-7a158f4ae1a34024042ba7eef06d297bfb91250a158fb96641a4844ae0c2e281",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 488,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs488-498 -> Falah.Infrastructure.ControlCenter.SaveCashCountHandler.HandleAsync(SaveCashCountRequest,CancellationToken)",
+        "SaveCashCountHandler.cs29-78",
+        "Domain/BusinessDay/BusinessDayRules.cs125-136 CalculateDenominationCount"
+      ]
+    },
+    {
+      "stable_id": "sym-6e2261372b3ac7896064e1933081a014741490eddfe7994f7ed1ef18fa219da8",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 500,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs500-504 -> ControlCenterQueryService.GetExceptionsAsync",
+        "ControlCenterQueryService.cs70-113",
+        "Domain/ControlCenter/ControlCenterRules.cs BuildExceptions"
+      ]
+    },
+    {
+      "stable_id": "sym-c1ad4f9d5142759638d5c12b3c355e5d0f729f268dc1d01d4f6cf359dcdf04ba",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 506,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs506-522 -> Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync",
+        "SetExceptionStatusHandler.cs25-75",
+        "ControlCenterQueryService.cs103-113 state overlay"
+      ]
+    },
+    {
+      "stable_id": "sym-b1171ce940c099c4d482acb862c4e44aa2e697e4bb5a8e91f45008203d997fdc",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 524,
+      "batch": "Quality batch02:15 control/settings/denomination routes with typed query and command chains",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs524-525 -> ControlCenterQueryService.ListAuditEventsAsync(int,DateTimeOffset?,DateTimeOffset?,CancellationToken)",
+        "ControlCenterQueryService.cs122-132",
+        "Program.cs531-540 contrast general audit explicit gate"
+      ]
+    },
+    {
+      "stable_id": "sym-a5e2c58ed949ad8277b2a6a15daa90649e3f2ff0bc26714c6a066e2d28da8052",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 542,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs542-561 -> Falah.Infrastructure.Treasury.DepositHandler.HandleAsync(DepositRequest,CancellationToken)",
+        "Treasury/DepositHandler.cs30-107",
+        "Treasury/TreasuryMapper.cs TreasuryAccountValidation",
+        "Application/Treasury/TreasuryRequests.cs DepositRequest/Result"
+      ]
+    },
+    {
+      "stable_id": "sym-b7d3ca09f20dccbd7a03958ba2c1c3f4c80889204b4d0203bcddb572e5b2a5e0",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 563,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs563-582 -> Falah.Infrastructure.Treasury.WithdrawalHandler.HandleAsync",
+        "Treasury/WithdrawalHandler.cs30-105",
+        "Treasury/TreasuryMapper.cs37-47 lock query",
+        "Domain/Financial/FinancialRules.cs AssertProtectedSourceBalance"
+      ]
+    },
+    {
+      "stable_id": "sym-3dc3e21c045704ef3d2315d891553a2fdf00c13b9f9ace48670ab4ab0ac25ead",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 584,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs584-603 -> Falah.Infrastructure.Treasury.TransferHandler.HandleAsync",
+        "Treasury/TransferHandler.cs29-130",
+        "Persistence/Entities/CashHandoverEntity.cs",
+        "Application/Treasury/TreasuryRequests.cs TransferResult"
+      ]
+    },
+    {
+      "stable_id": "sym-3c63c6a7a287857ca33f17c686d9ca25e72043ea751beedb4d99b20f2e82da4f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 605,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs605-624 -> Falah.Infrastructure.Treasury.SafeDropHandler.HandleAsync",
+        "Treasury/SafeDropHandler.cs32-133",
+        "Treasury/TreasuryMapper.cs37-47",
+        "Shifts/ShiftReconciliation.cs safe_drop subtraction"
+      ]
+    },
+    {
+      "stable_id": "sym-c559f7adee929bfecc5829ea40874aa2581467d54dc3c11a284c9cf60bd9ef79",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 626,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs626-646 -> Falah.Infrastructure.Expenses.AddExpenseHandler.HandleAsync",
+        "Expenses/AddExpenseHandler.cs38-69,77 and transactional save block",
+        "Domain/Authorization/ApprovalRegistry.cs AuthorizeExpense",
+        "Application/Expenses/ExpenseRequests.cs AddExpenseRequest/Result"
+      ]
+    },
+    {
+      "stable_id": "sym-2938ef430cc50a34c942b1311dca26abf37e09d808f017be79723d2e7be1fe9c",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 648,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs648-664 -> Falah.Infrastructure.Expenses.ExpenseQueryService.GetVisibleExpensesAsync(string,string?,string?,CancellationToken)",
+        "Expenses/ExpenseQueryService.cs19-42",
+        "Application/Expenses/ExpenseRequests.cs ExpenseDto"
+      ]
+    },
+    {
+      "stable_id": "sym-269903c4c27f07316e2fe45a5665f551b2368c3b58e180e36df4dc9ab246edb6",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1673,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1673-1682 -> Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.HandleAsync",
+        "CashDrawer/CashDrawerHandlers.cs31-84",
+        "Application/CashDrawer/CashDrawerRequests.cs OpenCashDrawerRequest/CashDrawerOpenDto"
+      ]
+    },
+    {
+      "stable_id": "sym-6cf0a7990f4a3f47d6121ca9860355fa8169a60aff5cf6aa72c6ab97ee9384c5",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1684,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1684-1693 -> Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.HandleAsync",
+        "CashDrawer/CashDrawerHandlers.cs95-111",
+        "Application/CashDrawer/CashDrawerRequests.cs ReportCashDrawerResultRequest"
+      ]
+    },
+    {
+      "stable_id": "sym-03d4a576b2940f76f732a43f71cf043139092f0c50213f11291dff9a87dada30",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1695,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1695-1707 -> Falah.Infrastructure.CashDrawer.CashierCashMovementHandler.HandleAsync",
+        "CashDrawer/CashierCashMovementHandler.cs41-130",
+        "Shifts/ShiftReconciliation.cs cash_in/cash_out handling"
+      ]
+    },
+    {
+      "stable_id": "sym-cc0e464231bf0f3e28e65acd45b5eaceb7d73de85b0ba7872ec37afad3e7e5b8",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1395,
+      "batch": "Quality batch03:10 treasury/expense/drawer/refund routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1395-1414 -> Falah.Infrastructure.Orders.RefundOrderHandler.HandleAsync",
+        "Orders/RefundOrderHandler.cs45-174",
+        "Domain/Orders/Order.cs220-233 ApplyRefund",
+        "Domain/Orders/RefundRules.cs ResolveOperationalShift",
+        "Treasury/TreasuryMapper.cs37-47"
+      ]
+    },
+    {
+      "stable_id": "sym-9ce14c19936295f45806f471752c2d31a0b481382685b74958f115e9edf12c1c",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1182,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1182-1183 -> DeliveryQueryService.ListActiveDriversAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs15-16",
+        "Application/Delivery/DeliveryRequests.cs DriverDto"
+      ]
+    },
+    {
+      "stable_id": "sym-9b307dce21d6be6bf83ca6d9683bc72582c77ea4d1b5e9955818eef4f0ab033f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1185,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1185-1186 -> DeliveryQueryService.ListAllDriversAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs21-22"
+      ]
+    },
+    {
+      "stable_id": "sym-731999d854b232c2b48b92ff0e07821a05fa1553f6ab465d3cbde26afee0d9d2",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1188,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1188-1189 -> DeliveryQueryService.ListActiveDeliveryServicesAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs24-26",
+        "Application/Delivery/DeliveryServiceRequests.cs DeliveryServiceDto"
+      ]
+    },
+    {
+      "stable_id": "sym-6d4e738b0ff73469420d4d1ad1e21b3e8346412e8044868785aa91894e50abeb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1191,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1191-1192 -> DeliveryQueryService.ListAllDeliveryServicesAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs28-30"
+      ]
+    },
+    {
+      "stable_id": "sym-1e5cde7d1a6a503dc8bacd7462ed06dd98f5bbe24d14c942b1ea8b534ff2017d",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1201,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1201-1210 -> UpdateDeliveryServiceHandler.HandleAsync(UpdateDeliveryServiceRequest,CancellationToken)",
+        "Infrastructure/Delivery/DeliveryServiceHandlers.cs88-126",
+        "CreateDeliveryServiceHandler.NormalizeName/ToDto",
+        "Domain/Authorization/ApprovalRegistry.cs AuthorizeCommand"
+      ]
+    },
+    {
+      "stable_id": "sym-c39e026f281c1b6df730c2f304f41a2af514fddd0f41f64bdeaa119000f41972",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1212,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1212-1222 -> SetDriverActiveHandler.HandleAsync(SetDriverActiveRequest,CancellationToken)",
+        "Infrastructure/Delivery/CreateDriverHandler.cs71-87",
+        "Application/Delivery/DeliveryRequests.cs SetDriverActiveRequest"
+      ]
+    },
+    {
+      "stable_id": "sym-137499b1e1c444490fefe3e4359ff806a001a07ab2d115ee41a65d34f5e29601",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1224,
+      "batch": "Quality batch05:4 transactional delivery commands and corrected ready transition source reference",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1224-1240 -> MarkDeliveryReadyHandler.HandleAsync",
+        "Infrastructure/Delivery/MarkDeliveryReadyHandler.cs25-60",
+        "Domain/Delivery/DeliveryStatus.cs11-33 DeliveryTransitions.AssertTransition"
+      ]
+    },
+    {
+      "stable_id": "sym-9344496560ccf457c269aa4e3eca6ba797c65dc828b0cf3af64e876458c0d37f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1332,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1332-1333 -> DeliveryQueryService.ListDispatchBoardAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs42-75",
+        "Infrastructure/Delivery/DeliveryFactsComposer.cs Compose"
+      ]
+    },
+    {
+      "stable_id": "sym-b9a10419d8ee02db5405d09f4a09e7c64bf7e82c89d5ef2776cb0f7fc7a35d88",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1335,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1335-1336 -> ListReadyForDispatchAsync -> ListByStatusAsync -> QueryToDtos",
+        "Infrastructure/Delivery/DeliveryQueryService.cs32-33,55-75"
+      ]
+    },
+    {
+      "stable_id": "sym-224f6c67b8aac0bee99f1ace48454e3dbe78ac66d25679588fe5a96531a4fa40",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1338,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1338-1339 -> DeliveryQueryService.ListActiveForDriverAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs51-75"
+      ]
+    },
+    {
+      "stable_id": "sym-19591696abc5f8a9abb3518c0d04ced226427f11dc82949069c25b707dc50a48",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1341,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1341-1345 -> DeliveryQueryService.GetDriverAccountAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs104-146",
+        "Domain/Delivery/DeliveryRules.cs52-79 BuildDriverSettlementScope",
+        "Infrastructure/Delivery/DeliveryFactsComposer.cs Compose/ToDriverCustody"
+      ]
+    },
+    {
+      "stable_id": "sym-7345c8143f417642e8f71eb542cd4ccbb3bb832066f90b48a944c66652ca8f94",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1349,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1349-1353 -> DeliveryQueryService.GetDriverStatisticsAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs154-198",
+        "Application/Delivery/DeliveryRequests.cs DriverStatisticsDto"
+      ]
+    },
+    {
+      "stable_id": "sym-661a68e290d4451a1801d3c27c93d5a6e5152496cd92a425651780a0392c0e3f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1355,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1355-1365 -> DeliveryQueryService.GetOneAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs77-91",
+        "Infrastructure/Delivery/DeliveryFactsComposer.cs Compose"
+      ]
+    },
+    {
+      "stable_id": "sym-b48c06f9b9e2aa77dc8289689ff4734db3d5b56bda8702c32299420b85a50e62",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1367,
+      "batch": "Quality batch04:14 delivery catalog, readiness and operational read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1367-1368 -> DeliveryQueryService.GetTimelineAsync",
+        "Infrastructure/Delivery/DeliveryQueryService.cs94-97",
+        "Application/Delivery/DeliveryRequests.cs DeliveryEventDto"
+      ]
+    },
+    {
+      "stable_id": "sym-01e0971719b4c26d50fc3ad180ac01862f9019c642c321fd7f3518ebbe7f6d37",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1242,
+      "batch": "Quality batch05:4 transactional delivery commands and corrected ready transition source reference",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1242-1262 -> AssignDeliveryHandler.HandleAsync(AssignDeliveryRequest,CancellationToken)",
+        "Infrastructure/Delivery/AssignDeliveryHandler.cs36-154",
+        "Domain/Delivery/DeliveryRules.cs11-20 CreateCashCustody,169-175 AssertDriverAssignable",
+        "Domain/Delivery/DeliveryStatus.cs13-31 transitions",
+        "Application/Delivery/DeliveryRequests.cs AssignDeliveryRequest/Result"
+      ]
+    },
+    {
+      "stable_id": "sym-6b8237aa9f3a3705810377f92f0bb1c7c4015d26694b0467916c0b427c8a51d8",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1264,
+      "batch": "Quality batch05:4 transactional delivery commands and corrected ready transition source reference",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1264-1284 -> ReassignDeliveryHandler.HandleAsync",
+        "Infrastructure/Delivery/ReassignDeliveryHandler.cs34-155",
+        "Domain/Authorization/ApprovalRegistry.cs AuthorizeCommand",
+        "Infrastructure/Printing/PrintJobQueryService.cs313-340 ComposeDriverDispatchAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-e43ecdd6da1799a3bdb9b9c712ebbcb756604c36f57711dbccf1c61641eacc23",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1286,
+      "batch": "Quality batch05:4 transactional delivery commands and corrected ready transition source reference",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1286-1306 -> RecordDeliveryResultHandler.HandleAsync",
+        "Infrastructure/Delivery/RecordDeliveryResultHandler.cs45-163",
+        "Domain/Delivery/DeliveryRules.cs11 DeliveryCashResponsibility,83-89 AssertCollectionAmount",
+        "Domain/Delivery/DeliveryStatus.cs13-31 transitions"
+      ]
+    },
+    {
+      "stable_id": "sym-ee452610b101d35a9ee77cb936efb25e73de4d902b3d2c17399e2bf875a18698",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1308,
+      "batch": "Quality batch05 reference correction: journal located under Persistence",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1308-1328 -> SettleDriverCustodyHandler.HandleAsync",
+        "Infrastructure/Delivery/SettleDriverCustodyHandler.cs36-197",
+        "Domain/Delivery/DeliveryRules.cs31-79 CalculateTripSettlement/BuildDriverSettlementScope",
+        "Infrastructure/BusinessDay/BusinessDayGate.cs RequireOpenAsync",
+        "Infrastructure/Persistence/EfFinancialJournal.cs TryStart/Complete"
+      ]
+    },
+    {
+      "stable_id": "sym-c53adea023c0f1ae87a336958b503194f2311bff07a093aecb5779f836a64ff7",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 685,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs685 -> EmployeeQueryService.ListAsync",
+        "Infrastructure/Employees/EmployeeQueryService.cs61-62,81-85"
+      ]
+    },
+    {
+      "stable_id": "sym-8cf19fe0b2930ec82f3c89250da790f15dbe06edb1e1954c2bdf6a9e58bc43fb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 687,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs687-691 -> EmployeeQueryService.GetAsync",
+        "Infrastructure/Employees/EmployeeQueryService.cs64-66,81-85"
+      ]
+    },
+    {
+      "stable_id": "sym-f743f1e44daff02b442c208ceb7924ca05288c13c46943d1552b582d5cc69e73",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 693,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs693-694 -> EmployeeQueryService.ListLedgerEntriesAsync",
+        "Infrastructure/Employees/EmployeeQueryService.cs68-70,87-90"
+      ]
+    },
+    {
+      "stable_id": "sym-b87aeb4ef75e79dce12941c52820f1b8213057ca74ac3c7b9a637cfd70deee58",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 696,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs696-697 -> EmployeeQueryService.GetBalanceAsync",
+        "Infrastructure/Employees/EmployeeQueryService.cs74-79"
+      ]
+    },
+    {
+      "stable_id": "sym-e9c2904a8cb9713eb901056516a9f6b49b741a6ce56e0788cc6eaa42445dbf32",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 702,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs702-707 -> RequireReportsAccessAsync and EmployeeQueryService.GetFinancialReportAsync",
+        "Program.cs2282-2290 RequireReportsAccessAsync",
+        "Infrastructure/Employees/EmployeeQueryService.cs25-59",
+        "Domain/Common/BusinessClock.cs UtcRangeForBusinessDate"
+      ]
+    },
+    {
+      "stable_id": "sym-51ccec7f3f4aa8b34b1e51cb55a140c42d1b310e82dc9354521a47a2941ab4e2",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 807,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs807-808 -> EmployeeQueryService.ListAttendanceAsync",
+        "Infrastructure/Employees/EmployeeQueryService.cs92-102"
+      ]
+    },
+    {
+      "stable_id": "sym-8a78af3a35f11a48b4f88b26990375fca69ffb7acdee6e47cadd6326be7b64ec",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 819,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs819 -> PayrollQueryService.ListRunsAsync",
+        "Infrastructure/Employees/PayrollQueryService.cs12-16"
+      ]
+    },
+    {
+      "stable_id": "sym-4b05c6154fdd79542bad07316db0e865cd7ead5d21fb8d433a3a11a897bf3dad",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 821,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs821-825 -> PayrollQueryService.GetRunAsync -> CreatePayrollHandler.ToDto",
+        "Infrastructure/Employees/PayrollQueryService.cs18-23",
+        "Infrastructure/Employees/CreatePayrollHandler.cs ToDto"
+      ]
+    },
+    {
+      "stable_id": "sym-d8d372d2164952dab7c985df2f323a4b3c3cc67e597c485c6e3f443fb98f6182",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 827,
+      "batch": "Quality batch06:9 employee, attendance and payroll read endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs827-828 -> PayrollQueryService.ListLinesAsync",
+        "Infrastructure/Employees/PayrollQueryService.cs25-31"
+      ]
+    },
+    {
+      "stable_id": "sym-491cae6d6e9bcbc671013e28f59a3c26c474e1f996d675ba1025f36b814c648c",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 667,
+      "batch": "Quality batch07:6 employee profile/manual earnings commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs667-672 -> CreateEmployeeHandler.HandleAsync",
+        "Infrastructure/Employees/EmployeeManagementHandlers.cs26-64",
+        "Domain/Employees/EmployeeRules.cs11-17 AssertEmployeeInput",
+        "Application/Employees/EmployeeRequests.cs6-14"
+      ]
+    },
+    {
+      "stable_id": "sym-cf913a13eee9b02630fb1db82f0848a774bc9c4980c395dd857a9f3f295c18be",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 674,
+      "batch": "Quality batch07:6 employee profile/manual earnings commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs674-683 -> UpdateEmployeeHandler.HandleAsync",
+        "Infrastructure/Employees/EmployeeManagementHandlers.cs79-115",
+        "Domain/Employees/EmployeeRules.cs11-17"
+      ]
+    },
+    {
+      "stable_id": "sym-5b8e0d4991ae1e00ce5900b1b1596b934683fe020c307493752850e8d2c3e65e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 709,
+      "batch": "Quality batch07:6 employee profile/manual earnings commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs709-718 -> RecordManualLedgerEntryHandler.HandleAsync",
+        "Infrastructure/Employees/RecordManualLedgerEntryHandler.cs28-76",
+        "Domain/Employees/EmployeeRules.cs30-33 AssertLedgerAmount",
+        "Domain/Common/Money.cs FromPiastres permits negative until explicit guard"
+      ]
+    },
+    {
+      "stable_id": "sym-1c5a67f73a12da6d4c855e812e29e7a74875dc9fb4d2c2ae0d4d337c0a2853df",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 748,
+      "batch": "Quality batch07:6 employee profile/manual earnings commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs748-757 -> RecordDailyWageHandler.HandleAsync",
+        "Infrastructure/Employees/RecordDailyWageHandlers.cs33-61",
+        "Infrastructure/Employees/EmployeeLedgerPoster.cs16-56",
+        "Domain/Common/BusinessClock.cs Today",
+        "Domain/Common/Money.cs17 FromPiastres"
+      ]
+    },
+    {
+      "stable_id": "sym-a1bdc409ba817758fab925ee661c7fd3a234d33a7af6de51f9539e82df16a3bb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 759,
+      "batch": "Quality batch07:6 employee profile/manual earnings commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs759-768 -> RecordOvertimeHandler.HandleAsync",
+        "Infrastructure/Employees/RecordDailyWageHandlers.cs77-109",
+        "Infrastructure/Employees/EmployeeLedgerPoster.cs16-56",
+        "Infrastructure/Settings/SettingsQueryService.cs GetAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-e07003fb34db50b5e55dc41f3070cbb4ca92b81ef4c95635ebc1dcbf439957ee",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 770,
+      "batch": "Quality batch07:6 employee profile/manual earnings commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs770-779 -> RecordExtraShiftHandler.HandleAsync",
+        "Infrastructure/Employees/RecordDailyWageHandlers.cs125-157",
+        "Infrastructure/Employees/EmployeeLedgerPoster.cs16-56",
+        "Domain/Common/Money.cs multiplication operator"
+      ]
+    },
+    {
+      "stable_id": "sym-0688ab7d32dfe6400657dc66d1fbbfd37c0d633d1c15ce13d1639bb1835f0da3",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 720,
+      "batch": "Quality batch08:3 employee payout and frozen payroll-create endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs720-730 -> RecordEmployeeCashOutHandler.HandleAsync",
+        "Infrastructure/Employees/RecordEmployeeCashOutHandler.cs38-166",
+        "Domain/Employees/EmployeeRules.cs AssertLedgerAmount/AssertWithdrawalWithinBalance",
+        "Infrastructure/Treasury/TreasuryMapper.cs TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-656229634498aae4cd2482acd06b9ec591e58ba1d5b36db5334fab9c0b9ee5cb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 736,
+      "batch": "Quality batch08:3 employee payout and frozen payroll-create endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs736-746 -> PayEmployeeHandler.HandleAsync",
+        "Infrastructure/Employees/PayEmployeeHandler.cs46-158",
+        "Infrastructure/Employees/EmployeeLedgerPoster.cs PostIfNewAsync",
+        "Domain/Employees/EmployeeRules.cs AssertPaymentWithinBalance",
+        "Infrastructure/Persistence/EfFinancialJournal.cs TryStart/Complete"
+      ]
+    },
+    {
+      "stable_id": "sym-39087865c2bf5b1972694eb10d9f7271e1b9ad53a7059c6a37b6393695f9de96",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 812,
+      "batch": "Quality batch08:3 employee payout and frozen payroll-create endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs812-817 -> CreatePayrollHandler.HandleAsync",
+        "Infrastructure/Employees/CreatePayrollHandler.cs29-110",
+        "Domain/Payroll/PayrollRules.cs87-116 CalculatePayrollLines",
+        "Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.cs",
+        "Infrastructure/Employees/EmployeeManagementHandlers.cs compensation storage"
+      ]
+    },
+    {
+      "stable_id": "sym-3ed8c9588e2f8b029b41760b146d050965bab0dfb81663ce1eff978ae28c0cbe",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 796,
+      "batch": "Quality batch09:attendance correction delta/replay and backup metadata detail",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs796-805 -> CorrectAttendanceHandler.HandleAsync",
+        "Infrastructure/Employees/CorrectAttendanceHandler.cs30-131",
+        "Infrastructure/Employees/EmployeeLedgerPoster.cs16-56 pending delta",
+        "Domain/Payroll/PayrollRules.cs CalculateLateDeduction/CalculateOvertimeAmount/CalculatePayrollLines"
+      ]
+    },
+    {
+      "stable_id": "sym-bce26ba064f1cc3b1682e0532a145bb0d07c9be95a3f4ae89a2793d215ab2cd4",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 864,
+      "batch": "Quality batch09:attendance correction delta/replay and backup metadata detail",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs864-868 -> BackupQueryService.GetAsync",
+        "Infrastructure/Backup/BackupQueryService.cs16-22",
+        "Application/Backup/BackupRequests.cs BackupRecordDto"
+      ]
+    },
+    {
+      "stable_id": "sym-5de9b97d6d9746c0b269c79749d7ab173b3c9ba3581cc4435fb35533cec936b6",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 927,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs927-928 -> InventoryQueryService.ListInventoryItemsAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs20-35"
+      ]
+    },
+    {
+      "stable_id": "sym-268fde8fa3fa0d89e4064addc7f9bc3cf945174c740e6c486cf91468e5ecb682",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 930,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs930-931 -> InventoryQueryService.GetStockBalanceAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs37-41,216-222",
+        "Domain/Inventory/InventoryRules.cs50-52"
+      ]
+    },
+    {
+      "stable_id": "sym-8d6b315759e70594d7fddb6e4db9859d3f0ccf2a79d6c24f0ac0107e7168f6ab",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 945,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs945-946 -> RequireReportsAccessAsync -> InventoryQueryService.GetIngredientCostAsync",
+        "Program.cs2282-2290",
+        "Infrastructure/Inventory/InventoryQueryService.cs67-73,483-498",
+        "Domain/Inventory/CostingRules.cs20-54"
+      ]
+    },
+    {
+      "stable_id": "sym-fb9060e74ea929c9c01b74ca42b13d82481a5d067104f50686ac4830c5299de6",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 948,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs948-949 -> InventoryQueryService.ListStockMovementsAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs43-50"
+      ]
+    },
+    {
+      "stable_id": "sym-e4208e50072731cacf0fc6e507c414ee4da0aee6146ca7f0aa74bd6ba5d997ff",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 953,
+      "batch": "Quality batch10 source reference correction: PurchasingRules under Inventory",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs953-958 -> RequireReportsAccessAsync -> InventoryQueryService.GetInventoryOverviewAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs388-430,483-498",
+        "Domain/Inventory/CostingRules.cs IngredientUnitCost",
+        "Domain/Inventory/PurchasingRules.cs PurchaseLineTotal"
+      ]
+    },
+    {
+      "stable_id": "sym-69faf39e2b3349c1a23e68ec5c540b921c1bba3cbbaaa62ebbac2b1c7c9e15c0",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 960,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs960-966 -> InventoryQueryService.GetInventoryItemDetailAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs433-480,137-189",
+        "Domain/Inventory/InventoryRules.cs50-87"
+      ]
+    },
+    {
+      "stable_id": "sym-7323f5136d59f1a3f721af93f15d0add6702f9a67ea3ce09e2d0cfdb87a40721",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 968,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs968-969 -> RequireReportsAccessAsync -> InventoryQueryService.GetLossSummaryAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs52-65",
+        "Domain/Common/BusinessClock.cs UtcRangeForBusinessDate"
+      ]
+    },
+    {
+      "stable_id": "sym-232f960c0b1e6b07403b2f94af62f9a5af7b0b6dfe1f7452f0bf8da346ffede5",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 971,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs971-972 -> InventoryQueryService.GetVarianceAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs137-189,216-222",
+        "Domain/Inventory/CostingRules.cs136-141 BaseQuantityMilliUnits",
+        "Domain/Inventory/InventoryRules.cs60-87"
+      ]
+    },
+    {
+      "stable_id": "sym-ad2b4f8a29659d92e2596fd19f3c7ba2f0fa9cbed3063a867590cafc59dcfc37",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 974,
+      "batch": "Quality batch10:9 distinct stock, costing, loss and consumption read routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs974-980 -> InventoryQueryService.GetSharedConsumptionReportAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs191-200,216-222",
+        "Domain/Inventory/InventoryRules.cs60-75,100-109"
+      ]
+    },
+    {
+      "stable_id": "sym-5bf7d8db3fde549665f3fe6210505517f32832b1c4432d27446a32257086e715",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1041,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1041 -> InventoryQueryService.ListRecipesAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs202-203,503-504"
+      ]
+    },
+    {
+      "stable_id": "sym-6c2a2fb0eeaf09f36620ac0d3dd940c46b40815b193dd8220af1d8035d030010",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1043,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1043-1047 -> InventoryQueryService.GetRecipeAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs205-207,503-504"
+      ]
+    },
+    {
+      "stable_id": "sym-ac9a79c06144d335f57021fb4d5a5cde3fdb56de7740faad04b2f489d22d7ef5",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1049,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1049-1055 -> InventoryQueryService.GetRecipeCostAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs75-84,483-501",
+        "Domain/Inventory/CostingRules.cs136-175"
+      ]
+    },
+    {
+      "stable_id": "sym-4240ea415b15cb272f9d6145395c8b1c07d867779ba4c6a775b2921cfb1f910e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1059,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1059-1065 -> InventoryQueryService.GetMenuItemProfitabilityAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs101-129",
+        "Domain/Inventory/CostingRules.cs197-205"
+      ]
+    },
+    {
+      "stable_id": "sym-656310a6663852064184dadf869dff74a7547c70ad327ceb6c937c9f89826745",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1070,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1070-1075 -> InventoryQueryService.ListRecipeCostSummariesAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs259-292,358-361,483-498",
+        "Domain/Inventory/CostingRules.cs ComputeRecipeCost/MenuItemProfitability"
+      ]
+    },
+    {
+      "stable_id": "sym-69c19ffc5d5f2a3d54d7345ebd2b075b4db329be005e9b8f6d0fbf24f1767699",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1077,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1077-1082 -> InventoryQueryService.GetRecipeCostCoverageAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs297-315,259-292,483-498"
+      ]
+    },
+    {
+      "stable_id": "sym-95a41b656e11ff5439eee3a53bc4eaf5a6c181055715b84cdeea64413a6ea137",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1084,
+      "batch": "Quality batch11:7 recipe composition, cost, profitability and coverage routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1084-1090 -> InventoryQueryService.GetRecipeCostDetailAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs231-255,318-380,483-504",
+        "Domain/Inventory/CostingRules.cs IsCircularPrep/IngredientUnitCost/ComputeRecipeCost"
+      ]
+    },
+    {
+      "stable_id": "sym-87f547266c66a8d5f13f8b3ea3fcd37312dc5f9627643c4ce7ecb8e32477d74e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 892,
+      "batch": "Quality batch12:6 inventory catalog/prep/packaging routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs892-907 -> CreateInventoryItemHandler.HandleAsync",
+        "Infrastructure/Inventory/InventoryItemHandlers.cs25-55",
+        "Infrastructure/Inventory/InventoryQueryService.cs483-487 LoadCostingContext"
+      ]
+    },
+    {
+      "stable_id": "sym-82b05ba35b9429a2633c08c27a9d5d65c4e384f810ed79680d0287d1888798f3",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1092,
+      "batch": "Quality batch12:6 inventory catalog/prep/packaging routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1092-1107 -> SavePrepRecipeHandler.HandleAsync",
+        "Infrastructure/Inventory/SavePrepRecipeHandler.cs25-117",
+        "Domain/Inventory/CostingRules.cs28-54 recursion guard,99-129 prep cost"
+      ]
+    },
+    {
+      "stable_id": "sym-a2407dd56a5b426bd63d13ed1cac7365afd126f90e4f9901e45158ec5fb8f7a6",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1109,
+      "batch": "Quality batch12:6 inventory catalog/prep/packaging routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1109 -> InventoryQueryService.ListPrepRecipesAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs209-210,506-507"
+      ]
+    },
+    {
+      "stable_id": "sym-3b8940f2875607e4bca7e88a69efdff5f1eafa51a1a2161cb103fde83eaa6995",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1111,
+      "batch": "Quality batch12:6 inventory catalog/prep/packaging routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1111-1117 -> InventoryQueryService.GetPrepRecipeCostAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs86-97,483-498",
+        "Domain/Inventory/CostingRules.cs99-129"
+      ]
+    },
+    {
+      "stable_id": "sym-c98f66a0a520be18d59af238671af0969910469d4e15fafdad727a5eec87c374",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1119,
+      "batch": "Quality batch12:6 inventory catalog/prep/packaging routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1119-1134 -> SaveOrderPackagingRuleHandler.HandleAsync",
+        "Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs25-60"
+      ]
+    },
+    {
+      "stable_id": "sym-d9a36bc2a9c55962f2ffab1aff27d836ad3fe00a142407ca53c41513c945ae39",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1136,
+      "batch": "Quality batch12:6 inventory catalog/prep/packaging routes",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1136 -> InventoryQueryService.ListOrderPackagingRulesAsync",
+        "Infrastructure/Inventory/InventoryQueryService.cs212-214"
+      ]
+    },
+    {
+      "stable_id": "sym-55b5caf7479498685c18be95d815a50683701d992f209540ce5bb16d1ccd0518",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 982,
+      "batch": "Quality batch13:4 count/loss/recipe/customer write contracts",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs982-1001 -> RecordCountAdjustmentHandler.HandleAsync",
+        "Infrastructure/Inventory/StockMovementHandlers.cs32-84",
+        "Domain/Inventory/InventoryRules.cs27-31 AssertCountAdjustmentInput"
+      ]
+    },
+    {
+      "stable_id": "sym-0238fad33964714b961da1fda469adbad6fa8e8a42387e2ff7156baa5417b625",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1003,
+      "batch": "Quality batch13:4 count/loss/recipe/customer write contracts",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1003-1022 -> RecordWasteHandler.HandleAsync",
+        "Infrastructure/Inventory/StockMovementHandlers.cs113-189",
+        "Domain/Inventory/InventoryRules.cs33-38 AssertWasteInput",
+        "Domain/Inventory/PurchasingRules.cs LastPurchaseUnitCost/ValueStockLoss"
+      ]
+    },
+    {
+      "stable_id": "sym-bde287cdb9daedb2de003f9768e115d2f098dae2ca17a1b8ee42f4d9e569eeed",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1024,
+      "batch": "Quality batch13:4 count/loss/recipe/customer write contracts",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1024-1039 -> SaveRecipeHandler.HandleAsync",
+        "Infrastructure/Inventory/SaveRecipeHandler.cs31-110",
+        "Infrastructure/Inventory/InventoryQueryService.cs price resolution and ToDomainLine"
+      ]
+    },
+    {
+      "stable_id": "sym-febfde0369fe715bdfdb7e3b27551f7606e1278749d76f3ddc19b0b04afa15df",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1138,
+      "batch": "Quality batch13:4 count/loss/recipe/customer write contracts",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1138-1149 -> UpsertCustomerHandler.HandleAsync",
+        "Infrastructure/Customers/UpsertCustomerHandler.cs23-125",
+        "Domain/Customers/CustomerRules.cs AssertUpsertInput/NormalizePhone/FindMatchingAddress"
+      ]
+    },
+    {
+      "stable_id": "sym-8248bd42990849ad895ce05a8d7a447172c82f8844cf8ee209efb9e9efbe038f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1512,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1512 -> MenuQueryService.GetMenuAsync",
+        "Infrastructure/Menu/MenuQueryService.cs17-105",
+        "Infrastructure/Orders/MenuPricingService.cs ToDomainRule",
+        "Domain/Pricing/PricingRules.cs ApplicableRules"
+      ]
+    },
+    {
+      "stable_id": "sym-fb33d7872a15d826a772972fed41e477fcc16accc2d3d7517e9ce356b861ddc1",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1548,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1548-1563 -> SetProductStationHandler.HandleAsync(string,SetProductStationRequest,CancellationToken)",
+        "Infrastructure/Printing/SetProductStationHandler.cs27-45",
+        "Domain/Printing/PrintRules.cs DetermineKitchenRoutes"
+      ]
+    },
+    {
+      "stable_id": "sym-18afb6e50efc528fb1b95175636207fb28b02b174b58af72345a012233b8fc15",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1567,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1567 -> MenuQueryService.ListAllCategoriesAsync",
+        "Infrastructure/Menu/MenuQueryService.cs111-113"
+      ]
+    },
+    {
+      "stable_id": "sym-5742dee0af0672bc0ba541cd1afc19455629619c62dd718b098a004c9fa8e64a",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1569,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1569-1578 -> CreateCategoryHandler.HandleAsync",
+        "Infrastructure/Menu/CategoryHandlers.cs29-58"
+      ]
+    },
+    {
+      "stable_id": "sym-feb387519d4d6e22534991be65c90faab091a4c706a14b34374181d8fc17b6ed",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1580,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1580-1589 -> UpdateCategoryHandler.HandleAsync",
+        "Infrastructure/Menu/CategoryHandlers.cs78-101",
+        "Infrastructure/Persistence/CommandReceipt.cs11-25"
+      ]
+    },
+    {
+      "stable_id": "sym-5e6e8a29f9b7a7b4c467d15a4bc01d4c9c6c58b03b5405cc549cd775c0c90195",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1591,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1591-1600 -> SetCategoryActiveHandler.HandleAsync",
+        "Infrastructure/Menu/CategoryHandlers.cs119-140",
+        "Infrastructure/Persistence/CommandReceipt.cs"
+      ]
+    },
+    {
+      "stable_id": "sym-74788864f173c155394f8ec451ec085d7495a51ba878ffc4c70f6eeef4036cdb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1602,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1602 -> MenuQueryService.ListAllProductsAsync",
+        "Infrastructure/Menu/MenuQueryService.cs57-73,116-122,132-135"
+      ]
+    },
+    {
+      "stable_id": "sym-f847982b3b60a3378798ae65cac99b63c8f783d55893e49bea70757cadfa5e5e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1604,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1604-1608 -> MenuQueryService.GetProductAsync",
+        "Infrastructure/Menu/MenuQueryService.cs124-135"
+      ]
+    },
+    {
+      "stable_id": "sym-d3eb1821fe47670db932405186253cd28f7196507de838566072817917405ab8",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1610,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1610-1619 -> CreateProductHandler.HandleAsync",
+        "Infrastructure/Menu/ProductHandlers.cs29-75,199-206 MenuValidation"
+      ]
+    },
+    {
+      "stable_id": "sym-8662faf8864066677d5bc9f9f14ef503860c0fd3c5feb05f314268e9f5dec33b",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1621,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1621-1630 -> UpdateProductHandler.HandleAsync",
+        "Infrastructure/Menu/ProductHandlers.cs95-152",
+        "Infrastructure/Persistence/CommandReceipt.cs"
+      ]
+    },
+    {
+      "stable_id": "sym-8bd100ee07b328790de179435f07495ec40ec33cdce493f9d68a3ee796f93f1d",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1632,
+      "batch": "Quality batch14:11 menu reads and category/product/station commands",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1632-1641 -> SetProductAvailabilityHandler.HandleAsync",
+        "Infrastructure/Menu/ProductHandlers.cs170-194",
+        "Infrastructure/Persistence/CommandReceipt.cs"
+      ]
+    },
+    {
+      "stable_id": "sym-c966339d18f45c5ea1b83dac2e3bb7c745ef3ccee8418ad8c19c987aafdfcb7b",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1645,
+      "batch": "Quality batch15:5 tax and offer endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1645 -> TaxRuleQueryService.ListAsync",
+        "Infrastructure/Pricing/TaxRuleHandlers.cs116-117",
+        "Infrastructure/Orders/CheckoutOrderHandler.cs60-63"
+      ]
+    },
+    {
+      "stable_id": "sym-c1eaeee6a043bb5ca39c91ae6ead3368d3c33f4d7cb8ea83359a521f360a7b42",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1647,
+      "batch": "Quality batch15:5 tax and offer endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1647-1656 -> CreateTaxRuleHandler.HandleAsync",
+        "Infrastructure/Pricing/TaxRuleHandlers.cs28-60",
+        "Infrastructure/Orders/CheckoutOrderHandler.cs60-63"
+      ]
+    },
+    {
+      "stable_id": "sym-3440ca5580263947dedbaa2287d10b5848d56660184b3b5c4e5ee5a8f13198eb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1658,
+      "batch": "Quality batch15:5 tax and offer endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1658-1667 -> UpdateTaxRuleHandler.HandleAsync",
+        "Infrastructure/Pricing/TaxRuleHandlers.cs81-108",
+        "Infrastructure/Persistence/CommandReceipt.cs",
+        "Infrastructure/Orders/CheckoutOrderHandler.cs60-63"
+      ]
+    },
+    {
+      "stable_id": "sym-93fb9a51bad67200f65e5f05987270fc490b5e573bd0bd1e94b743cc2e728ef1",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1709,
+      "batch": "Quality batch15:5 tax and offer endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1709 -> PriceRuleQueryService.ListAsync",
+        "Infrastructure/Pricing/SavePriceRuleHandler.cs93-106"
+      ]
+    },
+    {
+      "stable_id": "sym-3ec880b99fc0ec24fda160d954bb4ee62664b0c563f64facc62983161dcba95d",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1711,
+      "batch": "Quality batch15:5 tax and offer endpoints",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1711-1720 -> SavePriceRuleHandler.HandleAsync",
+        "Infrastructure/Pricing/SavePriceRuleHandler.cs30-95",
+        "Infrastructure/Persistence/CommandReceipt.cs11-25",
+        "Domain/Pricing/PricingRules.cs12-41,76-85"
+      ]
+    },
+    {
+      "stable_id": "sym-0a9c77e6099b72a296ffc7fc63328bd6c7be6f24f576ff9f8c40c7bc7643e297",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 1997,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs1997-1999 -> RequireReportsAccessAsync -> GetSalesReportAsync(BusinessDateRange?,string?,CancellationToken)",
+        "Infrastructure/Reports/ReportingQueryService.cs35-95",
+        "Domain/Common/BusinessClock.cs58-86 BusinessDateRange",
+        "Domain/Reports/SalesRules.cs34-90"
+      ]
+    },
+    {
+      "stable_id": "sym-9598a83aabce131e7d048d4eb296d0ec8c9266df4c47964ce36d6570cb18026d",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2001,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2001-2003 -> GetTaxReportAsync(BusinessDateRange?,string?,CancellationToken)",
+        "Infrastructure/Reports/ReportingQueryService.cs35-49,100-110",
+        "Domain/Reports/SalesRules.cs107-121"
+      ]
+    },
+    {
+      "stable_id": "sym-5e7bf82ec6d35edb12687b88dd04bb6a6ffe79592b7b8a1c5d40cb6b94e58047",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2005,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2005-2007 -> GetExpenseReportAsync(BusinessDateRange?,string?,CancellationToken)",
+        "Infrastructure/Reports/ReportingQueryService.cs124-137",
+        "Program.cs2282-2290 reports gate"
+      ]
+    },
+    {
+      "stable_id": "sym-99bd8149b167842a19eb11d78a722fd873058a0f90a0f1c143a03cdf854546db",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2009,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2009-2011 -> GetRefundActivityAsync(BusinessDateRange?,string?,CancellationToken)",
+        "Infrastructure/Reports/ReportingQueryService.cs144-159",
+        "Infrastructure/Orders/RefundOrderHandler.cs operational shift fields"
+      ]
+    },
+    {
+      "stable_id": "sym-bd8bdaee35c0dd8d6fbe9ecfe6a3294063a145a1ffa87a794c2f24fe6416082e",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2013,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2013-2019 -> GetBusinessDayReconciliationAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs164-208",
+        "Domain/Reports/SalesRules.cs ComputeSalesReport"
+      ]
+    },
+    {
+      "stable_id": "sym-1070d54e4d19c266ca2aeeb0f862305707548b0e1f52733aa317ae449873aeb9",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2021,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2021-2027 -> GetDailySummaryAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs215-238,164-208"
+      ]
+    },
+    {
+      "stable_id": "sym-8e375fa80dcb8bcdd40e87b214ffb4125f394f1f89abe0facf437695db5393cb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2029,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2029-2030 -> GetTopSellingItemsAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs241-263"
+      ]
+    },
+    {
+      "stable_id": "sym-be08d195a714df87866a64fbf841f8dcf332042fc5900672da32e29cdbb769aa",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2032,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2032-2033 -> GetCategorySalesAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs325-341,241-246"
+      ]
+    },
+    {
+      "stable_id": "sym-92b23f75a8c3ca1e9e5bc1e8f5ac0bc1eb5fbca4bdb258511f214424516b9efc",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2035,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2035-2036 -> GetProductHourlySalesAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs307-322,241-246",
+        "Domain/Common/BusinessClock.cs CairoTimeZone"
+      ]
+    },
+    {
+      "stable_id": "sym-0f3ce2bf3a7fa07a532cb6ecdced7dc86b98cb276ae47b3019f11a7e0f1aeb49",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2038,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2038-2039 -> GetFoodCostReportAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs349-422",
+        "Domain/Inventory/CostingRules.cs ComputeRecipeCost/OrderPackagingCost"
+      ]
+    },
+    {
+      "stable_id": "sym-44857051f782ddb139b445465813f55d0cc4b53acc571fb3cffff59012b58545",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2041,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2041-2042 -> GetSignificantActionsAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs428-462"
+      ]
+    },
+    {
+      "stable_id": "sym-615604176e19ed007f5216280cba565bf75d37e798d4bd93673d22bff03a945f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2048,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2048-2049 -> GetShiftsHistoryAsync(ct:ct)",
+        "Infrastructure/Reports/ReportingQueryService.cs487-505,527-541"
+      ]
+    },
+    {
+      "stable_id": "sym-480261dc035efdaeb362f89dbea941916ac689896f1835ecf3476cfb68e2689f",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2051,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2051-2057 -> GetShiftSummaryAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs470-478,527-541",
+        "Infrastructure/Shifts/ShiftReconciliation.cs FIN004 comparison"
+      ]
+    },
+    {
+      "stable_id": "sym-8428aec0d827406609806bfb987db5cd3e3ca559f8d8c5e8084612084cfcc0b2",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2059,
+      "batch": "Quality batch16:14 reports with distinct populations,math,dates and consistency",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2059-2060 -> GetDeliveryOutcomesReportAsync",
+        "Infrastructure/Reports/ReportingQueryService.cs545-594",
+        "Domain/Common/BusinessClock.cs UtcRangeForBusinessDate"
+      ]
+    },
+    {
+      "stable_id": "sym-91da63f88c242551b598dcd0293b2a8eaa664417ee27a4e88afa4ecc18f12995",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2153,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2153-2168 -> AddSupplierHandler.HandleAsync",
+        "Infrastructure/Purchasing/AddSupplierHandler.cs25-66",
+        "Domain/Authorization/ApprovalRegistry.cs149-153"
+      ]
+    },
+    {
+      "stable_id": "sym-bfda18d9182cb6ea2b1c435edf47e68a90c139629a316835d1ec8a9cead4a070",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2170,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2170-2171 -> PurchasingQueryService.ListSuppliersAsync",
+        "Infrastructure/Purchasing/PurchasingQueryService.cs16-21,101-108"
+      ]
+    },
+    {
+      "stable_id": "sym-e6abcd59ad39a6e6c60837fecad679f17081e3cf9db547b2a5237501c6c72bd3",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2173,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2173-2177 -> PurchasingQueryService.GetSupplierAsync",
+        "Infrastructure/Purchasing/PurchasingQueryService.cs23-29,101-108"
+      ]
+    },
+    {
+      "stable_id": "sym-b5649700d3c1c0da80a1e61994164a077ecb55bf5b8fb893208b8241fe99bfd8",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2179,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2179-2180 -> PurchasingQueryService.GetSupplierLedgerAsync",
+        "Infrastructure/Purchasing/PurchasingQueryService.cs31-35"
+      ]
+    },
+    {
+      "stable_id": "sym-606a29d033bfa1f938bee26ff1dccee2f1f985cb9b45de9024033ae31b6396fd",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2182,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2182-2201 -> ReceivePurchaseHandler.HandleAsync",
+        "Infrastructure/Purchasing/ReceivePurchaseHandler.cs36-229",
+        "Domain/Inventory/PurchasingRules.cs PurchaseLineTotal/AssertPurchasePayment/PurchasePaymentAccountFor",
+        "Infrastructure/Treasury/TreasuryMapper.cs balance lock"
+      ]
+    },
+    {
+      "stable_id": "sym-5deb4096b9131f9a7db82c262e84e3f819e13a3f42c4f56aa2061f646c224893",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2203,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2203-2204 -> PurchasingQueryService.ListPurchasesAsync",
+        "Infrastructure/Purchasing/PurchasingQueryService.cs37-40",
+        "Infrastructure/Purchasing/ReceivePurchaseHandler.cs ToDto"
+      ]
+    },
+    {
+      "stable_id": "sym-e711f317a49b2615c3f58864686af5d1032242cdbf0df9fffaf3d8e5c2d50ffb",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2207,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2207-2208 -> PurchasingQueryService.GetPayablesAgingAsync",
+        "Infrastructure/Purchasing/PurchasingQueryService.cs56-98",
+        "Domain/Purchasing/PayablesAging.cs DaysOverdue/Classify/AgeInDays"
+      ]
+    },
+    {
+      "stable_id": "sym-0843552aa8662eac2443be866e19c2c225d17ea6fcee0c58659be49d4a71e5aa",
+      "path": "src/Falah.Server/Program.cs",
+      "line": 2210,
+      "batch": "Quality batch17:final8 supplier/purchasing endpoints;all130 specifically self-revised",
+      "disposition": "SELF_REVISED_PENDING_PARENT_ACCEPTANCE",
+      "typed_callees": [
+        "Program.cs2210-2214 -> PurchasingQueryService.GetPurchaseAsync",
+        "Infrastructure/Purchasing/PurchasingQueryService.cs42-47",
+        "Infrastructure/Purchasing/ReceivePurchaseHandler.cs ToDto"
+      ]
+    }
+  ],
+  "updated_at_utc": "2026-10-17T01:49:49.549160+00:00",
+  "self_revised_count": 130,
+  "remaining_exact_ids": [],
+  "remaining_source_units": [],
+  "remaining_count": 0,
+  "independently_accepted_count": "UNKNOWN; parent decides",
+  "no_source_runtime_database_actions": true
+}
