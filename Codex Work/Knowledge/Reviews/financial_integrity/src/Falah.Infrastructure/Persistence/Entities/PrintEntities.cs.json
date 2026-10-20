@@ -1,0 +1,1148 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Entities/PrintEntities.cs",
+  "source_git_blob_sha256": "34ba05220793488413ae21f1e06f102d4da83a6a7ce24f0f0539df1bdbab580d",
+  "worktree_sha256": "b7bc9f20a28e2486a23f47d8094c1d44dc666998bb0f664cd9ce7aef810e4f4c",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:05:59.904031+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-628ffa22f738356d9fc68fb07bffe1816a1b429efaeeb6a4d73c268bbd4f319b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Id.get",
+      "span": [
+        10,
+        24,
+        10,
+        28
+      ],
+      "reasoning": "Getter exposes persisted job identity, not proof a ticket was physically sent once; one physical document may have original and explicit reprint jobs.",
+      "inputs": "Persisted job/report carrying string print-job PK.",
+      "outputs": "string print-job PK without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-956a908c1b5097e0be95bdfc73f706f96d09b7261ae12712dee7795443dbf254",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Id.set",
+      "span": [
+        10,
+        29,
+        10,
+        33
+      ],
+      "reasoning": "Setter stores deterministic request/route-derived job ID in DocumentPrintJobs. Primary key prevents duplicate stored ID, not cross-agent physical exactly-once transport.",
+      "inputs": "string print-job PK from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-7140c9a1fae12702354ceb3da175f73091d41473f5b39abfcb01be1a5b44a4f0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.CreateRequestId.get",
+      "span": [
+        14,
+        37,
+        14,
+        41
+      ],
+      "reasoning": "Getter groups every route job created by one print request without parsing job ID.",
+      "inputs": "Persisted job/report carrying string creation request correlation.",
+      "outputs": "string creation request correlation without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-02ce3335cdcd2fe1f3483a442da2260ca3db32480aebdf2006a90a035b5589a0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.CreateRequestId.set",
+      "span": [
+        14,
+        42,
+        14,
+        46
+      ],
+      "reasoning": "Setter copies original or auto-kind-document/reprint request key; model indexes it nonuniquely because one request can create multiple routes.",
+      "inputs": "string creation request correlation from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-eac03ae14a14905504499d18a7f0326e1a27d4ccc3962d18634f4a3ade10e9c1",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.OrderId.get",
+      "span": [
+        18,
+        29,
+        18,
+        33
+      ],
+      "reasoning": "Getter is polymorphic document identity: order, shift or expense chosen by DocumentKind, not always an order FK.",
+      "inputs": "Persisted job/report carrying string document subject ID.",
+      "outputs": "string document subject ID without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-147ae53a962f8a24420dfd7541725b6f9a21068ecabc622a845f6a2878deb706",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.OrderId.set",
+      "span": [
+        18,
+        34,
+        18,
+        38
+      ],
+      "reasoning": "Setter stores documentId in generic slip builder. Model deliberately omits Order FK so paper metadata cannot block financial record lifecycle.",
+      "inputs": "string document subject ID from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-b88b8010a439485bd5ee540474202331a1bbc5551a9dbdc37f7fc0d9e737c71f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.OrderNumber.get",
+      "span": [
+        20,
+        33,
+        20,
+        37
+      ],
+      "reasoning": "Getter returns UI document label/human order number; for slips it can be a document title, not sequence key.",
+      "inputs": "Persisted job/report carrying string document label.",
+      "outputs": "string document label without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-f5633350cdfa34d0917e46a28f5c7888020ea6c83fe12e402f488e89148cd093",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.OrderNumber.set",
+      "span": [
+        20,
+        38,
+        20,
+        42
+      ],
+      "reasoning": "Setter copies caller label for generic slips. It is display text independent of OrderId relation and route.",
+      "inputs": "string document label from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-5c2dec74def73d681d472789f04cc333871599a431c2325db6ab3a18f3485658",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.DocumentKind.get",
+      "span": [
+        23,
+        35,
+        23,
+        39
+      ],
+      "reasoning": "Getter optionally selects document composition; null supports legacy order jobs, not automatically malformed metadata.",
+      "inputs": "Persisted job/report carrying nullable document kind.",
+      "outputs": "nullable document kind without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-4051898affe62692d85d7b30c9f534c88171e6f09f58bb9324a733a90bdfa60b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.DocumentKind.set",
+      "span": [
+        23,
+        40,
+        23,
+        44
+      ],
+      "reasoning": "Setter generic builder stores enum.ToString for ShiftOpen/ShiftClose/Expense etc. Actual composition parser/transport not re-audited here.",
+      "inputs": "nullable document kind from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-fcbb9b5d2230974a72c5a6d9c3ef049124ace77d5e642ee024519aab454df311",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Route.get",
+      "span": [
+        24,
+        27,
+        24,
+        31
+      ],
+      "reasoning": "Getter provides intended station route indexed with status; it is not an installed Windows queue identity or an agent claim lease.",
+      "inputs": "Persisted job/report carrying string logical print route.",
+      "outputs": "string logical print route without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-2f993fd27d5db86b054d4992021f30e9976af89aca027b1880135d508c39fd70",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Route.set",
+      "span": [
+        24,
+        32,
+        24,
+        36
+      ],
+      "reasoning": "Setter builder chooses Receipt for slips, other order writers choose domain route. No property operation sends hardware bytes or modifies queue config.",
+      "inputs": "string logical print route from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-eed158df2c1eb218f398d17340a1ec2e70d7aa3d82acbf6bc5a115bbde704c71",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Status.get",
+      "span": [
+        25,
+        28,
+        25,
+        32
+      ],
+      "reasoning": "Getter exposes latest reported software result Pending/Succeeded/Failed, not independent physical paper confirmation.",
+      "inputs": "Persisted job/report carrying string latest job status.",
+      "outputs": "string latest job status without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-e563a39b6de68e80f04684c086ad37c60c96bf1958a96b792f943e1b0d887feb",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Status.set",
+      "span": [
+        25,
+        33,
+        25,
+        37
+      ],
+      "reasoning": "Setter initializes Pending then result handler overwrites Succeeded/Failed for each new report. Stored status alone does not prevent already-sent transport repetition.",
+      "inputs": "string latest job status from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-5f78306945ad83c638d7df24d020a6174923cbd1dddc7fd56d89958e9ef91d65",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.AttemptCount.get",
+      "span": [
+        29,
+        31,
+        29,
+        35
+      ],
+      "reasoning": "Getter is number of reported attempts, not verified count of physical transmissions/pages.",
+      "inputs": "Persisted job/report carrying int reported-attempt count.",
+      "outputs": "int reported-attempt count without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-ec43f78df2c48de61bdfef25959b52377d307a5f1e92c6a082a7bd8f3fb33383",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.AttemptCount.set",
+      "span": [
+        29,
+        36,
+        29,
+        40
+      ],
+      "reasoning": "Setter initializes zero; report handler increments under job row lock, with per-report unique key preventing duplicate persisted attempt. Missing report can leave physical attempt absent from count.",
+      "inputs": "int reported-attempt count from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-44c00a451cdd63d96a61107fbed39a67c2009d63560a849284852bcaf5713398",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.LastAttemptAtUtc.get",
+      "span": [
+        30,
+        47,
+        30,
+        51
+      ],
+      "reasoning": "Getter is latest accepted report time, not necessarily actual driver send timestamp.",
+      "inputs": "Persisted job/report carrying nullable report instant.",
+      "outputs": "nullable report instant without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-58ee7b855052bf5c4832067e48f6d588acc444b2b95fff713ba9d6e8ae78add6",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.LastAttemptAtUtc.set",
+      "span": [
+        30,
+        52,
+        30,
+        56
+      ],
+      "reasoning": "Setter stores server UtcNow at result handling, independent from external device clock; no request-provided hardware timestamp is persisted in shown handler.",
+      "inputs": "nullable report instant from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-bb0934f3500b12e20ec0f6fee4dc931431086967cb7e9a30dd4ecfcc5888cd24",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.LastError.get",
+      "span": [
+        31,
+        32,
+        31,
+        36
+      ],
+      "reasoning": "Getter exposes latest reported error only; prior errors remain in child Attempts rather than this field.",
+      "inputs": "Persisted job/report carrying nullable latest report error.",
+      "outputs": "nullable latest report error without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-122f85db1ced5a3c5c055dee5513caed3f060f154cc821b7ad11282b373eaf56",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.LastError.set",
+      "span": [
+        31,
+        37,
+        31,
+        41
+      ],
+      "reasoning": "Setter clears on succeeded report or copies request.Error on failure. Null does not prove successful physical output while Pending or unknown.",
+      "inputs": "nullable latest report error from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-686ef163d12bbab61a38356ec93b8f9f63e328d699bf15298c345ea249857c60",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.IsReprint.get",
+      "span": [
+        34,
+        29,
+        34,
+        33
+      ],
+      "reasoning": "Getter denotes explicit reprint-request provenance, distinct from another attempt against same job.",
+      "inputs": "Persisted job/report carrying bool explicit reprint marker.",
+      "outputs": "bool explicit reprint marker without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-eb7c60faa7fd144e77f678c66e9780ae9ec56c5291666bcf3748d4513cc1b9ba",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.IsReprint.set",
+      "span": [
+        34,
+        34,
+        34,
+        38
+      ],
+      "reasoning": "Setter generic builder derives from presence of reprintRequestId. It does not itself change financial order or route; rendering mark depends composition consumer.",
+      "inputs": "bool explicit reprint marker from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-6b5a286a1f8945ab5d5a16bfea9cd4252586925ebcde1834317a591f10477717",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.CreatedBy.get",
+      "span": [
+        35,
+        31,
+        35,
+        35
+      ],
+      "reasoning": "Getter exposes creator display attribution, different from reporter and physical agent identity.",
+      "inputs": "Persisted job/report carrying string creator label.",
+      "outputs": "string creator label without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-6b64ffb73d346743c7fffb4638a00369c10a49fe47b1a0235816c38742b1790c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.CreatedBy.set",
+      "span": [
+        35,
+        36,
+        35,
+        40
+      ],
+      "reasoning": "Setter copies provided createdByName from business command; it does not authenticate which workstation sent ticket.",
+      "inputs": "string creator label from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-1528b1ea10a575fa364536cc46212f9ddc902ec965fa66d9a2fa13ca4238993f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.CreatedAtUtc.get",
+      "span": [
+        36,
+        42,
+        36,
+        46
+      ],
+      "reasoning": "Getter exposes job creation instant, separate from latest report and real paper output.",
+      "inputs": "Persisted job/report carrying DateTimeOffset job creation.",
+      "outputs": "DateTimeOffset job creation without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-2c48a7cf83f69038f3745b95161f4f3b304fded492339727bae553bce6a96430",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.CreatedAtUtc.set",
+      "span": [
+        36,
+        47,
+        36,
+        51
+      ],
+      "reasoning": "Setter copies caller now, often in same transaction as financial operation. Date field is not proof physical printer succeeded.",
+      "inputs": "DateTimeOffset job creation from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-d760dc6b33178d1c022352e8a2e9ebbaeb2eb90c80ddf42917de2f772d32dbb2",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Attempts.get",
+      "span": [
+        38,
+        51,
+        38,
+        55
+      ],
+      "reasoning": "Getter returns loaded mutable report history; empty unpopulated navigation is not proof no attempts exist.",
+      "inputs": "Persisted job/report carrying List of PrintJobAttemptEntity.",
+      "outputs": "List of PrintJobAttemptEntity without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-7f0019ee0f4501abb993f81cd61f1b6d35c35630388817b9bc4cffb2cc00d62d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobEntity.Attempts.set",
+      "span": [
+        38,
+        56,
+        38,
+        60
+      ],
+      "reasoning": "Setter initializes empty list; report handler adds child via DbSet with job FK rather than replacing history collection. Cascade relation is persistence lifecycle, not append-only enforcement.",
+      "inputs": "List of PrintJobAttemptEntity from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-25e1a9808c6a7ec6ef10c4135cd99660411e5d7bc9ba102cc5cb925174d0a6d0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.Id.get",
+      "span": [
+        46,
+        21,
+        46,
+        25
+      ],
+      "reasoning": "Getter exposes generated integer report row PK, distinct from idempotent attempt RequestId.",
+      "inputs": "Persisted job/report carrying int report row PK.",
+      "outputs": "int report row PK without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-2d930e079ac555b554d96f458413dd33aa66d5a949209b9e91b8f1d49be3a5da",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.Id.set",
+      "span": [
+        46,
+        26,
+        46,
+        30
+      ],
+      "reasoning": "Setter not assigned in report mapping, leaving provider generation. New physical send should have distinct report key per declared protocol.",
+      "inputs": "int report row PK from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-44cefd9cefcbfef4817b0d106f2ac44231f63ae42e13366b3589a90c630288d4",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.IdempotencyKey.get",
+      "span": [
+        50,
+        36,
+        50,
+        40
+      ],
+      "reasoning": "Getter is unique printattempt-RequestId for report dedupe, not transport-side ownership or lease token.",
+      "inputs": "Persisted job/report carrying string report business key.",
+      "outputs": "string report business key without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-def15de35f6612a7ad612b65a4e1e38be10e4cc01c2f4a3952812440cb639f01",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.IdempotencyKey.set",
+      "span": [
+        50,
+        41,
+        50,
+        45
+      ],
+      "reasoning": "Setter copies request key before insert. Existing-key replay lookup returns requested job metadata; no payload-binding guarantee follows from unique key alone.",
+      "inputs": "string report business key from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-2eb797f4e1f8e744490d9a8d3c198a72e12bc6a9abe0ab8c31d8fe215d805e7b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.PrintJobId.get",
+      "span": [
+        51,
+        32,
+        51,
+        36
+      ],
+      "reasoning": "Getter binds report to owning job, with parent cascade relation.",
+      "inputs": "Persisted job/report carrying string job FK.",
+      "outputs": "string job FK without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-385ec6985265222450ef2fbd72cca59fe5b02007d9b4530b4fa83f3795b87c2d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.PrintJobId.set",
+      "span": [
+        51,
+        37,
+        51,
+        41
+      ],
+      "reasoning": "Setter stores locked job.Id in report writer. Normal insertion records one job; unique report key is global rather than per-job.",
+      "inputs": "string job FK from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-31092180a2cc2a13bfb635316ec99b3b0038bbff18b26ea8fb430729f7da22f8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.AttemptedAtUtc.get",
+      "span": [
+        52,
+        44,
+        52,
+        48
+      ],
+      "reasoning": "Getter is accepted report server time, despite field name suggesting physical-attempt time.",
+      "inputs": "Persisted job/report carrying DateTimeOffset report instant.",
+      "outputs": "DateTimeOffset report instant without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-89430f47a80b11ee3097f6e9463a87ca4b45b9cc2964f5ef5ce04d1075eeb3d8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.AttemptedAtUtc.set",
+      "span": [
+        52,
+        49,
+        52,
+        53
+      ],
+      "reasoning": "Setter copies server now44/52, not externally observed printer send timestamp. Clock value alone cannot prove physical ordering across agents.",
+      "inputs": "DateTimeOffset report instant from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-b59d8a7672e27bf2c88165add39d40de4bf1372196d1ecd278c1f89444638b17",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.Succeeded.get",
+      "span": [
+        53,
+        29,
+        53,
+        33
+      ],
+      "reasoning": "Getter is client-reported success flag retained as history, not sensor/receipt of actual printed paper.",
+      "inputs": "Persisted job/report carrying bool reported result.",
+      "outputs": "bool reported result without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-e55a944ac4c53dd77c817fe5b0ed4cfc66eab4928fb23821cc16b542756ed99e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.Succeeded.set",
+      "span": [
+        53,
+        34,
+        53,
+        38
+      ],
+      "reasoning": "Setter copies request.Succeeded, controls error clearing and latest job status, and never changes order/payment/inventory in inspected writer.",
+      "inputs": "bool reported result from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-30dc00d914f8e972a857a6f08e4f6c82eca6560cf47d40524eb0bfcc1191949c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.Error.get",
+      "span": [
+        54,
+        28,
+        54,
+        32
+      ],
+      "reasoning": "Getter preserves report-specific optional error instead of later job latest-only error.",
+      "inputs": "Persisted job/report carrying nullable report error.",
+      "outputs": "nullable report error without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-85d5d891894af2e5317265fc4589cbdcfcb50252ff5e7322abd57773f5565ebf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.Error.set",
+      "span": [
+        54,
+        33,
+        54,
+        37
+      ],
+      "reasoning": "Setter stores null on success or request.Error on failure, no independent device diagnostic validation or sanitization inside property.",
+      "inputs": "nullable report error from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-ae1e538305ffad0d3ecd6cfd9fbbcb4e21b10a933a4e652ed58209d215d5d010",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.ReportedBy.get",
+      "span": [
+        55,
+        32,
+        55,
+        36
+      ],
+      "reasoning": "Getter exposes user-name attribution of report, not a unique printer/agent-machine identity.",
+      "inputs": "Persisted job/report carrying string reporting user label.",
+      "outputs": "string reporting user label without transport dispatch.",
+      "side_effects": "No side effects or query.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    },
+    {
+      "stable_id": "sym-982306fdef42254efa536c8489a9a3b945dda2d9d7135a28e04d46833b430a47",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.PrintJobAttemptEntity.ReportedBy.set",
+      "span": [
+        55,
+        37,
+        55,
+        41
+      ],
+      "reasoning": "Setter copies reporter user name after user lookup. Existence lookup is not a physical device challenge or full endpoint privilege review.",
+      "inputs": "string reporting user label from document builder/result reporter/EF.",
+      "outputs": "Field/navigation assignment only.",
+      "side_effects": "EF metadata assignment; result handler saves job/report only. No order, payment, stock, actual transport or queue mutation performed in review.",
+      "trust_boundaries": "Reported success is not verified physical output. Agent/device authorization, job claiming and transport protocol remain separate existing Printing specialist scope; this is persistence accessor accounting only.",
+      "database": "DbContext365-382 job PK, route/status/document/request indexes, attempt cascade job FK and unique report business key. Report22-70 locks job, increments latest fields and appends history transactionally. No SQL execution.",
+      "printing_ui": "Intent/report fields describe physical ticket workflow, but audit sends no print job/bytes or installs printer. No runtime/visual/agent claim verification promoted from storage fields.",
+      "performance": "O(1) accessor; row locking/report queries and array history materialization belong callers. No device throughput/SQL lock timing measurement.",
+      "duplicates_conflicts": "Successful financial command differs from successful print. Existing PRT001 unclaimed transport/agent issue is not refuted by report PK or job status. Direct Printing161 original callable residue remains paused and unpromoted.",
+      "issues_hypotheses": "No new print finding or full workflow review. Metadata/fact immutability is writer convention; physical delivery and cross-agent ownership remain separately qualified evidence.",
+      "tests_missing": "No tests or printer operations run. Storage regression should cover report same-key replay, latest versus historical errors, transactional report count, polymorphic slips, and no financial mutation on print failure; physical tests remain separately authorized.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs:22-41",
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs:22-70",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:365-382"
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+  "source_git_blob_sha256": "a480d0b55f892a72df9ce61870b446281c962351a1b4b1fed51e077de393807a",
+  "worktree_sha256": "d982d3fadbec4f7dd42d41465f63c8c9f41fe25cf112374025bc450c3183d690",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:34:51.256221+00:00",
+  "symbols": [
+    {
+      "stable_id": "sym-5ee1b89d59f9bc882ddd96a2ee856cb530b89ff7569b735ff4c9e60602da8053",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(Exception)",
+      "span": [
+        29,
+        5,
+        30,
+        69
+      ],
+      "reasoning": "Classifies first nested SqlException Number1205 or1222 only. Other SQL connectivity/timeout/provider codes are not declared safe replay contention; does not catch every database failure.",
+      "inputs": "Declared treasury request/actor/approval/key or exception/cancellation/lookup; no real financial records inspected.",
+      "outputs": "Persisted movement result or exact lookup/classification/retry result described above.",
+      "side_effects": "Handlers production path posts movement/journal/audit and transfer handover in transaction; this source audit invokes none. Contention helper waits/read lookups only.",
+      "trust_boundaries": "Permission-or-issued-approval policy, authenticated endpoint external, caller stable request ID versus persisted unique key. Replay is not fresh authorization proof.",
+      "database": "SQL Server protected source lock correctly inside caller transaction here. Day admission outside transaction remains separate invariant; no live SQL verified.",
+      "printing_ui": "Returns financial UI operation result; no physical drawer/receipt dispatch in these files.",
+      "performance": "Posted account history lock query can contend; bounded lookup retry600ms plus DB latency, not guaranteed one-second wallclock. No load tests.",
+      "duplicates_conflicts": "SafeDrop always Drawer->Main with existing shift and safe_drop; Transfer known distinct accounts, treasury_manage, null shift and extra handover row. Shared replay/locking scaffolding intentional, business policies must not be flattened.",
+      "issues_hypotheses": "Classifies first nested SqlException Number1205 or1222 only. Other SQL connectivity/timeout/provider codes are not declared safe replay contention; does not catch every database failure.",
+      "tests_missing": "Distinct-key spend concurrency; same-key response loss and changed payload; day close between gate and transaction; rollback/approval semantics;1205/1222 nested exceptions and cancellation; handover rollback.",
+      "verified_callers_callees": "Entire two handler files and contention helper read; TreasuryBalanceQuery SQL, FinancialRules protected-account guard, AuthorizationPolicy AuthorizeCommand and Posted movement factory cross-referenced. No DB or endpoint executed."
+    },
+    {
+      "stable_id": "sym-05c3938d6831d0d82f4fb2ea4cb4694e6e848cb182c77f8105750d75cf94153e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.BalanceLockContention.Sql(Exception?)",
+      "span": [
+        32,
+        5,
+        37,
+        6
+      ],
+      "reasoning": "Walks InnerException chain until first SqlException, returns null if none. Does not traverse AggregateException siblings or inspect all SqlError collection numbers. Bounded by ordinary finite exception chain; no DB activity.",
+      "inputs": "Declared treasury request/actor/approval/key or exception/cancellation/lookup; no real financial records inspected.",
+      "outputs": "Persisted movement result or exact lookup/classification/retry result described above.",
+      "side_effects": "Handlers production path posts movement/journal/audit and transfer handover in transaction; this source audit invokes none. Contention helper waits/read lookups only.",
+      "trust_boundaries": "Permission-or-issued-approval policy, authenticated endpoint external, caller stable request ID versus persisted unique key. Replay is not fresh authorization proof.",
+      "database": "SQL Server protected source lock correctly inside caller transaction here. Day admission outside transaction remains separate invariant; no live SQL verified.",
+      "printing_ui": "Returns financial UI operation result; no physical drawer/receipt dispatch in these files.",
+      "performance": "Posted account history lock query can contend; bounded lookup retry600ms plus DB latency, not guaranteed one-second wallclock. No load tests.",
+      "duplicates_conflicts": "SafeDrop always Drawer->Main with existing shift and safe_drop; Transfer known distinct accounts, treasury_manage, null shift and extra handover row. Shared replay/locking scaffolding intentional, business policies must not be flattened.",
+      "issues_hypotheses": "Walks InnerException chain until first SqlException, returns null if none. Does not traverse AggregateException siblings or inspect all SqlError collection numbers. Bounded by ordinary finite exception chain; no DB activity.",
+      "tests_missing": "Distinct-key spend concurrency; same-key response loss and changed payload; day close between gate and transaction; rollback/approval semantics;1205/1222 nested exceptions and cancellation; handover rollback.",
+      "verified_callers_callees": "Entire two handler files and contention helper read; TreasuryBalanceQuery SQL, FinancialRules protected-account guard, AuthorizationPolicy AuthorizeCommand and Posted movement factory cross-referenced. No DB or endpoint executed."
+    },
+    {
+      "stable_id": "sym-536e9d6eaa0396e47b562660ee268bdaf2ea43aba34d78495e67cc2e97c8bbea",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync<T>(Func<Task<T?>>, CancellationToken)",
+      "span": [
+        46,
+        5,
+        54,
+        6
+      ],
+      "reasoning": "Performs at most five waits40,80,120,160,200ms totaling600ms plus lookup latency. Returns first nonnull committed sibling or null. Cancellation propagates through Delay/lookup. Comment same-ID sibling is an assumption: distinct request lock conflict also returns null/retry, not fabricated replay. No transaction or write here.",
+      "inputs": "Declared treasury request/actor/approval/key or exception/cancellation/lookup; no real financial records inspected.",
+      "outputs": "Persisted movement result or exact lookup/classification/retry result described above.",
+      "side_effects": "Handlers production path posts movement/journal/audit and transfer handover in transaction; this source audit invokes none. Contention helper waits/read lookups only.",
+      "trust_boundaries": "Permission-or-issued-approval policy, authenticated endpoint external, caller stable request ID versus persisted unique key. Replay is not fresh authorization proof.",
+      "database": "SQL Server protected source lock correctly inside caller transaction here. Day admission outside transaction remains separate invariant; no live SQL verified.",
+      "printing_ui": "Returns financial UI operation result; no physical drawer/receipt dispatch in these files.",
+      "performance": "Posted account history lock query can contend; bounded lookup retry600ms plus DB latency, not guaranteed one-second wallclock. No load tests.",
+      "duplicates_conflicts": "SafeDrop always Drawer->Main with existing shift and safe_drop; Transfer known distinct accounts, treasury_manage, null shift and extra handover row. Shared replay/locking scaffolding intentional, business policies must not be flattened.",
+      "issues_hypotheses": "Performs at most five waits40,80,120,160,200ms totaling600ms plus lookup latency. Returns first nonnull committed sibling or null. Cancellation propagates through Delay/lookup. Comment same-ID sibling is an assumption: distinct request lock conflict also returns null/retry, not fabricated replay. No transaction or write here.",
+      "tests_missing": "Distinct-key spend concurrency; same-key response loss and changed payload; day close between gate and transaction; rollback/approval semantics;1205/1222 nested exceptions and cancellation; handover rollback.",
+      "verified_callers_callees": "Entire two handler files and contention helper read; TreasuryBalanceQuery SQL, FinancialRules protected-account guard, AuthorizationPolicy AuthorizeCommand and Posted movement factory cross-referenced. No DB or endpoint executed."
+    }
+  ],
+  "scope": "Complete static callable review with replay/admission/runtime limits.",
+  "remaining_callable_ids": []
+}

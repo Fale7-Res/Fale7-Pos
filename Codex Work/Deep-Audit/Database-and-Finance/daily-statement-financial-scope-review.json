@@ -1,0 +1,18 @@
+{
+  "at_utc": "2026-10-18T04:13:04.311606+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+  "source_hash": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+  "callable_receipts": 71,
+  "runtime_executed": false,
+  "source_supported_contracts": [
+    "Current treasury all-time Posted stock intentionally separate from selected-day movement list.",
+    "Employee running balance current; report flow buckets selected-date only.",
+    "Expenses header calendar business-date versus details creation time normally equivalent because AddExpense creates both from same now98/110; backdated API-input hypothesis rejected."
+  ],
+  "requirements_questions": [
+    "Daily employee DTO covers8/12enum types; Salary/ExtraShift/OtherEarning/Adjustment absent despite every-type comment. Other employee financial report has broader grouping. Not a confirmed monetary-loss defect.",
+    "Audit list capped500per source may omit earlier selected-day records; display truncation disclosure/paging contract not checked."
+  ],
+  "next": "Coordinator financial ApiClient mirror comparison and remaining owned database/report functions. Independent five candidate challenges unavailable; preserve explicit pending status."
+}

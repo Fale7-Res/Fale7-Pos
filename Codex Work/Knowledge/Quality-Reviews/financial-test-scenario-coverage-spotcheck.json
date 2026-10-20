@@ -1,0 +1,143 @@
+{
+  "id": "TEST-CONTEXT-001",
+  "at_utc": "2026-10-19T02:09:51.315Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "status": "TARGETED_MANUAL_TEST_SCENARIO_COMPARISON_COMPLETE",
+  "source_references": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs",
+      "worktree_sha256": "02835cdfbfd3b8f9b02340e8ebc0bbc556d1229cb05df953611fe5ae21595695",
+      "source_git_blob_sha256": "fd65f4bbdb0dd0a538e7249ee13d1f47787f32f5741a9f77a233a0c5d1d8ad77",
+      "line_ranges": [
+        [
+          30,
+          44
+        ],
+        [
+          78,
+          91
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-19b5891fbe47224bc0f35af49570bd45b67a626a3488faf8e09d829774522b69",
+          "signature": "Falah.Server.IntegrationTests.ConfirmElectronicPaymentTests.InstaPayOrderAsync(long)",
+          "span": [
+            30,
+            5,
+            44,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4076a1d57743637719d6e9a04508ad0ca7dfddc67904b88eeb6a9e659d368e70",
+          "signature": "Falah.Server.IntegrationTests.ConfirmElectronicPaymentTests.Concurrent_confirm_requests_on_the_same_order_post_exactly_one_movement()",
+          "span": [
+            78,
+            5,
+            91,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs",
+      "worktree_sha256": "746e08316d0a3933f38e1de46a2fa31e2cf9eb829c03a05ad9dbb50dd8b973dd",
+      "source_git_blob_sha256": "d791cb571e6bd5fceecc25764a39ba83f2474476f831d3f130c8612846298113",
+      "line_ranges": [
+        [
+          60,
+          62
+        ],
+        [
+          321,
+          337
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dfc0e6ab0764cd0fcfb1b3c73380501dafea961224807f73f3b6d78ad3cb04da",
+          "signature": "Falah.Server.IntegrationTests.PurchasingVerticalSliceTests.PayAsync(string, long, string, string?, string?)",
+          "span": [
+            60,
+            5,
+            62,
+            145
+          ]
+        },
+        {
+          "stable_id": "sym-b006f1c17947c52784d427f7922cb863eaf8b6eefff11bc62b2193d4c1df651b",
+          "signature": "Falah.Server.IntegrationTests.PurchasingVerticalSliceTests.Concurrent_payment_requests_with_the_same_request_id_pay_exactly_once()",
+          "span": [
+            321,
+            5,
+            337,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "source_git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+      "line_ranges": [
+        [
+          142,
+          154
+        ],
+        [
+          244,
+          258
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6bde3d59fe36c33955efd3502f3aa5688c43ae168f773ed25fd284aa1380dfa9",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.The_lifecycle_moves_draft_to_calculated_to_reviewed_to_approved_to_paid()",
+          "span": [
+            142,
+            5,
+            154,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5e089a47da7115869a58d42e5b31b9a4dbf617ede8aa8d7320dd5ca5dbe9c478",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Six_concurrent_pay_requests_for_the_same_run_settle_exactly_once()",
+          "span": [
+            244,
+            5,
+            258,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "related": "FIN-001",
+      "reasoning": "Concurrent confirm calls one InstaPayOrderAsync helper that explicitly creates standalone instapay, SplitPaymentsnull. This tests concurrent confirmation of a single deferred leg, not checkout with immediateCash plus pendingelectronic and reused salejournal. Does not refute mixed confirmation finding.",
+      "required_followup": "Separate mixed-payment confirmation case preserving immediate posted leg, per-leg counts and replay."
+    },
+    {
+      "related": "FIN-005",
+      "reasoning": "Purchasing concurrent six calls share the same requestId variable captured outside the lambda. Paid2000 and exactly1movement assert duplicate-request replay, not two legitimate independent payments against stale outstanding. Changing helper to mint IDs inside the send would silently change this existing scenario.",
+      "required_followup": "Retain same-key test; add distinct-key barrier scenario protecting invoice remaining/paid cache/ledger, including same and different source accounts."
+    },
+    {
+      "related": [
+        "FIN-006",
+        "FIN-CAND-PAYROLL-001"
+      ],
+      "reasoning": "Lifecycle method name says draft...to_paid, but actual body ends at Approved assertions and never issues Paid or checks settlement. Separate concurrent-pay test sends only pay requests, not cancel. It asserts1treasury+1employee settlement, useful pay dedup but not proof genericPaid route safe or pay/cancel terminal state consistent.",
+      "required_followup": "Do not infer coverage from lifecycle name; add explicit genericPaid rejection or legitimate settlement assertions per intended contract, plus barrier pay/cancel schedules with status and monetary facts."
+    }
+  ],
+  "limits": "Only selected6method contexts across3files. Not a repository-wide absence-of-tests claim, not full file/function review promotion. Existing tests were not executed, no fixture or database started.",
+  "new_financial_author_receipts": 0,
+  "new_canonical_findings": 0
+}

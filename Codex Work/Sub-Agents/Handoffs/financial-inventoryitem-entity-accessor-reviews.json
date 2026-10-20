@@ -1,0 +1,587 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-41e9df6df0dd7a12c4cc17affc00d472cd470dcf31f188f07c08d0deda08ae48",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Id.get",
+        "span": [
+          25,
+          24,
+          25,
+          28
+        ],
+        "reasoning": "Getter identifies stock item shared by movements, recipes and pricing cost context; name/unit text is not relational identity.",
+        "inputs": "Inventory item entity containing string stock item PK.",
+        "outputs": "string stock item PK without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-f5f7a80371f5eb1bf3aea6d3c99531bff85905ceb3d32194d9d2541210ce448c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Id.set",
+        "span": [
+          25,
+          29,
+          25,
+          33
+        ],
+        "reasoning": "Setter receives inv-RequestId creation key; PK enforces unique item ID, not same normalized name or single cost-source policy.",
+        "inputs": "string stock item PK from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-a0ee447df53051f40f2792a4047f2b8a1a3fac9fd69dc6750d4000e1e11b00e2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Name.get",
+        "span": [
+          26,
+          26,
+          26,
+          30
+        ],
+        "reasoning": "Getter returns current ingredient display label; movement quantities retain only item identity and do not snapshot this name.",
+        "inputs": "Inventory item entity containing string ingredient name.",
+        "outputs": "string ingredient name without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-5d1c748ffcb7370a39277abc86cc3090f270611ec1b6df144fc06a4ac26c5cf5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Name.set",
+        "span": [
+          26,
+          31,
+          26,
+          35
+        ],
+        "reasoning": "Setter stores trimmed nonblank metadata name; changing name updates current displays without posting stock or supplier money.",
+        "inputs": "string ingredient name from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-6d3f6e0ac6e90a2bcf1f09e1272d1070e9ca4516d9833466143fb249557657b7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.CostSource.get",
+        "span": [
+          27,
+          32,
+          27,
+          36
+        ],
+        "reasoning": "Getter selects purchased versus prepared costing branch after context conversion; raw invalid representation is not automatically validated by property.",
+        "inputs": "Inventory item entity containing string cost-source representation.",
+        "outputs": "string cost-source representation without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-6f1c243f1ef6d2f766f6c79095ffcdd1f24c5b0079e67b5f9c4ed3886c098599",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.CostSource.set",
+        "span": [
+          27,
+          37,
+          27,
+          41
+        ],
+        "reasoning": "Setter copies request CostSource directly on create/update. Source metadata writers shown do not constrain enum spelling; no actual malformed acceptance or downstream crash was executed.",
+        "inputs": "string cost-source representation from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-a54ff0dc7b77521ed1eeaa7971b4cae6916799590a6e44cd9a6d4bcfddcd65e1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Category.get",
+        "span": [
+          28,
+          30,
+          28,
+          34
+        ],
+        "reasoning": "Getter provides inventory management grouping, not product category FK or accounting category.",
+        "inputs": "Inventory item entity containing string inventory grouping.",
+        "outputs": "string inventory grouping without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-0e9355c270da6e40082345fd9d036b079f01f44c41d580c7e4e29b8050ec6eaa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Category.set",
+        "span": [
+          28,
+          35,
+          28,
+          39
+        ],
+        "reasoning": "Setter copies request category unchanged; it does not convert quantities, determine direction or validate stock ownership.",
+        "inputs": "string inventory grouping from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-4cdb4ca89fcdb4e5de043eef75c3d8d7b549ccfe868bbdb8418dcfb4cc555bde",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Unit.get",
+        "span": [
+          29,
+          26,
+          29,
+          30
+        ],
+        "reasoning": "Getter supplies current unit label applied to historical bare quantities; StockMovement has no unit snapshot, so unit identity changes can reinterpret history.",
+        "inputs": "Inventory item entity containing string base-unit label.",
+        "outputs": "string base-unit label without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-ec49702463518ace7dceb691acb5df2b8afcb86ef733a07e6307ec3aec1ba49c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Unit.set",
+        "span": [
+          29,
+          31,
+          29,
+          35
+        ],
+        "reasoning": "Setter updates request Unit after a separate has-movements check. FIN020 independently source-corroborates first-movement race; property/PK alone does not serialize metadata and all stock writers.",
+        "inputs": "string base-unit label from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-0039f7be7bf727ce3819b8bd8f2f49c192a0d869ef02a955f3dd5ae532d05c6e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.MinimumMilliUnits.get",
+        "span": [
+          30,
+          37,
+          30,
+          41
+        ],
+        "reasoning": "Getter feeds low-stock comparison balance <= minimum; it is a reorder threshold, not reserved quantity or minimum permitted account balance.",
+        "inputs": "Inventory item entity containing long milliunit threshold.",
+        "outputs": "long milliunit threshold without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-2b33d8a05406ddc3a749dae6449eb5c85f1f0110ef54d83e7e8337d0e7f85a81",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.MinimumMilliUnits.set",
+        "span": [
+          30,
+          42,
+          30,
+          46
+        ],
+        "reasoning": "Setter copies request long without local sign guard in inspected writer. Negative threshold affects warnings but does not create/consume stock.",
+        "inputs": "long milliunit threshold from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-a714fc76151bccb29a26b7f40e13e6df5df1dbb428ba68bcab4942543ecc4f21",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Active.get",
+        "span": [
+          31,
+          26,
+          31,
+          30
+        ],
+        "reasoning": "Getter reports current item activation in InventoryItemDto; current field alone does not prove every existing recipe or stock command filters inactive ingredients.",
+        "inputs": "Inventory item entity containing bool stock item active.",
+        "outputs": "bool stock item active without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-6f8b67478544d100b8f3c036ed8ace99af7e7313b0741c6749346c4615b402ca",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Active.set",
+        "span": [
+          31,
+          31,
+          31,
+          35
+        ],
+        "reasoning": "Setter initializes true and updates requested activity. It neither deletes movement facts nor zeroes balance or blocks FK references by itself.",
+        "inputs": "bool stock item active from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-2c41022b6677b563d6fc08287ae4f4b1255ef0a12111f9e31ad2a5159175cf3d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.IsPackaging.get",
+        "span": [
+          34,
+          31,
+          34,
+          35
+        ],
+        "reasoning": "Getter distinguishes packaging cost classification from food and controls expected recipe-line metadata; it is not itself a stock-movement type.",
+        "inputs": "Inventory item entity containing bool packaging classification.",
+        "outputs": "bool packaging classification without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-f5c50849d788ed6279da3f6e54fc9a1980e70e95d75a248061890cbc21800012",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.IsPackaging.set",
+        "span": [
+          34,
+          36,
+          34,
+          40
+        ],
+        "reasoning": "Setter stores requested flag without rewriting existing recipe Kind fields. Cross-field consistency requires authoring/costing rules, not a bool assignment.",
+        "inputs": "bool packaging classification from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-78394e10537302daffdb33248c7610ce4977349872212e5ab621c37fd8742951",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.EstimatedUnitCostPiastres.get",
+        "span": [
+          41,
+          46,
+          41,
+          50
+        ],
+        "reasoning": "Getter exposes optional manually entered unit-cost placeholder; actual purchase cost takes precedence in domain selector, and zero estimate resolves Unknown rather than known free cost.",
+        "inputs": "Inventory item entity containing nullable estimated unit piastres.",
+        "outputs": "nullable estimated unit piastres without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-051a97498ce09ee1eca15b9b9eab7713ca5276375a28598d3bad68a23878c02f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.EstimatedUnitCostPiastres.set",
+        "span": [
+          41,
+          51,
+          41,
+          55
+        ],
+        "reasoning": "Setter is changed by dedicated handler rejecting negative and accepting null/zero; no stock/treasury/supplier fact is fabricated. Positive estimate is used only without actual purchase and outside Prep cost branch.",
+        "inputs": "nullable estimated unit piastres from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-f35898b7b1cfb022ee361fac1021bfd8211ff4cf2bfe17b9009f765dcd3e3e0e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.StandardDailyUsageMilliUnits.get",
+        "span": [
+          45,
+          49,
+          45,
+          53
+        ],
+        "reasoning": "Getter supplies optional communal-usage benchmark compared with actual daily average, not recipe deduction quantity or mandatory purchasing amount.",
+        "inputs": "Inventory item entity containing nullable daily usage benchmark.",
+        "outputs": "nullable daily usage benchmark without stock recomputation.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      },
+      {
+        "stable_id": "sym-d8ebfd4bf8864b71831868ee2854ff2be102cb3714b438539f7bbfd28cee74b9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.StandardDailyUsageMilliUnits.set",
+        "span": [
+          45,
+          54,
+          45,
+          58
+        ],
+        "reasoning": "Setter copies metadata request standard without stock write; no automatic fabricated per-order allocation or consumption posting happens.",
+        "inputs": "nullable daily usage benchmark from inventory metadata/estimate writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata EF assignment; caller SaveChanges persists. Estimated-cost changes append audit only, no financial/stock facts.",
+        "trust_boundaries": "inventory_manage enforced by inspected metadata/estimate handlers. Raw metadata fields are not physical stock facts, account funding, deployed schema verification or authorization.",
+        "database": "DbContext245 item PK; dependent recipe/stock/prep/packaging FKs233-273. Update81-100 has separate unit census then save, no item concurrency token authored in inspected mapping. No SQL run.",
+        "printing_ui": "InventoryQuery31-33 projects metadata plus independently derived signed balance; financial cost source explicitly distinguishes Purchase/Estimated/Prep/Unknown. No rendered UI or printing run.",
+        "performance": "O(1) accessor. Unit-change Any and item update are separate operations; accessor has no lock/scan. Cost graph performance belongs costing context, not metadata getter.",
+        "duplicates_conflicts": "FIN020 unit-admission race and existing prep graph finding retained. Estimate metadata is deliberately distinct from purchase/treasury/stock facts, avoiding fabricated financial history.",
+        "issues_hypotheses": "No new accessor finding. Zero estimate source semantics is Unknown per CostingRules53-55; no inferred deployed database constraints or actual invalid-input acceptance.",
+        "tests_missing": "No tests run. Need unit first-movement barriers, metadata enum normalization, threshold sign policy, real-purchase override, zero/null estimate, Prep branch and communal usage regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs:25-100",
+          "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs:40-64",
+          "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs:24-33,198-199",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-273"
+        ]
+      }
+    ]
+  }
+]

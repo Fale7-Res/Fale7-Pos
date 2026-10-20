@@ -1,0 +1,906 @@
+{
+  "at_utc": "2026-10-18T09:05:42.219986+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root mirrored-code coordinator",
+  "batch": "Final12test temporal snapshots, replay and concurrency assertion contexts",
+  "comparisons": [
+    {
+      "group_prefix": "91287ffc",
+      "reasoning": "Three treasury Count cash_in by shift lambdas identical; one initial cash-in, one sequential same-key retry, one concurrent same-key race. Different test concurrency stimulus retained.",
+      "callers_context": "CashierCashMovement48/118/130 immediate count1andWasReplayed assertions plus enclosing method names read.",
+      "financial_security_effects": "Count scoped entire shift/type assumes isolated fixture, not exact request key. Shared count helper safe, do not merge serial/concurrent coverage or infer SQL tests executed.",
+      "recommendation": "Name helper countCashInForShift and keep independent sequential/concurrent scenarios.",
+      "tests": [
+        "Per-test shift isolation",
+        "Exact request key assertion where multiple cashins",
+        "Replay and concurrent outcome separately"
+      ],
+      "group_id": "clone-91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+          "stable_id": "sym-a7899e538b61b5708fe384896b18b3b589239cb3c62e471cd8794b483529a2bb",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+          "start_line": 48,
+          "end_line": 48,
+          "token_count": 20,
+          "body_token_sha256": "91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "7494487952ecd877f4a3d1ec22b62d70227d623364a6cc28e023bf693e7a781a",
+          "signature": "lambda expression",
+          "symbol_span": [
+            48,
+            47,
+            48,
+            135
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-f481a92c4ce01596cf1f8fde8a9dff560a23e182b0e4a0fe3f47d605ad792eb6",
+            "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.A_cash_in_posts_exactly_one_movement_of_type_cash_in()",
+            "lines": [
+              39,
+              50
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+          "stable_id": "sym-ee224b1f054eb8b1dd4aae3876ae10f54f96983762fdb32b7913ead36217047c",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+          "start_line": 118,
+          "end_line": 118,
+          "token_count": 20,
+          "body_token_sha256": "91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "7494487952ecd877f4a3d1ec22b62d70227d623364a6cc28e023bf693e7a781a",
+          "signature": "lambda expression",
+          "symbol_span": [
+            118,
+            47,
+            118,
+            135
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-52b0ef42cd010a5bd83740b24072797b057182a5bda432eb176a2fdfc610e176",
+            "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.Retrying_the_same_cash_movement_request_id_never_posts_twice()",
+            "lines": [
+              107,
+              120
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+          "stable_id": "sym-483a5e2b8d4ccf7c94f389c30e1da573212dd0a0f08b4dcb7672ac7add104ca3",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+          "start_line": 130,
+          "end_line": 130,
+          "token_count": 20,
+          "body_token_sha256": "91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "7494487952ecd877f4a3d1ec22b62d70227d623364a6cc28e023bf693e7a781a",
+          "signature": "lambda expression",
+          "symbol_span": [
+            130,
+            47,
+            130,
+            135
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-62d724f243386ba6b94c1c53ddd2ca9956c541c9031a9ed8c2d8d190e9bea8b6",
+            "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.Concurrent_cash_in_requests_with_the_same_request_id_post_exactly_once()",
+            "lines": [
+              122,
+              132
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "d260dbc5",
+      "reasoning": "Before/after refund row reload lambdas exact same Include Items/no-tracking/order key, intentionally repeated within one frozen-fields test.",
+      "callers_context": "Refund202/206 with refund action between and frozen Total equality after.",
+      "financial_security_effects": "Temporal snapshots require DISTINCT materializations; reusing one tracked instance or cached fixture would make before/after assertion vacuous. Duplication intentional, no refactor debt inferred.",
+      "recommendation": "If helper extracted always execute fresh AsNoTracking query and include children; never cache return.",
+      "tests": [
+        "Before snapshot not reference-updated",
+        "Frozen lines/total/tax preserved",
+        "Refund-only fields allowed change"
+      ],
+      "group_id": "clone-d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-74ead5b7c973d8696259ef2f9db4ce8c4b8f21a4afdc20f0e59f029ed33b6de5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 202,
+          "end_line": 202,
+          "token_count": 29,
+          "body_token_sha256": "d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "8dc121ce9a7c6f23b8363b1baae1c4df21fc64e011d2fbbaba65de531a96acd2",
+          "signature": "lambda expression",
+          "symbol_span": [
+            202,
+            48,
+            202,
+            139
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-05cffa9bf26bbe406688542af5ec8691a888fb1acb8a622c072b6af2acc1aac7",
+            "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.A_refund_never_modifies_the_orders_original_frozen_fields()",
+            "lines": [
+              198,
+              211
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+          "stable_id": "sym-b6d25ab491e5e12948c725fcb578cc9deacecaa2380b9f4fe7c451172e122398",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+          "start_line": 206,
+          "end_line": 206,
+          "token_count": 29,
+          "body_token_sha256": "d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "8dc121ce9a7c6f23b8363b1baae1c4df21fc64e011d2fbbaba65de531a96acd2",
+          "signature": "lambda expression",
+          "symbol_span": [
+            206,
+            47,
+            206,
+            138
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-05cffa9bf26bbe406688542af5ec8691a888fb1acb8a622c072b6af2acc1aac7",
+            "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.A_refund_never_modifies_the_orders_original_frozen_fields()",
+            "lines": [
+              198,
+              211
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "1c8f5976",
+      "reasoning": "Two fake client callbacks capture serialized body then throw HttpRequestException; scenarios differ retained cash movement versus refund.",
+      "callers_context": "CashierCorrectness74/121 and enclosing lost-response test names/next setup read.",
+      "financial_security_effects": "Simulates unknown outcome, not proof server actually committed. Source assertions can test identical retained bytes across invalid form changes; not DB/exactly-once backend evidence.",
+      "recommendation": "Share transport fault fixture while keeping operation-specific body equality and request-key assertions.",
+      "tests": [
+        "Body captured before fault",
+        "Retry unchanged despite form invalidity",
+        "No new request ID",
+        "Actual server idempotency tested separately"
+      ],
+      "group_id": "clone-1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
+      "source_references": [
+        {
+          "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+          "stable_id": "sym-bcaa7885b1cdf9f3d44f5be9bca5b6496b1c079063c4f8fcd2f8348e616dc8ce",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+          "start_line": 74,
+          "end_line": 74,
+          "token_count": 23,
+          "body_token_sha256": "1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+          "signature": "lambda expression",
+          "symbol_span": [
+            74,
+            30,
+            74,
+            140
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-14aff062b503d75c1c9db29eea56cd57048f46449d785926d8ba25d624de5dfd",
+            "signature": "Falah.Client.Tests.CashierCorrectnessTests.Lost_cash_movement_response_retries_even_if_form_is_now_invalid()",
+            "lines": [
+              70,
+              81
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+          "stable_id": "sym-8c73062292f9247f29fbdb92476f287272f318db97a1b6e564785d1d2afab069",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+          "start_line": 121,
+          "end_line": 121,
+          "token_count": 23,
+          "body_token_sha256": "1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+          "signature": "lambda expression",
+          "symbol_span": [
+            121,
+            30,
+            121,
+            140
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-7f8d8976e7b3e0e3ee4e8a09d8b18aea286dfb351116b2527f0af0a4e791ca9b",
+            "signature": "Falah.Client.Tests.CashierCorrectnessTests.Lost_refund_response_preserves_id_amount_and_reason()",
+            "lines": [
+              117,
+              131
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "d236b8d8",
+      "reasoning": "Two Shift.Close throwing lambdas same arguments, but result comes large shortage versus large overage. Null reason/authority expected DomainException.",
+      "callers_context": "ShiftTests54-55/78-79 with RequiresManagerApproval assertions, actual Shift.Close103guard root read previously.",
+      "financial_security_effects": "Intentional sign-symmetry scenario, not duplicate redundant test. Confirms source policy requires reason/authority both signs; no actual manager/token authorization test by pure Domain call.",
+      "recommendation": "Use theory if preserving both distinct signed inputs and assertions; do not remove one sign case.",
+      "tests": [
+        "Shortage and overage above threshold",
+        "Equality threshold",
+        "Blank reason/authority",
+        "Handler approval validated separately"
+      ],
+      "group_id": "clone-d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
+      "source_references": [
+        {
+          "path": "tests/Falah.Domain.Tests/ShiftTests.cs",
+          "stable_id": "sym-1b327f96e25197e10385ebc70c0523e9167dc049053630558caca9a85e03a0c6",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "b6330e6b8ef5b67e8cb1f60f47252ade8e359375a9725ba12beed8b45715e2f5",
+          "start_line": 54,
+          "end_line": 55,
+          "token_count": 23,
+          "body_token_sha256": "d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "b6330e6b8ef5b67e8cb1f60f47252ade8e359375a9725ba12beed8b45715e2f5",
+          "signature": "lambda expression",
+          "symbol_span": [
+            54,
+            40,
+            55,
+            93
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-8f6dd14da04e59b1d417d088e1a8bc44028842ab3125e3e7ebb80015d29db75d",
+            "signature": "Falah.Domain.Tests.ShiftTests.Large_shortage_beyond_threshold_is_blocked_without_manager_approval()",
+            "lines": [
+              46,
+              56
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/ShiftTests.cs",
+          "stable_id": "sym-10cc80f97e5683bb2ddd895a41e7528721d8efb497d304319c865f2d8b5d3556",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "b6330e6b8ef5b67e8cb1f60f47252ade8e359375a9725ba12beed8b45715e2f5",
+          "start_line": 78,
+          "end_line": 79,
+          "token_count": 23,
+          "body_token_sha256": "d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "b6330e6b8ef5b67e8cb1f60f47252ade8e359375a9725ba12beed8b45715e2f5",
+          "signature": "lambda expression",
+          "symbol_span": [
+            78,
+            40,
+            79,
+            93
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-08eae58f6fc203a42812d2122fc11d08f90ee37005253cd47d147e39bc869579",
+            "signature": "Falah.Domain.Tests.ShiftTests.A_large_overage_also_requires_approval_not_just_a_shortage()",
+            "lines": [
+              71,
+              80
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "1227169a",
+      "reasoning": "Two InitializeAsync methods instantiate per-suite API factory and authenticated client then CompletedTask; same tiny setup only.",
+      "callers_context": "AuthTests15-20/CustomerVerticalSlice21-26 whole setup methods read.",
+      "financial_security_effects": "Authenticated fixture setup not evidence anonymous denial or real user identity tested. No factory/server instantiated by this audit.",
+      "recommendation": "Base fixture can avoid repetition but each test needs isolated factory/client and explicit auth purpose.",
+      "tests": [
+        "Auth denied cases separate unauthenticated client",
+        "Fixture disposal",
+        "No global mutable DB share"
+      ],
+      "group_id": "clone-1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/AuthTests.cs",
+          "stable_id": "sym-291f0d7abe79cedc7936a65f182101056ffa2185bb52dfecc272abf1f8c82a9d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "9ccf2791e310b2d1889f6bb9b3f19a94b9e2d103e3698a3e622e79596fa0be06",
+          "start_line": 15,
+          "end_line": 20,
+          "token_count": 22,
+          "body_token_sha256": "1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "9cfe8dd84f80c5d211f1276852bd7b8bec1e642dccaad200c55929a682310798",
+          "signature": "Falah.Server.IntegrationTests.AuthTests.InitializeAsync()",
+          "symbol_span": [
+            15,
+            5,
+            20,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/CustomerVerticalSliceTests.cs",
+          "stable_id": "sym-e89414447927549ed38c2b8b253cf9ab3dee0fd1fc377c8c4cc22317890cf65e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a9cdc09c311eb34751f796504476e91b667b29ea1f463f6c8d9f7e0858cc8182",
+          "start_line": 21,
+          "end_line": 26,
+          "token_count": 22,
+          "body_token_sha256": "1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "0f899776bbe0896d46369919825417596d4d4739cc34f20a549a940c63108b50",
+          "signature": "Falah.Server.IntegrationTests.CustomerVerticalSliceTests.InitializeAsync()",
+          "symbol_span": [
+            21,
+            5,
+            26,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "57a31129",
+      "reasoning": "Reprint test before/after order reload lambdas same NoTracking exact ID; financial footprint measured separately around reprint.",
+      "callers_context": "SlipPrinting208/218 immediate financial footprint and Total equality assertions.",
+      "financial_security_effects": "Deliberate temporal repetition; preserving separate snapshots essential. Does not prove physical print rendering/spooler or financial acceptance here; test NOT executed.",
+      "recommendation": "Reusable fresh reload helper, no memoization or tracked reused entity; keep footprint/field assertions.",
+      "tests": [
+        "No money/stock/order-state duplicate",
+        "Allowed print job count change",
+        "Before/after immutable snapshots"
+      ],
+      "group_id": "clone-57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs",
+          "stable_id": "sym-18cb1da1d27c06cd6c4400a315c7e45726f9cbcb7a18eaa95a856697442043c8",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+          "start_line": 208,
+          "end_line": 208,
+          "token_count": 21,
+          "body_token_sha256": "57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+          "signature": "lambda expression",
+          "symbol_span": [
+            208,
+            53,
+            208,
+            123
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-521a47696ab33004832735a0e408d425ca50ee3cab53062354df18685ad3a9e1",
+            "signature": "Falah.Server.IntegrationTests.SlipPrintingAndReprintTests.Reprinting_an_order_duplicates_no_money_stock_or_order_state()",
+            "lines": [
+              192,
+              243
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs",
+          "stable_id": "sym-74ebba99cd4dcc91fa216fbc66ce7ec6eedf0d4b9322bbe25fc8c837572817c0",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+          "start_line": 218,
+          "end_line": 218,
+          "token_count": 21,
+          "body_token_sha256": "57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+          "signature": "lambda expression",
+          "symbol_span": [
+            218,
+            52,
+            218,
+            122
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-521a47696ab33004832735a0e408d425ca50ee3cab53062354df18685ad3a9e1",
+            "signature": "Falah.Server.IntegrationTests.SlipPrintingAndReprintTests.Reprinting_an_order_duplicates_no_money_stock_or_order_state()",
+            "lines": [
+              192,
+              243
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "7287e499",
+      "reasoning": "Two shift readback lambdas same exact opened shift ID NoTracking, differing tests custom opening amount versus setting changed after opening.",
+      "callers_context": "DefaultOpeningCash77/91 assertion150000 and enclosing names read.",
+      "financial_security_effects": "Fixture duplicate query preserves distinct configuration snapshot cases; helper not evidence all default settings apply retroactively. No setting changed by audit.",
+      "recommendation": "Shared readback helper with independent configuration scenarios.",
+      "tests": [
+        "Requested override",
+        "Historical opening unaffected later setting",
+        "No hidden ambient default value"
+      ],
+      "group_id": "clone-7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs",
+          "stable_id": "sym-7e7e966267be68675d494207702f939f9ffec184a9205b0b3aa2f20ff36a5efe",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "c83d925533b572ac108851718afc95147390cc66aa32633375cc1c8bee57267f",
+          "start_line": 77,
+          "end_line": 77,
+          "token_count": 20,
+          "body_token_sha256": "7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "c83d925533b572ac108851718afc95147390cc66aa32633375cc1c8bee57267f",
+          "signature": "lambda expression",
+          "symbol_span": [
+            77,
+            48,
+            77,
+            118
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-0f76eea2c94e67c37323fdb142b2df46c0b2a8c7e1ee1ec93fb873633aa4f0ef",
+            "signature": "Falah.Server.IntegrationTests.DefaultOpeningCashTests.A_cashier_can_open_with_a_different_amount_and_that_amount_is_what_is_stored()",
+            "lines": [
+              69,
+              79
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs",
+          "stable_id": "sym-f4b6da41d25c484df3333a46d62401c9ba8a30e6ec35b9e6c30e96b4d225b0ac",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "c83d925533b572ac108851718afc95147390cc66aa32633375cc1c8bee57267f",
+          "start_line": 91,
+          "end_line": 91,
+          "token_count": 20,
+          "body_token_sha256": "7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "c83d925533b572ac108851718afc95147390cc66aa32633375cc1c8bee57267f",
+          "signature": "lambda expression",
+          "symbol_span": [
+            91,
+            48,
+            91,
+            118
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-591590fd5fc53b8e512db5fb01019ae5b2fc5c367b41e5d81c307464dbbb10f7",
+            "signature": "Falah.Server.IntegrationTests.DefaultOpeningCashTests.Changing_the_setting_later_leaves_an_existing_shift_untouched()",
+            "lines": [
+              83,
+              98
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "50e9b1c7",
+      "reasoning": "Two driver settlement movement count lambdas same driver/type; one same-key retry, other concurrent different request IDs for SAME custody.",
+      "callers_context": "Delivery797/819 count1and success-count assertions, parent scenario names verified.",
+      "financial_security_effects": "Different mechanisms: request idempotency versus custody state serialization. Do not remove concurrency test as duplicate merely same count query. Scope driver may count prior trips unless fixture isolated.",
+      "recommendation": "Shared typed count helper, preserve request-key and custody-state stimuli/assertions.",
+      "tests": [
+        "One custody per scenario",
+        "Same-key replay",
+        "Distinct-key race success count",
+        "Multiple trip history scope"
+      ],
+      "group_id": "clone-50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "stable_id": "sym-53900116cf4d70521403604018bdb45231afe4025954c7f26884c45a056e34aa",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "start_line": 797,
+          "end_line": 797,
+          "token_count": 20,
+          "body_token_sha256": "50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+          "signature": "lambda expression",
+          "symbol_span": [
+            797,
+            55,
+            797,
+            157
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-aaca8f5cfa37beab88c5bca338dd3c664fc4fcd78baac8934550826f24337dad",
+            "signature": "Falah.Server.IntegrationTests.DeliveryVerticalSliceTests.Retrying_the_same_settlement_request_id_never_posts_twice()",
+            "lines": [
+              779,
+              799
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "stable_id": "sym-e94c3aa6344fdba024fb0c66f1010b3b6bd510e703e58b1961035ce61bc12318",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+          "start_line": 819,
+          "end_line": 819,
+          "token_count": 20,
+          "body_token_sha256": "50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+          "signature": "lambda expression",
+          "symbol_span": [
+            819,
+            55,
+            819,
+            157
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9a1d4d365a09fcdfeaa87720f8c5883b5f4900b823de0e2d4f12aefacfd74b59",
+            "signature": "Falah.Server.IntegrationTests.DeliveryVerticalSliceTests.Concurrent_settlement_requests_for_the_same_driver_with_different_request_ids_post_exactly_once()",
+            "lines": [
+              801,
+              821
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "968febb2",
+      "reasoning": "Two handover lookup lambdas same shift/type but exact expected facts differ balanced close versus small shortage.",
+      "callers_context": "ShiftClose89/111 plus source account versus actual49000 amount assertions.",
+      "financial_security_effects": "FirstAsync only proves at least one matching row; count uniqueness checked other tests. Reconciliation amount must use actual, not expected, so cases materially different.",
+      "recommendation": "Helper may fetch matching movement; add uniqueness assertion where required without collapsing scenarios.",
+      "tests": [
+        "Balanced close",
+        "Within-threshold shortage",
+        "Actual cash handover",
+        "Single handover count"
+      ],
+      "group_id": "clone-968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-292b2b1aa76f52a839502083efc170e97dc40e369d485d7b22b4f68558c3fa95",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 89,
+          "end_line": 89,
+          "token_count": 20,
+          "body_token_sha256": "968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "signature": "lambda expression",
+          "symbol_span": [
+            89,
+            50,
+            89,
+            144
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-abe054155507f1dc5bcdb4e91efc94cbddbca3b7757bbbe3068de425544264d6",
+            "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Closing_with_no_orders_and_matching_cash_needs_no_approval_and_posts_only_a_handover()",
+            "lines": [
+              74,
+              93
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-ebee11925411f3e6275cd6ae10c0f44312c9f355c1f172381755cbd365be5d20",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 111,
+          "end_line": 111,
+          "token_count": 20,
+          "body_token_sha256": "968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "signature": "lambda expression",
+          "symbol_span": [
+            111,
+            50,
+            111,
+            144
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-0a1a980c9b4ab81cde6bd470fed94e4d553c9c4affd4d4ed6153350bc9e5e564",
+            "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.A_shortage_within_threshold_needs_no_approval_but_still_posts_a_reconciliation_movement_debiting_the_drawer()",
+            "lines": [
+              95,
+              113
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "333face1",
+      "reasoning": "Same shift_reconciliation reference lookup lambda used shortage and overage; subsequent type expected cash_shortage versuscash_overage.",
+      "callers_context": "ShiftClose105/122 immediate assertions read.",
+      "financial_security_effects": "Signed source/destination consequences intentionally opposite, identical lookup not identical financial scenario. Cannot infer correct direction merely type assertion without full remaining test, not reviewed whole test here.",
+      "recommendation": "Typed helper returns reconciliation fact; keep explicit debit versus credit amount/account assertions.",
+      "tests": [
+        "Shortage debit",
+        "Overage credit",
+        "Threshold auth separate",
+        "No duplicate reconciliation row"
+      ],
+      "group_id": "clone-333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-68ad74a09d5fc0c8f1571175cd99d0b5ae7945b18ff9953058d03a5f045886b8",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 105,
+          "end_line": 105,
+          "token_count": 20,
+          "body_token_sha256": "333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "signature": "lambda expression",
+          "symbol_span": [
+            105,
+            56,
+            105,
+            165
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-0a1a980c9b4ab81cde6bd470fed94e4d553c9c4affd4d4ed6153350bc9e5e564",
+            "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.A_shortage_within_threshold_needs_no_approval_but_still_posts_a_reconciliation_movement_debiting_the_drawer()",
+            "lines": [
+              95,
+              113
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-878177abb86102e635e22c3e90a3e50bc3e22bf16fe0bad1519a2567b8d8e6e7",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 122,
+          "end_line": 122,
+          "token_count": 20,
+          "body_token_sha256": "333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "signature": "lambda expression",
+          "symbol_span": [
+            122,
+            56,
+            122,
+            165
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-a03c28dd538673d4ae73068449c1587f6948d23cdeacec648cfdf5bc9166e4cf",
+            "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.An_overage_credits_the_drawer_instead_of_debiting_it()",
+            "lines": [
+              115,
+              127
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "39702f83",
+      "reasoning": "Two handover Count lambdas same shift/type, one same-key concurrent close race, other new-key reclose rejection.",
+      "callers_context": "ShiftClose191/204 immediate Count1assertions and parent names read.",
+      "financial_security_effects": "Tests target separate idempotency and terminal-state protection; duplicate count assertion does not exhaust FIN015 checkout admission race. No live concurrency execution.",
+      "recommendation": "Shared count helper with both scenarios preserved, add checkout-versus-close schedule separately.",
+      "tests": [
+        "Same-key race",
+        "New-key alreadyclosed",
+        "Checkout after validated open gap",
+        "One handover"
+      ],
+      "group_id": "clone-39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-a1ec94b366566c3d399f65e47b6bdc5981e502e07e5a0e314f2d18e86450126c",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 191,
+          "end_line": 191,
+          "token_count": 20,
+          "body_token_sha256": "39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "signature": "lambda expression",
+          "symbol_span": [
+            191,
+            55,
+            191,
+            149
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-8f699291c9ed9bdabac2bb0881aacc19099b21681367b5dd55dd11c060c3fad1",
+            "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Concurrent_close_requests_with_the_same_idempotency_key_race_to_exactly_one_close()",
+            "lines": [
+              179,
+              193
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+          "stable_id": "sym-63648e0eacac9ffc156246bf65b89e091f34430ef7fb6670c8a7bf0dc52d7685",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+          "start_line": 204,
+          "end_line": 204,
+          "token_count": 20,
+          "body_token_sha256": "39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "signature": "lambda expression",
+          "symbol_span": [
+            204,
+            55,
+            204,
+            149
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-ec6335803b91624f4deaa52b9d3681d49071f1df3503456e89f6fc35a46e39e4",
+            "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Closing_an_already_closed_shift_under_a_new_request_id_is_rejected_not_silently_reclosed()",
+            "lines": [
+              195,
+              206
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "4d2a3c2d",
+      "reasoning": "Two local MakeRequest functions identical stable captured requestId deposit payload; one sequential retry, one six concurrent sends.",
+      "callers_context": "Treasury105/194 and immediate Post/Enumerable.Range calls read.",
+      "financial_security_effects": "Key MUST captured outside function, not regenerated per call; extracting factory with Guid inside would destroy test premise. Real requests only in test source, no audit execution.",
+      "recommendation": "Common immutable request builder taking explicit requestId; preserve per-scenario single key and fresh HTTP content.",
+      "tests": [
+        "Sequential replay",
+        "Six same-key submissions",
+        "Key remains identical",
+        "Different-key deposit close-admission separately"
+      ],
+      "group_id": "clone-4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
+      "source_references": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+          "stable_id": "sym-5e7c5e44e71fbbfd99aa7491686b7bd8127cbad5be88af5265c9be190cdf451d",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+          "start_line": 105,
+          "end_line": 105,
+          "token_count": 20,
+          "body_token_sha256": "4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "415f68db1d53ef7cbbbea80dc15cca48bf2562025b0b6596a964b0eb71966686",
+          "signature": "MakeRequest()",
+          "symbol_span": [
+            105,
+            9,
+            105,
+            131
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-0d681eabb6f52bea5bd1d6d6a2bc088dd4060a22d10f32b3910a86d5ff4fad7e",
+            "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Retrying_the_exact_same_deposit_request_never_posts_twice()",
+            "lines": [
+              100,
+              112
+            ]
+          }
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+          "stable_id": "sym-4956cbdfc3a580c784b0817620341e02701e90e38dc4dfe7c785df39af64d7a2",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+          "start_line": 194,
+          "end_line": 194,
+          "token_count": 20,
+          "body_token_sha256": "4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
+          "constructor_initializer_excluded": false,
+          "category": "TEST_SOURCE",
+          "worktree_sha256": "415f68db1d53ef7cbbbea80dc15cca48bf2562025b0b6596a964b0eb71966686",
+          "signature": "MakeRequest()",
+          "symbol_span": [
+            194,
+            9,
+            194,
+            131
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-53f2179abd5b9b3bd8a80c213a406d4b177dda42b5414e8c2e15971b1cdb2d68",
+            "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Concurrent_deposits_with_the_same_request_id_post_exactly_once()",
+            "lines": [
+              189,
+              202
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    }
+  ],
+  "limits": "Source comparison, not runtime acceptance, financial function receipt increment, or exhaustive semantic duplication proof. No code/DB/printing/Git changes."
+}

@@ -1,0 +1,94 @@
+{
+  "at_utc": "2026-10-19T09:25:03.824Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "primary_reviewer": "financial_integrity",
+  "scope": "Independently read entity10-26 and eight individual accessor receipts (Id/UserId/UserName/ReferenceId get/set), with targeted writer/query/receipt/model callers. Not full34receipt independent certification.",
+  "receipt": {
+    "path": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Persistence/Entities/AuditEntities.cs.json",
+    "sha256": "4ccd951c69f079323f8adcce3ee9ad7c8ee11c21d7ba25852fbd6b910e15b3c4"
+  },
+  "reviewed_symbol_ids": [
+    "sym-19e5aefd4cd568eef5d4e96e8f967c96b9457bbbadb7644ec9f0bc6fc6e01b3d",
+    "sym-5903e58ee42f1b5d418d8f9dfa27e71244995978105462246ea476992543a2d8",
+    "sym-614411f0afa1d9b68c3ac9bc0de5db55eede62e2ee384dca17dd9db383c54eda",
+    "sym-46cde9650c9397966d7d50c1db21c4497486451977c3a4a32bb6cc221ef476db",
+    "sym-1e2933b7e36a4b229c2211c4442180275c54bbb6a96a780d7643dc2a0d54f861",
+    "sym-31373c2a51a5e2cda10f50a4ecb9ffe5a694e69f7ed22c7886ed23dcc17d2323",
+    "sym-20a5dfe8cda5b0d690e0f67ad42c578f5d44da4e35b7728c4d2142a125c3cca7",
+    "sym-29894669596effa9f11ab95e76b356b414f291a015b5b6555913acea5900f2f1"
+  ],
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/AuditEntities.cs",
+      "worktree_sha256": "1a7a0e6f138143b321924cb3185833297a6c4a2f4e38d8ed1d159d0b5f4a8001",
+      "line_ranges": [
+        [
+          10,
+          26
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Audit/EfAuditLog.cs",
+      "worktree_sha256": "9c85aef61a313dc4de40307ed367388ac4d6480921f11cdf3b45dc478e7bab22",
+      "line_ranges": [
+        [
+          17,
+          28
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Audit/AuditQueryService.cs",
+      "worktree_sha256": "fd93e6d34676e8703206f9fa881b3a7acd5319023743f29441bac26ea7c6a146",
+      "line_ranges": [
+        [
+          17,
+          35
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/CommandReceipt.cs",
+      "worktree_sha256": "c8d45e0d317f53b660d1b54cd2f81be2ca002eb352daed62d5ae33e39bcb4713",
+      "line_ranges": [
+        [
+          11,
+          24
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "line_ranges": [
+        [
+          415,
+          421
+        ]
+      ]
+    }
+  ],
+  "conclusion": "FIELD_SPECIFIC_AUTOACCESSOR_REASONING_SUPPORTED_WITH_TERMINOLOGY_CORRECTION_REQUESTED",
+  "reasoning": [
+    "Eight inspected accessors correctly distinguish plain backing-state read/assignment from validation/persistence. Per-field identity, actor snapshot and polymorphic-reference consequences are substantive, not merely an indexed-name claim.",
+    "EfAuditLog.Append actually validates severity and copies fields into samecontext without Save; AuditQuery filters actor byUserId and maps fields; CommandReceipt requires owntransaction, locks receiptID and compares actor+target; DbContext has PK andtimestamp/category/user indexes.",
+    "Audit accessor mutability alone is not a discovered unauthorized edit endpoint; append-only remains writer/API convention, not proven database tamperproofness. No newfinancial or securityfinding."
+  ],
+  "correction_requested": {
+    "symbols": [
+      "sym-1e2933b7e36a4b229c2211c4442180275c54bbb6a96a780d7643dc2a0d54f861",
+      "sym-31373c2a51a5e2cda10f50a4ecb9ffe5a694e69f7ed22c7886ed23dcc17d2323"
+    ],
+    "field": "database/trust_boundaries",
+    "current_phrase": "filter authorization uses UserId not name",
+    "reason": "Query actor filtering is not authorization. The read query compares supplied filteruserId; access policy belongs its endpoint/command. Replace with actor filter uses UserId; no authorization is implemented in the property or filter."
+  },
+  "limitations": [
+    "No test/getter microtest/SQL/API/runtime executed.",
+    "Full entity source read is not independent per-symbol reasoning for the other26receipts.",
+    "No increase in financial authored-callable review count."
+  ],
+  "new_author_receipts": 0
+}

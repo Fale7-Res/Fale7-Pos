@@ -1,0 +1,611 @@
+{
+  "at_utc": "2026-10-19T09:14:54.960Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "primary_reviewer": "financial_integrity",
+  "candidate_id": "FIN-CAND-CORRECTION-BASIS-001",
+  "related_lead": "FIN-LEAD-CORRECTION-RATE-001",
+  "classification": "INDEPENDENT_STATIC_CORROBORATION_POLICY_QUALIFIED_RECONCILIATION_RISK",
+  "severity": "MEDIUM",
+  "confidence": "HIGH_SOURCE_BEHAVIOR_OWNER_POLICY_UNCONFIRMED",
+  "source_artifact": "Sub-Agents/Handoffs/attendance-correction-rate-independent-disposition.json",
+  "source_artifact_sha256": "3b2d7b700422cb3631275c531867e1d9ee8a0f685f13e6690b619730b2c758f3",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "line_ranges": [
+        [
+          15,
+          18
+        ],
+        [
+          39,
+          51
+        ],
+        [
+          82,
+          117
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from correctAttendance in lib/store.tsx - gated on `attendance_manage`. Posts\n/// only the DELTA between what the automatic late-penalty/overtime calculation already produced\n/// and what the correction implies, as a new 'adjustment' ledger entry - the original automatic\n/// entries (if any) are never rewritten or deleted, only reconciled forward.</summary>",
+        "        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);\n        var record = await _db.AttendanceRecords\n            .FromSqlRaw(\"SELECT * FROM AttendanceRecords WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}\", request.RecordId)\n            .FirstOrDefaultAsync(ct)\n            ?? throw new InvalidOperationException(\"سجل الحضور غير موجود.\");\n        var auditId = $\"audit-attendance-correction-{request.RequestId}\";\n        var recorded = await _db.AuditEvents.AsNoTracking().FirstOrDefaultAsync(e => e.Id == auditId, ct);\n        if (recorded is not null)\n        {\n            if (recorded.ReferenceId != request.RecordId || recorded.UserId != request.ActorUserId)\n                throw new DomainException(\"مفتاح التصحيح مستخدم لعملية أخرى.\");\n            return JsonSerializer.Deserialize<AttendanceRecordDto>(recorded.NewValue!)\n                ?? throw new InvalidOperationException(\"تعذر قراءة تأكيد التصحيح السابق.\");",
+        "        if (employee is not null && employee.DailyWagePiastres > 0)\n        {\n            // Match employee cash-out's ledger lock so the resulting running balance\n            // cannot be computed from a simultaneous, stale drawer withdrawal.\n            await _db.EmployeeLedgerEntries\n                .FromSqlRaw(\"SELECT * FROM EmployeeLedgerEntries WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE EmployeeId = {0}\", record.EmployeeId)\n                .Select(e => e.Id).ToListAsync(ct);\n            var settings = await new SettingsQueryService(_db).GetAsync(ct);\n            var dailyWage = Money.FromPiastres(employee.DailyWagePiastres);\n\n            var oldPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, oldLateMinutes,\n                settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;\n            var newPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, request.LateMinutes,\n                settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;\n            var penaltyDelta = newPenalty.Piastres - oldPenalty.Piastres;\n            if (penaltyDelta != 0)\n            {\n                var isCredit = penaltyDelta < 0; // a REDUCED penalty credits the employee back\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, $\"led-correction-penalty-{request.RequestId}\", record.EmployeeId, nameof(LedgerEntryType.Adjustment),\n                    $\"تصحيح خصم تأخير حضور — {request.Reason}\",\n                    isCredit ? Money.Zero : Money.FromPiastres(Math.Abs(penaltyDelta)),\n                    isCredit ? Money.FromPiastres(Math.Abs(penaltyDelta)) : Money.Zero,\n                    verifiedApproverName, verifiedApproverName, null, record.Id, null, null, null, ct);\n            }\n\n            var oldOvertime = PayrollRules.CalculateOvertimeAmount(dailyWage, settings.StandardWorkdayHours, oldOvertimeHours, settings.OvertimeMultiplier).Amount;\n            var newOvertime = PayrollRules.CalculateOvertimeAmount(dailyWage, settings.StandardWorkdayHours, request.OvertimeHours, settings.OvertimeMultiplier).Amount;\n            var overtimeDelta = newOvertime.Piastres - oldOvertime.Piastres;\n            if (overtimeDelta != 0)\n            {\n                var isCredit = overtimeDelta > 0; // an INCREASED overtime credits the employee more\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, $\"led-correction-overtime-{request.RequestId}\", record.EmployeeId, nameof(LedgerEntryType.Adjustment),\n                    $\"تصحيح ساعات إضافية حضور — {request.Reason}\",\n                    isCredit ? Money.Zero : Money.FromPiastres(Math.Abs(overtimeDelta)),\n                    isCredit ? Money.FromPiastres(Math.Abs(overtimeDelta)) : Money.Zero,\n                    verifiedApproverName, verifiedApproverName, null, record.Id, null, null, null, ct);"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+          "signature": "Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken)",
+          "span": [
+            30,
+            5,
+            131,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-06ef3fcac41481834123e109cd840e1e9e1bae08675f60d60f65be95c527d48a",
+          "signature": "lambda expression",
+          "span": [
+            45,
+            81,
+            45,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-a955844a5268ea19910739dabf781d5874a1710ff17416b643f44b6fb1009b34",
+          "signature": "lambda expression",
+          "span": [
+            88,
+            25,
+            88,
+            34
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "line_ranges": [
+        [
+          138,
+          147
+        ]
+      ],
+      "source_excerpts": [
+        "        if (overtimeHours > 0 && employee.DailyWagePiastres > 0)\r\n        {\r\n            var overtimeResult = PayrollRules.CalculateOvertimeAmount(Money.FromPiastres(employee.DailyWagePiastres),\r\n                settings.StandardWorkdayHours, overtimeHours, settings.OvertimeMultiplier);\r\n            if (overtimeResult.Amount.IsPositive)\r\n            {\r\n                var overtimeId = $\"led-overtime-auto-{request.EmployeeId}-{date:yyyy-MM-dd}\";\r\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, overtimeId, request.EmployeeId, nameof(LedgerEntryType.Overtime),\r\n                    $\"ساعات إضافية تلقائية من البصمة ({overtimeHours} ساعة × {overtimeResult.Rate.Piastres} قرش/ساعة × {Math.Round(settings.OvertimeMultiplier * 100)}%)\",\r\n                    Money.Zero, overtimeResult.Amount, employee.Name, null, activeShiftId, null, overtimeHours, overtimeResult.Rate.Piastres, null, ct);\r"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+          "signature": "Falah.Infrastructure.Employees.BiometricCheckOutHandler.HandleAsync(Falah.Application.Employees.BiometricCheckOutRequest, CancellationToken)",
+          "span": [
+            110,
+            5,
+            153,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "line_ranges": [
+        [
+          31,
+          49
+        ]
+      ],
+      "source_excerpts": [
+        "    public static async Task<EmployeeLedgerEntryEntity?> PostIfNewAsync(\n        FalahDbContext db, string id, string employeeId, string type, string description, Money debit, Money credit,\n        string recordedBy, string? authorizedBy, string? shiftId, string? referenceId, double? hours,\n        long? rateSnapshotPiastres, long? valueSnapshotPiastres, CancellationToken ct)\n    {\n        if (db.EmployeeLedgerEntries.Local.Any(e => e.Id == id)\n            || await db.EmployeeLedgerEntries.AsNoTracking().AnyAsync(e => e.Id == id, ct)) return null;\n\n        var currentBalance = await GetCurrentBalanceAsync(db, employeeId, ct);\n        var newBalance = currentBalance + credit - debit;\n        var entity = new EmployeeLedgerEntryEntity\n        {\n            Id = id, EmployeeId = employeeId, Type = type, Description = description,\n            DebitPiastres = debit.Piastres, CreditPiastres = credit.Piastres, BalanceAfterPiastres = newBalance.Piastres,\n            RecordedBy = recordedBy, AuthorizedBy = authorizedBy, ShiftId = shiftId, ReferenceId = referenceId,\n            Hours = hours, RateSnapshotPiastres = rateSnapshotPiastres, ValueSnapshotPiastres = valueSnapshotPiastres,\n            CreatedAtUtc = DateTimeOffset.UtcNow,\n        };\n        db.EmployeeLedgerEntries.Add(entity);"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+          "signature": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken)",
+          "span": [
+            31,
+            5,
+            51,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            48,
+            36,
+            63
+          ]
+        },
+        {
+          "stable_id": "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            71,
+            37,
+            86
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "worktree_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "source_git_blob_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "line_ranges": [
+        [
+          32,
+          53
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from EmployeeLedgerEntry in types.ts - append-only, no update/delete path\n/// anywhere (matching the reference app, which only ever appends to this array too).</summary>\npublic class EmployeeLedgerEntryEntity\n{\n    public string Id { get; set; } = default!;\n    public string EmployeeId { get; set; } = default!;\n    public string Type { get; set; } = default!;\n    public string Description { get; set; } = default!;\n    public long DebitPiastres { get; set; }\n    public long CreditPiastres { get; set; }\n    public long BalanceAfterPiastres { get; set; }\n    public string RecordedBy { get; set; } = default!;\n    public string? AuthorizedBy { get; set; }\n    public string? ShiftId { get; set; }\n    public string? ReferenceId { get; set; }\n    public double? Hours { get; set; }\n    public long? RateSnapshotPiastres { get; set; }\n    public long? ValueSnapshotPiastres { get; set; }\n    public string? PayrollRunId { get; set; }\n    public string? TreasuryMovementId { get; set; }\n    public string? IdempotencyKey { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-42a060ce8802de6c39262e7b17734c7f4c622e0398db6c275537858bdae280bc",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Id.get",
+          "span": [
+            36,
+            24,
+            36,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-e206f6fe92e953f140fc5617c025cd9da36517c3302b74810add597816310bcb",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Id.set",
+          "span": [
+            36,
+            29,
+            36,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-37f6a09519ff9adcc96a5ef710d562b0e2d4bc8a2bf4287f211fcefe166cf8f9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.EmployeeId.get",
+          "span": [
+            37,
+            32,
+            37,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-c82fee3b3d07becf86cb944e838d3afd6a9d7bfa56b5b164514dbdccfb906bab",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.EmployeeId.set",
+          "span": [
+            37,
+            37,
+            37,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-033f64e6c0aa4d1d3f9fe9cd4c57a980da75cbfe43f017c5e0c6ea9864020929",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Type.get",
+          "span": [
+            38,
+            26,
+            38,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-fbfa343140c3608498527315d0129922c7a1bf82c988fb110cbfc4834a6cc36f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Type.set",
+          "span": [
+            38,
+            31,
+            38,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-8a179a21b447b58b351da465e244df09cd87ea376d74b0cc0ca054c60966b997",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Description.get",
+          "span": [
+            39,
+            33,
+            39,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-cfa393fb3aae46dca4344cd28552ba7b753c909893105a6cc4436fefc1df4012",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Description.set",
+          "span": [
+            39,
+            38,
+            39,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-cb7fbc4fb11b090d26626c83d59bb5e45e85d5b50e831859ba35e616bea72938",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.DebitPiastres.get",
+          "span": [
+            40,
+            33,
+            40,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-13a39a06d0e7646ccb5db14b9f4304ae331d9e2bda07085964ead3f88f15df6d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.DebitPiastres.set",
+          "span": [
+            40,
+            38,
+            40,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-ee4c9067b99e19f68025880c96938009c460ab086d9fc3ace38ae5475933295a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreditPiastres.get",
+          "span": [
+            41,
+            34,
+            41,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-27ab198996cf43d7913e3c5f67321c179f4d5742865f9cc82d5ea8e84e0b362d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreditPiastres.set",
+          "span": [
+            41,
+            39,
+            41,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-0723101dcc8aa30c4fd54c731879b9b39659c60d8e9b846495fa52f84bbb682f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.BalanceAfterPiastres.get",
+          "span": [
+            42,
+            40,
+            42,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-54c0136b795e861d48d3381365844b90ca1cad3254d94008137f45d8f071eda9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.BalanceAfterPiastres.set",
+          "span": [
+            42,
+            45,
+            42,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-244137f454147563463ac9c45d7814557e21663ff1c838b6d0eaa383b6d61478",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RecordedBy.get",
+          "span": [
+            43,
+            32,
+            43,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-5a831ce214a0880e2c5a7c7f3d5bf7520c28dbd12fbed3f1cd02ebf6ab5f18c9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RecordedBy.set",
+          "span": [
+            43,
+            37,
+            43,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-a1cd75362959f18de3ef5acf9c232eb5ba418e706376c79d2fc8ad7ef91c4598",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.AuthorizedBy.get",
+          "span": [
+            44,
+            35,
+            44,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-396554b96f925d466f0a0fe96db77d48a9d29e01ddeef0b67f4d0cf6e68a2f13",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.AuthorizedBy.set",
+          "span": [
+            44,
+            40,
+            44,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-af4c0ae4b85fc4ce6cf9446949b0aefb01203b318dc34a0035552b8aa7abf032",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ShiftId.get",
+          "span": [
+            45,
+            30,
+            45,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-5d9480cdc86363c883493e93b0e67051f4c0b3c2dd756af134e3d07acca17303",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ShiftId.set",
+          "span": [
+            45,
+            35,
+            45,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-19f598b13e3e5dc901108149ee1bce04bb6c568062322166daef6d9e00312042",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ReferenceId.get",
+          "span": [
+            46,
+            34,
+            46,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-aaa674fc4e2ce8e4cd27ce624d0f06aadfdfc5dacb22bf32f74e061d1d22d742",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ReferenceId.set",
+          "span": [
+            46,
+            39,
+            46,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-6e0121540ca8dc73b5e7765e809c1b8a641111313bbb427f3251bb7fc2475fc7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Hours.get",
+          "span": [
+            47,
+            28,
+            47,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-ab54b4270d40621cff24e7ce2f8062afa3d430788c472e9b643cb1d71c976085",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Hours.set",
+          "span": [
+            47,
+            33,
+            47,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-9d843c132f3707cc564e0dcf1ddabace607111d1db42e9fe74f8c9d986e2f240",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RateSnapshotPiastres.get",
+          "span": [
+            48,
+            41,
+            48,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-759859989b14f2599fd3eedd03a62889b5d6ad9036251c7d3c6bd5a413c876c2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RateSnapshotPiastres.set",
+          "span": [
+            48,
+            46,
+            48,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-cd68c96d58e7600596a3139aa9079e849330b4a9256416282169fb28192e67b4",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ValueSnapshotPiastres.get",
+          "span": [
+            49,
+            42,
+            49,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-0978ab05c10ce84f8edb232ec67088fecf2f329d9ad274d2522fa75b1fb00f25",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ValueSnapshotPiastres.set",
+          "span": [
+            49,
+            47,
+            49,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-a91fdc9964651e00e44beabbdc8ba3357a811d5abf2c1323f2f522952e50133e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.PayrollRunId.get",
+          "span": [
+            50,
+            35,
+            50,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-53a77c5415f1e7481ab06ce610f50b942b6093875dc99f3c2fae8a20aff4c9c6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.PayrollRunId.set",
+          "span": [
+            50,
+            40,
+            50,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-f025860ecc01a7e669786c209a5585a72371c064f20d47ad0e909b1ad1ab0cf0",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.TreasuryMovementId.get",
+          "span": [
+            51,
+            41,
+            51,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-57a4440a24cf6912b598d0c2fc5b217943ce14dd09c388625e00eb5f10682fad",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.TreasuryMovementId.set",
+          "span": [
+            51,
+            46,
+            51,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-0caf0e6012dc130527027b32a27d3ffc7df8357efca8beb518102c2f6ed61411",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.IdempotencyKey.get",
+          "span": [
+            52,
+            37,
+            52,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-3a2b6314c48a04bc0c396105455611cd9d76cf52291fcff6bcfca03b692c472a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.IdempotencyKey.set",
+          "span": [
+            52,
+            42,
+            52,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-913c530c72afe7e6ea291e9669003771aab8ba1257e75adaef9d1e5a53428a7b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreatedAtUtc.get",
+          "span": [
+            53,
+            42,
+            53,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-0c1020e81f394617c8cdec09fef54311a68bcfc0f3591735e238534f18f374c4",
+          "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreatedAtUtc.set",
+          "span": [
+            53,
+            47,
+            53,
+            51
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          29,
+          32
+        ],
+        [
+          55,
+          60
+        ]
+      ],
+      "source_excerpts": [
+        "    /// <summary>Ported verbatim from normalHourlyRate - a non-positive workday-hours config\n    /// produces a zero rate rather than a division error/NaN.</summary>\n    public static Money NormalHourlyRate(Money dailyWage, int workdayHours) =>\n        workdayHours <= 0 ? Money.Zero : Money.FromPiastres(dailyWage.Piastres / workdayHours);",
+        "    public static OvertimeAmountResult CalculateOvertimeAmount(Money dailyWage, int workdayHours, double overtimeHours, double overtimeMultiplier)\n    {\n        var rate = NormalHourlyRate(dailyWage, workdayHours);\n        if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);\n        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier));\n        return new OvertimeAmountResult(rate, amount);"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5a23faebc7e50b593718c84896f65d253c0dd21511886cf1039ff8f0ea25f137",
+          "signature": "Falah.Domain.Payroll.PayrollRules.NormalHourlyRate(Falah.Domain.Common.Money, int)",
+          "span": [
+            31,
+            5,
+            32,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-35771f9335c189af64a8a80880cdfe014e5323d667a208d401cbff41d823dfc1",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculateOvertimeAmount(Falah.Domain.Common.Money, int, double, double)",
+          "span": [
+            55,
+            5,
+            61,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "worktree_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "source_git_blob_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "line_ranges": [
+        [
+          95,
+          100
+        ]
+      ],
+      "source_excerpts": [
+        "        entity.Phone = request.Phone.Trim();\n        entity.HireDate = request.HireDate;\n        entity.CompensationType = request.CompensationType;\n        entity.DailyWagePiastres = request.DailyWagePiastres;\n        entity.ShiftValuePiastres = request.ShiftValuePiastres;\n        entity.MonthlySalaryPiastres = request.MonthlySalaryPiastres;"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+          "signature": "Falah.Infrastructure.Employees.UpdateEmployeeHandler.HandleAsync(Falah.Application.Employees.UpdateEmployeeRequest, CancellationToken)",
+          "span": [
+            79,
+            5,
+            115,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "reasoning": [
+    "Independently read complete CorrectAttendance handler including approval, transaction, audit retry and commit; it reads current employee wage and Settings, then recomputes both old andnew amounts. It does not compare actual original monetary amounts or prior accumulated adjustments.",
+    "CheckOut auto credit saves computed immutable amount plus rate/hour fields; profile Update changes DailyWage. Under documented already-produced-effect reconciliation summary15-18, an original1500 overtime credit with laterdouble wage and correction1h->0 givescurrentold3000/new0 andnewdebit3000, leaving that component-1500. This is static integer arithmetic from source, not executed test/wholeaccountnegative claim.",
+    "Record and ledger UPDLOCK/HOLDLOCK plus same-request audit replay are real controls. They serialize and deduplicate but cannot repair using a different historical valuation basis. No new race/idempotency bypass claimed.",
+    "Strongest counterinterpretation: intentional current-rate incremental correction can explain the implementation, but that policy is not demonstrated by owner requirements and differs from already-produced-effect wording. Keep policy-qualified risk rather than unconditional wage-underpayment defect."
+  ],
+  "preconditions": "Original automatic monetary effect at old rate, later legitimate rate/settings change, then authorized correction affecting that same old attendance; no manual compensation assumed for isolated component illustration.",
+  "counterevidence": [
+    "Unchanged rates/settings and ordinary original matching values reconcile correctly.",
+    "Same correction request replays storedsnapshot boundactor/record; record lock serializes different corrections, so no duplicate-requestrace claim.",
+    "Actual entryTypeAdjustment debit is counted byPayrollRules deductions; distinct FIN012 credit omission, not duplicate classification bug.",
+    "Current Settings multiplier/workday changes can also alter oldbasis; authorized profile/settings writer required and manualcompensation can change netposition.",
+    "Existing frozenRateSnapshot field alone may omit multiplier or historicalpolicy needed to reconstruct all corrections; use actual postedfacts/cumulativedelta per agreedpolicy, not blindly single RateSnapshot."
+  ],
+  "impact": "Potential over/under reconciliation relative to actual posted effect; authoritative correction valuation policy unresolved. No actual employee loss, runtime record, payout or SQL acceptance verified.",
+  "recommended_solution": "Reconcile original earning/deduction plus already posted linked adjustments under explicit correction basis. Keep append-only originals, deterministic request identities, row/ledger lock order and zero-delta receipt. Historical reassessment/migration requires separate authorization, do not mint credits automatically.",
+  "regression_risks": "Changing basis after prior corrections can duplicate credits or restate settled payroll. A rate snapshot alone may not include historical multiplier/grace rules; preserve cumulative facts, deterministic keys, lock order and immutable audit replay.",
+  "required_tests": [
+    "Original fixedrate overtime1hour1500 then doubleddailywage removehour: assert agreed reversal1500 (or explicitly approvedcurrentratepolicy), no accidental extra1500debit.",
+    "Change multiplier/grace/workday configuration, penalty-tozero and sequentialcorrections including returningoriginalhours; compare cumulative facts.",
+    "Repeat same request and interleaved later correction; currentrates unchangedpositivecontrol; historicalpaidperiod/manualcompensation protection."
+  ],
+  "owner_policy_required": "Confirm whether corrections reconcile actual previously posted earnings/deductions or intentionally value incremental changes at current rate, and rules for frozen/paid periods.",
+  "runtime": "NOT_EXECUTED",
+  "new_author_receipts": 0
+}

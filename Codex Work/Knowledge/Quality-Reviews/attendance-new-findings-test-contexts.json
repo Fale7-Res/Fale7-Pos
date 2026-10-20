@@ -1,0 +1,175 @@
+{
+  "at_utc": "2026-10-19T09:16:20.779Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "scope": "Targeted existing-test scenario quality review; source only, not complete test file review or primary financial receipts",
+  "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+  "worktree_sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+  "line_ranges": [
+    [
+      90,
+      109
+    ],
+    [
+      205,
+      237
+    ],
+    [
+      241,
+      265
+    ],
+    [
+      267,
+      284
+    ],
+    [
+      286,
+      306
+    ],
+    [
+      308,
+      328
+    ]
+  ],
+  "relevant_symbols": [
+    {
+      "stable_id": "sym-88910f32f3c69671424439c58e9be39d9931d9ed69a79e67f4f0b5e643bbc6c3",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_out_without_a_check_in_record_today_is_rejected()",
+      "span": [
+        90,
+        5,
+        96,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-74bf4ee30e844fd70bed9c51da751038c5dba44056aa8d8a48686c4ca1c1d552",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_out_records_a_check_out_time_and_zero_overtime_for_a_short_shift()",
+      "span": [
+        98,
+        5,
+        109,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-4368590531be03cf6575ec24b25d5ea136784338ec4edf90449d838787d7dbba",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Correcting_overtime_upward_posts_the_delta_as_an_adjustment_credit()",
+      "span": [
+        205,
+        5,
+        218,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-3ac2baccc0e73d3826ccbf86b6c5450612fca41acb3f09b0bc6967587227ee5d",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Retrying_the_same_correction_request_never_double_posts_the_adjustment()",
+      "span": [
+        220,
+        5,
+        237,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-9f921824dbcb0fdbe5db1bd321f588f56ac78134878680f8b55628eff28aa81a",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Retrying_an_older_correction_cannot_overwrite_a_later_correction(double)",
+      "span": [
+        241,
+        5,
+        265,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-f4e8ddce6e1a9a1bc84e9db46e6b2b8e106ad6b4a48b240af676ab2f3dd3dfa3",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Combined_penalty_and_overtime_correction_records_a_consistent_running_balance()",
+      "span": [
+        267,
+        5,
+        284,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-9a70994d050fbd5d670c47065d2666a79e09b90484a980d0df097689917faf4e",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.A_correction_receipt_survives_server_restart_and_a_consumed_manager_approval()",
+      "span": [
+        286,
+        5,
+        306,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-3eee5f99295ffd252ba50cc0e556bcb62d4856d4c8a35b79d8e8c1cd1c040527",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Concurrent_corrections_serialize_record_and_financial_deltas(bool)",
+      "span": [
+        308,
+        5,
+        328,
+        6
+      ]
+    }
+  ],
+  "findings_cross_referenced": [
+    "FIN-023",
+    "FIN-CAND-CORRECTION-BASIS-001"
+  ],
+  "reasoning": [
+    {
+      "range": [
+        90,
+        109
+      ],
+      "conclusion": "Missing-checkin rejection and immediate same-clock short shift assert CheckOut set and overtime0; they do not control entry instant across UTC midnight or compare actualWorkHours13."
+    },
+    {
+      "range": [
+        205,
+        237
+      ],
+      "conclusion": "Upward correction asserts positiveAdjustment and repeat sameRequest asserts singleAdjustment; useful idempotency controls, no wage/settings change between original and correction."
+    },
+    {
+      "range": [
+        241,
+        265
+      ],
+      "conclusion": "Older-correction replay returns frozen first receipt while currentrecord retains later correction and ledger stays unchanged. Strong retry countercontrol, not historical valuation test."
+    },
+    {
+      "range": [
+        267,
+        284
+      ],
+      "conclusion": "Combined penalty+overtime compares sequential running balances; validates internally consistent sums, not whether old posted monetary basis was valued correctly."
+    },
+    {
+      "range": [
+        286,
+        306
+      ],
+      "conclusion": "Existing test body restarts factory against same testDatabase and retries consumed approval; audit did NOT execute it. It tests durable receipts rather than changed-rate reconciliation."
+    },
+    {
+      "range": [
+        308,
+        328
+      ],
+      "conclusion": "Concurrent same/distinct requests plus resethours assert balance20000 with unchangedrates. This is a useful positivecontrol; no changed-dailywage/multiplier scenario in the read method."
+    }
+  ],
+  "remaining_tests": [
+    "Controlled old/new UTC instants on same Cairo date and independently expected elapsed/overtime, plus selected zone/DST rules.",
+    "Initial positive automatic OT at old wage, legitimate wage/settings change, correctionzero; compare cumulative postedfacts under explicit owner correctionpolicy.",
+    "Preserve all existing sameRequest/olderRequest/restart/concurrency and manuallycompensated/frozenperiod controls."
+  ],
+  "limitations": [
+    "Only shown contexts inspected; does not establish no relevant tests elsewhere.",
+    "No tests/API/factory/database/serverrestart executed.",
+    "Eight method contexts are not eight new primary financial authored-callable receipts."
+  ],
+  "new_author_receipts": 0
+}

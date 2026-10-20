@@ -72,14 +72,14 @@ checkpoint = {
     'last_completed_file': latest_review['path'],
     'last_completed_function': latest_review['symbols'][-1]['signature'],
     'last_completed_stable_id': latest_review['symbols'][-1]['stable_id'],
-    'last_completed_operation': 'Latest complete callable shard saved and read back; source/caller limits retained. Six cash arithmetic assertions passed with qualified provenance.',
+    'last_completed_operation': 'Clock/audit/pricing/scheduler23 saved and read back;77/77 supplemental getters saved. Reverse-date report chain qualified source lead persisted; no live runtime actions.',
     'current_partial_file': None, 'current_partial_function': None,
-    'next_exact_operation': 'Reporting202, day-close/evaluator52, reopen11 and BackupRules12 original receipts saved. Next DailyStatementQueryService financial scoping/calculations and remaining exact financial queue. Five candidates independently unchallenged.',
+    'next_exact_operation': 'DailyStatement71, DbContext212 and clock/audit/pricing/scheduler23 additional original receipts saved; all77 supplemental getters receipted. Reverse-date source lead saved, next trace all cost range callers and financial report scope boundaries; five canonical candidates independently pending.',
     'remaining_original_count': len(remaining), 'exact_remaining_reference': 'Sub-Agents/Results/financial-coordinator-coverage.json',
     'supplementary_remaining': {'getters': 77-facets['getter_receipts'], 'generated_behavior_contexts': 95-facets['generated_behavior_receipts']},
     'remaining_full_audit': 'Conversation-Recovery/PAUSED_AUDIT_BACKLOG.json preserves all15phases/19deliverables; nonfinancial execution paused.',
     'blocked': ['Original specialist and replacement attempt thread-limit failure; no independent reviewer currently available.', 'Financial function review remains materially incomplete; no completion certificate justified.'],
-    'publication': 'NO_COMMIT_NO_PUSH', 'source_or_runtime_writes': False
+    'publication': 'ONE_INTERIM_PUSH_VERIFIED_bc914a4d71a34de6ef6655887ce73140075c17e0_NO_FURTHER_PUBLICATION', 'source_or_runtime_writes': False
 }
 atomic_json(WORK/'Sub-Agents/Checkpoints/financial_coordinator.json', checkpoint)
 next_path = WORK/'Conversation-Recovery/NEXT_ACTION.md'
@@ -96,7 +96,7 @@ atomic_text(next_path, previous + marker +
     f'- Additive getters {facets["getter_receipts"]}/77; generated-context reasoning {facets["generated_behavior_receipts"]}/95 (not CLR method count).\n'+
     '- Exact remaining IDs/signatures/spans: Sub-Agents/Results/financial-coordinator-coverage.json. All other phases/queues preserved in PAUSED_AUDIT_BACKLOG.json.\n'+
     '- FIN017/018 independently source-corroborated; payroll status race and cash-count boundary candidate remain independently unchallenged.\n'+
-    '- Next: DailyStatementQueryService financial scoping/calculations and next uncovered financial functions; resume original session only if genuinely available. If replacement becomes possible, owner authorized exactly financial_integrity_continuation; no agent with that name exists yet.\n'+
+    '- Next: reversed-date report source lead and remaining financial report/domain functions. One coordinated original/replacement attempt failed thread limit; no further launches this pass. All77 financial supplemental getters now have source reasoning, independently unchallenged.\n'+
     '- Financial completion and independent quality gates remain OPEN. Do not ask to resume Printing or publish.\n')
 assert not outside, 'Unexpected tracked changes outside Codex Work: publication remains forbidden'
 print(json.dumps({key: value for key, value in snapshot.items()

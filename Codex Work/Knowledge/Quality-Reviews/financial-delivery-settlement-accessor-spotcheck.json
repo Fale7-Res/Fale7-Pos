@@ -1,0 +1,199 @@
+{
+  "at_utc": "2026-10-19T22:09:30.059Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root independent coordinator",
+  "primary_receipt": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs.json",
+  "primary_receipt_sha256": "e87413c15a307a5e54b6b4742ac88becb2b077e86bd34ebae38e54e053d224af",
+  "checked_symbols": [
+    {
+      "stable_id": "sym-7fa8336828a714c06fbd9164c1494e1acd67cf84b55008cc64964a9d292d932f",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.GrossOrderPiastres.get",
+      "span": [
+        130,
+        38,
+        130,
+        42
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-e263ac7c2054abd81a916d71b9fd630d816d619b10d57176f5a9e4c099489e8d",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.GrossOrderPiastres.set",
+      "span": [
+        130,
+        43,
+        130,
+        47
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-82d6526f5aae5061c9f7863ab98c91ba2d3aec4d476bbdb8367a29165d46e539",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.PrepaidPiastres.get",
+      "span": [
+        131,
+        35,
+        131,
+        39
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-bece7ccb84942878768bef80f07003cd436e606d44a17889dbfb2bff4962b4e9",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.PrepaidPiastres.set",
+      "span": [
+        131,
+        40,
+        131,
+        44
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-8edb690bcfea051ba7a40b5f93549a381cbaad7861e5110adb29fcbf3082a290",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ExpectedPiastres.get",
+      "span": [
+        132,
+        36,
+        132,
+        40
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-b2d830ecc3f3de878e401a580c9d35d2a4db37cd6c19a9089b8bff0b9144d1f6",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ExpectedPiastres.set",
+      "span": [
+        132,
+        41,
+        132,
+        45
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-150531493e047e67b7f5660d48cf2e1ac53207dda1f0f4cc2bfff7be4b73817c",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ActualPiastres.get",
+      "span": [
+        133,
+        34,
+        133,
+        38
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-6917e152a0537484b10e5c2c266659cf350c91f5ed00eca29010ee5c14875af2",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ActualPiastres.set",
+      "span": [
+        133,
+        39,
+        133,
+        43
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-487738d8bfe2704ca0808faf3e398eb30633336b28db0a14c42e3cd5f01ef556",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DifferencePiastres.get",
+      "span": [
+        134,
+        38,
+        134,
+        42
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    },
+    {
+      "stable_id": "sym-ba2945d19e5c2e0d878f169abcf6a4df5d6a5100f166215d999c9c57049067ed",
+      "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DifferencePiastres.set",
+      "span": [
+        134,
+        43,
+        134,
+        47
+      ],
+      "disposition": "BOUNDED_REASONING_CORROBORATED_WITH_CONTEXT_LIMITS"
+    }
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+      "worktree_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "source_git_blob_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "line_ranges": [
+        [
+          123,
+          141
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+      "worktree_sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+      "source_git_blob_sha256": "9d73b7f839304f8bd8a88300579e900569067df432ed41f1cb2b9edbed69ae5e",
+      "line_ranges": [
+        [
+          36,
+          61
+        ],
+        [
+          69,
+          102
+        ],
+        [
+          109,
+          123
+        ],
+        [
+          130,
+          173
+        ],
+        [
+          196,
+          197
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+      "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+      "source_git_blob_sha256": "dba6f7c551676a5899ed1b211a0d8b1d9b8605a67c709a4ef47991de3ff0cfc1",
+      "line_ranges": [
+        [
+          32,
+          76
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          333,
+          363
+        ]
+      ]
+    }
+  ],
+  "conclusions": [
+    "Ten specific monetary snapshot accessors checked, not all166entity accessors certified.",
+    "Expected settlement is sum of collected custody, not assignment expectation. Difference is actual minus collected; per-delivery collection variance is distinct.",
+    "Gross/Prepaid aggregate successful deliveries while OrderIds includes resolved failed/returned; these are intentionally different populations, not arithmetic error inferred from names.",
+    "Positive actual creates treasury credit; zero actual still closes custody and can save settlement with null movement. Setter copies actual; nonnegative invariant is handler/domain guard, not accessor or DB CHECK in inspected model.",
+    "Model has settlement PK and unique request-key index; no proof from that alone of per-driver semantic concurrency correctness. Existing row locks and version countercontrols remain."
+  ],
+  "followup_lead": {
+    "key": "DRIVER_SETTLEMENT_VARIANCE_APPROVER_PROVENANCE",
+    "status": "INDEPENDENT_SOURCE_CORROBORATED_FIN017_RELATED_VARIANT",
+    "evidence": "Base authorization56 returns approvedByName57. Difference gate102 calls AuthorizeCommand but ignores returned actual approver; same base name used movement120/events150/settlement161/audit169. Actor with own delivery_manage but lacking delivery_settlement_approve can use manager approval for stricter gate while stored ApprovedBy is actor name.",
+    "counterevidence": "Financial stronger gate still enforced; no unauthorized transfer claimed. If actor has own stricter permission then actor attribution is correct. Exact UI choice and runtime not exercised; compare existing FIN017 before newID.",
+    "canonical_id": "FIN-017",
+    "challenge": "Sub-Agents/Handoffs/financial-driver-variance-approver-independent-challenge.json"
+  },
+  "runtime": "NOT_EXECUTED",
+  "new_primary_callable_receipts": 0,
+  "quality_gate": "TARGETED_SEMANTIC_RECEIPT_SPOTCHECK_ONLY"
+}

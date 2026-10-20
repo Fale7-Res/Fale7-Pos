@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Menu/ProductImageRules.cs",
+  "source_git_blob_sha256": "726d153f2fb151c7fd969c2c0dc199f30fdc2e36798552d79304ad1744b1de49",
+  "worktree_sha256": "726d153f2fb151c7fd969c2c0dc199f30fdc2e36798552d79304ad1744b1de49",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:05:41.457991+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-6d254bd444a459702773b66c6a40ebcbf4eedfa6c1683abcebb05ca7d048f9fe",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Menu.ProductImageRules.NormalizeContentType(string?)",
+      "span": [
+        23,
+        5,
+        30,
+        6
+      ],
+      "reasoning": "Null->empty,Trim,ToLowerInvariant thenaliasesimage/jpg tojpeg andrejectsnotin jpeg/png/webp array. MIMEparameters likeimage/jpeg;charset reject; nofilenameextensiontrust. PublicIReadOnlyList backedarraycanbecastmutabletrustedcode, actualremotechange notproved.",
+      "inputs": "Nullablecontenttype",
+      "outputs": "NormalizedallowedMIME/exception",
+      "side_effects": "Purevalidation only, nofile/network/decoder orDBaccess.",
+      "database": "NoDB ortransactions.",
+      "trust_boundaries": "Imagepayload/MIMEclientcontrolled, authenticateduploadauthorityoutsidepurehelper.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constantheaderchecks; contentTypeprocessing proportionalshortstring; nofullimageallocation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Headercheckisnotfullsemanticdecoder validation, noexploitdemonstrated. No securityscanworkflowstarted.",
+      "tests_missing": "Case/space/jpgalias/null/MIMEparameter/SVG reject",
+      "verified_callers_callees": "Allowedtypes21; normalization25-29; infrastructureuploadcaller notfreshtrace UNKNOWN."
+    },
+    {
+      "stable_id": "sym-7cd119069efcfd27c6e3419e617f2093084ffe7f1b4a7c1b42c1518272340b7c",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Menu.ProductImageRules.AssertAcceptableSize(int)",
+      "span": [
+        32,
+        5,
+        37,
+        6
+      ],
+      "reasoning": "RejectsbyteCount<=0 and>524288, accepts exactlimit. Validatesencodedbytecount notdecodedpixelmemory/animations; smallcompressedimagecanstilldecoderheavy, separateUIsecurity/performanceownership.",
+      "inputs": "int count",
+      "outputs": "Void/exception",
+      "side_effects": "Purevalidation only, nofile/network/decoder orDBaccess.",
+      "database": "NoDB ortransactions.",
+      "trust_boundaries": "Imagepayload/MIMEclientcontrolled, authenticateduploadauthorityoutsidepurehelper.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constantheaderchecks; contentTypeprocessing proportionalshortstring; nofullimageallocation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Headercheckisnotfullsemanticdecoder validation, noexploitdemonstrated. No securityscanworkflowstarted.",
+      "tests_missing": "0/-1/max/max+1",
+      "verified_callers_callees": "MaxBytes16; conditions34-36."
+    },
+    {
+      "stable_id": "sym-2d041a62dcd8ed2d20d4093235c5d13098eb22e32ba2ac0870d590137fe564df",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Menu.ProductImageRules.AssertMatchesContentType(string, ReadOnlySpan<byte>)",
+      "span": [
+        42,
+        5,
+        54,
+        6
+      ],
+      "reasoning": "ChecksJPEGfirst3bytes, PNGminimum8bytesbutonlyfirst4signaturebytes, WebP RIFFfirst4+WEBPat8..11. Shortcircuitslengthguards preventspanbounds. DoesnotvalidatefullPNG8bytes, RIFFlength, imagebody/dimensionsortrailingcontent; malformedheadercanpassandfaildecoderlater. Unknownnormalizedtypefalse.",
+      "inputs": "NormalizedMIME/readOnlybytes",
+      "outputs": "Void/exception",
+      "side_effects": "Purevalidation only, nofile/network/decoder orDBaccess.",
+      "database": "NoDB ortransactions.",
+      "trust_boundaries": "Imagepayload/MIMEclientcontrolled, authenticateduploadauthorityoutsidepurehelper.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constantheaderchecks; contentTypeprocessing proportionalshortstring; nofullimageallocation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Headercheckisnotfullsemanticdecoder validation, noexploitdemonstrated. No securityscanworkflowstarted.",
+      "tests_missing": "Truncatedvalidprefix, corruptPNGlast4magic, RIFFwrongsize, bodyinvalid; nohardwaretest",
+      "verified_callers_callees": "Switch44-51, throw53; upstreamNormalizeContentType separate."
+    }
+  ],
+  "remaining_callable_ids": []
+}

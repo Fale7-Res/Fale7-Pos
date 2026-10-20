@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/OrderRefund.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:40:50.330195+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "dfb3e496413d4e770c0961e421a663262f1a9a612b017616120807ebdaf89a33",
+  "worktree_sha256": "dfb3e496413d4e770c0961e421a663262f1a9a612b017616120807ebdaf89a33",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-a010ab823d60b4ce2c961b40febcceb929284bc0a5560f1032f9973e48d8be6a",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional OrderRefund record stores request/operation/key/amount/channel/movement/time/actor/approver/reason/original and operational shifts. Generated constructor/with-copy does not enforce positive amount, paid entitlement, refund aggregate cap or real approval/movement existence. Order.ApplyRefund enforces amount cap, handler owns financial checks, and FIN003/004 remain cross-file workflow defects. Equality includes all components, not just refundId; no ledger or treasury write synthesized.",
+      "inputs": "Exact positional declaration fields at source span [9, 21]",
+      "outputs": "Generated constructor/init/equality/hash/copy/deconstruction/printing context, not enumerated invented CLR methods.",
+      "side_effects": "Value/reference copy and possible generated string construction only; no DB, journal, permission issuance or print transport.",
+      "trust_boundaries": "Generated record behavior does not authenticate or validate financial state.",
+      "database": "No database read/write; identity, uniqueness and transaction rules remain outside record.",
+      "printing_ui": "May be represented as diagnostics or order snapshots; generated ToString is not physical printing.",
+      "performance": "Fixed scalar/string fields; Actor permission collection compared as reference.",
+      "duplicates_conflicts": "Original authored functions and getter facets retained; this is separate generated-context accounting.",
+      "issues_hypotheses": "Specific constraints and existing/pending financial findings distinguished in reasoning; no finding counted from generated behavior alone.",
+      "tests_missing": "Value equality/copy field retention, invalid direct construction rejected by actual boundary, collection alias where applicable.",
+      "verified_callers_callees": "Actual callers/constraints are identified individually in reasoning; relevant source reads and original exact callable receipts remain in financial_integrity shards. No new caller relationship inferred solely from record name."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

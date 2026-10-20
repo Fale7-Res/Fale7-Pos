@@ -1,0 +1,1573 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-3d4206cf63b4b0d71e3d26aa5c48bbe723469eda813f465bfb66aea10d68bd32",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Id.get",
+        "span": [
+          22,
+          24,
+          22,
+          28
+        ],
+        "reasoning": "Getter identifies received invoice independent of supplier invoice number and creation business key.",
+        "inputs": "Invoice/line carrying string invoice PK.",
+        "outputs": "string invoice PK without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-7e61fa28983be7e0b5eac85f5f2ca4af219ab1ea9797f0524a4a0ff09cceb148",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Id.set",
+        "span": [
+          22,
+          29,
+          22,
+          33
+        ],
+        "reasoning": "Setter records purchaseId chosen by receiving handler; later payments target this key rather than matching invoice label.",
+        "inputs": "string invoice PK from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-7ccd3ef535d73aa667617160107b3287670c5a7503bb952efae77a804a55c5d8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.IdempotencyKey.get",
+        "span": [
+          23,
+          36,
+          23,
+          40
+        ],
+        "reasoning": "Getter supplies unique receive business key purchase-purchaseId, separate from later per-payment keys.",
+        "inputs": "Invoice/line carrying string receive key.",
+        "outputs": "string receive key without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-ab7f14939aeaa4d29c94f614b81e56071e14dd0cf1dfc67fa4ee032f6cf24229",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.IdempotencyKey.set",
+        "span": [
+          23,
+          41,
+          23,
+          45
+        ],
+        "reasoning": "Setter stores receive key with unique index; it deduplicates same invoice command, not distinct real-world duplicate invoice numbers.",
+        "inputs": "string receive key from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-4f89cec344674ec49ef73a16914dc4b482bdc9efeb00884c7f63179586f41e60",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SupplierId.get",
+        "span": [
+          24,
+          32,
+          24,
+          36
+        ],
+        "reasoning": "Getter identifies supplier FK for invoice and ledger attribution; reference does not make payment balance cache authoritative.",
+        "inputs": "Invoice/line carrying string supplier FK.",
+        "outputs": "string supplier FK without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-30c4ac53a15566f7660edd2d3b84423a2a1764c4109bc37799490d71a4e1920e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SupplierId.set",
+        "span": [
+          24,
+          37,
+          24,
+          41
+        ],
+        "reasoning": "Setter copies verified supplier.Id on receive. Later payment uses stored supplier association, not arbitrary request supplier change.",
+        "inputs": "string supplier FK from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-7623d05e89b73c14de5a2b821bc6cf3e97800a12604b96210b38d6db95db4832",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.InvoiceNumber.get",
+        "span": [
+          25,
+          36,
+          25,
+          40
+        ],
+        "reasoning": "Getter exposes optional supplier document label for display/reasons; null is valid and not invoice identity absence.",
+        "inputs": "Invoice/line carrying nullable supplier invoice label.",
+        "outputs": "nullable supplier invoice label without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-52e6c649b19fa2e3d3e62e7b6d4bd0249b67b7840690d2ed99f44f14b0f4cfd7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.InvoiceNumber.set",
+        "span": [
+          25,
+          41,
+          25,
+          45
+        ],
+        "reasoning": "Setter stores request label unchanged. No unique supplier/invoice-number index is declared in inspected model, so duplicate number prevention cannot be inferred.",
+        "inputs": "nullable supplier invoice label from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-4e3b237be003491734ae0d063fb0c72dbf6e61bb8897a769d7544eabd10e9ee8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SubtotalPiastres.get",
+        "span": [
+          26,
+          36,
+          26,
+          40
+        ],
+        "reasoning": "Getter returns saved line subtotal; current receiving writer sets equal Total with no separate tax/discount fields.",
+        "inputs": "Invoice/line carrying long invoice subtotal.",
+        "outputs": "long invoice subtotal without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-3f11eca9e1f00421d073fd2e4da6642e7a5840ad182541f2a9b19fdc3d92a364",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SubtotalPiastres.set",
+        "span": [
+          26,
+          41,
+          26,
+          45
+        ],
+        "reasoning": "Setter copies summed line total into both subtotal and total. Property does not recompute when child rows change externally.",
+        "inputs": "long invoice subtotal from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-5f5f14b555b8f7ce5492b4d72e1da5ce790a9b01e959c8194aaafda4843cb22b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TotalPiastres.get",
+        "span": [
+          27,
+          33,
+          27,
+          37
+        ],
+        "reasoning": "Getter exposes received invoice total used with cached paid/remaining; it is not re-derived on every query.",
+        "inputs": "Invoice/line carrying long invoice total.",
+        "outputs": "long invoice total without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-231f47890f445fb633dcabba07eac28a51838c8eaecde8c0d07c1a7fb334221c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TotalPiastres.set",
+        "span": [
+          27,
+          38,
+          27,
+          42
+        ],
+        "reasoning": "Setter stores calculated line sum once. FIN018 signed quantity/cost admission can distort received stock/value; no global positivity guarantee from long type.",
+        "inputs": "long invoice total from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-49984e9a2c89416a5be45e1ab3629c3c340c0a4a9c7db499ee743a5fbcef381a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaidPiastres.get",
+        "span": [
+          28,
+          32,
+          28,
+          36
+        ],
+        "reasoning": "Getter exposes cumulative cached paid amount, not sum freshly queried ledger credits at property read.",
+        "inputs": "Invoice/line carrying long cached paid amount.",
+        "outputs": "long cached paid amount without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-4b068ab5c9ebf472c3bcd0bbe30d74665de8ee30b08c453c81598c9f6f125514",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaidPiastres.set",
+        "span": [
+          28,
+          37,
+          28,
+          41
+        ],
+        "reasoning": "Setter initializes received paid then PayPurchase uses += on pretransaction loaded invoice. FIN005 stale concurrent payment reads can lose cache increment/overpay despite treasury source serialization.",
+        "inputs": "long cached paid amount from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-d8c77ecaa63b7f7f9906f00ab332de0a073d2d6e1363dfc60d284fd7472a31c1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.RemainingAmountPiastres.get",
+        "span": [
+          29,
+          43,
+          29,
+          47
+        ],
+        "reasoning": "Getter drives payables aging and invoice display from cached amount; supplier ledger totals are separate source.",
+        "inputs": "Invoice/line carrying long cached outstanding.",
+        "outputs": "long cached outstanding without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-e6576004de9fbc840e9f7b52dce1a31d78f0b6f62199e0a39860df831ad1e3b6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.RemainingAmountPiastres.set",
+        "span": [
+          29,
+          48,
+          29,
+          52
+        ],
+        "reasoning": "Setter initializes total-paid and later stores stale-pretransaction outstanding-minus-amount; existing FIN005 disproves unconditional always-in-sync cache comment.",
+        "inputs": "long cached outstanding from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-30b97fb27b87caf98b72bd4e9c563accf5133e95f955d8d874e821b6c86dd43f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentMethod.get",
+        "span": [
+          32,
+          35,
+          32,
+          39
+        ],
+        "reasoning": "Getter is initial receive payment mode including credit, not a summary of all later account-specific payments.",
+        "inputs": "Invoice/line carrying string initial payment mode.",
+        "outputs": "string initial payment mode without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-ed13e99cc952e256b6526f4f12176d3c69f4d7632f492978f1d3ecbda666d451",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentMethod.set",
+        "span": [
+          32,
+          40,
+          32,
+          44
+        ],
+        "reasoning": "Setter copies request mode. Later payments append own account records without replacing initial mode, so it cannot identify every source used.",
+        "inputs": "string initial payment mode from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-c37b13651b3825a5768344197b5978d5a65c1c4fdd50f2ffa0ca23d9f6095112",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentAccountId.get",
+        "span": [
+          36,
+          39,
+          36,
+          43
+        ],
+        "reasoning": "Getter exposes initial source account only, nullable for credit/no initial payment.",
+        "inputs": "Invoice/line carrying nullable initial account.",
+        "outputs": "nullable initial account without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-368b43a57218c04090f59a78af024eff979993c9a9fc323f1d1ee8b2b49104e3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentAccountId.set",
+        "span": [
+          36,
+          44,
+          36,
+          48
+        ],
+        "reasoning": "Setter stores resolved initial account; later PayPurchase appends payment row from possibly different account and does not replace this field.",
+        "inputs": "nullable initial account from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-0477b57bf9397bd0a436e7bc941e10934d8c57044e99e5cf09877fa2c71f1d44",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Status.get",
+        "span": [
+          40,
+          28,
+          40,
+          32
+        ],
+        "reasoning": "Getter classifies received/partially_paid/paid/cancelled; fully unpaid receipt is received rather than paymentstatus unpaid.",
+        "inputs": "Invoice/line carrying string invoice state.",
+        "outputs": "string invoice state without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-59cd8ef74cee9c369227617bf38629624896a60c7f8aa538b120e08400250ed3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Status.set",
+        "span": [
+          40,
+          33,
+          40,
+          37
+        ],
+        "reasoning": "Setter initializes derived receipt status, later follows payment status update. No concurrency token in inspected model prevents stale terminal/cache changes FIN005.",
+        "inputs": "string invoice state from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-cec60b8f936bac8afaef3f6499ec66e0fa098255be4234680173f57046f85228",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentStatus.get",
+        "span": [
+          41,
+          35,
+          41,
+          39
+        ],
+        "reasoning": "Getter exposes initial/current payment cache status separately from invoice received state.",
+        "inputs": "Invoice/line carrying string payment cache state.",
+        "outputs": "string payment cache state without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-583aba0d5ea5f76521a2265c83d867b5a0a7e01c3bcc78b3b45d9a9998b2c603",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentStatus.set",
+        "span": [
+          41,
+          40,
+          41,
+          44
+        ],
+        "reasoning": "Setter derives paid/partially_paid/unpaid then later remaining==0 logic. It is not recalculated automatically from ledger on query.",
+        "inputs": "string payment cache state from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-53f76cc7965d3ddc2e0f64608ec4835696c6e503f22156e939f9ef94db7fad6c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.ReceivedBy.get",
+        "span": [
+          42,
+          32,
+          42,
+          36
+        ],
+        "reasoning": "Getter exposes receiving actor-name snapshot, not latest payer or stable user FK.",
+        "inputs": "Invoice/line carrying string receiver name.",
+        "outputs": "string receiver name without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-c1c649e49141c2a49148a9e6670e6016ec0269779e75292ad22c2d8f122e3c42",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.ReceivedBy.set",
+        "span": [
+          42,
+          37,
+          42,
+          41
+        ],
+        "reasoning": "Setter copies receive actor name and is preserved by later payments; separate payment CreatedBy records payer.",
+        "inputs": "string receiver name from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-af3a4dfc76c94b8e9aa1bd6c8f6e9aaaab7368e51efefc2441c9d35e339e2010",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Notes.get",
+        "span": [
+          43,
+          28,
+          43,
+          32
+        ],
+        "reasoning": "Getter exposes optional invoice notes, not payment authorization reason or structured due terms.",
+        "inputs": "Invoice/line carrying nullable invoice notes.",
+        "outputs": "nullable invoice notes without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-4a2ec86884bcf06a3a1ffa10d8663aee363af7b84431221182f5a6d103a6d27c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Notes.set",
+        "span": [
+          43,
+          33,
+          43,
+          37
+        ],
+        "reasoning": "Setter copies request notes without independent validation; it does not modify supplier liability.",
+        "inputs": "nullable invoice notes from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-7af3988224e4b07311833842c092542e56ce56cf9833e6868ad705bde146e108",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedBy.get",
+        "span": [
+          44,
+          31,
+          44,
+          35
+        ],
+        "reasoning": "Getter exposes original creator-name attribution, same actor as ReceivedBy in current writer but separate conceptual field.",
+        "inputs": "Invoice/line carrying string invoice creator name.",
+        "outputs": "string invoice creator name without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-d474631348d0125fe0ce1450ddd5f97d198316e710e400b5d2cf10823d552026",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedBy.set",
+        "span": [
+          44,
+          36,
+          44,
+          40
+        ],
+        "reasoning": "Setter copies receive actor name. Later payment metadata does not overwrite invoice creator.",
+        "inputs": "string invoice creator name from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-555b1788755c6caa72c37300656d011c942647b37e1d2b729dc7b596b56b3b40",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.OperationId.get",
+        "span": [
+          45,
+          34,
+          45,
+          38
+        ],
+        "reasoning": "Getter is receive operation correlation, not latest payment operation or unique receive key.",
+        "inputs": "Invoice/line carrying nullable receive operation.",
+        "outputs": "nullable receive operation without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-a8497ee592f817d343ffc6577841376b137fa6f994e377d366f535a79bf2a96b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.OperationId.set",
+        "span": [
+          45,
+          39,
+          45,
+          43
+        ],
+        "reasoning": "Setter copies initial op-GUID shared with initial stock/ledger/payment; subsequent payment operations live on child/ledger rows.",
+        "inputs": "nullable receive operation from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-1194cfc31e7cf43be2556ea09f84087b481c0cb57f0fb0585660c57f9b767ac0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TreasuryMovementId.get",
+        "span": [
+          49,
+          41,
+          49,
+          45
+        ],
+        "reasoning": "Getter links only initial cash payment; null can mean credit invoice, not missing later payment history.",
+        "inputs": "Invoice/line carrying nullable initial movement.",
+        "outputs": "nullable initial movement without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-494ea5715692a2a0592ed2794da0beefdbe860c058f15c6d095eedc6c9959cd5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TreasuryMovementId.set",
+        "span": [
+          49,
+          46,
+          49,
+          50
+        ],
+        "reasoning": "Setter stores initial movement?.Id and remains unchanged by later payments, whose own rows hold movement IDs.",
+        "inputs": "nullable initial movement from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-15f23e8b7fee488f596221426e7dba5dbbe1d1d647715968198d9bcbaa2dfa25",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedAtUtc.get",
+        "span": [
+          50,
+          42,
+          50,
+          46
+        ],
+        "reasoning": "Getter records receipt instant used as aging origin in Cairo date conversion; it is not DueDate or latest payment time.",
+        "inputs": "Invoice/line carrying DateTimeOffset received instant.",
+        "outputs": "DateTimeOffset received instant without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-f7507a70054a241cedf3a776690827f1aceacf8c780c388a3b2aa6b3d6ae1c6d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedAtUtc.set",
+        "span": [
+          50,
+          47,
+          50,
+          51
+        ],
+        "reasoning": "Setter stores receive now; payment and due-date update preserve original age basis. No immutable DB timestamp enforcement authored here.",
+        "inputs": "DateTimeOffset received instant from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-8b7d69615a1e0240dba07204e3900552e3e8866d00e067a5107f1a4424c04a10",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.DueDate.get",
+        "span": [
+          56,
+          32,
+          56,
+          36
+        ],
+        "reasoning": "Getter exposes optional agreed due business date; null is classified unscheduled rather than automatically overdue.",
+        "inputs": "Invoice/line carrying nullable DateOnly due term.",
+        "outputs": "nullable DateOnly due term without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-922ac8a8aa10610cde8ba954405e42a788377c7ea9e98c138d5c6bd5233a61ae",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.DueDate.set",
+        "span": [
+          56,
+          37,
+          56,
+          41
+        ],
+        "reasoning": "Setter stores optional receive term and dedicated authorized setter can clear it. Due-date changes only metadata/audit, not cash, liability or stock.",
+        "inputs": "nullable DateOnly due term from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-39c2a06f9e576f27f87f8c858e8705069ce461c9e0121691c3cd46454157e186",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Lines.get",
+        "span": [
+          58,
+          45,
+          58,
+          49
+        ],
+        "reasoning": "Getter exposes loaded invoice line list; read DTO callers Include it rather than relying on lazy property loading.",
+        "inputs": "Invoice/line carrying List of PurchaseLineEntity.",
+        "outputs": "List of PurchaseLineEntity without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-b1764630827c5ab136f1a68bacd2aeec66d0fbde75d9f00f1d0b8bee181e51a1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Lines.set",
+        "span": [
+          58,
+          50,
+          58,
+          54
+        ],
+        "reasoning": "Setter initializes received child lines from calculated inputs. Later payment does not replace lines; cascade invoice relation governs persisted child deletion.",
+        "inputs": "List of PurchaseLineEntity from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-2a238c0b1a184dec21e909e7d6150b13f0cabb141fe6f8a785de362e997d922a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Payments.get",
+        "span": [
+          59,
+          51,
+          59,
+          55
+        ],
+        "reasoning": "Getter exposes all loaded initial/later payment rows, separate from cached Paid column.",
+        "inputs": "Invoice/line carrying List of PurchasePaymentEntity.",
+        "outputs": "List of PurchasePaymentEntity without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-df1b57efed12cd7c058572490da013eb2c7f1f5d23c405f81e735918cf9aafb0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Payments.set",
+        "span": [
+          59,
+          56,
+          59,
+          60
+        ],
+        "reasoning": "Setter defaults empty list and receiving optionally adds initial payment; PayPurchase appends child. Public list mutation is not a protected payment command by itself.",
+        "inputs": "List of PurchasePaymentEntity from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-af497b3a256178e5ba65a7c3d6497fbff0d7b7549663f866f093246c0c2fe9b4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.Id.get",
+        "span": [
+          64,
+          21,
+          64,
+          25
+        ],
+        "reasoning": "Getter exposes generated integer invoice child ID, distinct from stock movement key built using inventory item.",
+        "inputs": "Invoice/line carrying int invoice-line PK.",
+        "outputs": "int invoice-line PK without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-17bae0242afdbf47c8b293ed71d9e7f6ccdfa9e5dd22c88afb006fba13cfd5b5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.Id.set",
+        "span": [
+          64,
+          26,
+          64,
+          30
+        ],
+        "reasoning": "Setter is not assigned by receive projection; provider generation does not guarantee same row IDs across externally recreated invoice.",
+        "inputs": "int invoice-line PK from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-53ec4739479c8d322061ba09da982c0346d4e7b7afe4489a08e700c7fdbcbc66",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.PurchaseId.get",
+        "span": [
+          65,
+          32,
+          65,
+          36
+        ],
+        "reasoning": "Getter associates line to invoice parent with cascade relation, not supplier directly.",
+        "inputs": "Invoice/line carrying string invoice FK.",
+        "outputs": "string invoice FK without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-a6d0d16013bc938939cc7e9363463748f09f7a2ea68c53e47c2fb1a1d36b59fa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.PurchaseId.set",
+        "span": [
+          65,
+          37,
+          65,
+          41
+        ],
+        "reasoning": "Setter stores purchaseId while constructing graph; FK dependency means invoice/lines persist together in ordinary receive save.",
+        "inputs": "string invoice FK from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-625de79c2f5c163c39a374801daa0088b408f2f7a0c0e6f4a86fbc9cc7af4d04",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.InventoryItemId.get",
+        "span": [
+          66,
+          37,
+          66,
+          41
+        ],
+        "reasoning": "Getter identifies received ingredient and links to live inventory metadata, which may need unit immutability for history.",
+        "inputs": "Invoice/line carrying string stock item FK.",
+        "outputs": "string stock item FK without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-c0c422a56f45e222de0324b7897c684ce20b29f0f4a473de45b40eed8be8183c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.InventoryItemId.set",
+        "span": [
+          66,
+          42,
+          66,
+          46
+        ],
+        "reasoning": "Setter copies resolved input inventory ID with Restrict FK. Existence is not sign, unit or active-cost-source admission validation.",
+        "inputs": "string stock item FK from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-2e18fd9f26804c827d633eb6645abbc8249c785976d63bb8e855b00ae6600021",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.QuantityMilliUnits.get",
+        "span": [
+          67,
+          38,
+          67,
+          42
+        ],
+        "reasoning": "Getter exposes received quantity magnitude whose source admission matters; no unit snapshot is stored on invoice line.",
+        "inputs": "Invoice/line carrying long invoice quantity milliunits.",
+        "outputs": "long invoice quantity milliunits without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-a60a8811f5cdf180b1eee3c19d5504eff8f70a75c02013699ebc037d870cc623",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.QuantityMilliUnits.set",
+        "span": [
+          67,
+          43,
+          67,
+          47
+        ],
+        "reasoning": "Setter copies resolved line quantity directly. FIN018 negative input combinations and FIN020 unit history interpretation remain separate existing concerns.",
+        "inputs": "long invoice quantity milliunits from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-3a0e610d6550f833c1ebd676786898125efe338591b55979f0ec78ce57c08c6d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.UnitCostPiastres.get",
+        "span": [
+          68,
+          36,
+          68,
+          40
+        ],
+        "reasoning": "Getter exposes received unit cost carried to purchase receipt stock fact for last-actual costing.",
+        "inputs": "Invoice/line carrying long actual unit cost.",
+        "outputs": "long actual unit cost without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-fdff3c2f4dbb915084b7c6e54176d49a73a330b232322c8fb19eec40207c729a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.UnitCostPiastres.set",
+        "span": [
+          68,
+          41,
+          68,
+          45
+        ],
+        "reasoning": "Setter copies resolved unit price without local checks; multiplied/summed line semantics belong purchasing rules, not property.",
+        "inputs": "long actual unit cost from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-c76bd37ce1215e9ccbcd33d8eb31113c0945facde4db226d8b2d9f76d01ea308",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.LineTotalPiastres.get",
+        "span": [
+          69,
+          37,
+          69,
+          41
+        ],
+        "reasoning": "Getter returns frozen computed line total rather than recalculating Quantity*UnitCost on display.",
+        "inputs": "Invoice/line carrying long received line total.",
+        "outputs": "long received line total without financial recomputation.",
+        "side_effects": "No side effects or DB loading; returned lists are mutable.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      },
+      {
+        "stable_id": "sym-cacc426c949bdb66c9a50bebd1a34c1a16746e29edd3c0a78e4cc8ffafcf100f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseLineEntity.LineTotalPiastres.set",
+        "span": [
+          69,
+          42,
+          69,
+          46
+        ],
+        "reasoning": "Setter copies domain LineTotal.Piastres. Later metadata edits do not recompute it; source arithmetic/rounding and admission require rule-level regression.",
+        "inputs": "long received line total from receive/payment/due-date writer.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF graph change staged in caller; receive/payment transactions combine treasury, supplier ledger, stock and invoice writes. Accessor/audit executes none.",
+        "trust_boundaries": "purchasing_manage and input/account/funds rules belong handlers. Cached invoice amounts are not a fresh validated supplier liability or physical receipt proof.",
+        "database": "DbContext277-296 invoice PK/unique receive key/supplier FK, cascade lines/payments and line inventory FK; no Purchase concurrency token. PayPurchase36-66 reads invoice/outstanding before transaction73, source lock80 does not refresh them (FIN005). No SQL execution.",
+        "printing_ui": "PurchasingQuery37-46 exposes cached invoice DTO; aging59-87 uses Remaining/DueDate. Notes claiming ledger cannot attribute invoices conflict with actual SupplierLedgerEntry.PurchaseId and PayPurchase59-63 filter; comments not accepted as source behavior proof.",
+        "performance": "O(1) accessor. Include line/payment graph and aging/list scans occur in services, not hidden getters. No benchmark or query-plan assertion.",
+        "duplicates_conflicts": "Supplier outstanding fact-derived and invoice remaining cache are different contracts; always-in-sync assertion qualified by FIN005. Initial versus later payment attribution explicitly separate.",
+        "issues_hypotheses": "No new accessor finding. Existing FIN005 stale invoice payment and FIN018/020 stock admission/history retain conditions; no extra source fix or provider reproduction.",
+        "tests_missing": "No tests run. Need distinct-request concurrent payments with sufficient funds, cache-versus-ledger reconciliation, initial credit then multiple accounts, null due-date aging, signed receipt and line rounding regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:97-175",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34-59",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37-87",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:277-296"
+        ]
+      }
+    ]
+  }
+]

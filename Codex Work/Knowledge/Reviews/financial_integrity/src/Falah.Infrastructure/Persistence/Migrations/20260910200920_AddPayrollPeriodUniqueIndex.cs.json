@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.cs",
+  "source_git_blob_sha256": "7a45194fb958eec6cc2add28f37ed2eba3053729f199acf704ab3ce4d4e589b3",
+  "worktree_sha256": "d96ce29ca70892d1d1c7e0e386e29a8c7702fc75c8489d3ee9f537be8e87bb13",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:09:38.832401+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-7cc504c68d28fde36b2f503d6378d0e8bea75493fb0918a646719a4df21d66c3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPayrollPeriodUniqueIndex.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        23,
+        9,
+        39,
+        10
+      ],
+      "reasoning": "Up narrows required PayrollRuns.Period from nvarchar(max) to450 then creates filtered unique Period where Status is not Cancelled. Paid and Draft/Approved live records all count; cancelled runs may coexist. It deliberately does not choose/delete duplicate existing payroll, so upgrade can fail for conflicting data/oversized strings. Provider collision/lock behavior not executed.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-00de82daaaccb63bca54c5b19fccf2ce54cef0ff85166e7f0699cd36ad0bb869",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPayrollPeriodUniqueIndex.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        42,
+        9,
+        55,
+        10
+      ],
+      "reasoning": "Down drops live-period unique index before widening Period back to max. It preserves rows but removes DB admission guarantee, allowing distinct-request competing live runs if app census races. It does not cancel/pay payroll, reverse employee settlements or recover correct accounting decision.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

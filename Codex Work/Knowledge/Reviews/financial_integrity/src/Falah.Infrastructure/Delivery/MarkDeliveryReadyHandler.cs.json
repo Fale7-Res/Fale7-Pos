@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs",
+  "source_git_blob_sha256": "b88f59ee0a9a165c26b4910b0798d03f55183af8068131a594226180654b0321",
+  "worktree_sha256": "b88f59ee0a9a165c26b4910b0798d03f55183af8068131a594226180654b0321",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:40:50.273047+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-81d3443c604c6efefc2a2f75b476502e0458f049773e836cc3fef916084be2f8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Delivery.MarkDeliveryReadyHandler.MarkDeliveryReadyHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        19,
+        5,
+        23,
+        6
+      ],
+      "reasoning": "Stores context and approval registry, no readiness transition or event until Handle. No audit logger or physical print dependency here.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Production changes delivery readiness/event only; audit executed no SQL or dispatch/hardware operation.",
+      "database": "ReadCommitted transaction with delivery update/range row lock; Version increment and event saved together.",
+      "trust_boundaries": "delivery_manage permission or fallback approval; actor/user lookup precedes locked delivery state.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Per-delivery serialization, no print/network call.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Pending-electronic dispatch restriction absent locally, part of mixed custody candidate trace. Raw optional approver attribution parallels FIN017, not counted separately.",
+      "tests_missing": "DI transaction context",
+      "verified_callers_callees": "Assignments21-22."
+    },
+    {
+      "stable_id": "sym-7ef6e8390cb533c8d1ff96a2410644b37a99987984afcafa9b477d5962146d14",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Delivery.MarkDeliveryReadyHandler.HandleAsync(Falah.Application.Delivery.MarkDeliveryReadyRequest, CancellationToken)",
+      "span": [
+        25,
+        5,
+        61,
+        6
+      ],
+      "reasoning": "Authorizes actor then locks delivery inside transaction; already Ready returns no-write, else Domain transition to Ready validated against locked current state. Sets Ready, Version++, inserts event and commits. Correct same-row lock prevents repeated or conflicting readiness stale update; does not inspect associated order or pending electronic payment, so New pending-payment delivery can become Ready through valid API despite ElectronicPayment comment freeze. There is no financial treasury posting here, but Ready permits later assignment/custody.",
+      "inputs": "Ready request/ct",
+      "outputs": "Task",
+      "side_effects": "Production changes delivery readiness/event only; audit executed no SQL or dispatch/hardware operation.",
+      "database": "ReadCommitted transaction with delivery update/range row lock; Version increment and event saved together.",
+      "trust_boundaries": "delivery_manage permission or fallback approval; actor/user lookup precedes locked delivery state.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Per-delivery serialization, no print/network call.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Pending-electronic dispatch restriction absent locally, part of mixed custody candidate trace. Raw optional approver attribution parallels FIN017, not counted separately.",
+      "tests_missing": "Concurrent Ready calls, Assigned->Ready intended transition, pending order readiness, Settled rejection",
+      "verified_callers_callees": "Actor27; auth39; Tx41/lock43; no-op47; transition49; state50-51; event53-57; Save60/Commit61."
+    },
+    {
+      "stable_id": "sym-0616f1e5d20ea0ceb3d987c6444c473f5b40a5936f6a1df5cd81030e8d02e5cc",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        27,
+        76,
+        27,
+        108
+      ],
+      "reasoning": "Loads persisted actor for permission, not arbitrary display role/name. Denied policy prevents any readiness mutation.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "Production changes delivery readiness/event only; audit executed no SQL or dispatch/hardware operation.",
+      "database": "ReadCommitted transaction with delivery update/range row lock; Version increment and event saved together.",
+      "trust_boundaries": "delivery_manage permission or fallback approval; actor/user lookup precedes locked delivery state.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Per-delivery serialization, no print/network call.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Pending-electronic dispatch restriction absent locally, part of mixed custody candidate trace. Raw optional approver attribution parallels FIN017, not counted separately.",
+      "tests_missing": "Unknown actor and missing capability",
+      "verified_callers_callees": "Lookup27-29; policy39."
+    },
+    {
+      "stable_id": "sym-a3d5c3b70e59124c1988949128d303d1f51f18b5f817dad36dcbe97e32c67f45",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        34,
+        83,
+        34,
+        125
+      ],
+      "reasoning": "Optional approver actual user lookup; action delivery_manage presentation then authorization. Returned AuthorizationResult discarded, event.Approver raw name may be recorded even if own permission makes approval unnecessary. Authority itself still enforced.",
+      "inputs": "User/approver ID",
+      "outputs": "Boolean",
+      "side_effects": "Production changes delivery readiness/event only; audit executed no SQL or dispatch/hardware operation.",
+      "database": "ReadCommitted transaction with delivery update/range row lock; Version increment and event saved together.",
+      "trust_boundaries": "delivery_manage permission or fallback approval; actor/user lookup precedes locked delivery state.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Per-delivery serialization, no print/network call.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Pending-electronic dispatch restriction absent locally, part of mixed custody candidate trace. Raw optional approver attribution parallels FIN017, not counted separately.",
+      "tests_missing": "Direct-holder fake optional token vs fallback rejection",
+      "verified_callers_callees": "Presentation36-37; auth39; event56."
+    }
+  ],
+  "remaining_callable_ids": []
+}

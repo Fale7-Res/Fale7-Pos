@@ -1,0 +1,1033 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-dd23e7cf2e00793d59c3691a6f94bc5ec5ad6d5a0e5f99ab140fefe5d2d6c80a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.Id.get",
+        "span": [
+          66,
+          24,
+          66,
+          28
+        ],
+        "reasoning": "Getter identifies operational shift row locked during close; singleton active-shift constraint is separate from PK.",
+        "inputs": "Shift entity storing string shift PK.",
+        "outputs": "string shift PK without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-adfa8e6998f87d81e25eefbe93c801429624df2784ad467322a781eb7c59dfa0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.Id.set",
+        "span": [
+          66,
+          29,
+          66,
+          33
+        ],
+        "reasoning": "Setter stores shift-GUID from domain Open; generated identity distinguishes later shifts while same OpenRequestId replays existing row.",
+        "inputs": "string shift PK from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-21d6239c760165bd4195b2d6c7be4ed9ece2ddd7c1b53e1eed48563548d7f759",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ShiftName.get",
+        "span": [
+          67,
+          31,
+          67,
+          35
+        ],
+        "reasoning": "Getter supplies cashier-facing shift label and voucher text, not a unique active-shift or account key.",
+        "inputs": "Shift entity storing string shift label.",
+        "outputs": "string shift label without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-48eabd390c4764e16c3c48a7e67a9bd5a1274dcbbb9af91c3cf5133f0ea0bee7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ShiftName.set",
+        "span": [
+          67,
+          36,
+          67,
+          40
+        ],
+        "reasoning": "Setter stores domain validated name from open; later close preserves it and uses it in handover reason.",
+        "inputs": "string shift label from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-8bd5668049cc69d6d5fbea4228ea3352ae11275dbab884caa94e64bd4414f6c1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpenedByUserId.get",
+        "span": [
+          68,
+          36,
+          68,
+          40
+        ],
+        "reasoning": "Getter exposes stable opener identity, used for reconstituting Shift rather than current closing actor.",
+        "inputs": "Shift entity storing string opener ID.",
+        "outputs": "string opener ID without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-aa4d2d50c9e5e06f9aa098067afade1d5a14eefd1a9c060009efb67f62a287ca",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpenedByUserId.set",
+        "span": [
+          68,
+          41,
+          68,
+          45
+        ],
+        "reasoning": "Setter copies request opener via domain after AuthorizeShiftOpen. It is attribution, not automatic proof every later actor owns the shift.",
+        "inputs": "string opener ID from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-6e9818fb74a9312cad42be5acb13f284f6816f3b2b18c2d6069cedef47fe68b9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ClosedByUserId.get",
+        "span": [
+          69,
+          37,
+          69,
+          41
+        ],
+        "reasoning": "Getter exposes nullable final closing user identity, separate from manager approver name.",
+        "inputs": "Shift entity storing nullable closer ID.",
+        "outputs": "nullable closer ID without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-1b78b7589774b659eedd95a8ce2e6f783233ef737393a0598c14e4a2476ed5d9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ClosedByUserId.set",
+        "span": [
+          69,
+          42,
+          69,
+          46
+        ],
+        "reasoning": "Setter copies shift.Close result using resolved cashierUser.Id, only in successful close path staged transaction.",
+        "inputs": "nullable closer ID from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-cc156725d48a0500d5c29797d8b07ae91cb6f8060c2971f2ef8d1d4c6e15212f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpeningCashPiastres.get",
+        "span": [
+          70,
+          39,
+          70,
+          43
+        ],
+        "reasoning": "Getter supplies original float magnitude to expected-cash calculation; it is not the current account balance.",
+        "inputs": "Shift entity storing long original float.",
+        "outputs": "long original float without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-1104978f6ad2a239ec13bb49945c688ed727e17dad60097f6490d72a3c6cd984",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpeningCashPiastres.set",
+        "span": [
+          70,
+          44,
+          70,
+          48
+        ],
+        "reasoning": "Setter stores domain opening cash; positive amount also stages Main-to-Drawer movement. FIN011 read-before-transaction protection gap remains despite atomic row/movement save.",
+        "inputs": "long original float from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-caa12d2f37b54d0a67599ea8d1660f4f98e0757ad4500bc0424fa0998f816fbb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ActualCashPiastres.get",
+        "span": [
+          71,
+          39,
+          71,
+          43
+        ],
+        "reasoning": "Getter returns nullable blind-count snapshot; null on open differs from finalized zero.",
+        "inputs": "Shift entity storing nullable actual counted piastres.",
+        "outputs": "nullable actual counted piastres without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-f7e1e421a00e7ff8b83a0f76612391f8baaf9bc30363a8b5fd1112ab3e39ef35",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ActualCashPiastres.set",
+        "span": [
+          71,
+          44,
+          71,
+          48
+        ],
+        "reasoning": "Setter stores shift blind-close result derived from request counted amount, not a physical sensor reading or independent server count.",
+        "inputs": "nullable actual counted piastres from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-e4c9890c8a9ebff1f3486a9aefdbc67173ab4a8fde3ca56bfd40c465bb732a76",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ExpectedCashPiastres.get",
+        "span": [
+          72,
+          41,
+          72,
+          45
+        ],
+        "reasoning": "Getter returns frozen expectation at close rather than recomputing current refund/sale facts.",
+        "inputs": "Shift entity storing nullable close expected piastres.",
+        "outputs": "nullable close expected piastres without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-17b30fd89f2a9c0058f9a292876602e373904c2e12a49d8bd58c3307da8101b7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ExpectedCashPiastres.set",
+        "span": [
+          72,
+          46,
+          72,
+          50
+        ],
+        "reasoning": "Setter copies reconciler-derived expected amount under close shift transaction. FIN004 historical refund chronology limits persist in its input computation.",
+        "inputs": "nullable close expected piastres from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-c8d6f0097c01f5e140f0dd6d86c74a8d96a0a1e9f1b8fe969cce823005a263d4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.CashDifferencePiastres.get",
+        "span": [
+          73,
+          43,
+          73,
+          47
+        ],
+        "reasoning": "Getter exposes frozen signed difference, not a source/destination movement itself.",
+        "inputs": "Shift entity storing nullable signed difference.",
+        "outputs": "nullable signed difference without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-6561b2eefd36b7716b43ae8012288479ac9071eb7b3b2defd1c73e5f706c29d0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.CashDifferencePiastres.set",
+        "span": [
+          73,
+          48,
+          73,
+          52
+        ],
+        "reasoning": "Setter copies blindResult actual-minus-expected; nonzero difference also creates separate shortage/overage movement. Changing field alone would not repost treasury.",
+        "inputs": "nullable signed difference from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-aac0be1d2a59b344c0cf5285b1e769d9544e5b4e91fd06bde13b9d30e81b06c3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.DifferenceReason.get",
+        "span": [
+          74,
+          39,
+          74,
+          43
+        ],
+        "reasoning": "Getter exposes optional discrepancy rationale recorded on close, separate from threshold or approval policy.",
+        "inputs": "Shift entity storing nullable difference reason.",
+        "outputs": "nullable difference reason without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-bec1c9c1ca264f13110dcac3bd8749f79db1b682f228110c29417df09d93900d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.DifferenceReason.set",
+        "span": [
+          74,
+          44,
+          74,
+          48
+        ],
+        "reasoning": "Setter copies domain close reason; handler supplies default movement rationale for blank within-threshold reason, so text fields need not be identical.",
+        "inputs": "nullable difference reason from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-d9906ed2d969993832de53fd98e635fea2c019a1a77a570d724df02be315a317",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.DifferenceAuthorizedBy.get",
+        "span": [
+          75,
+          45,
+          75,
+          49
+        ],
+        "reasoning": "Getter exposes optional approving name snapshot, not closed-by identity or approval registry ID.",
+        "inputs": "Shift entity storing nullable discrepancy approver label.",
+        "outputs": "nullable discrepancy approver label without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-7cc5511a3cf98746bc1ce66d80190ea877dec2b377e6387706447a642d2b4ebf",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.DifferenceAuthorizedBy.set",
+        "span": [
+          75,
+          50,
+          75,
+          54
+        ],
+        "reasoning": "Setter copies shift result passed authorizedByName from supplied approval?.ApproverName. Existing FIN017 attribution qualification remains distinct from real high-discrepancy authorization.",
+        "inputs": "nullable discrepancy approver label from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-572fbd8baaeea99d29c4380d9426653cf3c1957c2a1a08f9af57d22cb6020d0e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.Status.get",
+        "span": [
+          76,
+          28,
+          76,
+          32
+        ],
+        "reasoning": "Getter distinguishes Open from Closed for new activity and singleton filtered uniqueness. It is not automatically inferred from ClosedAtUtc.",
+        "inputs": "Shift entity storing string shift lifecycle.",
+        "outputs": "string shift lifecycle without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-8accbca4dc75750e4ce66afe3e5e5cf2245fbc685569806d5ccbbd085e0f3987",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.Status.set",
+        "span": [
+          76,
+          33,
+          76,
+          37
+        ],
+        "reasoning": "Setter initializes Open then sets Closed under explicit same-row update lock and Version increment; common row serialization is real countercontrol to duplicate close.",
+        "inputs": "string shift lifecycle from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-a4e967bfe7303ea0057c46b46c36f79938fbec48a5e6709de40493625c799b26",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.BusinessDate.get",
+        "span": [
+          77,
+          36,
+          77,
+          40
+        ],
+        "reasoning": "Getter exposes original shift operational date derived by domain opening, not current UTC date or required BusinessDay FK.",
+        "inputs": "Shift entity storing DateOnly shift date.",
+        "outputs": "DateOnly shift date without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-688d997452efa08cb9c17b77a4d5d5330ec4ed38ba52cdeaf9ac4f0cf2da9424",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.BusinessDate.set",
+        "span": [
+          77,
+          41,
+          77,
+          45
+        ],
+        "reasoning": "Setter stores domain date on open; close preserves it. Shifts have no BusinessDayId field here, so movement/day association uses caller/fallback rules.",
+        "inputs": "DateOnly shift date from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-c31a330ba6771e2ab63c7b219205c9e593ac2f4a3c285572a6cc29119c2759e6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpenedAtUtc.get",
+        "span": [
+          78,
+          41,
+          78,
+          45
+        ],
+        "reasoning": "Getter exposes original shift start time used for chronology and reconstitution, not cash float commit time.",
+        "inputs": "Shift entity storing DateTimeOffset opening instant.",
+        "outputs": "DateTimeOffset opening instant without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-112ebf1cf75d6d053132a985e865e33a7925c3ea3831da28149608d489e8e563",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpenedAtUtc.set",
+        "span": [
+          78,
+          46,
+          78,
+          50
+        ],
+        "reasoning": "Setter stores domain now on creation. Opening zero float needs no open day in inspected handler, so timestamp does not prove day admission.",
+        "inputs": "DateTimeOffset opening instant from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-20a6e68547bb4fbaa6afec0aaa8928468943713b36a00ee29181f7e0f4a1839d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ClosedAtUtc.get",
+        "span": [
+          79,
+          42,
+          79,
+          46
+        ],
+        "reasoning": "Getter exposes nullable close instant; null until successful normal close and separate from independent voucher printing.",
+        "inputs": "Shift entity storing nullable close instant.",
+        "outputs": "nullable close instant without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-0f5342fe49c87387905910aa2539ac6ddf38ec512802eb876bafb760d8f19518",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ClosedAtUtc.set",
+        "span": [
+          79,
+          47,
+          79,
+          51
+        ],
+        "reasoning": "Setter copies domain close now in transaction with state and movement IDs. Failed/rolled-back close must not persist it through normal transaction path.",
+        "inputs": "nullable close instant from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-6453a295514fbb23b8f5771417ae60cfeb7a32393aea29be94bb3ec210789828",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpenRequestId.get",
+        "span": [
+          80,
+          35,
+          80,
+          39
+        ],
+        "reasoning": "Getter is unique creation replay key, not shift PK or user ownership token.",
+        "inputs": "Shift entity storing string opening request key.",
+        "outputs": "string opening request key without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-87efeb5004ef990cc71e161c15e5c80351a10f84850ed393c0e2cce03aea2dac",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.OpenRequestId.set",
+        "span": [
+          80,
+          40,
+          80,
+          44
+        ],
+        "reasoning": "Setter stores request.RequestId; unique index and catch fallback return winning same-request shift, distinct requests also face single Open status constraint.",
+        "inputs": "string opening request key from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-7b824afea64448c4b3282cd71ffe43f3cc0a35d926b809c4de364ca087218193",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.CloseRequestId.get",
+        "span": [
+          83,
+          37,
+          83,
+          41
+        ],
+        "reasoning": "Getter is optional finalization replay key checked before command admission and again after acquiring row lock.",
+        "inputs": "Shift entity storing nullable close replay key.",
+        "outputs": "nullable close replay key without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-aac7cb585da94ffb8647ca869e8fb95444d9996197d566f0375ccb041a4ac537",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.CloseRequestId.set",
+        "span": [
+          83,
+          42,
+          83,
+          46
+        ],
+        "reasoning": "Setter stores request.CloseRequestId only on close; filtered unique index excludes nulls and prevents same close key on different persisted shifts, but field does not bind entire payload.",
+        "inputs": "nullable close replay key from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-fd0749af907f26682fc81822ea8581cf319e915b3194af88cc7aec8bfa548400",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ReconciliationTreasuryMovementId.get",
+        "span": [
+          86,
+          55,
+          86,
+          59
+        ],
+        "reasoning": "Getter exposes optional actual shortage/overage posting ID, null when difference is zero rather than proof close failed.",
+        "inputs": "Shift entity storing nullable discrepancy movement ID.",
+        "outputs": "nullable discrepancy movement ID without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-254c33954571366418f791fb5811d2be524ef07d7c1e45588940a720d02e3d61",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.ReconciliationTreasuryMovementId.set",
+        "span": [
+          86,
+          60,
+          86,
+          64
+        ],
+        "reasoning": "Setter stores reconciliation movement ID staged only for nonzero difference, allowing replay report linkage without re-deriving or reposting.",
+        "inputs": "nullable discrepancy movement ID from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-d5b9b67f6503e2261d3dd9b9a29628a791aecd1f3fb22cadf527317f75cab1d9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.HandoverTreasuryMovementId.get",
+        "span": [
+          87,
+          49,
+          87,
+          53
+        ],
+        "reasoning": "Getter exposes optional Drawer-to-Main handover fact ID; null is expected when actual cash is not positive.",
+        "inputs": "Shift entity storing nullable handover movement ID.",
+        "outputs": "nullable handover movement ID without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-1103337345cdfd7b9901cd2d71bbe50bab2983b300e933b42611f936e03d07dd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.HandoverTreasuryMovementId.set",
+        "span": [
+          87,
+          54,
+          87,
+          58
+        ],
+        "reasoning": "Setter stores newly staged handover ID only for positive actual count. A record/field alone is not evidence physical cash transfer occurred.",
+        "inputs": "nullable handover movement ID from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-17501d2557ef76cbe314ada171cf55a70b7a774812749ca804cd0cfa70219c72",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.Version.get",
+        "span": [
+          88,
+          27,
+          88,
+          31
+        ],
+        "reasoning": "Getter exposes uint optimistic concurrency value, not SQL Server rowversion bytes or automatically generated timestamp.",
+        "inputs": "Shift entity storing uint concurrency counter.",
+        "outputs": "uint concurrency counter without financial movement.",
+        "side_effects": "No side effect, query or hardware work.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      },
+      {
+        "stable_id": "sym-c55783619fbec4ab2da9573e120535b2eaa4c540f605fdaadada7d5c266f4fb2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ShiftEntity.Version.set",
+        "span": [
+          88,
+          32,
+          88,
+          36
+        ],
+        "reasoning": "Setter/mutation increments Version explicitly on close. DbContext IsConcurrencyToken compares original value on save; other writers must participate rather than assuming automatic increment.",
+        "inputs": "uint concurrency counter from domain open/close mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Assignment tracked by EF; close caller stages treasury/audit/job and increments Version before transaction commit. None executed in this review.",
+        "trust_boundaries": "AuthorizeShiftOpen and discrepancy-aware AuthorizeShiftClose live in handlers. Stored actor names/IDs/counts do not authorize future operations or attest physical cash.",
+        "database": "Model116-128 shift PK, unique OpenRequestId, filtered unique CloseRequestId, single-Open status index and Version token. Close56-164 locks same row inside transaction then stages close facts; Open positive balance read53 precedes transaction69 (FIN011). No SQL execution.",
+        "printing_ui": "Open/Close queue voucher jobs in same transaction; actual printer execution separate and prohibited here. Blind actual/expected snapshots are source-calculated/requested, not physical verification.",
+        "performance": "O(1) accessor. Close holds row lock while computing reconciliation; no timing, lock-plan or throughput measurement. Generic comment is not performance proof.",
+        "duplicates_conflicts": "Explicit close row lock and version token are real countercontrols absent from certain day/payroll flows; do not transfer those guarantees to unrelated entities. Existing FIN004/011/015/017 qualified issues remain.",
+        "issues_hypotheses": "No new accessor finding. Nullable fields represent open/zero-difference paths; not automatically broken state. Monetary current-balance and physical-count claims require distinct evidence.",
+        "tests_missing": "No tests or fixtures run. Regression should verify same/different close IDs under lock, version conflicts, zero float/count/difference, approval attribution and exactly-once movement/voucher staging.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs:34-96",
+          "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs:47-182",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-128"
+        ]
+      }
+    ]
+  }
+]

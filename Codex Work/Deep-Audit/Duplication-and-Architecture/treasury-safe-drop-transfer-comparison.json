@@ -1,0 +1,63 @@
+{
+  "at_utc": "2026-10-18T04:34:51.260192+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "classification": "BOUNDED_SEMANTIC_FINANCIAL_COMPARISON_NOT_GLOBAL_DUPLICATION_COMPLETION",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+      "worktree_sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+      "git_blob_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+      "reviewed_callable_ids": [
+        "sym-2559cab27d1d174e6350e59def3aa55c3d0b6487e34990df585bd24c208ba10d",
+        "sym-ea22fe8a1814d1a059857eaec1fad0fe6a8504dc715a25edfceb259854df435c",
+        "sym-d1fa4923835a42c51ff2b94071cae7910cdf3f60e26b55539cf5eb1c5b075438",
+        "sym-d1868bebff7373dd6332c665de7fec0fe9e424f01fe5c60c188cfdb9a187987e",
+        "sym-f05d6883f17d704f6e37c997c0d70226c77af1444ca0ba287da0971f2c424e6d",
+        "sym-ea1a2b3baad82c7792cba1606ffc82748c6cf52a380d2599c7a3e95e553bf861",
+        "sym-7efb59b9c998578715030c5b6ee3e3f6f663ded16b14d81d1d9c38ace3b77203",
+        "sym-16398552aca5e7e964097d84050393f6e7b8c397c4031698d5d647f07c4862ef",
+        "sym-bf54733c79854e66b36ba065fc01dc6aabb9d32221abd05e5b4e2aa8050deea1"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+      "worktree_sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+      "git_blob_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+      "reviewed_callable_ids": [
+        "sym-b40656e62242ea4033ce4edf0cb581e1af7be16322f14f170138f489d34e618c",
+        "sym-f8a011d3fcef62980161367241b625088cc3ab4bdaebb6dd98bc5403e624acd6",
+        "sym-b561cc269fb08ddb7e0fe3e548124672e94417909c0170b919939f23965b9396",
+        "sym-03e2188378412f334b8566cfc466be3ece886b6e23d6c4bc6db6be294c3320ca",
+        "sym-af34221a7af5d6d0da0fb4ff7642a0c51aba09f71ccdecbe969b28f8eced1588",
+        "sym-e1b3b0cd8bbfed6bc35cff6c67b4776c6f2c7da9a0ba14e9ca98ebc7b0b3a344",
+        "sym-3edf8a65014cae8c8f65c7a703a6e5e6810ac066ae3909723e6609b4ea422c92",
+        "sym-f5448d291cfefcefecf4fbb07c0c36efb94d2ddcbd99224be8cb5eff1b121c48"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+      "worktree_sha256": "d982d3fadbec4f7dd42d41465f63c8c9f41fe25cf112374025bc450c3183d690",
+      "git_blob_sha256": "a480d0b55f892a72df9ce61870b446281c962351a1b4b1fed51e077de393807a",
+      "reviewed_callable_ids": [
+        "sym-5ee1b89d59f9bc882ddd96a2ee856cb530b89ff7569b735ff4c9e60602da8053",
+        "sym-05c3938d6831d0d82f4fb2ea4cb4694e6e848cb182c77f8105750d75cf94153e",
+        "sym-536e9d6eaa0396e47b562660ee268bdaf2ea43aba34d78495e67cc2e97c8bbea"
+      ]
+    }
+  ],
+  "shared_behavior": [
+    "Stable-key first replay; positive amount and reason; permission-or-approval; pretransaction day gate; transaction-scoped protected source lock; journal plus movement plus audit atomic save; conflict rollback and bounded same-key replay."
+  ],
+  "intentional_differences": [
+    "SafeDrop fixed Drawer->Main with existing shift and safe_drop permission.",
+    "Transfer distinct known source/destination, treasury_manage permission, no shift, extra movement-linked CashHandover and fallback ReceivedBy actor."
+  ],
+  "financial_counterevidence": [
+    "Both protected balance checks inside transaction: do not expand FIN011 to every treasury writer.",
+    "Direct permission ignores raw approval presenter; uses returned validated authority attribution, unlike FIN017 path.",
+    "Both still gate day before transaction, extension of existing closed-day admission source candidate, not SQL reproduction."
+  ],
+  "recommendation": "Consider shared transaction/replay infrastructure only after explicit tests preserve different account/permission/shift/handover policies; no code changes implemented.",
+  "runtime_tests": "NOT_EXECUTED",
+  "independent_challenge": "PENDING for this root comparison; original registry FIN011 source challenged separately."
+}

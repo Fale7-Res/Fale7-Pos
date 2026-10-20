@@ -1,0 +1,37 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Server.IntegrationTests/PrintAgentTests.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:28:53.420717+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-0b01aeaabdba6b4e7d1921bddc7ced05616e568f2cd172343037a090a109237f",
+      "status": "ANALYZED",
+      "signature": "Falah.Server.IntegrationTests.PrintAgentTests.FakeTransport.Description::get()",
+      "span": [
+        81,
+        9,
+        81,
+        45
+      ],
+      "reasoning": "FakeTransport returns constant fake description; no physical device enumeration or ticket dispatch. Classified only because this test file is in the historical financial scope; no printing workstream or test process resumed.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "FakeTransport returns constant fake description; no physical device enumeration or ticket dispatch. Classified only because this test file is in the historical financial scope; no printing workstream or test process resumed.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    }
+  ],
+  "source_git_blob_sha256": "c520fc4e0cf71b132b600b0e934bc9bf8ca91de9c4a4a567566cb4f13385149e",
+  "worktree_sha256": "971c4739d41221b832270de9d7e29a23dfbf37d9d0201f649067690db86d0163",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,601 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-8901789c369d2d0429f34332b855983584b35db06a2c1151685ccaa141cda4af",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Id.get",
+        "span": [
+          5,
+          24,
+          5,
+          28
+        ],
+        "reasoning": "Getter is recipe identity loaded by resolved product/variant recipe reference, not product FK itself.",
+        "inputs": "Recipe entity carrying string recipe PK.",
+        "outputs": "string recipe PK directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-6c57b886fe68abdc08b6c07e00258f4d1f1e413faedbfe190cdf056dc885777e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Id.set",
+        "span": [
+          5,
+          29,
+          5,
+          33
+        ],
+        "reasoning": "Setter uses provided RecipeId or recipe-RequestId; replace semantics reuse identity but line IDs are regenerated, contrary to broad stable-line comment.",
+        "inputs": "string recipe PK from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-57c6971fac6d989513d0714331cab41d447dcfc511c0a5ae59be374d15bc9c61",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.ProductId.get",
+        "span": [
+          6,
+          31,
+          6,
+          35
+        ],
+        "reasoning": "Getter records recipe declared product association; costing price/backlink and checkout recipe references are separately stored relations.",
+        "inputs": "Recipe entity carrying string recipe product FK.",
+        "outputs": "string recipe product FK directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-96bed8ca9755771fd7a9c424b92128d56e92ca9b9e64c271ff69ecbd1ad8471a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.ProductId.set",
+        "span": [
+          6,
+          36,
+          6,
+          40
+        ],
+        "reasoning": "Setter can retarget recipe to request product. Handler updates new product backlink but does not clear a different previous product backlink; existing preserved lead remains qualified, no new finding here.",
+        "inputs": "string recipe product FK from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-524e1ecc9087fe8718692780ff93914f41e518c488be346030bc47fa9b32ef3f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Name.get",
+        "span": [
+          7,
+          26,
+          7,
+          30
+        ],
+        "reasoning": "Getter supplies recipe management/costing label, not menu sale price or identity.",
+        "inputs": "Recipe entity carrying string recipe name.",
+        "outputs": "string recipe name directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-cccdabe7b707616e94c429d0a5e2b219b15e7a51ec9d72847de8d04dbe4aa16e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Name.set",
+        "span": [
+          7,
+          31,
+          7,
+          35
+        ],
+        "reasoning": "Setter stores trimmed nonblank name; changing label does not directly change product name or frozen order label.",
+        "inputs": "string recipe name from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-06eec6d7290fbae81e2d851228bd9dfe4a46d1b4f8e293df10af16cc27c840ef",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Active.get",
+        "span": [
+          8,
+          26,
+          8,
+          30
+        ],
+        "reasoning": "Getter filters deduction-loaded recipes; inactive referenced recipe is skipped rather than posting usage.",
+        "inputs": "Recipe entity carrying bool recipe active.",
+        "outputs": "bool recipe active directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-53869a7d5c6d2af03b158ca64ad49d731515e9954844fed03a77438e845b7b36",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Active.set",
+        "span": [
+          8,
+          31,
+          8,
+          35
+        ],
+        "reasoning": "Setter stores request bool after active-empty guard. Handler clears matching product backlink on deactivation but variant references may remain stored; no inferred global reference cleanup.",
+        "inputs": "bool recipe active from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-ae1367fdcf5e94a6a38a0bf114f46946c63b14f3207f095646646fc542c03394",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Items.get",
+        "span": [
+          10,
+          43,
+          10,
+          47
+        ],
+        "reasoning": "Getter returns mutable loaded ingredient collection enumerated by deduction and DTO; enumeration position participates in usage idempotency key.",
+        "inputs": "Recipe entity carrying List of RecipeItemEntity.",
+        "outputs": "List of RecipeItemEntity directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-cb16ba887cf99009ddd3ae80815423e259c755f864554732ce2480b841002483",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity.Items.set",
+        "span": [
+          10,
+          48,
+          10,
+          52
+        ],
+        "reasoning": "Setter replaces entire set after RemoveRange old items in transaction. No explicit ordered line-position column exists here, so stable cross-reload order must not be inferred from List type alone.",
+        "inputs": "List of RecipeItemEntity from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-492569e7e2961dfc8ec611ab0b6862b45545d78e10c2fcdc997295511d1e4a09",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.Id.get",
+        "span": [
+          15,
+          21,
+          15,
+          25
+        ],
+        "reasoning": "Getter exposes database integer child key, distinct from ingredient identity and recipe-line position used by usage key.",
+        "inputs": "Recipe entity carrying int recipe row PK.",
+        "outputs": "int recipe row PK directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-0cc20423a0ffa20d090f9bca9f9d761d0d3330811a5d484607180fc38296b50c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.Id.set",
+        "span": [
+          15,
+          26,
+          15,
+          30
+        ],
+        "reasoning": "Setter is not assigned in normal SaveRecipe replacement; EF/provider generates inserted key convention. Current values are not preserved by replace-all save.",
+        "inputs": "int recipe row PK from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-f0980f1d342adda0d4b21bfdc4dff5a535f3879c170298df049d1737bdded66e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.RecipeId.get",
+        "span": [
+          16,
+          30,
+          16,
+          34
+        ],
+        "reasoning": "Getter ties ingredient row to recipe; duplicate ingredient IDs may legitimately occur on different rows.",
+        "inputs": "Recipe entity carrying string recipe FK.",
+        "outputs": "string recipe FK directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-f3bf0ba423f46f0a4436d552b6a69360156632370919d0224b5e58889552d31f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.RecipeId.set",
+        "span": [
+          16,
+          35,
+          16,
+          39
+        ],
+        "reasoning": "Setter copies current recipeId into each replacement child; parent cascade FK handles row lifecycle, not unique recipe/ingredient pair constraint.",
+        "inputs": "string recipe FK from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-c02b615e840a5f36ba25bcb06ce27be704e8ac61c70fd08a02a6a493ff1526fd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.InventoryItemId.get",
+        "span": [
+          17,
+          37,
+          17,
+          41
+        ],
+        "reasoning": "Getter identifies stock item consumed/costed for line, independent of recipe row PK.",
+        "inputs": "Recipe entity carrying string ingredient FK.",
+        "outputs": "string ingredient FK directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-13fcdf19ba3d1f8bafa957beddb2e8ccc93d99a1e4f136b3ac7b0ffcc89307a7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.InventoryItemId.set",
+        "span": [
+          17,
+          42,
+          17,
+          46
+        ],
+        "reasoning": "Setter copies request ingredient reference; Restrict inventory FK enforces existence at save, not active/packaging consistency.",
+        "inputs": "string ingredient FK from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-0895ee91e59df81f42680dd604807cfd4f187e6b744ed706bf4d422e91dbfc29",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.QuantityMilliUnits.get",
+        "span": [
+          18,
+          38,
+          18,
+          42
+        ],
+        "reasoning": "Getter is configured line quantity transformed through shared BaseQuantityMilliUnits before multiplying sold item quantity.",
+        "inputs": "Recipe entity carrying long configured milliunits.",
+        "outputs": "long configured milliunits directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-da916ff86303102d2d8496743bebccf0a300faeaf77abe325b8e4e2f5c33afed",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.QuantityMilliUnits.set",
+        "span": [
+          18,
+          43,
+          18,
+          47
+        ],
+        "reasoning": "Setter copies positive request quantity guarded by SaveRecipe35. It does not perform yield conversion or checked multiplication; quantity semantics depend on Kind.",
+        "inputs": "long configured milliunits from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-ae5b8bbcada404b616f666f83e0df90ebbb82211ef8312a308801ab5de2d6a3f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.Kind.get",
+        "span": [
+          19,
+          26,
+          19,
+          30
+        ],
+        "reasoning": "Getter is parsed by Enum.Parse<RecipeLineKind> in deduction, so raw unknown text can fail downstream instead of being a safe display-only label.",
+        "inputs": "Recipe entity carrying string recipe-line kind.",
+        "outputs": "string recipe-line kind directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-2de8196636d45dd4547c0978c063d5a74c261858d4ce5b2294ec4097ea31abb2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.Kind.set",
+        "span": [
+          19,
+          31,
+          19,
+          35
+        ],
+        "reasoning": "Setter copies line.Kind unchanged in inspected writer. Positivity guard does not validate enum membership/representation; existing raw-kind admission lead remains source-qualified.",
+        "inputs": "string recipe-line kind from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-8c5a8e2c463164ebe83e2f4bc5c5c538df32b026575ce4095eaaaa331066e98a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.YieldUnitsPerBaseUnit.get",
+        "span": [
+          20,
+          42,
+          20,
+          46
+        ],
+        "reasoning": "Getter supplies optional conversion ratio to BaseQuantityMilliUnits; missing Yield ratio leads null and deduction skips line in inspected consumer.",
+        "inputs": "Recipe entity carrying nullable yield conversion ratio.",
+        "outputs": "nullable yield conversion ratio directly returned.",
+        "side_effects": "No side effect or database load; returned collection mutable.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      },
+      {
+        "stable_id": "sym-ccd958d2848b4f6e7cbf4875da7ca768b465a9a53627de4c64a1cca73869f767",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.RecipeItemEntity.YieldUnitsPerBaseUnit.set",
+        "span": [
+          20,
+          47,
+          20,
+          51
+        ],
+        "reasoning": "Setter copies optional request ratio without local range enforcement. Non-Yield line treatment and zero/negative/missing Yield policy belong shared converter, not nullable type.",
+        "inputs": "nullable yield conversion ratio from replace-all recipe command/EF.",
+        "outputs": "Field or navigation assignment only.",
+        "side_effects": "Tracked recipe graph mutation on save; no stock deduction is performed by property assignment.",
+        "trust_boundaries": "SaveRecipe menu_manage authorization and positive/nonempty active recipe guards precede graph write. Field strings/references are not physical stock facts or proof of complete cost.",
+        "database": "DbContext233-243 recipe PK, product cascade FK, child recipe cascade and ingredient Restrict FK. SaveRecipe57-97 transaction replaces children and product backlink; no SQL executed.",
+        "printing_ui": "Management DTO maps recipe lines; checkout deduction consumer21-64 enumerates active loaded lines. No menu UI, checkout, stock or printing operation performed.",
+        "performance": "O(1) accessor; replace-all child deletion/insertion and loaded recipe traversal belong caller. No execution/benchmarks.",
+        "duplicates_conflicts": "Same ingredient on multiple recipe rows is valid; usage key includes enumerated line number to avoid same-ingredient collision. Existing missing/invalid-yield and backlink leads not silently closed by FK.",
+        "issues_hypotheses": "No new independent accessor finding. Potential reference/order/representation assumptions retained as source limitations; actual EF enumeration/replay/DB schedules untested.",
+        "tests_missing": "No tests run. Regression should cover duplicate ingredients, replace/retry line identities, retarget old backlink, inactive variant references and Yield missing/invalid ratio behavior with shared converter.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs:31-103",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:21-64",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:233-243"
+        ]
+      }
+    ]
+  }
+]

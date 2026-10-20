@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs",
+  "source_git_blob_sha256": "b3a6c5f3c2b7b35ce9b9b96b9630f72b0c254cd3288c56dbc4a656f3fe878bb0",
+  "worktree_sha256": "fcbeb3b2a7895001c185355dc1d9551d5efd4256d3b89a8805328e2a83eab79f",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T02:09:29.300935+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-dc35729b939eb18105fd691115a582c1fd59f95432b06a0689e220b57230f2f2",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Settings.UpdateSettingsHandler.UpdateSettingsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)",
+      "span": [
+        22,
+        5,
+        27,
+        6
+      ],
+      "reasoning": "Stores context/registry/auditlogger only; no settingsinitialization until command. No registryapprovalfallbackadded.",
+      "inputs": "Falah.Infrastructure.Settings.UpdateSettingsHandler.UpdateSettingsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)",
+      "outputs": "Metadataresult/DTO or optionalnormalizedURL asdeclared",
+      "side_effects": "Productionwritesmetadata+samecontextaudit, nofinancialposting; auditexecutiondoesnotrunapp/DB.",
+      "trust_boundaries": "Fullsettings_manage unlessonlysound/emptyrequest; actualactor exists. URL syntaxonly, fee/pay/thresholdboundsnotestablished.",
+      "database": "SingleSave implicitTx exceptcategoryupdate/status explicitTx/receipt. No runtime/schemawrites; firstsettingscreate race/optionalcommandreceiptlimitsrecorded.",
+      "printing_ui": "Metadata printsettings/QR/station canaffectfutureprinting; nomethodsendshardwarejob. No actualprintersettings changed byaudit.",
+      "performance": "Fixedidentityqueries, no largecollectionload inthesecommands. No benchmark.",
+      "duplicates_conflicts": "CategoryActive distinct fromproductavailability; settingsDefaults distinct fromconfigfallback. ExistingboundaryFIN016notduplicated.",
+      "issues_hypotheses": "No newpromotedfinding. Empty/soundfirstsettingswriteconfiginteraction and broadnumericvalidation arequalifiedpolicy/boundsleads; no unauthorizedfullfieldchangeclaim.",
+      "tests_missing": "Samekeycreate andoptionalreceipt; fieldomissionvsexplicitfalse/0; Empty/sound-onlypermission; firstsettingscreate vs configfallback; URIclear/http/https/badscheme; negativeopeningfloat; numericfee/pay/hours bounds; categoryActive/availabilityconsumerbehavior.",
+      "verified_callers_callees": "Full Category22-140 andSettingsQuery14-44/Update22-132 read. CommandReceiptpreviousactualread; SettingsUpdateURL111->Normalize35; returnsToDto131. PrepareShiftClose58/73 fallback independentlyverified. No runtime/DB/network/printing."
+    },
+    {
+      "stable_id": "sym-0073c91d7f854bd28bb4fa861f7c3c805dae5aa7bf948d79c33d6d5a6d271354",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Settings.UpdateSettingsHandler.NormalizeMenuUrl(string)",
+      "span": [
+        35,
+        5,
+        43,
+        6
+      ],
+      "reasoning": "Trims menuURL, emptyclearsnull, otherwise requiresabsolutehttp/https URI andreturnsoriginaltrimmedstring. Doesnotfetch URL/checkreachability ornavigate browser; safe syntaxcheck only. Not a trustednetworkdestinationvalidationforoutboundrequests, but current useis receiptQRtext.",
+      "inputs": "Falah.Infrastructure.Settings.UpdateSettingsHandler.NormalizeMenuUrl(string)",
+      "outputs": "Metadataresult/DTO or optionalnormalizedURL asdeclared",
+      "side_effects": "Productionwritesmetadata+samecontextaudit, nofinancialposting; auditexecutiondoesnotrunapp/DB.",
+      "trust_boundaries": "Fullsettings_manage unlessonlysound/emptyrequest; actualactor exists. URL syntaxonly, fee/pay/thresholdboundsnotestablished.",
+      "database": "SingleSave implicitTx exceptcategoryupdate/status explicitTx/receipt. No runtime/schemawrites; firstsettingscreate race/optionalcommandreceiptlimitsrecorded.",
+      "printing_ui": "Metadata printsettings/QR/station canaffectfutureprinting; nomethodsendshardwarejob. No actualprintersettings changed byaudit.",
+      "performance": "Fixedidentityqueries, no largecollectionload inthesecommands. No benchmark.",
+      "duplicates_conflicts": "CategoryActive distinct fromproductavailability; settingsDefaults distinct fromconfigfallback. ExistingboundaryFIN016notduplicated.",
+      "issues_hypotheses": "No newpromotedfinding. Empty/soundfirstsettingswriteconfiginteraction and broadnumericvalidation arequalifiedpolicy/boundsleads; no unauthorizedfullfieldchangeclaim.",
+      "tests_missing": "Samekeycreate andoptionalreceipt; fieldomissionvsexplicitfalse/0; Empty/sound-onlypermission; firstsettingscreate vs configfallback; URIclear/http/https/badscheme; negativeopeningfloat; numericfee/pay/hours bounds; categoryActive/availabilityconsumerbehavior.",
+      "verified_callers_callees": "Full Category22-140 andSettingsQuery14-44/Update22-132 read. CommandReceiptpreviousactualread; SettingsUpdateURL111->Normalize35; returnsToDto131. PrepareShiftClose58/73 fallback independentlyverified. No runtime/DB/network/printing."
+    },
+    {
+      "stable_id": "sym-1619d8b0e8696f451f363eb4b6dff3d9571b6b08d0006fcd51f41832879c7df9",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Settings.UpdateSettingsHandler.HandleAsync(Falah.Application.Settings.UpdateSettingsRequest, CancellationToken)",
+      "span": [
+        45,
+        5,
+        132,
+        6
+      ],
+      "reasoning": "Loadsactualactor; skipssettings_manage onlywhen everyfield except optionalGrillSound isnull, includingfinancialfields andHold/URL/openingcash. Emptyrequest alsomatches andcancreateDefaults singleton: indirectfirstwritecanmaterialize financialdefaults/override configfallback, qualifiedpolicy/contextlead. Fullpartialmergecopies onlynonnullfield, validatesURL/nonnegativeopeningcash, but notfee/payrates/threshold/hours/copies/othernumericbounds. SingleSave persistssettings+auditatomically, no idempotentrequestreceipt; identicalretriesduplicateaudit andfirst-create racecanconflict PK. EF writes changedproperties onexistingentity, not blanketlostupdatewholeobjectclaim. Existingnegativefee FIN016 boundaryfamily, notnewfinding.",
+      "inputs": "Falah.Infrastructure.Settings.UpdateSettingsHandler.HandleAsync(Falah.Application.Settings.UpdateSettingsRequest, CancellationToken)",
+      "outputs": "Metadataresult/DTO or optionalnormalizedURL asdeclared",
+      "side_effects": "Productionwritesmetadata+samecontextaudit, nofinancialposting; auditexecutiondoesnotrunapp/DB.",
+      "trust_boundaries": "Fullsettings_manage unlessonlysound/emptyrequest; actualactor exists. URL syntaxonly, fee/pay/thresholdboundsnotestablished.",
+      "database": "SingleSave implicitTx exceptcategoryupdate/status explicitTx/receipt. No runtime/schemawrites; firstsettingscreate race/optionalcommandreceiptlimitsrecorded.",
+      "printing_ui": "Metadata printsettings/QR/station canaffectfutureprinting; nomethodsendshardwarejob. No actualprintersettings changed byaudit.",
+      "performance": "Fixedidentityqueries, no largecollectionload inthesecommands. No benchmark.",
+      "duplicates_conflicts": "CategoryActive distinct fromproductavailability; settingsDefaults distinct fromconfigfallback. ExistingboundaryFIN016notduplicated.",
+      "issues_hypotheses": "No newpromotedfinding. Empty/soundfirstsettingswriteconfiginteraction and broadnumericvalidation arequalifiedpolicy/boundsleads; no unauthorizedfullfieldchangeclaim.",
+      "tests_missing": "Samekeycreate andoptionalreceipt; fieldomissionvsexplicitfalse/0; Empty/sound-onlypermission; firstsettingscreate vs configfallback; URIclear/http/https/badscheme; negativeopeningfloat; numericfee/pay/hours bounds; categoryActive/availabilityconsumerbehavior.",
+      "verified_callers_callees": "Full Category22-140 andSettingsQuery14-44/Update22-132 read. CommandReceiptpreviousactualread; SettingsUpdateURL111->Normalize35; returnsToDto131. PrepareShiftClose58/73 fallback independentlyverified. No runtime/DB/network/printing."
+    },
+    {
+      "stable_id": "sym-a1d0916542e954058dde1fcd531ba7b32151052a22cf3c3539a25677e582247a",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        47,
+        76,
+        47,
+        108
+      ],
+      "reasoning": "Exactactualactor existence required even forsoundonly/emptyupdate. Settingspermissioncheck conditionalon requestfieldpresence, not actorclaimedrole; no anonymoussource bypassasserted.",
+      "inputs": "Specificactor/category/singleton row and capturedID",
+      "outputs": "Identitypredicate",
+      "side_effects": "Productionwritesmetadata+samecontextaudit, nofinancialposting; auditexecutiondoesnotrunapp/DB.",
+      "trust_boundaries": "Fullsettings_manage unlessonlysound/emptyrequest; actualactor exists. URL syntaxonly, fee/pay/thresholdboundsnotestablished.",
+      "database": "SingleSave implicitTx exceptcategoryupdate/status explicitTx/receipt. No runtime/schemawrites; firstsettingscreate race/optionalcommandreceiptlimitsrecorded.",
+      "printing_ui": "Metadata printsettings/QR/station canaffectfutureprinting; nomethodsendshardwarejob. No actualprintersettings changed byaudit.",
+      "performance": "Fixedidentityqueries, no largecollectionload inthesecommands. No benchmark.",
+      "duplicates_conflicts": "CategoryActive distinct fromproductavailability; settingsDefaults distinct fromconfigfallback. ExistingboundaryFIN016notduplicated.",
+      "issues_hypotheses": "No newpromotedfinding. Empty/soundfirstsettingswriteconfiginteraction and broadnumericvalidation arequalifiedpolicy/boundsleads; no unauthorizedfullfieldchangeclaim.",
+      "tests_missing": "Samekeycreate andoptionalreceipt; fieldomissionvsexplicitfalse/0; Empty/sound-onlypermission; firstsettingscreate vs configfallback; URIclear/http/https/badscheme; negativeopeningfloat; numericfee/pay/hours bounds; categoryActive/availabilityconsumerbehavior.",
+      "verified_callers_callees": "Full Category22-140 andSettingsQuery14-44/Update22-132 read. CommandReceiptpreviousactualread; SettingsUpdateURL111->Normalize35; returnsToDto131. PrepareShiftClose58/73 fallback independentlyverified. No runtime/DB/network/printing."
+    },
+    {
+      "stable_id": "sym-211da5254ac69cd51e972af895b2214ffcd5041b16dc7d42cfb4daa07c04493e",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        63,
+        61,
+        63,
+        100
+      ],
+      "reasoning": "Exactsingleton lookup decidesmergeorcreate withDefaults, notupdatearbitrary ID. No transactionaround absentrowread, concurrentfirstwriters mayPKconflict; no overwriteexistingunknownDBperformed in audit.",
+      "inputs": "Specificactor/category/singleton row and capturedID",
+      "outputs": "Identitypredicate",
+      "side_effects": "Productionwritesmetadata+samecontextaudit, nofinancialposting; auditexecutiondoesnotrunapp/DB.",
+      "trust_boundaries": "Fullsettings_manage unlessonlysound/emptyrequest; actualactor exists. URL syntaxonly, fee/pay/thresholdboundsnotestablished.",
+      "database": "SingleSave implicitTx exceptcategoryupdate/status explicitTx/receipt. No runtime/schemawrites; firstsettingscreate race/optionalcommandreceiptlimitsrecorded.",
+      "printing_ui": "Metadata printsettings/QR/station canaffectfutureprinting; nomethodsendshardwarejob. No actualprintersettings changed byaudit.",
+      "performance": "Fixedidentityqueries, no largecollectionload inthesecommands. No benchmark.",
+      "duplicates_conflicts": "CategoryActive distinct fromproductavailability; settingsDefaults distinct fromconfigfallback. ExistingboundaryFIN016notduplicated.",
+      "issues_hypotheses": "No newpromotedfinding. Empty/soundfirstsettingswriteconfiginteraction and broadnumericvalidation arequalifiedpolicy/boundsleads; no unauthorizedfullfieldchangeclaim.",
+      "tests_missing": "Samekeycreate andoptionalreceipt; fieldomissionvsexplicitfalse/0; Empty/sound-onlypermission; firstsettingscreate vs configfallback; URIclear/http/https/badscheme; negativeopeningfloat; numericfee/pay/hours bounds; categoryActive/availabilityconsumerbehavior.",
+      "verified_callers_callees": "Full Category22-140 andSettingsQuery14-44/Update22-132 read. CommandReceiptpreviousactualread; SettingsUpdateURL111->Normalize35; returnsToDto131. PrepareShiftClose58/73 fallback independentlyverified. No runtime/DB/network/printing."
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,230 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-becc9df8fa86d408b8d2ab7b5b2291c4da9898b06f91de5c8fbd3b88ce20fe88",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.AddUserPinHashColumns.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          11,
+          9,
+          42,
+          10
+        ],
+        "reasoning": "Up drops legacy unique plaintext PIN index, makes Pin nullable/unbounded, and adds nullable PinHash/PinIterations/PinSalt. It performs no hashing/backfill SQL or helper invocation. This is a transition schema requiring separately verified data conversion before subsequent drop, not evidence every existing account now has usable verifier. Removing equality uniqueness is consistent with per-user salted hashes but shifts collision enforcement to app.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-a5794647126edccb7bfa8985ee58abc80bf7d34f3d16d41d4623e01b06da8d04",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.AddUserPinHashColumns.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          45,
+          9,
+          74,
+          10
+        ],
+        "reasoning": "Down drops all three verifier fields then restores required bounded plaintext Pin default empty and unique PIN index. Hashes cannot reconstruct original PIN; rows with NULL/duplicate empty values or oversized text can make reverse constraint application fail. This is neither credential recovery nor reversible cryptographic migration; no data transformation or DB rollback executed.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:45-74",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-c2c6fc63cef452bcf60c46c57be8e10a8ce59c810444f78092a8deecbca9034b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.DropPlaintextUserPin.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          11,
+          9,
+          46,
+          10
+        ],
+        "reasoning": "Up drops Pin irreversibly, changes verifier salt/hash to required strings default empty and iterations required int default0. No validation/backfill step occurs in this body before deletion. Legacy rows not separately converted can become empty/zero verifiers, so schema success is not valid-account conversion proof. Existing startup/backfill lead remains separately owned, no deployment or login test performed.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.cs:11-46",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-f72151987ab0c095e0f45522e160542b106825a251d487c34fa170a494dfe499",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.DropPlaintextUserPin.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          49,
+          9,
+          80,
+          10
+        ],
+        "reasoning": "Down makes three verifier fields nullable and adds nullable plaintext Pin with no restoration of its former values. Existing hashes remain but are not decrypted; rollback only recreates empty schema column. Subsequent earlier Down tries required unique plaintext values, requiring real migration-data planning. No original PIN values read or reconstructed.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.cs:49-80",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-fd1a1f6a8e304bd4dcddbf6417ef7e868e29fa3dd3cd94c8ced0f0fb9797f3c1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderDiscountSnapshot.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          11,
+          9,
+          19,
+          10
+        ],
+        "reasoning": "Up appends required bigint DiscountPiastres default0 to Orders. New orders preserve manual discount independently from offer/comp; historical rows get0 rather than reconstructed prior transient discount, so historical discount analytics cannot be certified recovered by migration alone. No total/tax/order balance recalculation or positive-bound CHECK is added.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs:11-19",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-b733496ea692dcec6ab066f2ee43af4d6488014b3ce63b30cda5750ba3a72977",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderDiscountSnapshot.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          22,
+          9,
+          27,
+          10
+        ],
+        "reasoning": "Down drops order manual discount snapshot column, losing ability to distinguish recorded manual discount in later reporting while existing total/tax money facts remain. It is schema/data loss, not a business refund or reversal of discount effect. No database change executed.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs:22-27",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-13635503f19c38d6136b062765630370d4804ef0d37d3cc9546821eadcfdae0f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderItemPreparationStationSnapshot.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          11,
+          9,
+          18,
+          10
+        ],
+        "reasoning": "Up adds nullable nvarchar(max) PreparationStation to historical OrderItems without backfill from current Product. Null legacy values are representable; migration itself cannot prove original sale-time route. Future mapper freezes station, but historical print correctness must preserve documented null/fallback policy rather than falsely infer recovered routing.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs:11-18",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-48ed8e0bfb214333642b5fe5897db155ae95a6f711a78b39536dfe4449e8d9fa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderItemPreparationStationSnapshot.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+        "span": [
+          21,
+          9,
+          26,
+          10
+        ],
+        "reasoning": "Down drops frozen PreparationStation from sold lines, erasing historical kitchen-routing evidence while leaving live product configuration and financial facts. It does not undo a printed ticket or restore the original route by catalog join. No physical transport or destructive migration executed.",
+        "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+        "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+        "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+        "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+        "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+        "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+        "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+        "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs:21-26",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      }
+    ]
+  }
+]

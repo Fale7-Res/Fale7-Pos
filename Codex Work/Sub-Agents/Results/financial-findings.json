@@ -214,9 +214,27 @@
       },
       {
         "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "start": 309,
-        "end": 328,
-        "source_excerpt": "            b.HasKey(c => c.Id);\n            // Phone is the identity - never looked up or merged by name (CustomerRules' own doc\n            // comment). The database itself, not just an application-level check, refuses a second\n            // customer row for the same normalized phone number.\n            b.HasIndex(c => c.Phone).IsUnique();\n            b.HasMany(c => c.Addresses).WithOne().HasForeignKey(a => a.CustomerId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<CustomerAddressEntity>(b => b.HasKey(a => a.Id));\n\n        modelBuilder.Entity<DriverEntity>(b => b.HasKey(d => d.Id));\n        modelBuilder.Entity<DeliveryServiceEntity>(b => b.HasKey(d => d.Id));\n\n        modelBuilder.Entity<DeliveryEntity>(b =>\n        {\n            b.HasKey(d => d.Id);\n            // One delivery row per order, ever - this is what makes checkout's auto-creation\n            // idempotent by construction on retry, the same way CheckoutRequestId protects Orders.\n            b.HasIndex(d => d.OrderId).IsUnique();\n            b.HasOne<OrderEntity>().WithMany().HasForeignKey(d => d.OrderId).OnDelete(DeleteBehavior.Restrict);\n            b.HasOne<ShiftEntity>().WithMany().HasForeignKey(d => d.ShiftId).OnDelete(DeleteBehavior.Restrict);"
+        "start": 277,
+        "end": 305,
+        "source_excerpt": "        modelBuilder.Entity<PurchaseEntity>(b =>\n        {\n            b.HasKey(p => p.Id);\n            // Same idempotency contract as every other financial command in this codebase - a\n            // retried receivePurchase can never post the same invoice/stock/payment twice.\n            b.HasIndex(p => p.IdempotencyKey).IsUnique();\n            b.HasOne<SupplierEntity>().WithMany().HasForeignKey(p => p.SupplierId).OnDelete(DeleteBehavior.Restrict);\n            b.HasMany(p => p.Lines).WithOne().HasForeignKey(l => l.PurchaseId).OnDelete(DeleteBehavior.Cascade);\n            b.HasMany(p => p.Payments).WithOne().HasForeignKey(pp => pp.PurchaseId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<PurchaseLineEntity>(b =>\n        {\n            b.HasKey(l => l.Id);\n            b.HasOne<InventoryItemEntity>().WithMany().HasForeignKey(l => l.InventoryItemId).OnDelete(DeleteBehavior.Restrict);\n        });\n        modelBuilder.Entity<PurchasePaymentEntity>(b =>\n        {\n            b.HasKey(p => p.Id);\n            b.HasIndex(p => p.IdempotencyKey).IsUnique();\n        });\n        modelBuilder.Entity<SupplierLedgerEntryEntity>(b =>\n        {\n            b.HasKey(e => e.Id);\n            b.HasIndex(e => e.IdempotencyKey).IsUnique();\n            // Every read of \"how much do we owe this supplier\" (or \"for this one invoice\") filters\n            // by exactly this - see PurchasingRules.SupplierOutstandingFromLedger.\n            b.HasIndex(e => new { e.SupplierId, e.PurchaseId });\n            b.HasOne<SupplierEntity>().WithMany().HasForeignKey(e => e.SupplierId).OnDelete(DeleteBehavior.Restrict);\n        });\n",
+        "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+        "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+        "start": 20,
+        "end": 60,
+        "source_excerpt": "public class PurchaseEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    public string? InvoiceNumber { get; set; }\n    public long SubtotalPiastres { get; set; }\n    public long TotalPiastres { get; set; }\n    public long PaidPiastres { get; set; }\n    public long RemainingAmountPiastres { get; set; }\n    /// <summary>One of cash/instapay/bank/credit - \"credit\" (آجل) means nothing was paid at receipt\n    /// time; the invoice is carried entirely on the supplier ledger until a later payment.</summary>\n    public string PaymentMethod { get; set; } = default!;\n    /// <summary>The real treasury account the INITIAL payment (if any) was drawn from - null when\n    /// PaymentMethod is credit or Paid is zero. A purchase can later accumulate further payments\n    /// (see PurchasePaymentEntity) against different accounts; this column only records the first.</summary>\n    public string? PaymentAccountId { get; set; }\n    /// <summary>draft/received/partially_paid/paid/cancelled - mirrors PaymentStatus except a\n    /// fully-unpaid invoice reads \"received\", not \"unpaid\" (there is no distinct draft state used by\n    /// this system's checkout-free receiving flow).</summary>\n    public string Status { get; set; } = default!;\n    public string PaymentStatus { get; set; } = default!;\n    public string ReceivedBy { get; set; } = default!;\n    public string? Notes { get; set; }\n    public string CreatedBy { get; set; } = default!;\n    public string? OperationId { get; set; }\n    /// <summary>The treasury movement for the INITIAL payment at receipt time only - null when\n    /// nothing was paid then. Later payments each carry their own movement id on their own\n    /// PurchasePaymentEntity row instead.</summary>\n    public string? TreasuryMovementId { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n\n    /// <summary>When this invoice is due, as a business date. Null means no term was agreed - which\n    /// is a real and common state, not a missing value to guess at: an invoice with no due date is\n    /// never reported as overdue, it is reported as having no due date. Aging still ages it, by the\n    /// date it was received, because \"how long have we been carrying this\" is answerable either way.</summary>\n    public DateOnly? DueDate { get; set; }\n\n    public List<PurchaseLineEntity> Lines { get; set; } = new();\n    public List<PurchasePaymentEntity> Payments { get; set; } = new();\n}\n",
+        "source_git_blob_sha256": "8bee9148544c6025b177b748cef36ac65761b11b9d979df1c686d3bfceb289a3",
+        "worktree_sha256": "8aa26b3ab1511f2975c893ee4e571305d0544a2a228f404d08313da740276978"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+        "start": 75,
+        "end": 111,
+        "source_excerpt": "public class PurchasePaymentEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string PurchaseId { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    public long AmountPiastres { get; set; }\n    public string PaymentAccountId { get; set; } = default!;\n    public string TreasuryMovementId { get; set; } = default!;\n    public string OperationId { get; set; } = default!;\n    public string CreatedBy { get; set; } = default!;\n    public string? ApprovedBy { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}\n\n/// <summary>Ported from SupplierLedgerEntry - the supplier's own running account, debited by every\n/// invoice received and credited by every payment made against it. SupplierBalance/outstanding are\n/// always derived from this table (PurchasingRules.SupplierOutstandingFromLedger), never stored.</summary>\npublic class SupplierLedgerEntryEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    /// <summary>purchase_invoice (debit) or supplier_payment (credit) - the only two types this\n    /// system posts; supplier_return/adjustment exist in the reference app's type union but have no\n    /// command that produces them yet (no supplier-return flow in this pass).</summary>\n    public string Type { get; set; } = default!;\n    public long DebitPiastres { get; set; }\n    public long CreditPiastres { get; set; }\n    public string? PurchaseId { get; set; }\n    public string? ReferenceId { get; set; }\n    public string Reason { get; set; } = default!;\n    public string CreatedBy { get; set; } = default!;\n    public string? OperationId { get; set; }\n    public string? TreasuryMovementId { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}\n",
+        "source_git_blob_sha256": "8bee9148544c6025b177b748cef36ac65761b11b9d979df1c686d3bfceb289a3",
+        "worktree_sha256": "8aa26b3ab1511f2975c893ee4e571305d0544a2a228f404d08313da740276978"
       }
     ],
     "trigger_and_safe_repro_design": "Disposable DB invoice outstanding 100 EGP, source account 1000. Two requests different RequestIds both pre-read 100, each pays 80. Account lock serializes account only; second never refreshes invoice. Ledger receives total160 while invoice stale Paid80/Remaining20.",
@@ -227,7 +245,23 @@
     "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
     "related_paths": [
       "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-      "src/Falah.Infrastructure/Persistence/FalahDbContext.cs"
+      "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs"
+    ],
+    "citation_correction": {
+      "at_utc": "2026-10-19T01:37:12.575433+00:00",
+      "reason": "Legacy DbContext309-328 was real Customer/Delivery source, irrelevant to Purchase concurrency. Correct Purchase/Payment/SupplierLedger mappings277-305 and actual fields now cited.",
+      "parent_evidence": "Deep-Audit/Database-and-Finance/Independent-Challenges/FIN005-model-reference-correction.json",
+      "historical_finding": "Knowledge\\History\\financial_integrity\\financial-findings\\FIN-005.b0539373452de868.json",
+      "disposition": "Finding survives qualified static challenge; no new count or runtime reproduction."
+    },
+    "citation_correction_history": [
+      {
+        "at_utc": "2026-10-19T01:55:21.558811+00:00",
+        "reason": "Actual source has111 lines; final payment/ledger range75-112 corrected to75-111. No reasoning or finding count change.",
+        "predecessor": "Knowledge\\History\\financial_integrity\\financial-findings\\FIN-005.range-end.e0de814dc7cf511d.json",
+        "parent_gate": "Deep-Audit/Database-and-Finance/financial-evidence-symbol-reference-gate.json"
+      }
     ]
   },
   {

@@ -1,0 +1,241 @@
+{
+  "at_utc": "2026-10-20T03:06:08.222Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "records": [
+    {
+      "artifact": "Deep-Audit/Duplication-and-Architecture/employee-payout-policy-comparison.json",
+      "artifact_sha256": "555c42ce2b666b1ba8ecd2ccf5f95a5da6c616881231b765a7827529306fab5d",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+          "worktree_sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573",
+          "source_git_blob_sha256": "7238391cfaa2eff9365366d4217d107559d0f5b307c428b5270e73a72db66729",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+          "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+          "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+          "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+          "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+          "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+          "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        }
+      ],
+      "status": "PRIOR_SAVED_COMPARISON_CURRENT_SOURCE_AND_RECEIPT_IDENTITIES_MATCH",
+      "new_manual_comparisons": 0,
+      "new_primary_callable_receipts": 0
+    },
+    {
+      "artifact": "Deep-Audit/Duplication-and-Architecture/treasury-safe-drop-transfer-comparison.json",
+      "artifact_sha256": "5ee64be7d56d81f286992aec31e004d9c3c711d3fd82e3842296cfaed877f51a",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+          "worktree_sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+          "source_git_blob_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 9
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+          "worktree_sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+          "source_git_blob_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/TransferHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 8
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+          "worktree_sha256": "d982d3fadbec4f7dd42d41465f63c8c9f41fe25cf112374025bc450c3183d690",
+          "source_git_blob_sha256": "a480d0b55f892a72df9ce61870b446281c962351a1b4b1fed51e077de393807a",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/BalanceLockContention.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 3
+        }
+      ],
+      "status": "PRIOR_SAVED_COMPARISON_CURRENT_SOURCE_AND_RECEIPT_IDENTITIES_MATCH",
+      "new_manual_comparisons": 0,
+      "new_primary_callable_receipts": 0
+    },
+    {
+      "artifact": "Deep-Audit/Duplication-and-Architecture/business-day-authorization-mirrors.json",
+      "artifact_sha256": "99fbbe83c830913642e214b8d7def5e4e480d499a7c1b6154bbbe8b1ee0d83a7",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "prior_shards": [
+            {
+              "owner": "financial_integrity",
+              "path": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+          "worktree_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+          "source_git_blob_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+          "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+          "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/DepositHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+          "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+          "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Domain/BusinessDay/BusinessDayRules.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "worktree_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        }
+      ],
+      "status": "PRIOR_SAVED_COMPARISON_CURRENT_SOURCE_AND_RECEIPT_IDENTITIES_MATCH",
+      "new_manual_comparisons": 0,
+      "new_primary_callable_receipts": 0
+    },
+    {
+      "artifact": "Deep-Audit/Duplication-and-Architecture/financial-mirror-comparison-20261018.json",
+      "artifact_sha256": "db662696933955ddabed2ad73c477476566921f09b8879e446b119ba0229fc02",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+          "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+          "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/DepositHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+          "worktree_sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+          "source_git_blob_sha256": "f6e7c05ee8a55b7c2d485365b2adf9ba86081e74a95b56f95d2791499ef3de14",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+          "worktree_sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+          "source_git_blob_sha256": "3961e1899724b15b8610dc38406128331e657e73f428c2fee42fa8b520ae9237",
+          "prior_shards": [
+            {
+              "owner": "financial_coordinator",
+              "path": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/TreasuryMapper.cs.json"
+            },
+            {
+              "owner": "financial_integrity",
+              "path": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Treasury/TreasuryMapper.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "prior_shards": [
+            {
+              "owner": "financial_integrity",
+              "path": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs.json"
+            }
+          ],
+          "legacy_explicit_callables_verified": 0
+        }
+      ],
+      "status": "PRIOR_SAVED_COMPARISON_CURRENT_SOURCE_AND_RECEIPT_IDENTITIES_MATCH",
+      "new_manual_comparisons": 0,
+      "new_primary_callable_receipts": 0
+    }
+  ],
+  "errors": [],
+  "scope": "Mechanical provenance and navigation only; no new source reasoning or independent semantic certification. Original older incomplete-status statements remain historical; no double counting with218AST/16semantic groups.",
+  "tests": "NOT_EXECUTED"
+}

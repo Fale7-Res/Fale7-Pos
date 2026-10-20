@@ -1,0 +1,540 @@
+{
+  "id": "FIN-LEAD-REVERSED-RANGE-001",
+  "at_utc": "2026-10-18T04:28:53.229660+00:00",
+  "status": "SOURCE_SUPPORTED_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+  "severity_proposed": "MEDIUM",
+  "confidence": "HIGH_STATIC_CHAIN_NOT_RUNTIME",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "title": "Reversed report endpoints normalize sales but independently filter cost with contradictory date bounds",
+  "evidence_chain": [
+    "Owner-dashboard endpoint1976-1983 accepts from/to through BusinessDateRange.Resolve with no local ordering rejection after report permission check. DateOnly syntax binding does not impose cross-field order.",
+    "Resolve65-71 preserves reversed endpoints; ToUtcRange calls UtcRangeForBusinessDates47-53 which swaps only local arguments. DayCount and Days retain original order.",
+    "ReportingQueryService.LoadSalesOrdersAsync normalizes through ToUtcRange, whereas Range241-246 independently constructs start from From and end from To. For separated reversed days start>=end, food-cost query has no matching timestamp. Adjacent reversed days give start=end, also empty.",
+    "OwnerDashboard.GetAsync passes same range to sales but raw From/To to food cost; BuildProfitability uses net sales and zero sold/known cost lines. ProfitabilityRules.ComputeGrossProfit treats soldLineCount0 as complete, permits nonzero sales/zero cost and100percent margin.",
+    "Owner response preserves reversed From/To and potentially negative DayCount; trend Days can be empty while aggregate sales are nonempty."
+  ],
+  "preconditions": [
+    "Authorized reports actor, dates supplied in reverse order across at least two distinct calendar dates, and qualifying sales within normalized interval.",
+    "Assumes no uninspected upstream custom validation rejects reversed report query before this endpoint; endpoint itself does not."
+  ],
+  "impact": "Misleading cost/profit/report period, not a proven money posting or authorization bypass. Static financial report correctness candidate.",
+  "counterevidence": [
+    "Normal correctly ordered UI dates unaffected; UI may constrain date inputs, not yet checked for every client.",
+    "No DB records read/written and no HTTP request executed. Exact provider and DTO runtime chain untested.",
+    "FoodCost missing details remain an independent packaging-cost issue; this lead concerns period mismatch."
+  ],
+  "recommended_solution": "Validate or normalize range once at construction/endpoint and pass one canonical range to every report component; reject or consistently normalize reversed input. Do not silently swap in only one query helper.",
+  "required_tests": [
+    "Pure forward/same/reversed range invariants, Days and DayCount consistency.",
+    "Authorized isolated seeded report test with nonzero sales and known recipe cost, reversing endpoints; assert shared row scope or400 rejection.",
+    "Check direct food-cost/expense/action report endpoints follow same agreed date contract."
+  ],
+  "independent_verification": "PENDING; root source tracing only",
+  "runtime_verification": "PARTIAL_PURE_COMPONENTS_ONLY_NOT_DB_OR_ENDPOINT",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "worktree_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "source_git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+      "ranges": [
+        [
+          47,
+          53
+        ],
+        [
+          65,
+          82
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-42eccd8fb3aa149ddfa63595bd22c1a8f59592ac01b1aed8b2e1ec136ebdad17",
+          "signature": "Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDates(DateOnly, DateOnly)",
+          "span": [
+            47,
+            5,
+            53,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e1c014effa052606c357e045ee55fc777813d7f8d11e7901aa80af1ad332168b",
+          "signature": "Falah.Domain.Common.BusinessDateRange.Resolve(DateOnly?, DateOnly?, DateOnly?)",
+          "span": [
+            65,
+            5,
+            71,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6488f358eb0a8c143b1c0ea9e2f40d8e5fbbb0a33f4041bbff724337124cbc10",
+          "signature": "Falah.Domain.Common.BusinessDateRange.ToUtcRange()",
+          "span": [
+            76,
+            5,
+            77,
+            58
+          ]
+        },
+        {
+          "stable_id": "sym-144b17f7cf3d3fbc43b4da7ed330125ee5e9b94398445059de93b7ed1825ddd8",
+          "signature": "Falah.Domain.Common.BusinessDateRange.Days()",
+          "span": [
+            79,
+            5,
+            82,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "ranges": [
+        [
+          1976,
+          1983
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e",
+          "signature": "lambda expression",
+          "span": [
+            1976,
+            44,
+            1983,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "ranges": [
+        [
+          35,
+          48
+        ],
+        [
+          241,
+          246
+        ],
+        [
+          349,
+          363
+        ],
+        [
+          422,
+          424
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.LoadSalesOrdersAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "span": [
+            35,
+            5,
+            52,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ab86fb60da0dcc67921acc62476d2ec82b28ce7d1bb317416bf5fe1ed436bace",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            55,
+            37,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-5a72b27b1e1eacac0bd83b7d0f5f175a6f4f463a23f75c331adc71c4263a4055",
+          "signature": "lambda expression",
+          "span": [
+            38,
+            20,
+            38,
+            66
+          ]
+        },
+        {
+          "stable_id": "sym-400f2590e245045285922a7d226b45898c81cbe3a52d77e693043c2fd720a20a",
+          "signature": "lambda expression",
+          "span": [
+            43,
+            33,
+            43,
+            85
+          ]
+        },
+        {
+          "stable_id": "sym-c98e25bee74eaf3592ccc6a54d40fdec1af8f891e31f63bb88f49275fe3cc96f",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.Range(DateOnly?, DateOnly?)",
+          "span": [
+            241,
+            5,
+            246,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "span": [
+            349,
+            5,
+            423,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-514617f08c5bc61802339d5f7b86b5c403d45a07d7a3288209b9862b293106ae",
+          "signature": "lambda expression",
+          "span": [
+            353,
+            51,
+            354,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-b2dc3b45c8b8cd6478f26f7bb4616974b35cb475a5f7e268be6c3a15fa343f5b",
+          "signature": "lambda expression",
+          "span": [
+            355,
+            17,
+            355,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-b5248606a3fba621bc4c9a78707ce659aed5469575924d45fcbc448c37b0503c",
+          "signature": "lambda expression",
+          "span": [
+            355,
+            33,
+            355,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-6d7a1fd4f2f661707f1d5264ceab9b39a768b932c4845b588fa535c00bf8b2a9",
+          "signature": "lambda expression",
+          "span": [
+            355,
+            44,
+            355,
+            113
+          ]
+        },
+        {
+          "stable_id": "sym-58e38c694f4d3d6cce669871c30e9fb26493d32bc68bc285adca918c051dcac7",
+          "signature": "lambda expression",
+          "span": [
+            362,
+            20,
+            363,
+            103
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "ranges": [
+        [
+          38,
+          70
+        ],
+        [
+          205,
+          225
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f1cd0367dabee2120fb8b6decacc71c478e43c45962970eb10a46f9bb3eb2581",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.GetAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "span": [
+            38,
+            5,
+            71,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+          "span": [
+            205,
+            5,
+            224,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+      "ranges": [
+        [
+          35,
+          63
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db",
+          "signature": "Falah.Domain.Reports.ProfitabilityRules.ComputeGrossProfit(Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int)",
+          "span": [
+            35,
+            5,
+            60,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "next_exact_action": "Independent source challenge pending; inspect all client range validators and direct report endpoints. Do not call synthetic predicate an executed EF query.",
+  "isolated_components": {
+    "at_utc": "2026-10-18T04:38:36.468438+00:00",
+    "result": "8_ASSERTIONS_PASSED",
+    "artifact": "Local-Verification/report-range-pure-results.json",
+    "result_sha256": "b0dd9de8fce9c068eefc51994a1dcd0e50b6be6e602fe20686c48170a1568de7",
+    "program_sha256": "91b4220ebbe6d3bfab2a465d2cdbe169ea513c812ff54df4738321f1203b318b",
+    "binary_sha256": "ef3588a9acfa78476b1ce382ee2e00d4859c668f20392f54d45a5fc75de39bc0",
+    "linked_baseline_domain": [
+      {
+        "path": "src/Falah.Domain/Audit/AuditEvent.cs",
+        "sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/Actor.cs",
+        "sha256": "bd3c6edcf6f3dd8ab4f27d0d8890f0c15f278c2aa3420c5570ebf928a4f4203c"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+        "sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/ManagerApproval.cs",
+        "sha256": "dcd86fa2a536f88cde67e01c8163cb6a27c3fc7de1201c21f5fde6261fd870a2"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/PermissionCatalog.cs",
+        "sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/PinHasher.cs",
+        "sha256": "dea709e111adf03d56624a80fcf330ba2cb63540f3d70acaa97e91bdba1f40b6"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/SessionToken.cs",
+        "sha256": "356e4dcde7e8778421f240589c9f00791d583700266d9b1d548ffc380e6d2668"
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/UserManagementRules.cs",
+        "sha256": "3a72ee5f6b79d83b6364bf22d8150b39b2a13211fa2db392f13b90c5b10c32fe"
+      },
+      {
+        "path": "src/Falah.Domain/Backup/BackupRules.cs",
+        "sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e"
+      },
+      {
+        "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+        "sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06"
+      },
+      {
+        "path": "src/Falah.Domain/Common/BusinessClock.cs",
+        "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208"
+      },
+      {
+        "path": "src/Falah.Domain/Common/DomainException.cs",
+        "sha256": "763b8c5644ed42f312f652daa85cb920474290175021e94b272ca4f02f90e00d"
+      },
+      {
+        "path": "src/Falah.Domain/Common/Money.cs",
+        "sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f"
+      },
+      {
+        "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+        "sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652"
+      },
+      {
+        "path": "src/Falah.Domain/Customers/Customer.cs",
+        "sha256": "1cd133bfadd3dec6e841be4aa37526162b63d1591a35fbb083c8e7c4c5c3ec63"
+      },
+      {
+        "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+        "sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e"
+      },
+      {
+        "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+        "sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa"
+      },
+      {
+        "path": "src/Falah.Domain/Delivery/DeliveryStatus.cs",
+        "sha256": "ac7798dec40be08c0cf518bac1226059a34ef34f54744c4bf74cf56979665be6"
+      },
+      {
+        "path": "src/Falah.Domain/Employees/Attendance.cs",
+        "sha256": "dd1e762019008a9e1c10d88accd40342aa0dd56bd836f032e689447e0d9f00fc"
+      },
+      {
+        "path": "src/Falah.Domain/Employees/Employee.cs",
+        "sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c"
+      },
+      {
+        "path": "src/Falah.Domain/Employees/EmployeeRules.cs",
+        "sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5"
+      },
+      {
+        "path": "src/Falah.Domain/Financial/FinancialRules.cs",
+        "sha256": "0c48f0fef3792f1bd9e85023ad85978ae8583f9f7d2e2bcaa65f3159aef1b926"
+      },
+      {
+        "path": "src/Falah.Domain/Financial/PaymentMethod.cs",
+        "sha256": "075abd460e3510501379b2e6d0a316980d8decf4421a343fdd61863702dd1e8e"
+      },
+      {
+        "path": "src/Falah.Domain/Financial/TaxRule.cs",
+        "sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766"
+      },
+      {
+        "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+        "sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87"
+      },
+      {
+        "path": "src/Falah.Domain/Idempotency/FinancialJournal.cs",
+        "sha256": "9db76c8c0bbc5ef0940184d880643e05cee17a6dd85cb7656703fe6bb5cf1295"
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+        "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/InventoryRecords.cs",
+        "sha256": "52d7a39781b9d8a87828ed3d38193ecc8fc87b0a140e666c1df64a8ac66918af"
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+        "sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67"
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/PrepRecipeLine.cs",
+        "sha256": "a1309574f1717ceda4e508e0c694472e28e3d7ae7f18a97af9a5ba6c1596fb15"
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+        "sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524"
+      },
+      {
+        "path": "src/Falah.Domain/Menu/ProductImageRules.cs",
+        "sha256": "726d153f2fb151c7fd969c2c0dc199f30fdc2e36798552d79304ad1744b1de49"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+        "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/ElectronicPayment.cs",
+        "sha256": "9b3fd7b69233fff187b40ac34b92851de557f38e6a8c8c641cd25c7add0efbd7"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/Order.cs",
+        "sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderEnums.cs",
+        "sha256": "017b0a0657846aae726cb0b7762fd9d31ccef5b0e60a902584b0aafbbee7eecc"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderItem.cs",
+        "sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+        "sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderRefund.cs",
+        "sha256": "dfb3e496413d4e770c0961e421a663262f1a9a612b017616120807ebdaf89a33"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/OrderValueBreakdown.cs",
+        "sha256": "4c7f490f4226a5b1e431a26a065ec2a84b283e7b4ee0f2e1232f1ae3dfb5a6b9"
+      },
+      {
+        "path": "src/Falah.Domain/Orders/RefundRules.cs",
+        "sha256": "10bf926d5ad29fcc2d25b98ce32e523ae76769ae077bbd0d659b59443501feb9"
+      },
+      {
+        "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+      },
+      {
+        "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+        "sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303"
+      },
+      {
+        "path": "src/Falah.Domain/Pricing/PriceRule.cs",
+        "sha256": "96af5115cb582e129e04140cd81ca97555e80a548078202f69693e5348cac826"
+      },
+      {
+        "path": "src/Falah.Domain/Pricing/PricingRules.cs",
+        "sha256": "d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b"
+      },
+      {
+        "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs",
+        "sha256": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be"
+      },
+      {
+        "path": "src/Falah.Domain/Printing/PrintRecords.cs",
+        "sha256": "3f47e0d211c4eb59acc9245104c68220198105e97971b7f9604d31074855ac18"
+      },
+      {
+        "path": "src/Falah.Domain/Printing/PrintRules.cs",
+        "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9"
+      },
+      {
+        "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+        "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908"
+      },
+      {
+        "path": "src/Falah.Domain/Purchasing/PayablesAging.cs",
+        "sha256": "1e5c3b20e445a616b5b6bbb38bd30f3c3132d377a1967c53ce4ad7ac048389b7"
+      },
+      {
+        "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+        "sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+      },
+      {
+        "path": "src/Falah.Domain/Reports/SalesRules.cs",
+        "sha256": "eb5ff2f1a5e957ff106386e34849d11a8b6a2e7f01fb864c3988a00f77adc4e9"
+      },
+      {
+        "path": "src/Falah.Domain/Reports/TrendRules.cs",
+        "sha256": "f192a9a0c309eaa8710fe5c00db307073e976aeabc87fe8299d33c22eb75e511"
+      },
+      {
+        "path": "src/Falah.Domain/Shifts/Shift.cs",
+        "sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690"
+      }
+    ],
+    "limit": "Actual linked baseline BusinessDateRange/BusinessClock/ProfitabilityRules, plus explicit synthetic raw-date cost predicate. No ReportingQueryService, OwnerDashboard DTO, HTTP endpoint, database, financial record or native UI executed. Not an independent review or full end-to-end reproduction.",
+    "build_history": "First audit-only build failed CS0136 shadowed local names Check/output/temp; renamed only audit locals. Second build succeeded0warnings0errors. Application source unchanged."
+  }
+}

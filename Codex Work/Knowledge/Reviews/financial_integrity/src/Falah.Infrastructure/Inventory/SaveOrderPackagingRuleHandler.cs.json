@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs",
+  "source_git_blob_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+  "worktree_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T01:46:32.651895+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-ed664e96305f52994e2b5823ace0ae0651aea3a52108ab85e7adabd43c3a911d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Inventory.SaveOrderPackagingRuleHandler.SaveOrderPackagingRuleHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        19,
+        5,
+        23,
+        6
+      ],
+      "reasoning": "Stores context/registry without configuring packaging or consuming any stock. No audit logger injection or implicit cost calculation.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Production upserts packaging configuration only; no stock deduction, order mutation or print action executed.",
+      "database": "Item FK checked at Save, rule keyed by ID; no active-order-type uniqueness or concurrency lock established in this method.",
+      "trust_boundaries": "menu_manage permission/valid fallback approval; positive quantity and nonempty inventory item ID required.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant queries; first matching active rule used by costing/deduction downstream.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Packaging completeness candidate independently corroborated already. Multiple active same-type rule admission/order-type validation remain configuration leads, not new counted finding here.",
+      "tests_missing": "DI scope",
+      "verified_callers_callees": "Assignments21-22."
+    },
+    {
+      "stable_id": "sym-e2bc6fa50704fc084fd0cc23de60155ee9e8658c32f7a239f5474455658401ae",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Inventory.SaveOrderPackagingRuleHandler.HandleAsync(Falah.Application.Inventory.SaveOrderPackagingRuleRequest, CancellationToken)",
+      "span": [
+        25,
+        5,
+        59,
+        6
+      ],
+      "reasoning": "Validates item ID nonempty and positive milliunits, authorizes actor then resolves explicit RuleId or request-derived ID. Inserts or replaces OrderType/item/quantity/Active and Saves, returns metadata. No enum order-type normalization, Active-per-type uniqueness, item IsPackaging check or explicit item existence query (FK later). Reused request-derived ID can update prior config, not immutable command replay. Costing and deduction select first active rule per type; duplicate configuration policy requires model/UI validation before separate finding. No historical order snapshot changed directly.",
+      "inputs": "Rule request/ct",
+      "outputs": "OrderPackagingRuleDto",
+      "side_effects": "Production upserts packaging configuration only; no stock deduction, order mutation or print action executed.",
+      "database": "Item FK checked at Save, rule keyed by ID; no active-order-type uniqueness or concurrency lock established in this method.",
+      "trust_boundaries": "menu_manage permission/valid fallback approval; positive quantity and nonempty inventory item ID required.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant queries; first matching active rule used by costing/deduction downstream.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Packaging completeness candidate independently corroborated already. Multiple active same-type rule admission/order-type validation remain configuration leads, not new counted finding here.",
+      "tests_missing": "Unknown item FK, non-Packaging ingredient policy, invalid/case OrderType, duplicate active type, same key changed fields",
+      "verified_callers_callees": "Validation27-28; actor30; auth42; rule44-50; writes52-55; Save57; result59."
+    },
+    {
+      "stable_id": "sym-ce030a3558b21864fad9dd4433c4994a7bd84101373a567d3d697540b0d3ade9",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        30,
+        76,
+        30,
+        108
+      ],
+      "reasoning": "Loads actual actor for menu_manage, not inventory_manage. This distinguishes recipe/packaging authorship from stock movements and cost estimates.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "Production upserts packaging configuration only; no stock deduction, order mutation or print action executed.",
+      "database": "Item FK checked at Save, rule keyed by ID; no active-order-type uniqueness or concurrency lock established in this method.",
+      "trust_boundaries": "menu_manage permission/valid fallback approval; positive quantity and nonempty inventory item ID required.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant queries; first matching active rule used by costing/deduction downstream.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Packaging completeness candidate independently corroborated already. Multiple active same-type rule admission/order-type validation remain configuration leads, not new counted finding here.",
+      "tests_missing": "Inventory-only actor denied while menu actor allowed",
+      "verified_callers_callees": "Lookup30-32; policy42."
+    },
+    {
+      "stable_id": "sym-60e716005564fa9eb944842bf5d5261520dfaa40f53c26eb18c543d9e8ebd984",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        37,
+        83,
+        37,
+        125
+      ],
+      "reasoning": "Optional approver actual role/name feeds action menu_manage. No raw approver stored on rule; validation controls capability but rule metadata does not preserve separate approval provenance.",
+      "inputs": "User/approver ID",
+      "outputs": "Boolean",
+      "side_effects": "Production upserts packaging configuration only; no stock deduction, order mutation or print action executed.",
+      "database": "Item FK checked at Save, rule keyed by ID; no active-order-type uniqueness or concurrency lock established in this method.",
+      "trust_boundaries": "menu_manage permission/valid fallback approval; positive quantity and nonempty inventory item ID required.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant queries; first matching active rule used by costing/deduction downstream.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Packaging completeness candidate independently corroborated already. Multiple active same-type rule admission/order-type validation remain configuration leads, not new counted finding here.",
+      "tests_missing": "Valid/wrong-action fallback and direct permission",
+      "verified_callers_callees": "Presentation39-40; policy42."
+    },
+    {
+      "stable_id": "sym-a928d7600e759a87f1a561ae19a09c27520a833b5ca3bbfecc90e044b4be19c3",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        45,
+        72,
+        45,
+        91
+      ],
+      "reasoning": "Finds rule by stable ID only, not OrderType. Existing rule can be retargeted to another type or ingredient; unknown ID inserts. Concurrency without version can lose one metadata update but no partial financial transaction occurs.",
+      "inputs": "Rule/rule ID",
+      "outputs": "Boolean",
+      "side_effects": "Production upserts packaging configuration only; no stock deduction, order mutation or print action executed.",
+      "database": "Item FK checked at Save, rule keyed by ID; no active-order-type uniqueness or concurrency lock established in this method.",
+      "trust_boundaries": "menu_manage permission/valid fallback approval; positive quantity and nonempty inventory item ID required.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant queries; first matching active rule used by costing/deduction downstream.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Packaging completeness candidate independently corroborated already. Multiple active same-type rule admission/order-type validation remain configuration leads, not new counted finding here.",
+      "tests_missing": "Same rule concurrent edits and different rules same type",
+      "verified_callers_callees": "Lookup45; updates52-55."
+    }
+  ],
+  "remaining_callable_ids": []
+}

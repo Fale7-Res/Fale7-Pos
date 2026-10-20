@@ -1,0 +1,26 @@
+{
+  "at_utc": "2026-10-18T04:19:37.473811+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root author refinement, not independent challenge",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "lines": [
+        101,
+        110
+      ],
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "lines": [
+        325,
+        339
+      ],
+      "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+    }
+  ],
+  "disposition": "Do not assert normal sold-product deletion causes missing category sales: source restrictive FK is counterevidence. Current recategorization still changes historical grouping and is explicitly qualified, not automatic new defect.",
+  "live_schema": "NOT_QUERIED",
+  "prior_reasoning": "Predecessor shard preserved automatically in Knowledge/History/financial_coordinator."
+}

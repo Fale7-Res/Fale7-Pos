@@ -1,0 +1,1195 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/OrderEntity.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-7a598a3cc765f3a0ce411e91dfeacba003e8b48e1af8a4f10fe9f96998e707ec",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Id.get",
+        "span": [
+          11,
+          24,
+          11,
+          28
+        ],
+        "reasoning": "Getter exposes commercial order PK used by delivery/refund and line relations, separate from checkout RequestId and human order number.",
+        "inputs": "Order entity containing string order PK.",
+        "outputs": "string order PK without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-2646228492af4545ad457ce7730da3d29905ae4410359756d4fd1694d4f213e3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Id.set",
+        "span": [
+          11,
+          29,
+          11,
+          33
+        ],
+        "reasoning": "Setter copies generated domain order ID through fresh mapper; unique key alone does not establish actor/payment payload binding on replay.",
+        "inputs": "string order PK from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-47d1c4b7ecc5d3afb3ae7e42a9a3affa0452dfaee9ad714fac3f7ed183178d20",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.OrderNumber.get",
+        "span": [
+          12,
+          33,
+          12,
+          37
+        ],
+        "reasoning": "Getter exposes formatted human receipt identifier, distinct from numerical sequence and row ID.",
+        "inputs": "Order entity containing string displayed order number.",
+        "outputs": "string displayed order number without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-38cec2fda84a58701f6f39fc34d914b6771d15c6be7241a47564e21461f4d99b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.OrderNumber.set",
+        "span": [
+          12,
+          38,
+          12,
+          42
+        ],
+        "reasoning": "Setter copies domain formatted centrally allocated number; schema uniquely constrains SequenceNumber, not a separate explicit OrderNumber index in inspected model.",
+        "inputs": "string displayed order number from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-04e2fd53f4a0a2f76c8e01fdd079f96426baa04188129ecf467e6923fdfe281e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.SequenceNumber.get",
+        "span": [
+          13,
+          34,
+          13,
+          38
+        ],
+        "reasoning": "Getter exposes unique centrally allocated long receipt sequence across devices, not per-day cart ordinal.",
+        "inputs": "Order entity containing long order sequence.",
+        "outputs": "long order sequence without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-b826cb514682d331337ee70694026942c2f8b3e466c3dfe490fa83a934e39fc6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.SequenceNumber.set",
+        "span": [
+          13,
+          39,
+          13,
+          43
+        ],
+        "reasoning": "Setter copies allocator result into fresh order; rollback/no-burn relies checkout transaction contract rather than auto-property or number formatting.",
+        "inputs": "long order sequence from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-de21e421586e3099030d8c1995414200a512db66848d9005bf6eb06afb4820dd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CashierId.get",
+        "span": [
+          14,
+          31,
+          14,
+          35
+        ],
+        "reasoning": "Getter exposes stable cashier user FK for attribution; it is not a display-name snapshot or current permission proof.",
+        "inputs": "Order entity containing string cashier user FK.",
+        "outputs": "string cashier user FK without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-4957d3de3e44a77d500aeef745e9b026fcc4fcb2e08aac5fa02d93e0664f8728",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CashierId.set",
+        "span": [
+          14,
+          36,
+          14,
+          40
+        ],
+        "reasoning": "Setter copies command actor identity through domain creation after handler authorization. Restrict FK ensures user exists but does not ensure caller session matches this ID.",
+        "inputs": "string cashier user FK from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-bd69053c0684daf1ad4dbc639cf3b3d6828078efc8866ad125cac73b384a03de",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ShiftId.get",
+        "span": [
+          15,
+          29,
+          15,
+          33
+        ],
+        "reasoning": "Getter attributes sale to original shift for reporting/refund history, not necessarily active shift when later refund occurs.",
+        "inputs": "Order entity containing string original shift FK.",
+        "outputs": "string original shift FK without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-3c851924b4b68d46ed7bb12748a75c18fd98c7455b2506ad79f7ba4d506b05ee",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ShiftId.set",
+        "span": [
+          15,
+          34,
+          15,
+          38
+        ],
+        "reasoning": "Setter copies checkout shift identity; FK protects existence, but stale-shift admission FIN015 survives until writes revalidate under shared boundary.",
+        "inputs": "string original shift FK from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-e3f663b0bbcb67fb695ce1ed0d08d4055f74477a5b55c299966c203f7c885a25",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.OrderType.get",
+        "span": [
+          16,
+          31,
+          16,
+          35
+        ],
+        "reasoning": "Getter exposes persisted wire type consumed through explicit parser; it is not raw Domain enum name string.",
+        "inputs": "Order entity containing string order-type wire value.",
+        "outputs": "string order-type wire value without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-6b72163c3ca3456a7a5d2fd8b13a0a17f3d10ca44b1dd52eaad03ae9ac7b2283",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.OrderType.set",
+        "span": [
+          16,
+          36,
+          16,
+          40
+        ],
+        "reasoning": "Setter stores domain ToWireString. Existing pickup migration preserved legacy table data, so current semantics must use actual mapping rather than stale dine-in comment.",
+        "inputs": "string order-type wire value from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-f871ec32acca6e3db8629d852a646a2843c252976befb619d50e704621af174a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TableNumber.get",
+        "span": [
+          20,
+          34,
+          20,
+          38
+        ],
+        "reasoning": "Getter exposes legacy table label on historic records, not a current required pickup/delivery field.",
+        "inputs": "Order entity containing nullable legacy table label.",
+        "outputs": "nullable legacy table label without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c04879018da48fed9042d43bf44118bed6daff9d6882362789712d2e974ae1e1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TableNumber.set",
+        "span": [
+          20,
+          39,
+          20,
+          43
+        ],
+        "reasoning": "Setter is explicitly set null for all new checkouts190, despite entity comment describing dine-in. Historical column retained for readback; no new table workflow claimed.",
+        "inputs": "nullable legacy table label from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-7d2f680ccd721f4131c0494278ac8ced1a686c6045a106666145462e7f716f24",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.RequestedPickupAtUtc.get",
+        "span": [
+          24,
+          51,
+          24,
+          55
+        ],
+        "reasoning": "Getter exposes optional requested pickup instant, not guarantee order will complete or was scheduled by background service.",
+        "inputs": "Order entity containing nullable requested pickup instant.",
+        "outputs": "nullable requested pickup instant without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-808011fc8312e0c9b0bc9c85089c8f4029dc2e187a45eb83badb00c7d1b2a7a4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.RequestedPickupAtUtc.set",
+        "span": [
+          24,
+          56,
+          24,
+          60
+        ],
+        "reasoning": "Setter copies request only for OrderType.Pickup, otherwise null. This display field is outside domain reconstitution, so mapper is not universally lossless for metadata.",
+        "inputs": "nullable requested pickup instant from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-2195143738cd9865c5b6b60796bc2b47a176c7a4ecd6449948c07333b8999992",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CustomerName.get",
+        "span": [
+          26,
+          35,
+          26,
+          39
+        ],
+        "reasoning": "Getter is order-time customer snapshot for receipt/search rather than a live CustomerEntity reference.",
+        "inputs": "Order entity containing nullable customer-name snapshot.",
+        "outputs": "nullable customer-name snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-73f9a5ec2ed9071ed124b03f6d9bf31bee25b5e1aa9225e03d0d32144998b547",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CustomerName.set",
+        "span": [
+          26,
+          40,
+          26,
+          44
+        ],
+        "reasoning": "Setter copies checkout request/domain customer name. Subsequent customer upsert does not automatically modify this field.",
+        "inputs": "nullable customer-name snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-caaadcd917b1dacb009b4ba57be37b4ac852e635ac05fe16e87168633df66618",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CustomerPhone.get",
+        "span": [
+          27,
+          36,
+          27,
+          40
+        ],
+        "reasoning": "Getter exposes order-time contact snapshot, not normalized CustomerEntity identity constraint.",
+        "inputs": "Order entity containing nullable customer-phone snapshot.",
+        "outputs": "nullable customer-phone snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-2e48ad62f2438180ef3b6a78d57a636612e046772c75e568961b7d22e2b45530",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CustomerPhone.set",
+        "span": [
+          27,
+          41,
+          27,
+          45
+        ],
+        "reasoning": "Setter copies provided/domain phone without entity normalization. No customer FK declared on order in inspected model.",
+        "inputs": "nullable customer-phone snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-9937355963a127fd1d8ec03922b2c5678377ad7dd327d85c0c21d30a1ca60487",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryAddress.get",
+        "span": [
+          32,
+          38,
+          32,
+          42
+        ],
+        "reasoning": "Getter exposes composed one-line sale-time address; structured parts remain separate pure display metadata.",
+        "inputs": "Order entity containing nullable composed address.",
+        "outputs": "nullable composed address without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-ca0296b3cc552492083d9bb356905b076694925cd2e7e3c2cfea5835495014e4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryAddress.set",
+        "span": [
+          32,
+          43,
+          32,
+          47
+        ],
+        "reasoning": "Setter copies server-composed domain delivery address, not raw request DeliveryAddress in inspected checkout call168. It does not geocode or validate physical destination.",
+        "inputs": "nullable composed address from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-3cfff5a98d4c3f31f045a7337adf5b6ac03e533da5bae9c53d31b7f49d04f871",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryArea.get",
+        "span": [
+          33,
+          35,
+          33,
+          39
+        ],
+        "reasoning": "Getter retains area snapshot independently from fee/service name; physical neighborhood is not necessarily catalog service label.",
+        "inputs": "Order entity containing nullable delivery area.",
+        "outputs": "nullable delivery area without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-22d2d16e1efae98044ba141a280c0da2499efdc485149dc07869b8e1d9b5d7ee",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryArea.set",
+        "span": [
+          33,
+          40,
+          33,
+          44
+        ],
+        "reasoning": "Setter copies request/domain area at checkout, not a live relation to a mutable service row.",
+        "inputs": "nullable delivery area from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-406306f339957c2abfd5d2649e33f045c934488f844c1245c60d3750fb8065cc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryStreet.get",
+        "span": [
+          34,
+          37,
+          34,
+          41
+        ],
+        "reasoning": "Getter exposes structured street snapshot returned by DTO, omitted from domain order reconstitution by deliberate metadata separation.",
+        "inputs": "Order entity containing nullable street snapshot.",
+        "outputs": "nullable street snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-3bb3618466c05b0e030c7b0796f5faae4a42b89ed1e5a10f69a8df5ea00a3280",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryStreet.set",
+        "span": [
+          34,
+          42,
+          34,
+          46
+        ],
+        "reasoning": "Setter copies request directly after ToEntity178. No address change or customer-directory update occurs through property.",
+        "inputs": "nullable street snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-b63107f2fb5531766cf8e6e419f49c4dc17345da119cbabeb9d244a219f55189",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryBuilding.get",
+        "span": [
+          35,
+          39,
+          35,
+          43
+        ],
+        "reasoning": "Getter exposes optional building snapshot for navigation, not numerical quantity or current CustomerAddress row.",
+        "inputs": "Order entity containing nullable building snapshot.",
+        "outputs": "nullable building snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-60e7fcbb507363c6c7a3a8ea3a52569f0a2726aa33314f3acfdb6d2e5d8181f5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryBuilding.set",
+        "span": [
+          35,
+          44,
+          35,
+          48
+        ],
+        "reasoning": "Setter copies request building179 unchanged; historical order metadata persists independently of later saved-address edits.",
+        "inputs": "nullable building snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-62b357fe3f69837ae58b289607c5bf9c605d727ac53963d04baac1e6b5e77a0b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryFloor.get",
+        "span": [
+          36,
+          36,
+          36,
+          40
+        ],
+        "reasoning": "Getter exposes optional floor text; formatting and nonnumeric labels are preserved, not normalized by property.",
+        "inputs": "Order entity containing nullable floor snapshot.",
+        "outputs": "nullable floor snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-4b16792a97b027955211f23d14767a0058af903334239ef096c4290c6b497e6c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryFloor.set",
+        "span": [
+          36,
+          41,
+          36,
+          45
+        ],
+        "reasoning": "Setter copies request floor180, without changing already composed address automatically if mutated independently.",
+        "inputs": "nullable floor snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-8601b3789c85a7e18744afe3cbde3435943af5cbd0bdbeee2e146ff25baef12f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryApartment.get",
+        "span": [
+          37,
+          40,
+          37,
+          44
+        ],
+        "reasoning": "Getter exposes optional apartment/unit text for historical delivery instructions.",
+        "inputs": "Order entity containing nullable apartment snapshot.",
+        "outputs": "nullable apartment snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-22c60b6d8cfacb0668e8d02e7c21c3c85e23f208a7e7b3e9ea669d1c7c944f51",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryApartment.set",
+        "span": [
+          37,
+          45,
+          37,
+          49
+        ],
+        "reasoning": "Setter copies request apartment181 and does not bind to CustomerAddress FK or validate integer unit.",
+        "inputs": "nullable apartment snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-b104e666aff6fba9a3d5afd0f69cdfbcaf446d88d9de961664afd789930d2c2a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryLandmark.get",
+        "span": [
+          39,
+          39,
+          39,
+          43
+        ],
+        "reasoning": "Getter exposes free-form landmark retained on receipt/driver DTO, separate from service tariff or mandatory street.",
+        "inputs": "Order entity containing nullable landmark snapshot.",
+        "outputs": "nullable landmark snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-0f05864ba86fb64cdd467d3186dcb0851a28b3d33edb0227a40eea2300cf0950",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryLandmark.set",
+        "span": [
+          39,
+          44,
+          39,
+          48
+        ],
+        "reasoning": "Setter copies request landmark182. No entity redaction/rendering enforcement or geocoding occurs.",
+        "inputs": "nullable landmark snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c38c766b327463201e63062832903813de703e43003f9bf2a888bf6efba7f39b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryNotes.get",
+        "span": [
+          40,
+          36,
+          40,
+          40
+        ],
+        "reasoning": "Getter exposes delivery-specific note separate from per-item prep notes and composed address.",
+        "inputs": "Order entity containing nullable delivery instruction.",
+        "outputs": "nullable delivery instruction without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-5d7b0fd72b7956f9ae37f81d7b436e0e24e68cb92f021dd5bc862e7bd2979544",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryNotes.set",
+        "span": [
+          40,
+          41,
+          40,
+          45
+        ],
+        "reasoning": "Setter copies request notes183; it is display metadata not a hidden financial adjustment or approval reason.",
+        "inputs": "nullable delivery instruction from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-d1f0291d9c8cfbc91fe5e2d2d14d7c2ee7fae1afb51371fe8452303868a8ca8d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryServiceId.get",
+        "span": [
+          44,
+          40,
+          44,
+          44
+        ],
+        "reasoning": "Getter retains chosen service reference as sale-time metadata, no FK to service catalog in inspected order mapping.",
+        "inputs": "Order entity containing nullable selected service ID.",
+        "outputs": "nullable selected service ID without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-76a483fe70bd6293f0f1b4a9c5243d66a55629305e2877faa896ba94209b838c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryServiceId.set",
+        "span": [
+          44,
+          45,
+          44,
+          49
+        ],
+        "reasoning": "Setter directly stores request service ID184. It does not prove current catalog fee was used or service active; actual fee admission must be validated separately.",
+        "inputs": "nullable selected service ID from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-4abc977a1e4f4dff4bb88a38b5c2bb27bbd0f44bbd346d6ef389e86b35a16ff1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryServiceName.get",
+        "span": [
+          45,
+          42,
+          45,
+          46
+        ],
+        "reasoning": "Getter retains service display snapshot distinct from physical Area and current service.Name.",
+        "inputs": "Order entity containing nullable service-name snapshot.",
+        "outputs": "nullable service-name snapshot without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-8f0223585dc4303ebdc76f5feef889aba1e10672da66c4627350830c9a928e04",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryServiceName.set",
+        "span": [
+          45,
+          47,
+          45,
+          51
+        ],
+        "reasoning": "Setter copies request service name185, not server lookup in shown mapping block. This label is not authority for financial fee or proof catalog consistency.",
+        "inputs": "nullable service-name snapshot from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-fb1355f2624a6c6ec27aaf6533ba1b5e6d66ca50c2d9f7e8fb72156a30344809",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.BusinessDayId.get",
+        "span": [
+          70,
+          36,
+          70,
+          40
+        ],
+        "reasoning": "Getter attributes original order to admitted operational day; null legacy representation requires fallback semantics in reports.",
+        "inputs": "Order entity containing nullable operational day reference.",
+        "outputs": "nullable operational day reference without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-769bd3635097f1b5cd99ac5ddf110985a19f7af728a64520839ffede62d96ef6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.BusinessDayId.set",
+        "span": [
+          70,
+          41,
+          70,
+          45
+        ],
+        "reasoning": "Setter copies BusinessDayGate result through domain mapper; no authored day FK in inspected order model, and active-day state can change outside admission gap.",
+        "inputs": "nullable operational day reference from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c8c480dfaca86be47d0ceda4ffb662c78a19e4ce132c64a6de09ed51f27c98a7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CreatedAtUtc.get",
+        "span": [
+          71,
+          42,
+          71,
+          46
+        ],
+        "reasoning": "Getter records original sale instant used in reports, distinct from payment confirmation/refund/delivery times.",
+        "inputs": "Order entity containing DateTimeOffset sale instant.",
+        "outputs": "DateTimeOffset sale instant without checkout/fulfilment.",
+        "side_effects": "No side effects, related query or hardware.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-09641b8d35aae35a6b6f7307c71de3b6a7b6d0c65df25bba9dbae057dc170376",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CreatedAtUtc.set",
+        "span": [
+          71,
+          47,
+          71,
+          51
+        ],
+        "reasoning": "Setter copies checkout now; later confirmation/refund leaves sale time unchanged. Property does not supply monotonic commit ordering.",
+        "inputs": "DateTimeOffset sale instant from checkout domain mapping/direct metadata assignment.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked scalar assignment; checkout transaction creates order/lines/stock/money/jobs separately. No app/DB runtime action performed here.",
+        "trust_boundaries": "Display/customer/service snapshots are not identity verification, physical delivery proof or authoritative fee lookup. Session/command authorization and input validation must occur before mapping.",
+        "database": "Model78-99 PK, unique CheckoutRequestId and SequenceNumber, version token, cashier/shift Restrict FKs. No day/customer/service FK authored in inspected block. Checkout173-191 fills direct metadata omitted from domain mapper. No SQL execution.",
+        "printing_ui": "OrderMapper24-39 DTO exposes metadata;41-81 domain rebuild omits structured/pickup/table fields intentionally. No receipt rendering, real address/customer data or physical printing tested.",
+        "performance": "O(1) accessor. Domain mapping/DTO serialization/query indexes belong caller, no benchmark or broad query performance guarantee.",
+        "duplicates_conflicts": "Live customer/service/product catalogs differ from order-time snapshots. Stale entity dine-in description contradicted by checkout190 null new table data; actual source wins.",
+        "issues_hypotheses": "No new accessor finding. FIN015 shift admission and financial fee representation source limits remain qualified; nullable FK-free snapshots not automatically defects.",
+        "tests_missing": "No tests run. Need legacy table read/new pickup metadata, server-composed address, independent customer/service edits, unique sequence/replay binding, active day/shift admission and DTO/domain metadata roundtrip boundaries.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-81,84-126",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:167-193",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      }
+    ]
+  }
+]

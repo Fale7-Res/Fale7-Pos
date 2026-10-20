@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/CommandReceipt.cs",
+  "source_git_blob_sha256": "c8d45e0d317f53b660d1b54cd2f81be2ca002eb352daed62d5ae33e39bcb4713",
+  "worktree_sha256": "c8d45e0d317f53b660d1b54cd2f81be2ca002eb352daed62d5ae33e39bcb4713",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T09:09:15.965663+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-aace77b0334408164edd477c5952e182d797f24706ca75d38623da6dfe44cd7f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?)",
+      "span": [
+        11,
+        5,
+        12,
+        71
+      ],
+      "reasoning": "Nonblank request IDs map deterministic audit-action-request key; missing/whitespace ID yields fresh random audit ID. The latter deliberately disables durable retry correlation, not financial idempotency proof. Action namespaces separate command receipts; raw delimiters not escaped but action strings internal constants, no user-selected action source here.",
+      "inputs": "Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?)",
+      "outputs": "Deterministic/random receiptID or existing bound auditrow",
+      "side_effects": "ReceiptIdpure; Findquery locks currentTx auditrow/range, no ownwrite.",
+      "trust_boundaries": "Internalcaller action/target/actor orscopedSqlContext; existingtransaction boundaryexplicit.",
+      "database": "SQLServer-specific command/context; receipt enforcesTx, sequence joinsoptionalTx butactualCheckoutcallerhasone.",
+      "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+      "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+      "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+      "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+      "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+      "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+    },
+    {
+      "stable_id": "sym-d4317200184d1b9fdd9a8d2b8419b63c26979c41d62aabcfe8ddd3e2e736d6b8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken)",
+      "span": [
+        14,
+        5,
+        24,
+        6
+      ],
+      "reasoning": "Requires caller currenttransaction or throws, locks audit ID range using parameterized FromSqlRaw UPDLOCK/ROWLOCK/HOLDLOCK, then checks existing receiptReferenceId andUserId match target/actor. Supports same-key replay and prevents reusing key across actor/target, not immutable payload equality or serialization of different request keys against one target. No ownSave/commit, caller must include mutation+audit+commit. No numeric/SQL string interpolation input; actual parameters passed. Missing audit receipt permits command; repeated callers depend unique audit identity/transaction lifetime.",
+      "inputs": "Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken)",
+      "outputs": "Deterministic/random receiptID or existing bound auditrow",
+      "side_effects": "ReceiptIdpure; Findquery locks currentTx auditrow/range, no ownwrite.",
+      "trust_boundaries": "Internalcaller action/target/actor orscopedSqlContext; existingtransaction boundaryexplicit.",
+      "database": "SQLServer-specific command/context; receipt enforcesTx, sequence joinsoptionalTx butactualCheckoutcallerhasone.",
+      "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+      "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+      "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+      "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+      "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+      "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+    }
+  ],
+  "remaining_callable_ids": []
+}

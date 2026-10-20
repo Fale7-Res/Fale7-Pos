@@ -1,0 +1,398 @@
+{
+  "id": "SEM-MIRROR-005",
+  "at_utc": "2026-10-19T01:50:53.691Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "MANUAL_COMPARISON_SAVED_UNIQUE_FALLBACK_CANONICAL_HELPER_PENDING",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "line_ranges": [
+        [
+          10,
+          11
+        ],
+        [
+          74,
+          75
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-07bd03e837172dc2925f7f402d126b06ee7d334a51b5c68027946018122746c5",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.PurchaseLineTotal(long, Falah.Domain.Common.Money)",
+          "span": [
+            10,
+            5,
+            11,
+            103
+          ]
+        },
+        {
+          "stable_id": "sym-44b746e7b150924d083985248e31aed0592b5c3eab2ff830bcbe592ac9e82f24",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.ValueStockLoss(long, Falah.Domain.Common.Money?)",
+          "span": [
+            74,
+            5,
+            75,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "line_ranges": [
+        [
+          119,
+          128
+        ],
+        [
+          131,
+          141
+        ],
+        [
+          154,
+          189
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-68c38ec3666ab8a76cc483782c9d631d417de98e152305dea4d4c0b2b2259e38",
+          "signature": "Falah.Domain.Inventory.CostingRules.ComputePrepRecipeCost(Falah.Domain.Inventory.PrepRecipe?, IReadOnlyList<Falah.Domain.Inventory.PrepRecipeLine>, Falah.Domain.Inventory.CostingContext, HashSet<string>?)",
+          "span": [
+            97,
+            5,
+            129,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d320130df3d04e0a30103b3cc78039113630bb198c6ed5705af24dc1f49115c6",
+          "signature": "Falah.Domain.Inventory.CostingRules.BaseQuantityMilliUnits(Falah.Domain.Inventory.RecipeLine)",
+          "span": [
+            136,
+            5,
+            141,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0fccbcb03ebdb3cbd0da721ead3b6b10776be0d555fbf87c22fb98146fb4221e",
+          "signature": "Falah.Domain.Inventory.CostingRules.ComputeRecipeCost(IReadOnlyList<Falah.Domain.Inventory.RecipeLine>, Falah.Domain.Inventory.CostingContext)",
+          "span": [
+            153,
+            5,
+            177,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f1aa7791d161dba4586d2058c76ed70d9d3fd4c9d9a8330e002148774a903290",
+          "signature": "lambda expression",
+          "span": [
+            162,
+            58,
+            162,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-a37184daa74a29ceaf9a0a0efae1fb2687dbc0e55f16a843284f7761fc8466dd",
+          "signature": "Falah.Domain.Inventory.CostingRules.OrderPackagingCost(string, IEnumerable<Falah.Domain.Inventory.OrderPackagingRule>, Falah.Domain.Inventory.CostingContext)",
+          "span": [
+            181,
+            5,
+            190,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4fbd5c136e1466b38fa5eafaa5c0841a6954a3da5ff929f2389cfe3fb1f49d2e",
+          "signature": "lambda expression",
+          "span": [
+            183,
+            41,
+            183,
+            82
+          ]
+        },
+        {
+          "stable_id": "sym-85cc5c208a83a4cadb48f3fb9085207e3c2c1e77650249665cc9e1016bbf288d",
+          "signature": "lambda expression",
+          "span": [
+            186,
+            54,
+            186,
+            87
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+      "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "line_ranges": [
+        [
+          21,
+          45
+        ],
+        [
+          48,
+          65
+        ],
+        [
+          79,
+          99
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-15bec1c768e59f457124e27cda15e8d89d59ba5354abc3b44cbf27f8517adc81",
+          "signature": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductForOrderAsync(string, string, IReadOnlyList<Falah.Infrastructure.Orders.MenuPricingService.ResolvedItem>, string, DateTimeOffset, CancellationToken)",
+          "span": [
+            21,
+            5,
+            67,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c4e8a1febe7ca96d6cdb0aea57875bf9150ac63de4e9ea5d4afc03605f217ef5",
+          "signature": "lambda expression",
+          "span": [
+            27,
+            37,
+            27,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-2b87a4a25d72d3fbfcfdc6cddda94748087479a5e9caaca81f055ddc3da5e47f",
+          "signature": "lambda expression",
+          "span": [
+            27,
+            73,
+            27,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-4a0af171cd1cea35104236d469fba4d5698f78b7fa7fd992d577a2c15d1eb0ca",
+          "signature": "lambda expression",
+          "span": [
+            30,
+            49,
+            30,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-0b8d3cf36f23faf40a1a9954d9ebf1cb4db37fd35e77b5b77bd84fafb32259d2",
+          "signature": "lambda expression",
+          "span": [
+            31,
+            20,
+            31,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-557b0bf704a42c4aad5c9ab3c45c727c3b81ad511a858978ced2b3adac7ef085",
+          "signature": "lambda expression",
+          "span": [
+            31,
+            81,
+            31,
+            90
+          ]
+        },
+        {
+          "stable_id": "sym-7cb1499dc461cea1564eb9848e4c5adcf3b24675b6b646b97ac3039d10c56048",
+          "signature": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductOrderPackagingAsync(string, string, string, DateTimeOffset, CancellationToken)",
+          "span": [
+            77,
+            5,
+            97,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-3dbbbfae83bd0f2adab6084f5c3efb1f3cf74768a04b6f4113881e641a37c753",
+          "signature": "lambda expression",
+          "span": [
+            81,
+            34,
+            81,
+            75
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          386,
+          423
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "span": [
+            349,
+            5,
+            423,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-20f937ced2915dc5759db4bf806e7f25c2d37b77cf18ff6217d734bbadda8807",
+          "signature": "lambda expression",
+          "span": [
+            404,
+            51,
+            404,
+            172
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "line_ranges": [
+        [
+          318,
+          351
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6aea4d1aa7ad448ab82ce39715ce5172c0ddbb91c89372cdb8de5f688d560311",
+          "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.BuildCostLine(Falah.Infrastructure.Persistence.Entities.RecipeItemEntity, Falah.Domain.Inventory.CostingContext, IReadOnlyDictionary<string, string>)",
+          "span": [
+            318,
+            5,
+            356,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9adb46e632aca5f33104f4d53ddb38a20a79f81564927a8e6f3e8203d00be14b",
+          "signature": "lambda expression",
+          "span": [
+            321,
+            54,
+            321,
+            89
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "source_git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "line_ranges": [
+        [
+          22,
+          26
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e4202acad35cfd0610601d90dda4f1d7b1e3673bc895752547848b1623fad352",
+          "signature": "Falah.Domain.Common.Money.FromEgp(decimal)",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PurchasingRulesTests.cs",
+      "worktree_sha256": "cf9c5244c2bda72d0d9021368974d7adb85b1a0d0dce2e5f69d0564c77760496",
+      "source_git_blob_sha256": "cf9c5244c2bda72d0d9021368974d7adb85b1a0d0dce2e5f69d0564c77760496",
+      "line_ranges": [
+        [
+          12,
+          17
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-aaa52c9e029f689992864d474c6eb3b64263c615a96ac314de992706dca33241",
+          "signature": "Falah.Domain.Tests.PurchasingRulesTests.Purchase_line_total_rounds_to_the_nearest_piastre()",
+          "span": [
+            12,
+            5,
+            17,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/CostingRulesTests.cs",
+      "worktree_sha256": "63f20a348114e234a1191aeb75478e6a9671d3f78d74736f8ce2b4dd58cf5cdb",
+      "source_git_blob_sha256": "7b3c5edd19f26daa20ca9fd173a9723ff6b1f9d6f8a25afd8b0c2258ce7cb44f",
+      "line_ranges": [
+        [
+          77,
+          90
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4436fa65b1b8f2b5f06d9723143179e424aadeb4fcf6aaae7cf2d8f57b0750b0",
+          "signature": "Falah.Domain.Tests.CostingRulesTests.A_yield_line_without_its_conversion_ratio_is_incomplete_not_a_math_error()",
+          "span": [
+            77,
+            5,
+            82,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-af61288c462eb168ef183fc659b90832802cad18248468e350bf1e37562eec06",
+          "signature": "Falah.Domain.Tests.CostingRulesTests.A_yield_line_converts_a_piece_count_back_to_raw_weight()",
+          "span": [
+            84,
+            5,
+            90,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "reasoning": [
+    "Inventory deduction and costing call the same BaseQuantityMilliUnits; null Yield ratio skips stock posting but marks costing incomplete, not divergent conversion formulas.",
+    "Purchase, prep, packaging and inventory valuation use PurchaseLineTotal quantity*decimal unitcost/1000. Money.FromEgp is a distinct currency-boundary conversion; do not merge unlike units merely because both round.",
+    "Sold-cost reporting multiplies rounded per-recipe cost by sold quantity; stock uses converted milliunits times quantity. Per-line/perportion versus aggregate rounding is a policy/regression question, not automatically a confirmed defect.",
+    "Order packaging once per order is separate from per-item recipe packaging. Missing completeness is existing financial finding, not a new duplicate.",
+    "Existing499.5->500,100/4->25 and null conversion tests inspected only, not run."
+  ],
+  "required_tests": [
+    "Specify midpoint and perportion/aggregate rounding policy before arithmetic changes.",
+    "Cross-check fractional multiportion recipes between stock/cost, unknown ratios, once-per-order packaging, range/overflow boundaries."
+  ],
+  "new_financial_callable_receipts": 0,
+  "new_canonical_findings": 0,
+  "runtime": "NOT_EXECUTED",
+  "pending_helper": "exec session68248, do not relaunch blindly or overwrite newer evidence",
+  "canonical_target": "Deep-Audit/Duplication-and-Architecture/cost-quantity-semantic-comparison.json"
+}

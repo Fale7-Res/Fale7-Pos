@@ -5,7 +5,7 @@
   "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
   "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
   "reviewer": "financial_integrity",
-  "updated_at_utc": "2026-10-17T22:06:16.861309+00:00",
+  "updated_at_utc": "2026-10-19T09:33:17.328015+00:00",
   "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
   "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
   "symbols": [
@@ -42,7 +42,7 @@
         182,
         6
       ],
-      "reasoning": "Validates account, run-key replay then actor and Approved run; loads lines/total and reports zero-total cause including unpriced monthly employees. Requires open day before transaction. Inside transaction locks source balance, creates single run-key journal and movement, then positive employee line settlements, run Paid metadata and audit, saves/commits. Unique same-run key prevents duplicate monetary posting even across source accounts. Run/line status snapshot is before transaction; no claimed generic race until competing transition guards/EF tokens fully traced. Zero/negative lines skipped but included total; domain normally clamps netpay, inspect separately before claim. Rollback catches designated conflict then retries read; other exceptions unwind transaction.",
+      "reasoning": "Validates account, run-key replay then actor and Approved run; loads lines/total and reports zero-total cause including unpriced monthly employees. Requires open day before transaction. Inside transaction locks source balance, creates single run-key journal and movement, then positive employee line settlements, run Paid metadata and audit, saves/commits. Unique same-run key prevents duplicate monetary posting even across source accounts. Run/line status snapshot is before transaction. Subsequent independent source challenge now resolves the competing transition lead as FIN-CAND-PAYROLL-001: stale Approved readers can pay after cancellation or overwrite Paid with Cancelled; unique payout journal still prevents duplicate same-run money posting. Zero/negative lines are skipped for settlement but included in summed total. Negative persisted lines are not demonstrated through the normal writer: PayrollRules106-107 clamps negative NetPayable to zero, and CreatePayrollHandler84 copies that result. Corrupt/external database negative-line assumptions remain unverified, not a new normal-path defect. Rollback catches designated conflict then retries read; other exceptions unwind transaction.",
       "inputs": "PayPayrollRequest/ct",
       "outputs": "PayPayrollResult",
       "side_effects": "Handler may post payroll in production; static audit executed no payroll path.",
@@ -51,9 +51,9 @@
       "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
       "performance": "Run lines materialized once; one employee ledger call per positive line, replay count query. No benchmark.",
       "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
-      "issues_hypotheses": "FIN006 generic transition can mark Paid without this handler; this path performs actual payout and must not be conflated. Concurrent Cancel vs payment status recheck lead not yet established.",
+      "issues_hypotheses": "FIN006 generic transition can mark Paid without this handler. Distinct FIN-CAND-PAYROLL-001 stale pay/cancel terminal-state race is independently source-corroborated with no replacement live-period run and existing payout uniqueness retained. Negative persisted net-line concern is not demonstrated by normal writer; external corruption assumption unverified.",
       "tests_missing": "Same run concurrent same/differentaccounts; generic Paid-withoutmovement FIN006; competing cancellation; zero lines; cancellation; positive lines sum equals movement",
-      "verified_callers_callees": "Replay46; authorization84; total87; source119-120; journal123-126; settlements137-147; commit163."
+      "verified_callers_callees": "Replay46; authorization84; total87; source119-120; journal123-126; settlements137-147; commit163.; source challenge Sub-Agents/Handoffs/payroll-terminal-state-independent-challenge.json; normal line writer CreatePayrollHandler84 and PayrollRules106-107."
     },
     {
       "stable_id": "sym-7f914af4a24a9ce3bed9c10a4876aff19e2f061b63235ef11faf754eb4f95b37",
@@ -355,5 +355,6 @@
       "verified_callers_callees": "AwaitSibling173-174; LoadReplay46; BalanceLockContention behavior previouslyread."
     }
   ],
+  "evidence_resolution_note": "Updated stale hypotheses using already saved independent challenge and bounded normal-writer source check; no new callable count or execution.",
   "remaining_callable_ids": []
 }

@@ -1,0 +1,679 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/ControlCenterEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-0b9bad2f0fd45b394251440ced298fb86a22bdccdd38c368926f0e56af5d341e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.Id.get",
+        "span": [
+          44,
+          24,
+          44,
+          28
+        ],
+        "reasoning": "Getter exposes deterministic snapshot-RequestId identity used by close replay; unique PK prevents two persisted rows with same ID but does not bind replay to requested day/actor by itself.",
+        "inputs": "Archived snapshot carrying string snapshot PK.",
+        "outputs": "string snapshot PK without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-222d0414cbf234c62a6b872df12855d94a855443061c55d67f8cc3b4c565b391",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.Id.set",
+        "span": [
+          44,
+          29,
+          44,
+          33
+        ],
+        "reasoning": "Setter stores request-derived ID after admission. Existing-row replay is before actor/day validation, so field identity alone is not payload fingerprint protection.",
+        "inputs": "string snapshot PK from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-68bf3b96d88d6cd1f4008085d6ae2cca058121f71827486b5b85f62bd8293360",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.BusinessDayId.get",
+        "span": [
+          45,
+          35,
+          45,
+          39
+        ],
+        "reasoning": "Getter associates archival close evidence with day for current/history queries and relational integrity, not with calendar date alone.",
+        "inputs": "Archived snapshot carrying string business-day FK.",
+        "outputs": "string business-day FK without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-08ef28837c1d1bea17ac2a672940e4089051e971f4b2975d68a3b1714def15a3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.BusinessDayId.set",
+        "span": [
+          45,
+          40,
+          45,
+          44
+        ],
+        "reasoning": "Setter uses validated day.Id. Restrict-delete FK prevents ordinary parent removal while snapshot exists under inspected mapping; no mutable reassociation workflow is authored here.",
+        "inputs": "string business-day FK from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-a105dddd48f7371831e09bf1a1587262adb3c6c3787c05d96ebd07469d4acd1b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.CloseRevision.get",
+        "span": [
+          46,
+          32,
+          46,
+          36
+        ],
+        "reasoning": "Getter exposes count-based close revision separate from request ID; higher revision is used to order close history, not a concurrency token.",
+        "inputs": "Archived snapshot carrying int close revision.",
+        "outputs": "int close revision without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-5edae5ece0f21b10c85ecbcc7508a281e5315199e24f6af0f63f6d29f17ab211",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.CloseRevision.set",
+        "span": [
+          46,
+          37,
+          46,
+          41
+        ],
+        "reasoning": "Setter receives current snapshot Count+1 inside close transaction. No unique day/revision index is declared in inspected mapping, so setter alone cannot guarantee concurrent revision uniqueness.",
+        "inputs": "int close revision from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-b5b1a10117ab153d1943d2ba4692df6e935b8b441a060d828f3b24a9de240560",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.Authoritative.get",
+        "span": [
+          47,
+          33,
+          47,
+          37
+        ],
+        "reasoning": "Getter indicates snapshot selected as current archival close, not proof live data is unchanged since generation or day is currently closed.",
+        "inputs": "Archived snapshot carrying bool current archival flag.",
+        "outputs": "bool current archival flag without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-3e3b9ef4a333c4eb776dba7505ecfab4327723c2b205b9e7f6e8dcfbaa4ff552",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.Authoritative.set",
+        "span": [
+          47,
+          38,
+          47,
+          42
+        ],
+        "reasoning": "Setter initializes new true after prior day snapshots ExecuteUpdate false. Reopen source leaves snapshot history and pointer; absence of unique filtered index means boolean does not itself enforce one current record.",
+        "inputs": "bool current archival flag from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-89fd243aeb3bb1c620a1024af4c0951d82655a49eff0f8180756cae13a9f3dd7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.PreviousSnapshotId.get",
+        "span": [
+          48,
+          41,
+          48,
+          45
+        ],
+        "reasoning": "Getter exposes prior snapshot link for close lineage; the entity contains a string, not a loaded validated snapshot navigation.",
+        "inputs": "Archived snapshot carrying nullable previous snapshot ID.",
+        "outputs": "nullable previous snapshot ID without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-81f2b910619979f93317d685579b8c4742dbf87c4f48b63fe100ae4e049dd1f9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.PreviousSnapshotId.set",
+        "span": [
+          48,
+          46,
+          48,
+          50
+        ],
+        "reasoning": "Setter copies day.SnapshotId at next close, preserving reopen/close chain. No authored self-reference FK appears in inspected mapping, so identity correctness is caller-maintained.",
+        "inputs": "nullable previous snapshot ID from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-e5f8156b2ad345908512a9073b71c438214e652aabf14826407498f48262439e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.BusinessDate.get",
+        "span": [
+          49,
+          36,
+          49,
+          40
+        ],
+        "reasoning": "Getter exposes business-date snapshot serialized as yyyy-MM-dd, distinct from UTC generation time and not re-derived from local clock on read.",
+        "inputs": "Archived snapshot carrying DateOnly business date.",
+        "outputs": "DateOnly business date without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-10f8dbed7a50164f3f8de76716c3a44e9fed2d498bb8a8870bbe97debc58466d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.BusinessDate.set",
+        "span": [
+          49,
+          41,
+          49,
+          45
+        ],
+        "reasoning": "Setter copies day.BusinessDate. Updating live day metadata later does not automatically rewrite this archived value through the accessor.",
+        "inputs": "DateOnly business date from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-b3b1884dd60572d06895af007dd844d567939b698b8340cc160f203d178f6aef",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.GeneratedAtUtc.get",
+        "span": [
+          50,
+          44,
+          50,
+          48
+        ],
+        "reasoning": "Getter returns close attempt generation instant, not commit time or a fresh financial valuation instant at later read.",
+        "inputs": "Archived snapshot carrying DateTimeOffset generation time.",
+        "outputs": "DateTimeOffset generation time without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-059db52b47cb57b5edd0a7bfdf8cec92c62dd8c050b00bd93818c882c0a4668a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.GeneratedAtUtc.set",
+        "span": [
+          50,
+          49,
+          50,
+          53
+        ],
+        "reasoning": "Setter receives now captured before close transaction and evidence queries; no guarantee every queried source was sampled at that exact instant.",
+        "inputs": "DateTimeOffset generation time from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-bcedb7248072d86fcf5265f1f2935526befcc4838c3253de336792307faff322",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ClosedBy.get",
+        "span": [
+          51,
+          30,
+          51,
+          34
+        ],
+        "reasoning": "Getter exposes closing actor name snapshot rather than stable user ID or manager-approval authorization receipt.",
+        "inputs": "Archived snapshot carrying string closer display name.",
+        "outputs": "string closer display name without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-9be1728d0d2f4a5321ddcc5a65077ced7a29ae5444fb02a5b197d086fae4578c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ClosedBy.set",
+        "span": [
+          51,
+          35,
+          51,
+          39
+        ],
+        "reasoning": "Setter records actorUser.Name; actual permission-or-approval authorization precedes snapshot creation. Display name assignment cannot enforce authority or immutable user identity.",
+        "inputs": "string closer display name from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-b3e9fee7ddff9f5acaf54b6905eace4850e29279890adb31c1db2f3e30352d90",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.OperationId.get",
+        "span": [
+          52,
+          33,
+          52,
+          37
+        ],
+        "reasoning": "Getter exposes business-close-day-rN correlation used by administrative audit, distinct from snapshot RequestId identity.",
+        "inputs": "Archived snapshot carrying string close operation correlation.",
+        "outputs": "string close operation correlation without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-d6739631ae2d1ff3732319870a82ca837c5eb43ad7b3a0b468c009db19d1d8eb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.OperationId.set",
+        "span": [
+          52,
+          38,
+          52,
+          42
+        ],
+        "reasoning": "Setter uses operationId based on day.CloseRevision+1 computed before transaction; it is correlation text, not a declared unique snapshot key.",
+        "inputs": "string close operation correlation from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-318ade81030e42636342afb17dce864708d38c6e166d7fdb3637e6a8949bb251",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ReconciliationJson.get",
+        "span": [
+          53,
+          40,
+          53,
+          44
+        ],
+        "reasoning": "Getter returns frozen serialized reconciliation evidence without recalculating current source facts. Malformed persisted text is not validated by this auto-property.",
+        "inputs": "Archived snapshot carrying string reconciliation JSON.",
+        "outputs": "string reconciliation JSON without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-30af14f5c10371c5334f7fc461786107445efe47fb8e4a58e85a94e3c2d2a829",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ReconciliationJson.set",
+        "span": [
+          53,
+          45,
+          53,
+          49
+        ],
+        "reasoning": "Setter serializes reporting service result within successful close path; accessor does not enforce JSON shape/schema, financial equality or tamper evidence.",
+        "inputs": "string reconciliation JSON from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-b578ad4688c058447f0f9f8df68326c5bcddafc9a688261b0f75c2b164b10066",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ExceptionsJson.get",
+        "span": [
+          54,
+          36,
+          54,
+          40
+        ],
+        "reasoning": "Getter returns computed exception snapshot from close time, separate from later live exception-state overlay and acknowledgement mutations.",
+        "inputs": "Archived snapshot carrying string exception snapshot JSON.",
+        "outputs": "string exception snapshot JSON without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-c43cca1fa95c94b5c50a92ab5825e83dd1279427a9b2fa18289142d5f8e90321",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ExceptionsJson.set",
+        "span": [
+          54,
+          41,
+          54,
+          45
+        ],
+        "reasoning": "Setter serializes BuildDayExceptions output, not the persisted ControlExceptionState table. No automatic refresh occurs when new exceptions arise after snapshot.",
+        "inputs": "string exception snapshot JSON from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-d21a6a0f81a885c842634d98c997ce376be120e8b4c7a708dac334ac2a4a4925",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ChecklistJson.get",
+        "span": [
+          55,
+          35,
+          55,
+          39
+        ],
+        "reasoning": "Getter returns stored day completion rows as JSON, not complete current catalog definitions, labels or a physical work proof.",
+        "inputs": "Archived snapshot carrying string checklist completion JSON.",
+        "outputs": "string checklist completion JSON without recomputation.",
+        "side_effects": "No side effects or live source query.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      },
+      {
+        "stable_id": "sym-94d246e1241405a64be9d842be8ff56ffc5d003338ee523713d4e2c8ec5d1199",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity.ChecklistJson.set",
+        "span": [
+          55,
+          40,
+          55,
+          44
+        ],
+        "reasoning": "Setter serializes ItemId/Completed/time/name rows, including queried day completions; required active Closing evaluation occurs separately before archival. Catalog changes need version-aware interpretation on read.",
+        "inputs": "string checklist completion JSON from admitted close path.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF field assignment only. SaveChanges/transaction, demotion of prior snapshots and audit writes are close-handler responsibilities.",
+        "trust_boundaries": "Close handler authorization precedes new snapshot construction; replay is by existing snapshot ID before actor/day checks. No property validates authority or cryptographically proves archive authenticity.",
+        "database": "FalahDbContext400-405 declares snapshot PK, day index, Restrict day FK; no authored per-day revision/Authoritative uniqueness in inspected mapping. Close91-119 handles construction and commit. No SQL executed.",
+        "printing_ui": "Close DTO162-165 returns archival JSON and metadata; archived evidence is not a newly loaded menu, live register or print rendering. No UI/device execution.",
+        "performance": "O(1) field accessor. JSON serialization, count query and bulk prior-flag update occur in caller and are not repeated on field read.",
+        "duplicates_conflicts": "Archive separates live reporting from historical close revision. Existing FIN day-admission/state findings not dismissed by deterministic snapshot ID or transaction alone.",
+        "issues_hypotheses": "No new accessor finding promoted. Source documents archival lineage; count/replay/flag guarantees must be qualified by existing concurrency/admission review and provider tests.",
+        "tests_missing": "No tests executed. Regression should retain old snapshots across reopen, correct current flag/lineage, same-request replay binding, JSON schema/version compatibility and concurrent close behavior.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:34-38,61-119,162-165",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:69-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:400-405",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:44-51"
+        ]
+      }
+    ]
+  }
+]

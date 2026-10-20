@@ -1,0 +1,185 @@
+{
+  "name": "Client identity, approval, clock and cart operation mirrors",
+  "comparisons": [
+    {
+      "group_prefix": "555fbe2c",
+      "reasoning": "Five approval helpers same bool short-circuit, min4inputlength, one server IssueManagerApproval call and returned issued token/approver IDs. No client-selected arbitrary authority accepted from successful result.",
+      "callers_context": "Cashier Operations345, ControlCenter136, Employees390, Inventory696,Purchasing604 bodies read; actual call sites pass operation-specific permission/reason and UI error callback.",
+      "financial_security_effects": "needsApproval is client UX only; false returns no token and server must still authorize. No live PIN values inspected or credentials saved. Different submitted action values, retry persistence and command writers remain outside helper.",
+      "recommendation": "Share a typed approval-prompt service preserving server authority, error callback and action-specific permission; never auto-send second issuing call for local validation.",
+      "tests": [
+        "Noapproval path no API",
+        "Short input failure",
+        "Server denied/null result",
+        "Issued IDs only",
+        "Command consumes matching action token"
+      ]
+    },
+    {
+      "group_prefix": "796544e8",
+      "reasoning": "Three login Submit bodies identical: busy/error, API LoginByPin, failure clears input, success assigns CurrentUser then clears and emits LoggedIn, exception shows message, finally clears busy.",
+      "callers_context": "CallCenter/legacyWPF/CashierWinUI exact bodies, CanSubmit guards length>=4,!IsBusy and Toolkit relay generation read. Prior API transport comparison retained.",
+      "financial_security_effects": "Same code does not prove same API type/session role acceptance. Token/session change can occur in API before subsequent shell role check (prior UI020), not a new mirrored finding. No authentication automated or account tested.",
+      "recommendation": "Common login orchestration with UI-framework facade, preserve role/session acceptance and bearer-clear on rejected role; no fix applied.",
+      "tests": [
+        "Login failure/success/exception",
+        "Busy reset on event error",
+        "Rejected client role clears token",
+        "Same current user and bearer state"
+      ]
+    },
+    {
+      "group_prefix": "17b6a81a",
+      "reasoning": "Three UpdateClock methods use DateTime.Now and ar-EG clock/day formatting, independent server Cairo BusinessClock. Identical output logic.",
+      "callers_context": "Headers timer Tick and constructor UpdateClock call, WinUI versus WPF framework types differ.",
+      "financial_security_effects": "Workstation timezone display can differ backend restaurant date; same source body not a durable business-day policy. No malicious timer inferred from visible clock update.",
+      "recommendation": "Shared pure date formatting with explicit clock/zone input while keeping platform timer adapters.",
+      "tests": [
+        "Cairo and other host timezone",
+        "Midnight date rollover",
+        "Locale formatting",
+        "Clock survives header reuse"
+      ]
+    },
+    {
+      "group_prefix": "3f2c2c91",
+      "reasoning": "Two WinUI Header.Refresh methods notify same6computed properties, no fetch or mutation. Captured AppSession differs by client capability.",
+      "callers_context": "Header getters and Cashier ctor OperationStateChanged subscription; CallCenter explicit Refresh callers versus main session lifecycle separate.",
+      "financial_security_effects": "Notification equality does not mean all triggering events subscribed equally. No permission enforced by visibility update.",
+      "recommendation": "Share computed-header notification helper only with explicit lifecycle/subscription policy.",
+      "tests": [
+        "User/shift change refresh",
+        "Pending operation CanLock state",
+        "No stale badge after session switch"
+      ]
+    },
+    {
+      "group_prefix": "7eca7aff",
+      "reasoning": "CallCenterWinUI and legacyWPF constructors same session assignment, initial clock update,30sDispatcherTimer tick/start. DispatcherTimer symbols bind different UI frameworks. CashierWinUI near-copy adds OperationStateChanged subscription.",
+      "callers_context": "Full Header ctor context and CashierWinUI20-29 Stop method read; main shell Stop calls Header.Stop.",
+      "financial_security_effects": "Intentional platform adapters; timer only clock text, not financial posting. No actual leak proven merely live timer. Merging bodies across platform assemblies not directly drop-in.",
+      "recommendation": "Common clock presentation logic with platform-owned timer/dispose adapters and explicit unsubscribe lifecycle.",
+      "tests": [
+        "Stop called on application close",
+        "No multiple timer after repeated screen creation",
+        "Platform dispatcher affinity"
+      ]
+    },
+    {
+      "group_prefix": "faeee31a",
+      "reasoning": "Three AppSession.HasPermission bodies check nonnull CurrentUser and exact permission/all membership. They do not check Active, refresh/revoke token or validate issued server role.",
+      "callers_context": "Actual session code and counterpart declarations read; Cashier session draft/management unresolved-operation state differs CallCenter/legacy.",
+      "financial_security_effects": "Advisory client command availability only, server Actor policy includes active identity. Do not claim missing Active check automatically bypasses actual server authorization.",
+      "recommendation": "Share permission-view helper using common user contract, retain server as authority and per-client operation lifecycle state.",
+      "tests": [
+        "all permission",
+        "Missing/current user",
+        "Permission revocation server-side",
+        "Client-specific role/session acceptance"
+      ]
+    },
+    {
+      "group_prefix": "3590c2e2",
+      "reasoning": "AppendNoteText same CanEditOperation guard and comma-separated appended line Notes. Captured CartLine and root operation predicates belong separate clients.",
+      "callers_context": "Cashier/CallCenter bodies and State CanEditOperation definitions read; cart-note UI routes call this direct helper.",
+      "financial_security_effects": "Cashier guard includes many retained financial operations, CallCenter includes checkout/print. Same body correct abstraction only with caller operation policy; note mutation not financial authorization.",
+      "recommendation": "Shared line-note formatting/command helper parameterized edit eligibility; keep notes in server CheckoutItem request.",
+      "tests": [
+        "Blank/existing note",
+        "Unresolved request blocks editing",
+        "Correct note copied at checkout"
+      ]
+    },
+    {
+      "group_prefix": "599e0e29",
+      "reasoning": "Three checkout item selectors serialize ProductId/VariantId/Quantity/AppliedOfferId/Notes into same shared Application CheckoutItemRequest. No client unit price included.",
+      "callers_context": "CallCenterCheckout142, legacy102,CashierWinUI353; surrounding requests differ split method and DiscountPiastres0versusactive discount.",
+      "financial_security_effects": "Intentional shared line contract, server revalidates effective offer/product amounts. Identical selector does not make complete order payment/tax/discount payload equal.",
+      "recommendation": "One mapper for cart-line contract preserving station-specific checkout envelope.",
+      "tests": [
+        "Offer expiry revalidated server",
+        "Notes/variant/quantity preserved",
+        "Cashier multi/discount separate",
+        "No client price accepted"
+      ]
+    },
+    {
+      "group_prefix": "f58ed9b4",
+      "reasoning": "Two DecreaseQuantity handlers guard CanEditOperation, decrement above1 else remove, then recompute local totals. Different parent subtotal/tax/comp capability intentionally remains.",
+      "callers_context": "Cashier/CallCenter bodies, parent RecomputeCartTotals and state predicates read; Cashier NotifyTotals extra notifications.",
+      "financial_security_effects": "UI estimates not authoritative server totals; subtotal-sum same, Cashier subtracts discount/tax+fee-comp while CallCenter plain tax+delivery (no comp/discount). Domain CheckoutRules93-97 agrees shared order of operations for supported inputs; not all client feature parity.",
+      "recommendation": "Share cart-line mutation while keeping specialized financial estimate policy and server authority.",
+      "tests": [
+        "Qty1removes",
+        "Qty2decrements",
+        "Retained request prohibits edits",
+        "Client estimate/server result contract"
+      ]
+    },
+    {
+      "group_prefix": "80afc368",
+      "reasoning": "Three digit-entry handlers guard EXISTING Pin.Length>=6, then append provided digit string and clear error. Does not validate parameter is one digit; normal keypad binding constrains it.",
+      "callers_context": "Login CanSubmit length>=4,!busy plus command declarations; WPF and WinUI wrappers share rule.",
+      "financial_security_effects": "Multi-character programmatic parameter can exceed6; no server PIN bypass inferred from UI parameter contract. No actual PIN literal or login operation used.",
+      "recommendation": "Share input normalization with explicit one-digit contract if desired; preserve server independent validation.",
+      "tests": [
+        "4-6digit keypad",
+        "Append after6blocked",
+        "Unexpected command parameter",
+        "Backspace/error state"
+      ]
+    },
+    {
+      "group_prefix": "8dd7e39d",
+      "reasoning": "Three OnIsBusyChanged hooks notify CanEditAction and register !CanEditAction in shared session. Captured predicates differ Delivery(assign/outcome/settle),Inventory(count/waste),Purchasing(supplier/receive/pay).",
+      "callers_context": "Actual predicate lines before each hook and AppSession.SetManagementOperationPending identity-set implementation read.",
+      "financial_security_effects": "Shared busy callback is global close/lock coordination, not only animation. Pending request transitions must also refresh registration even without busy change; no complete lifecycle correctness inferred.",
+      "recommendation": "Shared operation-state adapter parameterized actual pending predicate, preserve register/unregister owner lifetime.",
+      "tests": [
+        "Busy start/finish",
+        "Pendingunknown with busyfalse",
+        "No lock/close while financial outcome unknown",
+        "Owner cleanup on screen disposal"
+      ]
+    },
+    {
+      "group_prefix": "6bfa9f72",
+      "reasoning": "Two selected-category hooks refresh catalogue then mark tile selected by object ReferenceEquals, not ID string. Same instance assumption in each client.",
+      "callers_context": "RefreshVisibleProducts bodies route current category or search-across-categories with icon-by-product lookup, read bounded context.",
+      "financial_security_effects": "Reload producing new DTO instances must rebuild selection references, else highlight can differ; not a proven runtime defect. No financial product validation via tile identity.",
+      "recommendation": "Shared catalogue presentation state with explicit selected identity policy and separate station actions.",
+      "tests": [
+        "Reload DTO instances",
+        "Cross-category search",
+        "Null category",
+        "Only one tile selected"
+      ]
+    },
+    {
+      "group_prefix": "faae7d7a",
+      "reasoning": "Two health checks await PingHealth then update IsOnline only if not stopped. Full root shells use5sDispatcherTimer and initial fire-and-forget check; Cashier adds recovered-operation notice.",
+      "callers_context": "CallCenter constructor/Stop37-54 and Cashier constructor/CheckHealth contexts read.",
+      "financial_security_effects": "No serialization/cancellation token here, so overlapping pings can complete out of order if duration>interval; indicator is endpoint availability, not proven database/financial readiness. No live ping executed.",
+      "recommendation": "Shared cancellable/singleflight health observer with UI adapters; keep unrelated operation-close guards distinct.",
+      "tests": [
+        "Stop while ping in flight",
+        "Out-of-order responses",
+        "Long request overlap",
+        "Endpoint healthy but DB failure separately"
+      ]
+    },
+    {
+      "group_prefix": "dd536477",
+      "reasoning": "Two RemoveLine handlers guard CanEditOperation then remove item and recompute totals. Same mutation body, separate CartLine classes and specialized pending-operation guards.",
+      "callers_context": "Cashier274-275/CallCenter289-290 plus RecomputeCartTotals and State definitions inspected.",
+      "financial_security_effects": "Cannot remove line while unresolved checkout per UI predicate; server retains final request authority. No financial write in these handlers.",
+      "recommendation": "Shared cart command behavior if preserving station estimate and edit-state policy.",
+      "tests": [
+        "Existing/nonmember line",
+        "Unresolved command editblocked",
+        "Subtotal/itemcount notifications"
+      ]
+    }
+  ],
+  "evidence_output": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
+}

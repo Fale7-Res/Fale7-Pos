@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
+  "source_git_blob_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+  "worktree_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T09:09:15.969316+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-19e519b9c3d199d1c0491a3ff3b0b0f8733b02d907cd992185d4acd71aa2f095",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+      "span": [
+        19,
+        5,
+        29,
+        6
+      ],
+      "reasoning": "Casts actual EF connection/transaction to SQLServer types and executes one UPDATE LastAllocated+1 OUTPUT for singletonId1. Atomic statement avoids read/write allocation race; command joins existing transaction when present but does not enforce nonnull, so caller contract matters for rollbackno-burn. Actual checkout145 beginsTx before156 allocate and commits279, independently verified. Missing singleton throws; long max SQL overflow fails rather than wraps. No separate year/day reset or all-time numbering guarantee outside thisrow; audit does not execute SQL.",
+      "inputs": "Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+      "outputs": "Allocated positive nextlong or exception",
+      "side_effects": "Production executes singletonSQLUPDATE incallertransaction; audit executesnone.",
+      "trust_boundaries": "Internalcaller action/target/actor orscopedSqlContext; existingtransaction boundaryexplicit.",
+      "database": "SQLServer-specific command/context; receipt enforcesTx, sequence joinsoptionalTx butactualCheckoutcallerhasone.",
+      "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+      "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+      "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+      "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+      "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+      "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+    }
+  ],
+  "remaining_callable_ids": []
+}

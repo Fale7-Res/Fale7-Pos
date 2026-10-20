@@ -1,0 +1,751 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-9aa3617cbd62b39b30ebcb3947aaac595a80c29d69824b95a957080c55c91ea6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Id.get",
+        "span": [
+          69,
+          24,
+          69,
+          28
+        ],
+        "reasoning": "Getter identifies original custody row created at assignment; reassignment relabels same row rather than duplicating cash responsibility.",
+        "inputs": "Custody entity carrying string custody PK.",
+        "outputs": "string custody PK without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-60ca26ecb610ebfe0fb7863e4d182234b0f106f4648853df7229802e4c4a5bd2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Id.set",
+        "span": [
+          69,
+          29,
+          69,
+          33
+        ],
+        "reasoning": "Setter stores custody-assign-RequestId from domain creation. PK alone is supplemented by unique DeliveryId to enforce at most one custody per delivery.",
+        "inputs": "string custody PK from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-3d67fa77c76c77ab8107dfc1483b54bafa77e63a55fd3263b88d9622456e6bcb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.TripId.get",
+        "span": [
+          70,
+          28,
+          70,
+          32
+        ],
+        "reasoning": "Getter exposes auto-trip correlation assigned with initial dispatch, not a separate persisted manual trip aggregate.",
+        "inputs": "Custody entity carrying string dispatch trip ID.",
+        "outputs": "string dispatch trip ID without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-5617ad934b53c85817e52183b3049a22444811d0b59bd12aab5099b7c43a3b44",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.TripId.set",
+        "span": [
+          70,
+          33,
+          70,
+          37
+        ],
+        "reasoning": "Setter copies custody.TripId on assignment; reassignment changes DriverId only and preserves trip correlation.",
+        "inputs": "string dispatch trip ID from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-c482f581238a0b86558f7a452bad4f641a045ac8483d71237ecb1435eec7eca7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DriverId.get",
+        "span": [
+          71,
+          30,
+          71,
+          34
+        ],
+        "reasoning": "Getter identifies currently responsible driver for unsettled custody; it is mutable responsibility attribution, not frozen original driver.",
+        "inputs": "Custody entity carrying string responsible driver FK.",
+        "outputs": "string responsible driver FK without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-507d1096ea1d95652bdc94ba38dd96b69bcc5e727a97030bc8542ffc0c965a45",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DriverId.set",
+        "span": [
+          71,
+          35,
+          71,
+          39
+        ],
+        "reasoning": "Setter initially copies assign driver then reassignment relabels same unsettled row. Settlement queries lock current-driver custody set; actual handover of cash is not proven by assignment.",
+        "inputs": "string responsible driver FK from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-96b027e57d43bca36978094d0adc6105dd2ff1a65939254db70eaec9751a4d6e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.OrderId.get",
+        "span": [
+          72,
+          29,
+          72,
+          33
+        ],
+        "reasoning": "Getter links custody to order commercial facts, distinct from DeliveryId unique custody constraint.",
+        "inputs": "Custody entity carrying string order identity.",
+        "outputs": "string order identity without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-263d4403e14a344f19173151d05eae5510870203f96f011f94171bf029f9f424",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.OrderId.set",
+        "span": [
+          72,
+          34,
+          72,
+          38
+        ],
+        "reasoning": "Setter copies domain order ID; inspected custody mapping has no authored order FK at this block, so reference correctness depends on composed delivery/order context.",
+        "inputs": "string order identity from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-38d04659fbaffb1745c4db0365f5a0bee3eb8bf2161016858391f200ed06011a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DeliveryId.get",
+        "span": [
+          73,
+          32,
+          73,
+          36
+        ],
+        "reasoning": "Getter identifies delivery lifecycle holding responsibility, unique across custody rows.",
+        "inputs": "Custody entity carrying string unique delivery FK.",
+        "outputs": "string unique delivery FK without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-1a115739cefd9ddbb20b42f364d24944c5ba8b0f5d5c1ea7a1e661e5fab3d1c5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DeliveryId.set",
+        "span": [
+          73,
+          37,
+          73,
+          41
+        ],
+        "reasoning": "Setter copies domain delivery ID with Restrict FK and unique index. These constraints prevent duplicate row per delivery, not correct expected amount when payment state is misclassified (FIN019).",
+        "inputs": "string unique delivery FK from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-cbcf875a1d240628a4286ba08df06da72e03b11b4755b36dc167cfe3a3d3f906",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.ExpectedPiastres.get",
+        "span": [
+          74,
+          36,
+          74,
+          40
+        ],
+        "reasoning": "Getter returns responsibility expected at assignment, not necessarily actual collected cash or the driver settlement Expected field.",
+        "inputs": "Custody entity carrying long assignment expected amount.",
+        "outputs": "long assignment expected amount without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-a6f03b765a5cd89fbff35d0b4bc07b2507752c164f426c4454524aeab32af8c9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.ExpectedPiastres.set",
+        "span": [
+          74,
+          41,
+          74,
+          45
+        ],
+        "reasoning": "Setter copies CreateCashCustody calculation once. FIN019 mixed pending order can use whole net order amount; later outcome updates Collected/Difference but does not refresh assignment expectation.",
+        "inputs": "long assignment expected amount from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-9771cb27f31b6093dc792e2ef845ddd263a18ba1e1593c8b50f20060aa9a5ba9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.CollectedPiastres.get",
+        "span": [
+          75,
+          37,
+          75,
+          41
+        ],
+        "reasoning": "Getter is reported delivery collection used as settlement expected basis; it is not an electronic payment confirmation or direct treasury receipt.",
+        "inputs": "Custody entity carrying long reported collection.",
+        "outputs": "long reported collection without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-b4140fd32759679a218e544998f7f312b730565f199ec24990afc7e940999961",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.CollectedPiastres.set",
+        "span": [
+          75,
+          42,
+          75,
+          46
+        ],
+        "reasoning": "Setter initializes domain zero and updates on Delivered after collection amount/reason rules. Failed/Returned paths leave original zero; actual main treasury credit occurs only driver settlement.",
+        "inputs": "long reported collection from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-c3bb93e219c8a6d79a1be160438dcee1dc9c7fbfb975ee8d614ec7e2e6511d5d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.SettledPiastres.get",
+        "span": [
+          76,
+          35,
+          76,
+          39
+        ],
+        "reasoning": "Getter exposes custody-level settled figure, which normal writer sets to Collected even if driver-wide actual handover differs.",
+        "inputs": "Custody entity carrying long custody settled book amount.",
+        "outputs": "long custody settled book amount without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-a9fb0c8af1bbd9fc244fe180f126c3b80c3f27720be8c9454b9c239ede6fbe72",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.SettledPiastres.set",
+        "span": [
+          76,
+          40,
+          76,
+          44
+        ],
+        "reasoning": "Setter in settlement copies each custody Collected; total shortage/overage lives at DriverSettlement, so this field is not a per-order allocation of actual counted cash.",
+        "inputs": "long custody settled book amount from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-ccfd7a4eeae81bc73b25439f5c8bdeccb27f573843c80921174a7b3e586fe6a7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DifferencePiastres.get",
+        "span": [
+          77,
+          38,
+          77,
+          42
+        ],
+        "reasoning": "Getter exposes delivery collection minus assignment Expected, not driver-wide actual handover minus sum Collected.",
+        "inputs": "Custody entity carrying long delivery collection variance.",
+        "outputs": "long delivery collection variance without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-c90be685b8cd1ab79e374d5881a89f3405ade757bf33afa79c5af98cc057cf47",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DifferencePiastres.set",
+        "span": [
+          77,
+          43,
+          77,
+          47
+        ],
+        "reasoning": "Setter updates on delivered outcome and preserves value at settlement. Difference attribution therefore differs from DriverSettlement.Difference and must not be summed as identical stage variance.",
+        "inputs": "long delivery collection variance from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-3707448378732bf96f66f994e09ab09c9d19d29390faed1e406ebb4ac5e364da",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Status.get",
+        "span": [
+          78,
+          28,
+          78,
+          32
+        ],
+        "reasoning": "Getter distinguishes Open versus Settled for reassignment and day blockers, separate from delivery outcome status.",
+        "inputs": "Custody entity carrying string custody lifecycle.",
+        "outputs": "string custody lifecycle without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-ae1f808cf0f8ebc87899314a84ba69d328d2c2ded7147311be4e413bf6dbd49f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Status.set",
+        "span": [
+          78,
+          33,
+          78,
+          37
+        ],
+        "reasoning": "Setter initializes Open then settlement sets Settled; no custody Version token is authored, so common delivery/custody locking and unique relation carry concurrency controls.",
+        "inputs": "string custody lifecycle from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-c5cfa06bcd2a26c8254344b75b9fe11aa8ee58431c8b57c1457f6287daefd80b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.CreatedAtUtc.get",
+        "span": [
+          79,
+          42,
+          79,
+          46
+        ],
+        "reasoning": "Getter records original responsibility creation time; reassignment and settlement do not rewrite it.",
+        "inputs": "Custody entity carrying DateTimeOffset custody creation.",
+        "outputs": "DateTimeOffset custody creation without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-6687a1010503e2dc4b1e0391a28ef8f9e5198476852a858dfb69ca6af9459d94",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.CreatedAtUtc.set",
+        "span": [
+          79,
+          47,
+          79,
+          51
+        ],
+        "reasoning": "Setter captures assignment now; it is not a frozen order checkout timestamp or physical collection time.",
+        "inputs": "DateTimeOffset custody creation from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-c1d2115df5d7cc6abfe197cd3c442e32102d31a26dafd02a0f62319af73eeb38",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.SettledAtUtc.get",
+        "span": [
+          80,
+          43,
+          80,
+          47
+        ],
+        "reasoning": "Getter exposes nullable last settlement instant recorded in entity, while ToDriverCustody13-43 domain reconstruction omits this field.",
+        "inputs": "Custody entity carrying nullable settlement instant.",
+        "outputs": "nullable settlement instant without money movement.",
+        "side_effects": "No side effects or database read.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      },
+      {
+        "stable_id": "sym-40e2ea72d6264f0791179a16943f36ac335f74956477ff939e04561808a110c5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.SettledAtUtc.set",
+        "span": [
+          80,
+          48,
+          80,
+          52
+        ],
+        "reasoning": "Setter records driver settlement now, not actual delivered time. It marks software closure, not proof exact physical cash was handed over per custody.",
+        "inputs": "nullable settlement instant from dispatch/outcome/settlement mapping.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked custody assignment only; caller SaveChanges/transaction persists. No collection or bank/treasury action inside accessor.",
+        "trust_boundaries": "Driver responsibility, delivered reported collection and actual cashier handover are different stages. Actor permission/approval and nonnegative collection/variance reason checks belong handlers, not property values.",
+        "database": "DbContext333-343 custody PK, unique DeliveryId, Restrict delivery/driver FKs. Assign98-105 inserts, Reassign94-96 relabels, Result105-109 updates collection, Settlement78-82 locks/130-134 closes. No SQL operation run.",
+        "printing_ui": "Custody totals feed driver settlement/report, but stored collection is operator report, not independently measured physical cash. No UI/dispatch/physical printing run.",
+        "performance": "O(1) accessor; settlement locks driver row sets and materializes facts outside accessor. No measured lock contention or SQL provider schedule.",
+        "duplicates_conflicts": "Custody Expected is assignment responsibility, whereas settlement Expected=sum Collected (DeliveryRules32-37). FIN019 whole-total pending mixed responsibility retained; no duplicate finding.",
+        "issues_hypotheses": "No new accessor finding. Per-custody Settled=Collected does not allocate driver-wide variance; do not claim every order physically paid exact book figure.",
+        "tests_missing": "No tests run. Need prepaid/no-custody, mixed pending responsibility, reassignment single-row invariant, delivery variance versus handover variance, zero actual closure and concurrent driver settlements.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-105",
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94-96",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:94-109",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:61-123,130-134",
+          "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs:13-43",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:11-37",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:333-343"
+        ]
+      }
+    ]
+  }
+]

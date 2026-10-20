@@ -1,0 +1,477 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-74ad9d7d1fd2768cef4db9daa525e3b4c6bf2116f279cdf4d13008d4b99c8cab",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.SetUserActiveHandler.SetUserActiveHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+        "span": [
+          21,
+          5,
+          25,
+          6
+        ],
+        "reasoning": "Stores database and registry only; no account activation or survival check during construction.",
+        "inputs": "Falah.Infrastructure.Users.SetUserActiveHandler.SetUserActiveHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-f3f9764cb9ded8ce10307e1935f29d967089b3bf25e6ea9d053a053dea00437e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.SetUserActiveHandler.HandleAsync(Falah.Application.Users.SetUserActiveRequest, CancellationToken)",
+        "span": [
+          27,
+          5,
+          70,
+          6
+        ],
+        "reasoning": "Serializable transaction covers actual actor users_manage, target owner refusal, self-deactivation refusal and active-administrator survivor count before setting Active plus audit/commit. Strong counterevidence to blanket claim all admin-survival checks race outside transaction. Existing-state no-op returns without commit/mutation. Reactivation does not recheck PIN uniqueness or permission subset: inactive PIN may have been reused while inactive, so sequential duplicate-active-PIN lead distinct from concurrent checker; login consequence external, not promoted. Reason optional and audit contains no secrets. No request receipt, logical state retry no-ops.",
+        "inputs": "Falah.Infrastructure.Users.SetUserActiveHandler.HandleAsync(Falah.Application.Users.SetUserActiveRequest, CancellationToken)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-bbf023dcb5ef5822f72fb9653bcf10c8ca6c9c0b94a44419472cd643f49fdb5a",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          31,
+          76,
+          31,
+          108
+        ],
+        "reasoning": "Actual actor identity/permissions loaded within Serializable transaction, not request role. No one-off approval parameter despite stale comment46-48, so do not assert delegated deactivation path supported here.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-80c20cac9aac3121eb953c5b091612390de4767b4305d3011fd14cd27fc06e91",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          36,
+          58,
+          36,
+          85
+        ],
+        "reasoning": "Exact tracked target ID checked for owner role and self-deactivation. No role or credential mutation, only Active; retained permissions become active again without grant operation.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-fea7b7e9b8bec7d8cd9b78d4a86c2197ac11a09b040cd5a5b3cf2ca80feba483",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          53,
+          24,
+          53,
+          58
+        ],
+        "reasoning": "Survivor query counts all other active users, excluding target after proposed deactivation. Read occurs inside Serializable transaction so phantom/write conflict protections matter; no SQL concurrency test executed.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-a00a37f54cd83f239e30460bafeb65f11dd3e1a6ccf844aab756ae932fe8dd87",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          54,
+          25,
+          54,
+          43
+        ],
+        "reasoning": "Projects permission strings only for survivor classification. Does not count role label alone; effective role-derived permission assumptions need align with actual authorization policy.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-056000a9e2a45c3ef10ce1bde21c5c2d84d2c8f618a9c459e4a047ca74b8636a",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          58,
+          46,
+          59,
+          116
+        ],
+        "reasoning": "Counts others whose split trimmed permission set contains all or users_manage via domain helper. Domain throws if zero; serializable transaction protects this check/write boundary unlike independent PIN admission.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-ae354f5b06b2f4be4c34387055a6b9c4fdde6aec37ca01b0d9264ebe031ea6e6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UpdateUserPermissionsHandler.UpdateUserPermissionsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+        "span": [
+          22,
+          5,
+          26,
+          6
+        ],
+        "reasoning": "Stores context and registry only, no role/permission editing at injection.",
+        "inputs": "Falah.Infrastructure.Users.UpdateUserPermissionsHandler.UpdateUserPermissionsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-e866d0669d2e659da2a8a07dae9f9dfc25899a37289898aee1b77f4512e94ac4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UpdateUserPermissionsHandler.HandleAsync(Falah.Application.Users.UpdateUserPermissionsRequest, CancellationToken)",
+        "span": [
+          28,
+          5,
+          75,
+          6
+        ],
+        "reasoning": "Serializable transaction covers actual actor authorization, protected owner target, known deduplicated grants/revokes and grant subset. Computes union then revocation, so revoke wins when same permission in both. If result cannot administer, counts other active admins and refuses zero survivors; role itself unchanged. Saves CSV plus metadata audit/commit. No immutable command receipt, retry may append audit again even no permission difference. Serializability counterevidence to stale cross-revocation claim; deadlock handling/API behavior not measured.",
+        "inputs": "Falah.Infrastructure.Users.UpdateUserPermissionsHandler.HandleAsync(Falah.Application.Users.UpdateUserPermissionsRequest, CancellationToken)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-c4fe5ccef7ac196efc21274f2d89f6456ba3357a4d4b23893b3fbfe32bcb5898",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          32,
+          76,
+          32,
+          108
+        ],
+        "reasoning": "Actual actor loaded inside transaction; users_manage required before target edit. Actor explicit grant subset not based solely on arbitrary requested role.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-eab24cb1d2bcb95ceb95416895d99e00ff15cfc5059ac24954418b06bb938f48",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          37,
+          58,
+          37,
+          85
+        ],
+        "reasoning": "Exact target tracked row; owner immutable regardless actor identity. Target may inactive, but survivor branch counts other active users if result lacks admin; no target name/password rewrite.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-52fc6be44fb3d1981a0f79ac6fbb407b565fcd7a94de58653b6cab01cacc12a4",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          57,
+          24,
+          57,
+          58
+        ],
+        "reasoning": "Selects active users other than target for survival after a proposed admin-removing change. Serializable range protects simultaneous mutations per provider, no live proof; does not count inactive account as available fallback.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-880bb0eda9d51d6be7d748284a44c2402c1c04e12d0bd8468d625c15be143f19",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          58,
+          25,
+          58,
+          43
+        ],
+        "reasoning": "Only permission text needed for CanManageUsers survivor classification, no secret fields projected. Current actor read and target change remain same transaction.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-80a85bb75565d815d9f10109f5dca8aba9c723dbcac9fadfc33c6e149beca4e7",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          62,
+          46,
+          63,
+          116
+        ],
+        "reasoning": "Splits each remaining permission CSV with trimming/removingempty then domain CanManageUsers recognizes all/users_manage. Non-admin role label does not independently disqualify actual permission holder; role-derived extra powers not established by this count.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Production Active/Permissions and ControlAudit persisted in Serializable transaction. Audit invokes no app/DB writes.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Users/UserManagementQueryService.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-2de2c760d34464bd7169c585466bb17f629fa7febc51977c2a013356d2d4937d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UserManagementQueryService.UserManagementQueryService(Falah.Infrastructure.Persistence.FalahDbContext)",
+        "span": [
+          14,
+          5,
+          14,
+          70
+        ],
+        "reasoning": "Stores database only; no user list/permission evaluation or credential read on construction.",
+        "inputs": "Falah.Infrastructure.Users.UserManagementQueryService.UserManagementQueryService(Falah.Infrastructure.Persistence.FalahDbContext)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Read-only safe management projection; no credential output.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-09107d8e1dd3d8eade94375ae9c27f98e475a9d88dfd09e6c55832c8715ffc3d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UserManagementQueryService.ListAllAsync(CancellationToken)",
+        "span": [
+          16,
+          5,
+          17,
+          81
+        ],
+        "reasoning": "Returns all users including inactive for management, maps safe DTO with no hash/salt/iteration/PIN output. AsNoTracking loads full entities before mapping, so server memory still materializes hashes; wire projection excludes secrets. No internal capability guard, endpoint authorization external. Unpaged, no ordering.",
+        "inputs": "Falah.Infrastructure.Users.UserManagementQueryService.ListAllAsync(CancellationToken)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Read-only safe management projection; no credential output.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-8bed1db50ab862fc1eeec0eb7d6969af4ff6e226efd0eb8da05f8fef123b9629",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UserManagementQueryService.GetAsync(string, CancellationToken)",
+        "span": [
+          19,
+          5,
+          23,
+          6
+        ],
+        "reasoning": "Exact user ID management lookup returns null if absent, otherwise safe DTO including inactive state/permissions. No automatic activation or credential verification.",
+        "inputs": "Falah.Infrastructure.Users.UserManagementQueryService.GetAsync(string, CancellationToken)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Read-only safe management projection; no credential output.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-1069439a9e0cba31520cc774428191f5b8a1166dea83eac5bd80a344fd2bb1e0",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          21,
+          71,
+          21,
+          86
+        ],
+        "reasoning": "Exact ID match, no Active filter intentionally allows inspecting inactive account. Does not use name/PIN for account selection.",
+        "inputs": "Captured actual actor/target ID or other-active-user permission text as specified",
+        "outputs": "Identity predicate, permission projection or survivor Boolean",
+        "side_effects": "Read-only safe management projection; no credential output.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-322922ec311cd4cd2b0b170e01c3772904fbe96644870164ae9c5aee7bc5716c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UserManagementQueryService.GetPermissionCatalog()",
+        "span": [
+          25,
+          5,
+          25,
+          96
+        ],
+        "reasoning": "Returns shared read-only permission definition catalog, no per-user secrets or actual grant. Static catalog exposure does not authorize commands.",
+        "inputs": "Falah.Infrastructure.Users.UserManagementQueryService.GetPermissionCatalog()",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Read-only safe management projection; no credential output.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      },
+      {
+        "stable_id": "sym-f5149ac801d730ad1efd94ac49be0ba3c4e9d5381447b308078fb62d1b994a84",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Users.UserManagementQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.UserEntity)",
+        "span": [
+          27,
+          5,
+          29,
+          116
+        ],
+        "reasoning": "DTO includes identity/name/role/active and split trimmed explicit permissions only. Does not expose credential fields or augment with role-derived effective authority; caller should not treat this list alone as full authorization evaluation.",
+        "inputs": "Falah.Infrastructure.Users.UserManagementQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.UserEntity)",
+        "outputs": "Void account metadata mutation, nullable safe UserDetailsDto, list or permission catalog",
+        "side_effects": "Read-only safe management projection; no credential output.",
+        "trust_boundaries": "Actual users_manage for mutations, owner/self-deactivation/grant subset/survival guards; no approval fallback. Management query endpoint permission external.",
+        "database": "Mutation Serializable transaction includes survivor reads + Save/Commit. No PIN reactivation check; no financial ledger or runtime query executed.",
+        "printing_ui": "Management DTO/action only, no hardware or rendered UI call.",
+        "performance": "Other active-admin permission scan and unpaged full-user query; no KDF during activation. No benchmark.",
+        "duplicates_conflicts": "Serializable admin-survival is real counterevidence to unprotected-count generalization. PIN reactivation uniqueness distinct from that invariant and remains qualified security followup.",
+        "issues_hypotheses": "No new promoted finding. Sequential reactivation duplicate-PIN lead sent parent; authentication consequence/role-derived authority not independently validated here.",
+        "tests_missing": "Last-admin revocation/deactivation races with Serializable controls; owner/self protections; revoke-vs-grant samekey; inactive reactivation after PIN reuse; repeated no-op vs audit; DTO excludes secrets; endpoint authorization.",
+        "verified_callers_callees": "Full SetActive21-70/UpdatePermissions22-75/Query14-29 plus UserManagementRules CanManageUsers44-63 prior read. PinUniquenessChecker source absence in activation confirmed. No auth/API/DB test execution."
+      }
+    ]
+  }
+]

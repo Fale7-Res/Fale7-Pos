@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.cs",
+  "source_git_blob_sha256": "8e4d90cd84145f22f539862f8fc848beade3c66f5075062dac3eb08fae87ea20",
+  "worktree_sha256": "74de714fcb8c53543073eff797e3ef09187d9471ebcdc70aefc2b2423b0e9662",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:09:38.803963+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-d6abae98c15621cec08ee84df12073088ec5307db7d122208e6699f48653bbd7",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddSettingsMenuUrl.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        11,
+        9,
+        18,
+        10
+      ],
+      "reasoning": "Up adds nullable unbounded MenuUrl to Settings; existing rows have no guessed public menu link and no QR is configured by migration. It has no URL scheme CHECK; UpdateSettings.NormalizeMenuUrl handles absolute http/https on normal write. No network fetch performed.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-36c40ff51a9c17f762f00cf6ff11b9caf782932608ac4fd0645cba930104cb96",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddSettingsMenuUrl.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        21,
+        9,
+        26,
+        10
+      ],
+      "reasoning": "Down drops owner-configured menu URL, removing stored receipt QR target rather than deleting remote site or revising financial receipts. Historical physical QR contents cannot be undone by schema drop.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

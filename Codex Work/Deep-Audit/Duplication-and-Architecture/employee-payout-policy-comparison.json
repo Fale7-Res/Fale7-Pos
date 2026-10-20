@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-10-18T04:43:47.014584+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+      "hash": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "hash": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "hash": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "hash": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba"
+    }
+  ],
+  "shared": "Employee identity anchor before paid debits in cashout and standalone pay; deterministic request replay and atomic ledger/treasury/journal/audit.",
+  "differences": [
+    "Cashout advance intentionally permits negative employee balance; withdrawal and standalone pay limited earned balance.",
+    "Cashout requires Open shift and Drawer source; standalone pay excludes Drawer and requires active day.",
+    "Cashout account-before-ledger versus standalone ledger-before-account; same employee anchor serializes same-employee path pair, so no automatic deadlock finding.",
+    "Correction serializes attendance row then employee ledger range; immutable audit snapshot confirms even zero-delta retry. Poster alone has no transaction/lock."
+  ],
+  "root_conclusion": "Useful shared infrastructure candidate, but one generic business permission/source/shift/eligibility rule would erase intentional financial policy. Full mirrored-code audit remains incomplete.",
+  "tests": "Provider-backed cross-path concurrency and rollback only on authorized isolated DB; NOT_EXECUTED."
+}

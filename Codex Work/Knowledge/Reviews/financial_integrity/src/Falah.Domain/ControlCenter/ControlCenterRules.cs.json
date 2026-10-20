@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+  "source_git_blob_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+  "worktree_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:56:46.389019+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-e2933fa4f3e34bbe3eb226c9e5fb4ae2a6326870c45d046d482976fead3c25b0",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptions(Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptionsInputs)",
+      "span": [
+        39,
+        5,
+        85,
+        6
+      ],
+      "reasoning": "Creates deterministicIDs perentity for nonzero shiftvariance, large refund/expense, allunsettledcustodies/incompletejournals andoptional deliverywarnings. No persistedstatus included: caller overlays byID; changesamount/severity reuseIDmayretainpriorackstate, policyreviewneedednotnewfinding. Shiftseverity >=threshold whereas approvalhelper >threshold, so exactthresholdcanbecriticalwithoutapprovalrequirement; noautomaticmoneyimpact. LongMinvarianceAbs throws. Allunsettledcustodycriticalregardlessamount intentionaldupavoidance. Deliverystatus PascalCase;90minstrictgreater; futureouttime notlate.",
+      "inputs": "BuildExceptionsInputs",
+      "outputs": "ReadonlyList ControlException",
+      "side_effects": "Builds exceptionlist; whenno explicitNow input reads UtcNow. No financialmutation.",
+      "database": "NoDB; persisted acknowledgment overlay external.",
+      "trust_boundaries": "Input monetaryfacts/scope suppliedtrustedcaller; exceptionclassification notauthorization orcloseblockeritself.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Linear suppliedlists; allocatesexceptionrecordpermatch, no localpagination.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedissue; Math.Abs(long.MinValue) throws, thresholdboundary differs DiscrepancyNeedsApproval bydesignunlesspolicyrequiresparity. Source backup-overdueabsence comment may be stale becausebackendbackupnowexists, notproof missing feature.",
+      "tests_missing": "Allcategories/boundaries, sameIDchangedfact overlay, longMin, nowinjectable, Readywithoutdriver,90min/+tick",
+      "verified_callers_callees": "CloseBusinessDay BuildDayExceptions supplieswithoutDeliveries; ControlCenterquery includesoptional throughcaller unknownhere. Filters43/50/53; delivery70-78."
+    },
+    {
+      "stable_id": "sym-77e1a5106ff682ac45510fadf3f5c260b072d43abc05368e26bfd5d9e92b4891",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        43,
+        70,
+        43,
+        104
+      ],
+      "reasoning": "Filters onlynonzero shiftcashdifference beforeclassification. Itdoesnotcheck statusClosed itself becauseinputnamedClosedShiftsWithDifference; callerquerymustguarantee. Zeroexcluded evennegativeconfigthreshold.",
+      "inputs": "Shift tuple",
+      "outputs": "Boolean",
+      "side_effects": "Builds exceptionlist; whenno explicitNow input reads UtcNow. No financialmutation.",
+      "database": "NoDB; persisted acknowledgment overlay external.",
+      "trust_boundaries": "Input monetaryfacts/scope suppliedtrustedcaller; exceptionclassification notauthorization orcloseblockeritself.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Linear suppliedlists; allocatesexceptionrecordpermatch, no localpagination.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedissue; Math.Abs(long.MinValue) throws, thresholdboundary differs DiscrepancyNeedsApproval bydesignunlesspolicyrequiresparity. Source backup-overdueabsence comment may be stale becausebackendbackupnowexists, notproof missing feature.",
+      "tests_missing": "Zero/+/-difference; wronglyscopedopenshiftcaller",
+      "verified_callers_callees": "BuildExceptions43; CloseBusinessDay140-142 filterClosed."
+    },
+    {
+      "stable_id": "sym-84ac051c066db43c34d3c684c24c8a9c594b8fe8fbfe6bd582e9abb845881833",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        50,
+        58,
+        50,
+        117
+      ],
+      "reasoning": "Refundwarning threshold inclusive50000piastres. UsesaggregateRefundAmount, notindividualrefundentry, so several smallerrefunds cantriggeronceperorder. Doesnotdeductcashorvalidateentitlement.",
+      "inputs": "Order/RefundAmount",
+      "outputs": "Boolean",
+      "side_effects": "Builds exceptionlist; whenno explicitNow input reads UtcNow. No financialmutation.",
+      "database": "NoDB; persisted acknowledgment overlay external.",
+      "trust_boundaries": "Input monetaryfacts/scope suppliedtrustedcaller; exceptionclassification notauthorization orcloseblockeritself.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Linear suppliedlists; allocatesexceptionrecordpermatch, no localpagination.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedissue; Math.Abs(long.MinValue) throws, thresholdboundary differs DiscrepancyNeedsApproval bydesignunlesspolicyrequiresparity. Source backup-overdueabsence comment may be stale becausebackendbackupnowexists, notproof missing feature.",
+      "tests_missing": "49999/50000 andmultiplepartialrefundtotal",
+      "verified_callers_callees": "LargeRefundThreshold25; BuildExceptions50-51."
+    },
+    {
+      "stable_id": "sym-663110f0bf37b93014a48ce3559da24296f0e816bc0f237311647135a5c9e2bb",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        53,
+        54,
+        53,
+        108
+      ],
+      "reasoning": "Expensewarning threshold inclusive100000piastres. Signednegativeexpenseignored, butnormalexpensevalidationoutside; noclaimthispureclassifier acceptsfinancialwrite.",
+      "inputs": "Expense tuple",
+      "outputs": "Boolean",
+      "side_effects": "Builds exceptionlist; whenno explicitNow input reads UtcNow. No financialmutation.",
+      "database": "NoDB; persisted acknowledgment overlay external.",
+      "trust_boundaries": "Input monetaryfacts/scope suppliedtrustedcaller; exceptionclassification notauthorization orcloseblockeritself.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Linear suppliedlists; allocatesexceptionrecordpermatch, no localpagination.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedissue; Math.Abs(long.MinValue) throws, thresholdboundary differs DiscrepancyNeedsApproval bydesignunlesspolicyrequiresparity. Source backup-overdueabsence comment may be stale becausebackendbackupnowexists, notproof missing feature.",
+      "tests_missing": "99999/100000/negative",
+      "verified_callers_callees": "LargeExpenseThreshold26; BuildExceptions53-54."
+    }
+  ],
+  "remaining_callable_ids": []
+}

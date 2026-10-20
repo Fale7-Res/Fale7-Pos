@@ -1,0 +1,1152 @@
+{
+  "at_utc": "2026-10-18T08:55:34.954217+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root mirrored-code coordinator",
+  "batch": "Financial query/mapping and treasury/state helper comparisons",
+  "comparisons": [
+    {
+      "group_prefix": "179df3ec",
+      "reasoning": "Six sales-line/order-type timestamp predicates match exact noncancelled plus optional start/end. They serve product, hour, category and food-cost queries; reuse does not normalize dates or decide payment collection.",
+      "callers_context": "ReportingQueryService GetTopSellingItems/GetSoldProducts/GetProductHourlySales/GetCategorySales/GetFoodCostReport call private Range; raw selected spans and prior202callable receipts read.",
+      "financial_security_effects": "Shared scope excludes Cancelled, includes unpaid pending/COD per sales facts; reverse-date normalization discrepancy is outside this identical predicate and remains FIN-CAND-REPORT-RANGE-001.",
+      "recommendation": "Share a typed IQueryable sale-time scope if preserving projection/join semantics and optional open endpoints; no financial rule change.",
+      "tests": [
+        "All six components same date/cancellation cohort",
+        "Reversed range contract at one shared entry",
+        "Pending/COD versus collected-sales policy explicit"
+      ],
+      "group_id": "clone-179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-f1b7c02bc15b2609211c0b0fd3ac692e701a9f058b0994cf905580dc23915ae9",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 255,
+          "end_line": 256,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            255,
+            51,
+            256,
+            107
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-2ef0b6c617019b77da486f78b5f323f3d23e99481f4282ad6ca9adaab7c5f06b",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetTopSellingItemsAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              251,
+              263
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-d50f56ae3ffa9b6020b7260543a742e2ec78186e6850f0b5fadeda3ce6f0a124",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 276,
+          "end_line": 277,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            276,
+            51,
+            277,
+            107
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-a888476d680eb31b8afc8d6b17ee1dadf32426a83f8f4d4fbb4067fcb15ebf84",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSoldProductsAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              272,
+              297
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-c99a5a166a2505a49c8eeb29fe4c3bb4049deffc8fe6d302e5ec45e8c5792159",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 311,
+          "end_line": 312,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            311,
+            51,
+            312,
+            107
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-239862d44490f5bff59178db495c11035116267e1e1652bea1e939ccecf307d2",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetProductHourlySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              307,
+              322
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-ae0bd97f5ce2f606a59f2ce3c1173d97f24cec07ff8a20f8b68c13a1a136b962",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 329,
+          "end_line": 330,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            329,
+            51,
+            330,
+            107
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-42ede0a0661cfd895d08809ec61dcca1b382196251d3e21614fffcce439b6fa1",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetCategorySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              325,
+              339
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-514617f08c5bc61802339d5f7b86b5c403d45a07d7a3288209b9862b293106ae",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 353,
+          "end_line": 354,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            353,
+            51,
+            354,
+            107
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              349,
+              423
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-58e38c694f4d3d6cce669871c30e9fb26493d32bc68bc285adca918c051dcac7",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 362,
+          "end_line": 363,
+          "token_count": 34,
+          "body_token_sha256": "179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            362,
+            20,
+            363,
+            103
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              349,
+              423
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "e941cb56",
+      "reasoning": "Five same FindExistingAsync bodies query NoTracking treasury movement by unique idempotency key. Prefixes, permissions, transaction placement and account movement policies live callers, not these helpers.",
+      "callers_context": "Each handler HandleAsync calls early and after rollback; BalanceLockContention closure calls same helper. Call sites verified CashierCashMovement46/117/123,Deposit34/92/98,SafeDrop36/103/109,Transfer32/105/111,Withdrawal33/95/101.",
+      "financial_security_effects": "Safe for shared lookup abstraction, not a shared financial authorization/replay proof; no actor or payload match in identical helper. DB key uniqueness is separate.",
+      "recommendation": "Consolidate lookup plumbing only; preserve key namespaces, command policy and unknown-outcome retry behavior.",
+      "tests": [
+        "Same-key committed replay",
+        "Rollback then sibling commit",
+        "No row returns null",
+        "Changed-payload same key contract"
+      ],
+      "group_id": "clone-e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs",
+          "stable_id": "sym-31fb25a99b65f5ad005660f250794d8ef8819efa5730d712a12223510c520bbc",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "3693c0da66e3187b850bbe00c9197aebf9705745b9beb2c48419f98a48067462",
+          "start_line": 134,
+          "end_line": 135,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ce1184171f64ce4ce1f8399d26b6228592ce0c6767aded0f4ff4140d35dbd6fd",
+          "signature": "Falah.Infrastructure.CashDrawer.CashierCashMovementHandler.FindExistingAsync(string, CancellationToken)",
+          "symbol_span": [
+            134,
+            5,
+            135,
+            111
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+          "stable_id": "sym-05aa9477df9537de8d842118fe511ffcd7adc21fa76db2d9f5c7bd81a73c5e20",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+          "start_line": 108,
+          "end_line": 109,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+          "signature": "Falah.Infrastructure.Treasury.DepositHandler.FindExistingAsync(string, CancellationToken)",
+          "symbol_span": [
+            108,
+            5,
+            109,
+            111
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+          "stable_id": "sym-7efb59b9c998578715030c5b6ee3e3f6f663ded16b14d81d1d9c38ace3b77203",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+          "start_line": 119,
+          "end_line": 120,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+          "signature": "Falah.Infrastructure.Treasury.SafeDropHandler.FindExistingAsync(string, CancellationToken)",
+          "symbol_span": [
+            119,
+            5,
+            120,
+            111
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+          "stable_id": "sym-e1b3b0cd8bbfed6bc35cff6c67b4776c6f2c7da9a0ba14e9ca98ebc7b0b3a344",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+          "start_line": 121,
+          "end_line": 122,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+          "signature": "Falah.Infrastructure.Treasury.TransferHandler.FindExistingAsync(string, CancellationToken)",
+          "symbol_span": [
+            121,
+            5,
+            122,
+            111
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+          "stable_id": "sym-042bce4b3208ab16e9638e06ce9edb5a46301f3d1fb1ae2484d0ef0cf51517fb",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "f6e7c05ee8a55b7c2d485365b2adf9ba86081e74a95b56f95d2791499ef3de14",
+          "start_line": 111,
+          "end_line": 112,
+          "token_count": 20,
+          "body_token_sha256": "e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+          "signature": "Falah.Infrastructure.Treasury.WithdrawalHandler.FindExistingAsync(string, CancellationToken)",
+          "symbol_span": [
+            111,
+            5,
+            112,
+            111
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "94a1ee0a",
+      "reasoning": "Two EF entity configuration lambda bodies define Id key and restrictive InventoryItem FK for PrepRecipeLine and PurchaseLine. Generic entity types and parent relationship differ despite body equality.",
+      "callers_context": "OnModelCreating263-267 versus287-291; entity parent cascade definitions elsewhere current model read.",
+      "financial_security_effects": "Typed configuration adapter reuse intentional; does not make prep quantities and purchase signs equivalent or enforce positive values. FIN018 input guards external.",
+      "recommendation": "Optional shared configuration helper parameterized type/interface only if EF relationship identity and delete restrictions stay intact.",
+      "tests": [
+        "Generated model/FK DeleteBehavior unchanged",
+        "No accidental shared table/entity type",
+        "Purchase and prep parent cascade preserved"
+      ],
+      "group_id": "clone-94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "stable_id": "sym-ea645e17910030a0aedc01248917332a5881aaaa7904e937b17a12fd634e94a5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "start_line": 263,
+          "end_line": 267,
+          "token_count": 42,
+          "body_token_sha256": "94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+          "signature": "lambda expression",
+          "symbol_span": [
+            263,
+            51,
+            267,
+            10
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+            "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+            "lines": [
+              76,
+              480
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "stable_id": "sym-cb5bf9ef6b893ff746b592fbc3b75019fc8e62b70fd21deb8e1fb15ccf5eb00b",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "start_line": 287,
+          "end_line": 291,
+          "token_count": 42,
+          "body_token_sha256": "94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+          "signature": "lambda expression",
+          "symbol_span": [
+            287,
+            49,
+            291,
+            10
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+            "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+            "lines": [
+              76,
+              480
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "d3ea2676",
+      "reasoning": "Three signed destination-minus-source treasury sum bodies identical; DailyStatement uses all-time Posted history, CloseEvaluator also all-time Posted for protected-negative checks, Reporting business-day report only selected BusinessDayId Posted movements.",
+      "callers_context": "Actual surrounding query filters read at DailyStatement141-148,CloseEvaluator61-76,Reporting177-180; current stock versus day flow contract documented.",
+      "financial_security_effects": "Different output meaning intentional: day flow can be negative though real all-time stock positive. Identical arithmetic cannot justify unifying data scopes or declaring account shortage.",
+      "recommendation": "Share pure sum helper only with explicit caller-supplied row scope; label current balance versus day net movement clearly.",
+      "tests": [
+        "Opening balance carried from prior day",
+        "Same-account nets zero",
+        "Pending excluded",
+        "Day net negative but total protected balance nonnegative"
+      ],
+      "group_id": "clone-d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+          "stable_id": "sym-93839261dd0ed8f72cf9a223caefcce279a8875b4d8828df53baf3f7dcc2a90a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+          "start_line": 75,
+          "end_line": 75,
+          "token_count": 27,
+          "body_token_sha256": "d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+          "signature": "lambda expression",
+          "symbol_span": [
+            75,
+            47,
+            75,
+            170
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-b322d7a9901aa5c1b5e6eac5a771670a2fb154e118827fd5f9678c5d7232d2b6",
+            "signature": "Falah.Infrastructure.ControlCenter.BusinessDayCloseEvaluator.ComputeReconciliationChecksAsync(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Infrastructure.Persistence.Entities.BusinessDayEntity, CancellationToken)",
+            "lines": [
+              62,
+              86
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+          "stable_id": "sym-8c6df279b733bb7c0a0a54c8599186fa2519fa55b494a79d38b265f04097decc",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+          "start_line": 146,
+          "end_line": 147,
+          "token_count": 27,
+          "body_token_sha256": "d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+          "signature": "lambda expression",
+          "symbol_span": [
+            146,
+            57,
+            147,
+            131
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9f7830a35df50fcfc012c5fbbc6de35d5dcb4681dae776b67d606eae66643609",
+            "signature": "Balance(string)",
+            "lines": [
+              146,
+              147
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-19e75575929d26a5e8e052ddaeee1285399a7215f46aa0bbf5cdfb428041ed88",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 179,
+          "end_line": 179,
+          "token_count": 27,
+          "body_token_sha256": "d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            179,
+            57,
+            179,
+            180
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-b7e7492055cb2d21aed62a5753d616252adb29e1d2649d3d33d65bf9da130494",
+            "signature": "Balance(string)",
+            "lines": [
+              179,
+              179
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "03a4999b",
+      "reasoning": "Open/Reopen projection into BusinessDayRecord same six-field body, but Open input already active-only while Reopen input all other IDs; current reopen target separately carries SnapshotId.",
+      "callers_context": "OpenHandle active query35-39;Reopen otherDayEntities65-68 and currentRecord69. Domain Reopen evaluates other active status from all supplied records.",
+      "financial_security_effects": "No snapshot identity lost on actual reopened target merely because other-day projection omits SnapshotId. No generic active-day uniqueness lock established by shared mapping.",
+      "recommendation": "One entity mapper with explicit optional snapshot is possible, preserving other-day exclusion and Domain status rules.",
+      "tests": [
+        "Open rejects any active day",
+        "Reopen ignores closed other days",
+        "Target snapshot retained",
+        "Unknown persisted enum fails deliberately"
+      ],
+      "group_id": "clone-03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "stable_id": "sym-f33c7ef0be84264b2d82964c1716877a626c186ca967248249300ad47d6430ac",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "start_line": 39,
+          "end_line": 39,
+          "token_count": 35,
+          "body_token_sha256": "03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "signature": "lambda expression",
+          "symbol_span": [
+            39,
+            21,
+            39,
+            154
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-c970386241d168bc598f73b6d4175a87acb6c182906c242ed2745ca516fb67e2",
+            "signature": "Falah.Infrastructure.BusinessDay.OpenBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.OpenBusinessDayRequest, CancellationToken)",
+            "lines": [
+              25,
+              63
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+          "stable_id": "sym-49cb295c981bfac1f9e84b4ffead27d46c282754d0e3f11d90004aa7db9d9a70",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+          "start_line": 67,
+          "end_line": 67,
+          "token_count": 35,
+          "body_token_sha256": "03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+          "signature": "lambda expression",
+          "symbol_span": [
+            67,
+            25,
+            67,
+            158
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-7f7926930b1d96d08b14f64c04c966e2b241703a0ee2e8e8b1f270d8ede20ce6",
+            "signature": "Falah.Infrastructure.ControlCenter.ReopenBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.ReopenBusinessDayRequest, CancellationToken)",
+            "lines": [
+              29,
+              111
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "4fba33c6",
+      "reasoning": "DailyStatement and business-day report local Balance functions are whole-function clones wrapping same sum but capture different materialized movement lists.",
+      "callers_context": "DailyStatement all Posted history versus Reporting BusinessDayId Posted scope; nested sum clone also covered d3ea2676, do not count two defects.",
+      "financial_security_effects": "Captured scope is semantic difference even with identical local function body; current account stock versus period net both legitimate.",
+      "recommendation": "Reuse pure balance function with explicit collection and documented scope, not hidden context capture.",
+      "tests": [
+        "Prior-day opening float",
+        "Different business day ledger",
+        "No duplicate financial finding from nested clone"
+      ],
+      "group_id": "clone-4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+          "stable_id": "sym-9f7830a35df50fcfc012c5fbbc6de35d5dcb4681dae776b67d606eae66643609",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+          "start_line": 146,
+          "end_line": 147,
+          "token_count": 34,
+          "body_token_sha256": "4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+          "signature": "Balance(string)",
+          "symbol_span": [
+            146,
+            9,
+            147,
+            133
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-8cf6c53ac420d74f60143e3deb2240409890f7177724ffa89ca722535db5331e",
+            "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.LoadCurrentTreasuryBalancesAsync(CancellationToken)",
+            "lines": [
+              141,
+              150
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-b7e7492055cb2d21aed62a5753d616252adb29e1d2649d3d33d65bf9da130494",
+          "kind": "LocalFunctionStatement",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 179,
+          "end_line": 179,
+          "token_count": 34,
+          "body_token_sha256": "4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "Balance(string)",
+          "symbol_span": [
+            179,
+            9,
+            179,
+            182
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetBusinessDayReconciliationAsync(string, CancellationToken)",
+            "lines": [
+              164,
+              208
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "799dd3e1",
+      "reasoning": "BusinessDayGate and Open handler active-status predicates both Open/Closing/Reopened. Gate chooses first; Open validates list against Domain active-day rule, so same body does not guarantee deterministic single active day.",
+      "callers_context": "Gate.TryGetActive26 with FirstOrDefault;OpenHandle36 ToList then rule. FIN009 existing concurrent different open requests retained.",
+      "financial_security_effects": "Repeated policy should stay consistent; OwnerDashboard Open-only lookup is a separate ungrouped semantic concern, relayed to financial owner.",
+      "recommendation": "Central active-state definition or typed predicate, preserve need for durable uniqueness/admission guard independently.",
+      "tests": [
+        "Each active enum treated same",
+        "Multiple active rows detected or rejected",
+        "Closed excluded",
+        "Open-only dashboard scope clarified"
+      ],
+      "group_id": "clone-799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "stable_id": "sym-5892c0eabbb53e5606a78582067b0a90ca2f7ec592024a4d48eb48fe5263a311",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "start_line": 26,
+          "end_line": 26,
+          "token_count": 32,
+          "body_token_sha256": "799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "signature": "lambda expression",
+          "symbol_span": [
+            26,
+            20,
+            26,
+            166
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-7c9ef5cd166574188e64b3145a04e915e577a36ca17e4c539049257f64d5b612",
+            "signature": "Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+            "lines": [
+              23,
+              29
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "stable_id": "sym-83c6c98852a8a973fab595e46c2150cc338a61b42f3b4bf8a96f02a0453db262",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "start_line": 36,
+          "end_line": 36,
+          "token_count": 32,
+          "body_token_sha256": "799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+          "signature": "lambda expression",
+          "symbol_span": [
+            36,
+            20,
+            36,
+            166
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-c970386241d168bc598f73b6d4175a87acb6c182906c242ed2745ca516fb67e2",
+            "signature": "Falah.Infrastructure.BusinessDay.OpenBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.OpenBusinessDayRequest, CancellationToken)",
+            "lines": [
+              25,
+              63
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "7af017c9",
+      "reasoning": "Treasury and stock significant-action predicates both nonnull ApprovedBy and optional timestamp interval. Entity types and audit DTO mapping differ; one filter is not one monetary workflow.",
+      "callers_context": "Reporting.GetSignificantActions434 versus452, followed separate source-category/action mapping.",
+      "financial_security_effects": "Records with empty approver string still qualify !=null; no identity/issued-approval validation from query. Reporting source attribution is not independent permission proof.",
+      "recommendation": "Shared predicate shape only if typed expression translation and semantics stay explicit; do not unify distinct table queries as one event type.",
+      "tests": [
+        "Timestamp boundaries",
+        "Null versus empty attribution",
+        "Correct source category and reference"
+      ],
+      "group_id": "clone-7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-4717a90ffc05b3e01c6491ec0dc14c24c14e1507d2c8fd21e7d3774685098de3",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 434,
+          "end_line": 434,
+          "token_count": 29,
+          "body_token_sha256": "7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            434,
+            20,
+            434,
+            132
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-0da894fa646b4e4680a9479fe10eaec5c02e94bafb3a54be07569a23a40fef8b",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSignificantActionsAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              428,
+              464
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-958697b80f404a64f5dcd3a2aca793458ec43188c6cc904ec33282ee58d69a60",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 452,
+          "end_line": 452,
+          "token_count": 29,
+          "body_token_sha256": "7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            452,
+            20,
+            452,
+            132
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-0da894fa646b4e4680a9479fe10eaec5c02e94bafb3a54be07569a23a40fef8b",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSignificantActionsAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              428,
+              464
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "df604888",
+      "reasoning": "Inventory costing context and food-cost report map current inventory entities to same Domain InventoryItem ID/name/cost source/estimated price. Neither snapshots historical input cost on sold date.",
+      "callers_context": "Inventory.LoadCostingContext484-497 and Reporting.GetFoodCost375-383; both build CostingContext for shared Domain rules.",
+      "financial_security_effects": "Same map and current dependencies agree; Enum.Parse may throw on invalid stored string. No divergence or duplicated financial formula in this lambda.",
+      "recommendation": "Extract one shared current CostingContext loader only after preserving caller lifecycle and query scope; historical costing policy separate.",
+      "tests": [
+        "Same configured item estimate/source",
+        "Unknown enum data failure explicit",
+        "Historical sales current-cost caveat"
+      ],
+      "group_id": "clone-df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "stable_id": "sym-283f8e91b9921ba7947ac0f211585f5004b1c2c39aaa7b6c2c20f87520351add",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "start_line": 486,
+          "end_line": 486,
+          "token_count": 27,
+          "body_token_sha256": "df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+          "signature": "lambda expression",
+          "symbol_span": [
+            486,
+            21,
+            486,
+            124
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9b5363f7d8c3328e934a0bab165dc46cdd378d736b7faacae165687fd52105b2",
+            "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.LoadCostingContextAsync(CancellationToken)",
+            "lines": [
+              483,
+              498
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-82a0ef83cb481108bcb6d4acdd0d09689d92f7f627b79a5a99537eeefe49b354",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 376,
+          "end_line": 376,
+          "token_count": 27,
+          "body_token_sha256": "df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            376,
+            21,
+            376,
+            124
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              349,
+              423
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "216a31a3",
+      "reasoning": "Both current costing loaders convert purchase movement facts to Domain PurchaseReceipt with nonnull UnitCost. Surrounding filters require actual PurchaseReceipt and UnitCost!=null in both.",
+      "callers_context": "Inventory492-495 and Reporting379-382 filters/projection read; null-forgiving accessor justified by query guard, but not positivity there.",
+      "financial_security_effects": "Positive purchase-cost eligibility further applied PurchasingRules; no cost estimation divergence here. Same-time receipt ordering still provider/data policy, not proven mismatch.",
+      "recommendation": "One shared fact loader can avoid drift and repeated full history materialization; preserve nonnull filter and nullable annotations.",
+      "tests": [
+        "Null unit cost excluded",
+        "Negative/zero actual cost handled consistently",
+        "Latest receipt ordering ties"
+      ],
+      "group_id": "clone-216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "stable_id": "sym-2a49e6a4d02bd39858d654f14caa67bb6b01a2b97dab4d316412cbff96868938",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "start_line": 494,
+          "end_line": 495,
+          "token_count": 27,
+          "body_token_sha256": "216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+          "signature": "lambda expression",
+          "symbol_span": [
+            494,
+            50,
+            495,
+            152
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9b5363f7d8c3328e934a0bab165dc46cdd378d736b7faacae165687fd52105b2",
+            "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.LoadCostingContextAsync(CancellationToken)",
+            "lines": [
+              483,
+              498
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "stable_id": "sym-fd8f7464d73a72a3c1c7edf4832ae22e93f5f0459c6ed8fe848a66b55fc167a0",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+          "start_line": 382,
+          "end_line": 382,
+          "token_count": 27,
+          "body_token_sha256": "216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+          "signature": "lambda expression",
+          "symbol_span": [
+            382,
+            54,
+            382,
+            198
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+            "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+            "lines": [
+              349,
+              423
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "1a01c72e",
+      "reasoning": "Daily/hourly trend group value selector sums net total-refund and count identically. Group key differs Cairo date versus Cairo hour, and same-day hourly emits24fixed labels.",
+      "callers_context": "OwnerDashboard.LoadDailySeries120-121,LoadHourlySeries144-145 plus fully reviewed parent source.",
+      "financial_security_effects": "No separate payment formula introduced. Net curve includes uncollected orders by same noncancelled cohort; DST repeated hours merge and range reversed series difference outside selector.",
+      "recommendation": "Share net-group aggregation if worthwhile, preserve group-key/calendar semantics and zero-filled series.",
+      "tests": [
+        "Daily sum equals period headline under same row scope",
+        "Hourly DST repeated/absent hour",
+        "Refund cumulative timing policy"
+      ],
+      "group_id": "clone-1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-10d5bceb7cfbf3f79d5cc2feebe1c2d88b2b2fa2266408895ee5fca25e4365d6",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 121,
+          "end_line": 121,
+          "token_count": 26,
+          "body_token_sha256": "1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+          "signature": "lambda expression",
+          "symbol_span": [
+            121,
+            39,
+            121,
+            122
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+            "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+            "lines": [
+              111,
+              132
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-e147e871a8e3b7ad8feedaeb0b06733dc4a3605031d79aa36ca8e12f6dfacbb5",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 145,
+          "end_line": 145,
+          "token_count": 26,
+          "body_token_sha256": "1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+          "signature": "lambda expression",
+          "symbol_span": [
+            145,
+            39,
+            145,
+            122
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+            "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+            "lines": [
+              134,
+              154
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "11522eac",
+      "reasoning": "LastPurchaseUnitCost and LastPurchaseAt share exact item/type/positive-cost eligibility and descending time ordering, then project price versus nullable timestamp.",
+      "callers_context": "PurchasingRules16-30 source read; costing context/current price consumers rely same receipt cohort.",
+      "financial_security_effects": "Intentional paired fields should describe same source receipt; separate enumeration can pick different tied timestamp rows/nonrepeatable input, no observed DB discrepancy.",
+      "recommendation": "Optionally select latest qualifying fact once then expose price/date pair, preserving last-positive-actual-purchase policy.",
+      "tests": [
+        "No purchase returns null pair",
+        "Zero/negative excluded",
+        "Tied timestamps deterministic agreed policy",
+        "Same source fact price/date"
+      ],
+      "group_id": "clone-11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "stable_id": "sym-0f5e74cedf58427b83fd3940f4b7a42f4ce3ab87edca824c8fe062871ce95699",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "start_line": 18,
+          "end_line": 18,
+          "token_count": 23,
+          "body_token_sha256": "11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+          "signature": "lambda expression",
+          "symbol_span": [
+            18,
+            20,
+            18,
+            146
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-5d3fcdc70dfff8ecd440bdd947931fe6b5b10a10280dd1c8071a7588ea11e35a",
+            "signature": "Falah.Domain.Inventory.PurchasingRules.LastPurchaseUnitCost(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string)",
+            "lines": [
+              16,
+              21
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "stable_id": "sym-55e87bdf20a0b785f4878da0e987bcfd206694780b709459c90385f51bd8ea69",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "start_line": 27,
+          "end_line": 27,
+          "token_count": 23,
+          "body_token_sha256": "11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+          "signature": "lambda expression",
+          "symbol_span": [
+            27,
+            20,
+            27,
+            146
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-4920c79063d564ecbd3cb6422fbea206d319f4628b0405c7c67e3f835a3a9630",
+            "signature": "Falah.Domain.Inventory.PurchasingRules.LastPurchaseAt(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string)",
+            "lines": [
+              25,
+              30
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "9b1fc077",
+      "reasoning": "Owner dashboard daily/hourly queries have identical noncancelled CreatedAt half-open bound predicates and projection. Shared row cohort, different grouping/padding produces chart shape.",
+      "callers_context": "LoadDailySeries111-132 and LoadHourlySeries134-154 source read, enclosing caller LoadTrend uses range.IsSingleDay.",
+      "financial_security_effects": "No authorization or money mutation here. Agreement of predicate does not repair reversed raw Days() or date overflow boundaries.",
+      "recommendation": "Consider one scoped row loader to prevent drift; preserve date/hour group and captured range.",
+      "tests": [
+        "Cancelled excluded in both",
+        "Same interval across DST",
+        "Single-day curve total equals daily total"
+      ],
+      "group_id": "clone-9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-73b798592ae6225efc53e02a8dc68b0ce9abc0e3794be1676b6b9837b3588154",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 115,
+          "end_line": 115,
+          "token_count": 22,
+          "body_token_sha256": "9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+          "signature": "lambda expression",
+          "symbol_span": [
+            115,
+            20,
+            115,
+            117
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+            "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+            "lines": [
+              111,
+              132
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "stable_id": "sym-b06aabb5d9635086e1608156bc53551ef2e35b19e8fdf762b727c3b8a5c7c34f",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "start_line": 138,
+          "end_line": 138,
+          "token_count": 22,
+          "body_token_sha256": "9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+          "signature": "lambda expression",
+          "symbol_span": [
+            138,
+            20,
+            138,
+            117
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+            "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+            "lines": [
+              134,
+              154
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    }
+  ],
+  "limits": "Source comparison, not runtime acceptance, financial function receipt increment, or exhaustive semantic duplication proof. No code/DB/printing/Git changes."
+}

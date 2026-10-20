@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.cs",
+  "source_git_blob_sha256": "55a5cea13ad730c76a47a1e20dd8399906389294e8f67bebe8fbba01c9ddb863",
+  "worktree_sha256": "2bcf7c143d05a2802f447892c4f1014896016d204deb5efe377472b15b12ad42",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:11:01.953833+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-ac5cd9ec0c597962e82b422c51d20b337a6db96450673700b00ae7a18dfe6897",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddUserSessions.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        35,
+        10
+      ],
+      "reasoning": "Up creates UserSessions with row key, bounded hash64, user reference and create/last-seen/revoke instants, then unique hash index. No raw bearer token seeded or user FK/revocation/expiry CHECK in body; SessionService owns current Active/idle validation. Creating schema does not authenticate users or migrate prior sessions.",
+      "inputs": "EF migration builder and preceding schema; no target DB.",
+      "outputs": "Queued table/index/schema reversal operations.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Image bytes/attendance/session metadata consumers exist but no image upload, login, biometric event, UI or physical printer action executed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Existing FIN023 UTC reconstruction and actual session/image writer controls preserved; no schema default promoted as complete data validation.",
+      "tests_missing": "No tests run. Disposable SQL migration cases should verify hash uniqueness/nullable revoke, product-image cascade and accepted size bound in app, attendance employee/date conflicts and timezone-safe punch history preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-05a588cc6437149cba17252fc68b941a0ecd1dbeacde64a7348e015b52992c0a",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        16,
+        26,
+        24,
+        18
+      ],
+      "reasoning": "Columns lambda stores token digest as required nvarchar64, user ID unbounded required text, two required datetimeoffset instants and optional revocation instant. No secret values generated or read, no computed expiry/default times; column declarations are not identity validation.",
+      "inputs": "Generated table/column builder argument scoped to CreateTable.",
+      "outputs": "Column, PK or FK metadata expression consumed by parent CreateTable.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Image bytes/attendance/session metadata consumers exist but no image upload, login, biometric event, UI or physical printer action executed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Existing FIN023 UTC reconstruction and actual session/image writer controls preserved; no schema default promoted as complete data validation.",
+      "tests_missing": "No tests run. Disposable SQL migration cases should verify hash uniqueness/nullable revoke, product-image cascade and accepted size bound in app, attendance employee/date conflicts and timezone-safe punch history preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-68697e00be3148535d1a2ddbd4dbe4661fa95dd24d1566776cd76ef68d6766ff",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        25,
+        30,
+        28,
+        18
+      ],
+      "reasoning": "Constraints lambda adds only session Id PK, not a user FK. Unique hash lookup comes from separate CreateIndex; duplicate user sessions are permitted by design, not prevented by this block.",
+      "inputs": "Generated table/column builder argument scoped to CreateTable.",
+      "outputs": "Column, PK or FK metadata expression consumed by parent CreateTable.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Image bytes/attendance/session metadata consumers exist but no image upload, login, biometric event, UI or physical printer action executed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Existing FIN023 UTC reconstruction and actual session/image writer controls preserved; no schema default promoted as complete data validation.",
+      "tests_missing": "No tests run. Disposable SQL migration cases should verify hash uniqueness/nullable revoke, product-image cascade and accepted size bound in app, attendance employee/date conflicts and timezone-safe punch history preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-77027f9709e8165b7d28a0feca31071557bb9de08ad9749998bb3eb0652cddf3",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        27,
+        57,
+        27,
+        66
+      ],
+      "reasoning": "Nested Id selector chooses session row identity, separate from TokenHash business lookup key. It does not select bearer token, verify hash, fetch User or enforce Active.",
+      "inputs": "Generated table/column builder argument scoped to CreateTable.",
+      "outputs": "Column, PK or FK metadata expression consumed by parent CreateTable.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Image bytes/attendance/session metadata consumers exist but no image upload, login, biometric event, UI or physical printer action executed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Existing FIN023 UTC reconstruction and actual session/image writer controls preserved; no schema default promoted as complete data validation.",
+      "tests_missing": "No tests run. Disposable SQL migration cases should verify hash uniqueness/nullable revoke, product-image cascade and accepted size bound in app, attendance employee/date conflicts and timezone-safe punch history preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-dd153d94f50dbd5242548c3e11839f77e04bfeab47f80cdd646f992b2512787c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddUserSessions.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        38,
+        9,
+        42,
+        10
+      ],
+      "reasoning": "Down drops all session storage, invalidating ability of this schema to resolve retained tokens while user credential rows and financial facts remain. It is not permission rollback, PIN recovery or business transaction compensation.",
+      "inputs": "EF migration builder and preceding schema; no target DB.",
+      "outputs": "Queued table/index/schema reversal operations.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Image bytes/attendance/session metadata consumers exist but no image upload, login, biometric event, UI or physical printer action executed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Existing FIN023 UTC reconstruction and actual session/image writer controls preserved; no schema default promoted as complete data validation.",
+      "tests_missing": "No tests run. Disposable SQL migration cases should verify hash uniqueness/nullable revoke, product-image cascade and accepted size bound in app, attendance employee/date conflicts and timezone-safe punch history preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

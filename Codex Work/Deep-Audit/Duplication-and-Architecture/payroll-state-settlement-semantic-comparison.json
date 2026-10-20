@@ -1,0 +1,565 @@
+{
+  "at_utc": "2026-10-19T22:08:37.460Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "semantic_group": "SEM-MIRROR-013",
+  "title": "Payroll state transition versus financial settlement invariants",
+  "status": "BOUNDED_SOURCE_COMPARISON_COMPLETE_EXISTING_FINDINGS_RECONCILED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "line_ranges": [
+        [
+          24,
+          60
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a",
+          "signature": "Falah.Infrastructure.Employees.TransitionPayrollHandler.HandleAsync(Falah.Application.Employees.TransitionPayrollRequest, CancellationToken)",
+          "span": [
+            24,
+            5,
+            61,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e28b2abc7756ddf3b2073a02f2b3f6e275e88a5b26059f95e93aa3013902d8ef",
+          "signature": "lambda expression",
+          "span": [
+            29,
+            76,
+            29,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-ca7acb7952f823ebbc4f38240566da65e4296628669a55fa4c8fe2766dd9bfa9",
+          "signature": "lambda expression",
+          "span": [
+            34,
+            61,
+            34,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-290d9ec132ecbc0cc1ae110c5a39b7ca050c92a98281a5363ee9f014c2ea3dba",
+          "signature": "lambda expression",
+          "span": [
+            45,
+            87,
+            45,
+            129
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "line_ranges": [
+        [
+          39,
+          84
+        ],
+        [
+          110,
+          180
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+          "signature": "Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+          "span": [
+            39,
+            5,
+            182,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7f914af4a24a9ce3bed9c10a4876aff19e2f061b63235ef11faf754eb4f95b37",
+          "signature": "LoadReplayAsync()",
+          "span": [
+            46,
+            9,
+            54,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-b5dfbb39eb2ce8353e216ea365c71fa4a1516b8db59b4204821850f8761bbef6",
+          "signature": "lambda expression",
+          "span": [
+            49,
+            38,
+            49,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-2d508425f63fd9def1925b5f9f0c24f9b2ab72acb622db9e7fd9c8da976d80cc",
+          "signature": "lambda expression",
+          "span": [
+            52,
+            29,
+            52,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-25c724797da7b2e53e917cd6d4fe1cbe615e9106baa5770e0447ee96a8bbf77a",
+          "signature": "lambda expression",
+          "span": [
+            58,
+            76,
+            58,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-e1836001213e59d67e5f4c5b5d410a03df04bd624f958d0722a0947d8d809d3a",
+          "signature": "lambda expression",
+          "span": [
+            62,
+            61,
+            62,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-0bbd6fe5564c74dae99787284731cdf5d99093345acbeefdf132a09905904bcf",
+          "signature": "lambda expression",
+          "span": [
+            79,
+            83,
+            79,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-8133ca06a75a53035e0cbae5ae0cf103f3fd51574b0f3ad5be305ae2b012b355",
+          "signature": "lambda expression",
+          "span": [
+            137,
+            46,
+            137,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-70eab91fffa09ac3c25d02850447fdde07ce31a75cf2483aaab375af99bb35e3",
+          "signature": "lambda expression",
+          "span": [
+            174,
+            21,
+            174,
+            56
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          5,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7a2c3c021a49d2f8d68558d96a7858da5b7869e2ca3c69a3072bd3e5c31ee2af",
+          "signature": "Falah.Domain.Payroll.PayrollRules.AssertTransition(Falah.Domain.Payroll.PayrollRunStatus, Falah.Domain.Payroll.PayrollRunStatus)",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "line_ranges": [
+        [
+          111,
+          131
+        ],
+        [
+          267,
+          305
+        ],
+        [
+          332,
+          350
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-207c98338e4f9a050bec89bf2e913a893c96c50e63058074b89a6626377503ae",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.AdvanceRunAsync()",
+          "span": [
+            266,
+            5,
+            300,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-85eca1a200d50eb1a0722757f9a7a028509f950efc715445ab6e1ede3e2f6c00",
+          "signature": "lambda expression",
+          "span": [
+            277,
+            70,
+            290,
+            14
+          ]
+        },
+        {
+          "stable_id": "sym-949363562477f89b694ed27f536af58404539bd8319d313fb7fba22443b77c2c",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.StatusRank(string)",
+          "span": [
+            302,
+            5,
+            305,
+            7
+          ]
+        },
+        {
+          "stable_id": "sym-26c8a933d130d79c6c6647f02d0345fce9c49a7af7e30149e0b4d72d4add56e1",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayRunAsync()",
+          "span": [
+            331,
+            5,
+            358,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b695e62825f025063b1ec21a2b77d7654f3615cfc94b0e5c866c8d0c47cd4cb9",
+          "signature": "lambda expression",
+          "span": [
+            346,
+            63,
+            346,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "line_ranges": [
+        [
+          22,
+          35
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          830,
+          851
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-afe5e23d8785f1df57836869a5ed5e80b2df52cf9a5b280041742bfa74a335aa",
+          "signature": "lambda expression",
+          "span": [
+            830,
+            53,
+            839,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-4dda857c58fb8e8ee8a575a8bc36627544905b33bf18c403c6e69bede2961dfe",
+          "signature": "lambda expression",
+          "span": [
+            841,
+            46,
+            851,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "worktree_sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "source_git_blob_sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "line_ranges": [
+        [
+          67,
+          80
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-93ceca84e3cc7f068470153d50b9e28137ca42c60c0e18e38c6e947c46205077",
+          "signature": "Falah.Domain.Tests.PayrollRulesTests.AssertTransition_enforces_the_payroll_lifecycle(Falah.Domain.Payroll.PayrollRunStatus, Falah.Domain.Payroll.PayrollRunStatus, bool)",
+          "span": [
+            67,
+            5,
+            80,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b01f46bf46a7481f186367dadfa3bfd5d3f2acc024d0c8ef4d4fd5c8aaa384b6",
+          "signature": "lambda expression",
+          "span": [
+            79,
+            45,
+            79,
+            90
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "source_git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+      "line_ranges": [
+        [
+          189,
+          205
+        ],
+        [
+          209,
+          223
+        ],
+        [
+          227,
+          241
+        ],
+        [
+          245,
+          258
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-132578ab3f11c4ab2c29a5cb5054fd6dcd49c2868330b589f4c68192d3050f35",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_an_approved_run_posts_one_movement_and_settles_every_line()",
+          "span": [
+            188,
+            5,
+            206,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-468fbc12e53ee9f60407cdb875cd175b9be26c84641f6909fac047a324c17dab",
+          "signature": "lambda expression",
+          "span": [
+            204,
+            55,
+            204,
+            163
+          ]
+        },
+        {
+          "stable_id": "sym-82a573fd1425de7438e2a8d488cec75e6f8eefabf750f6efc6af0ba782a34d86",
+          "signature": "lambda expression",
+          "span": [
+            204,
+            93,
+            204,
+            162
+          ]
+        },
+        {
+          "stable_id": "sym-653073cb83d9d39280a3d7951e292512529d014ac8960b5d93aac75dda4e0a77",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_the_same_run_twice_never_double_pays()",
+          "span": [
+            208,
+            5,
+            224,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9825b15de25189b3d9edb912b1e25d31ec198459778dfb2146f79391bdaa2c6c",
+          "signature": "lambda expression",
+          "span": [
+            222,
+            55,
+            222,
+            126
+          ]
+        },
+        {
+          "stable_id": "sym-c7de9b3f65819ed3a37496dd49f169be4e2e7d5284c7d47f893cbf1a51480caa",
+          "signature": "lambda expression",
+          "span": [
+            222,
+            93,
+            222,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-63c6870a31fbf8be20f8f95eaa31f60fa22cf573d7066c2dfb763456a8974dae",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_a_run_that_is_not_approved_is_rejected()",
+          "span": [
+            226,
+            5,
+            233,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ac7649aa390721700dabe05719c02582bfa4a5fd59d69055317050c82c9f5db8",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_a_run_requires_payroll_pay()",
+          "span": [
+            235,
+            5,
+            242,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5e089a47da7115869a58d42e5b31b9a4dbf617ede8aa8d7320dd5ca5dbe9c478",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Six_concurrent_pay_requests_for_the_same_run_settle_exactly_once()",
+          "span": [
+            244,
+            5,
+            258,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-44293528be81a62647bd6f216b3b7e8d7f46241c4103c2997d21974a09e11400",
+          "signature": "lambda expression",
+          "span": [
+            250,
+            51,
+            250,
+            177
+          ]
+        },
+        {
+          "stable_id": "sym-fa74c86e0ecf874989123865dfd62c2fefab6aa1c8dd43bddbddafbf856162cd",
+          "signature": "lambda expression",
+          "span": [
+            252,
+            31,
+            252,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-8c9490c7dc635963e149296f9795843ef5e27ae2d99d3fb729f504ffa526ecdb",
+          "signature": "lambda expression",
+          "span": [
+            254,
+            55,
+            254,
+            126
+          ]
+        },
+        {
+          "stable_id": "sym-d57651389b2611382fd487990d9dbc968cea35be49d5573f7aa3880e47193c49",
+          "signature": "lambda expression",
+          "span": [
+            254,
+            93,
+            254,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-d77ba4e3dd2c9c82a7c6bcc59783223586fbac07daaa7118486fd59703d74b88",
+          "signature": "lambda expression",
+          "span": [
+            256,
+            57,
+            256,
+            134
+          ]
+        },
+        {
+          "stable_id": "sym-e812c7c6ff956c06c928f5a7788d63e9e6ccdc3108d97dc897fc7a9f3a5038f2",
+          "signature": "lambda expression",
+          "span": [
+            256,
+            99,
+            256,
+            133
+          ]
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "contract": "Shared Paid label is not equivalent settlement",
+      "generic": "TransitionPayroll employees_manage32, allowed Approved->Paid domain18/25, generic status assignment55 Save59; no movement, paidline, ledger settlement or payroll_pay gate.",
+      "dedicated": "PayPayroll requires Approved73-74 and payroll_pay84; locks sourcefunds118; deterministic run journal122, movement127-134, positive-line debit143-145, run financial metadata149-154; Save/Commit161-162.",
+      "decision": "Existing HIGH FIN006, not new duplicate finding. A shared state-transition helper must not expose financial terminal Paid without dedicated atomic settlement effects."
+    },
+    {
+      "contract": "Client next step versus API acceptance",
+      "client": "PayrollViewModel NextStatus113-118 stops at Approved; separate approved-unpaid/payroll_pay gate129-131 selects dedicated PayRun. HTTP transition endpoint830-839 still forwards arbitrary requested status to handler.",
+      "decision": "Ordinary UI is narrower than API and is genuine counterevidence against allnormalbutton flows invoking Paid, not server protection. Numeric unknown enum passes parsing but AssertTransition allowed-table membership rejects; no new undefined-state defect."
+    },
+    {
+      "contract": "Paid replay proof versus status-only writer",
+      "evidence": "PayPayroll64-71 comment assumes Paid proves committed movement; actual code still LoadReplay and falls through nonApproved rejection73-74 if movement missing.",
+      "decision": "The comment premise is defeated by generic FIN006 writer but code does not invent a payment receipt or post a second settlement on missing movement. This yields Paid-without-payment dead end, not duplicate payout."
+    },
+    {
+      "contract": "Idempotency and cancellation are different constraints",
+      "evidence": "Dedicated run-only key44 prevents repeated same-run payment; generic cancellation validates prior run state34-37 without shared conditional update. Existing qualified FIN-CAND-PAYROLL001 traces stale-approved schedules.",
+      "decision": "Six same-run pay tasks in current test245-258 assert one movement/settlement, not competing pay/cancel correctness. Actual SQL acceptance of competing terminal-state schedule remains unexecuted; preserve filtered-period-index countercontrols in canonical candidate."
+    },
+    {
+      "contract": "Client monotonic status read is not durable financial receipt",
+      "evidence": "PayrollViewModel280-286 uses current single-run StatusRank to acknowledge already-progressed transition after response loss. It does not match original actor/approval/history and is not equivalent to dedicated movement-key receipt.",
+      "decision": "Keep current purpose as status progression reconciliation, not proof that exact historical actor command paid finances. Existing UI017 retry accessibility and FIN006 state writer remain separate; no new author-count or unconditional defect."
+    }
+  ],
+  "test_contexts": "Actual source read: Domain AssertTransition theory explicitly expects Approved->Paid allowed. Integration payout success asserts total/count/balance/movement; sequential and six-way duplicate pay tests assert dedupe; nonApproved and missing-payroll_pay reject. These controls do not assert generic Paid rejected or pay-versus-cancel barriers. Not executed.",
+  "finding_links": [
+    "FIN-006",
+    "FIN-CAND-PAYROLL-001",
+    "UI-017"
+  ],
+  "independent_challenge_references": [
+    "Deep-Audit/Database-and-Finance/financial-legacy-independent-provenance.json",
+    "Sub-Agents/Handoffs/payroll-terminal-state-independent-challenge.json"
+  ],
+  "recommendations": [
+    "Define financial terminal-state invariants once, with dedicated settlement as sole writer of Paid; generic metadata transitions cannot substitute for ledger/treasury transactions. Preserve role separation and source-balance lock.",
+    "Future pay/cancel coordination needs a shared run-state concurrency boundary, not just dedupe journal or client button gates.",
+    "Add denied generic Paid transition and disposable provider pay/cancel barrier tests while retaining sequential/concurrent pay replay controls."
+  ],
+  "runtime_tests": "NOT_EXECUTED; no DB, API, payroll or financial operation",
+  "new_financial_callable_receipts": 0,
+  "scope_limits": [
+    "Targeted semantic contract between existing implementations, not new complete per-file reviews or all repository state machines.",
+    "Same-key payment uniqueness does not prove global no-race; model/provider-specific constraints remain qualified in original findings."
+  ]
+}

@@ -1,0 +1,709 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-78daf9f8848621021c21273625fb396c7cc03cdfb81ee871da43a04cf1fac761",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          16,
+          26,
+          23,
+          18
+        ],
+        "reasoning": "Categories column builder declares ID, required label/order/Active and optional Icon. It has no category-name uniqueness or catalog authorization; Active is metadata, not a product availability cascade. This is initial schema before later product FKs.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-8e321f99d78b803678c8b5b5eac016a80b0ef612628dbad0c39b518e03ca310e",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          24,
+          30,
+          27,
+          18
+        ],
+        "reasoning": "Categories constraints callback declares only Id PK. Restrict product-parent relation appears later in this migration rather than in this block; category name duplicates are not constrained here.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-6aac1dd9f5c9fe520833f4e68a0cace16802e710bbc9940ccc51943d6a2e4e28",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          26,
+          55,
+          26,
+          64
+        ],
+        "reasoning": "Category PK selector chooses Id column metadata, not Name or SortOrder; no sorting, normalization or activation admission occurs in expression.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-fc0ec3c60b83024df41aa84cf412abbc41271dae901c0752045a783f66f9f728",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          31,
+          26,
+          37,
+          18
+        ],
+        "reasoning": "FinancialJournal columns use IdempotencyKey itself as bounded primary identity with Kind/Status/UTC. No amount, actor, payload fingerprint or actual financial fact is stored in this table shape.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-519dd5c4ba2ecce446ddbf2a444805ddb6c73e359fdbff19a3b9b5ee15a187ec",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          38,
+          30,
+          41,
+          18
+        ],
+        "reasoning": "FinancialJournal constraint callback keys IdempotencyKey only. Same-key uniqueness is real but cannot distinguish multiple command stages using the same key (FIN001) or prove Pending/Complete state agrees with money.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-00441751db8512d91052cd5a78621b3886216ef0f033c20b196599fde4348441",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          40,
+          68,
+          40,
+          89
+        ],
+        "reasoning": "Journal PK selector returns IdempotencyKey metadata, deliberately no generated row ID. It does not implement transaction start, approval or payload equality.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-26c80ecf638994e1a9c53004eb4db2b39fad35a023f31f9e1de3148d98896c31",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          45,
+          26,
+          50,
+          18
+        ],
+        "reasoning": "InventoryItems initial columns contain only Id/Name/CostSource; unit/category/threshold fields arrive later. No current-schema completeness or valid cost-source enum can be inferred from this historical declaration.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-54af681c31eeda4139bfbb6ee21632267b9c76e2a090e10c4e02a6aa049ebfb8",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          51,
+          30,
+          54,
+          18
+        ],
+        "reasoning": "Initial inventory constraints provide only Id PK; recipe/stock references are authored in later blocks. No name/cost-source CHECK or active-state policy encoded here.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-b175a3360c46ad035788c24fec0d7f5d7ced77e70e4dbdae7cc586594bcded67",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          53,
+          59,
+          53,
+          68
+        ],
+        "reasoning": "Inventory PK selector identifies Id, not unit/name. Unit immutability and first-movement admission are not represented in this initial key expression.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-99464e933a2549eecd4cda6e34f7bae9629606da9a459a52d0a54ea3a6d02e2f",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          58,
+          26,
+          68,
+          18
+        ],
+        "reasoning": "ManagerApproval columns capture approver ID/name/role/action/reason/time and Consumed bit. No FK proves approver exists and no expiry or action CHECK is declared; runtime registry/policy enforces meaning.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-6a00f29f3b29cfb95e5e0b52cc57d5772936226927e4489f29ddd52628a3583a",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          69,
+          30,
+          72,
+          18
+        ],
+        "reasoning": "ManagerApproval constraints key ApprovalId only; consumed optimistic concurrency is EF model behavior, not a separate SQL trigger/unique constraint in this callback. Required role/name is not authenticated approval evidence.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-1f2bc8a7b3c319dcaba0b0483205f165a3459576886111a660dcb5a45683d5d0",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          71,
+          61,
+          71,
+          78
+        ],
+        "reasoning": "Approval PK selector chooses ApprovalId, enabling single issued-token identity convention. It does not validate matching action, consume a token or query approver.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-b5585ec4aa7b68dd1dd7d6f78bbae213face84c1767a8ec03dc05dccf1945d35",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          76,
+          26,
+          81,
+          18
+        ],
+        "reasoning": "OrderSequence columns declare identity int Id and bigint LastAllocated. Multiple distinct IDs can physically exist; singleton use Id1 is service convention and later seed explicitly creates that row.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-50754214deaabce7d9ab312b66d181ffed144805c63ea11957e5f44b78b1746f",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          82,
+          30,
+          85,
+          18
+        ],
+        "reasoning": "Sequence constraints declare only Id primary key. No CHECK forces Id1 or LastAllocated nonnegative/max bound; atomic increment semantics belong UPDATE OUTPUT service, not table key.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-abf0e1496d51ed1e3167620d0db42c62498b142181467ab88215167491362038",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          84,
+          58,
+          84,
+          67
+        ],
+        "reasoning": "Sequence PK selector identifies Id rather than LastAllocated. Unique counter row identity does not itself allocate numbers or serialize existingMax recovery.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-4695083cb63ba60088ff651c8255c3d7110eb16a1ca96f520cb0184ff2be9430",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          89,
+          26,
+          97,
+          18
+        ],
+        "reasoning": "PriceRule columns store bigint fixed unit price, nullable SQL time endpoints and Active bit. No nonnegative/upper bound price or endpoint relationship CHECK; products/day relations are separate tables later.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-830d09d3edbdef635c96dce81fe688d960d4b43921ffc8e12a54ff0618395d0f",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          98,
+          30,
+          101,
+          18
+        ],
+        "reasoning": "PriceRule constraints provide only Id PK. Current product eligibility/day gates are relational FKs built later; the PK callback contains no time eligibility logic or permission checks.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-994e69e5516979e9946e370f2fd789b6c20eada2548ca50970ffd1699f7fc642",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          100,
+          55,
+          100,
+          64
+        ],
+        "reasoning": "PriceRule key selector returns Id, not name, active flag or effective-price amount. It constructs metadata and performs no pricing decision.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-3711111f42db26fa6a2d23917ce7ac75b4c9d7d7fe6a17034df5cc5e3a76fc61",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          105,
+          26,
+          123,
+          18
+        ],
+        "reasoning": "Shift columns hold original float and nullable blind-close snapshots, status/date/time/replay key and application Version as bigint. No DB-generated rowversion or built-in physical count attestation; later indexes enforce selected uniqueness.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-7bd992940ac2d0676ec15f429d44c9a7b52bed6d7e05cf44867a53f3e657d63d",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          124,
+          30,
+          127,
+          18
+        ],
+        "reasoning": "Shift constraint callback declares only Id PK at initial creation. OpenRequestId and single-Open indexes are later Up statements, not this block; user opener references are text, no FK here.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-a64cec8e2ec4eb8478401b3233ec3168a34027d050df0a6594923e6e0c87fa63",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          126,
+          51,
+          126,
+          60
+        ],
+        "reasoning": "Shift PK selector identifies Id, not OpenRequestId or Status. It does not acquire row locks, enforce one active shift or validate a closing actor.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-ba3aa220824e0ee4d264f4f47a689049c90b825df09db4ac3f15b10fe5de4201",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          131,
+          26,
+          138,
+          18
+        ],
+        "reasoning": "TaxRule columns define int basis-point rate, raw Mode string, Enabled bool and key/name. No defined-enum/rate-sign or single-enabled constraint here; FIN021 representation mismatch remains possible at writer/consumer boundary.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-320b869c92fa2b93bbfc311ce3ced8554194c133ca790faab55d403636a66a5d",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          139,
+          30,
+          142,
+          18
+        ],
+        "reasoning": "TaxRule constraint callback supplies only Id PK; it does not enforce only one Enabled record or canonical Inclusive spelling. Selection/normalization belongs application contract.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-0102493b92e1f3484ebdfa2642c83956d344ffc5b9b86c8b874e82c176a78c69",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          141,
+          53,
+          141,
+          62
+        ],
+        "reasoning": "TaxRule Id selector chooses row identity, not rate or mode; no tax calculation or enum parse executes in this metadata expression.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-88ffb19952b3fe1f4ada73f08dd252833374e27b8582076d2a9aca480cbb6efd",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          146,
+          26,
+          164,
+          18
+        ],
+        "reasoning": "TreasuryMovement columns store source/destination optional strings, bigint amount and textual type/status/reference/actor/day metadata. No Account table/FKs or amount sign CHECK here; balances derive posted facts in domain.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-86457717af687c974c3b02c8b6263c9d592f3ddd5bfb4e87756e0b537c616d38",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          165,
+          30,
+          168,
+          18
+        ],
+        "reasoning": "TreasuryMovement constraints declare Id PK only. Unique IdempotencyKey index comes later in Up, while operation/reference fields remain nonunique correlation. No account liquidity validation is encoded.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      },
+      {
+        "stable_id": "sym-60f49b42bf8f0ac90cb5e9e8df4f4f73fc7faa8c0210cc3f5d3f97addb3bbae2",
+        "status": "ANALYZED",
+        "signature": "lambda expression",
+        "span": [
+          167,
+          62,
+          167,
+          71
+        ],
+        "reasoning": "TreasuryMovement key selector returns Id rather than business IdempotencyKey. It does not derive debit/credit sign, post balances or validate funded source.",
+        "inputs": "Generated column/table builder parameter scoped to the named initial CreateTable block.",
+        "outputs": "Initial column/constraint/key-selection metadata only; parent Up not yet fully read in this pass.",
+        "side_effects": "If enclosing migration executes it declares schema; audit executes no callback, migration, SQL, seed or financial action.",
+        "trust_boundaries": "Historical schema declarations do not authenticate actors, guarantee valid monetary inputs or prove deployed schema. No live database used.",
+        "database": "InitialCreate first source segment1-180 actually read. Dependencies, seeds and indexes after180 are not yet promoted; modern model source previously read separately.",
+        "printing_ui": "No UI/transport/hardware action; schema metadata can support downstream financial records, not physical proof.",
+        "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+        "duplicates_conflicts": "Initial metadata is distinct from later migrations/current model. No Up or unread child body marked complete by table-name indexing.",
+        "issues_hypotheses": "No new finding. Real PK constraints are countercontrols but not business-level account/active/representation validation.",
+        "tests_missing": "No tests run. Need isolated provider migration build with later dependency/index/seed verification, valid/invalid row controls and safe upgrade/downgrade planning.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+          "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+        ]
+      }
+    ]
+  }
+]

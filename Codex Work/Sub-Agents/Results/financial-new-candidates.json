@@ -120,7 +120,7 @@
       "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
       "severity": "MEDIUM_CANDIDATE_AUDIT_INTEGRITY",
       "confidence": "HIGH_STATIC_NO_RUNTIME",
-      "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+      "status": "INDEPENDENTLY_CORROBORATED_PARENT_CANONICAL",
       "sources": [
         {
           "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
@@ -164,9 +164,11 @@
       ],
       "correction_design": "ObtainactualAuthorizationResult/validatedissuedapprovalfromgate andrecordonlythat, oractorname fordirectpermission ifpolicywantsauthorizer. Ignoreunvalidatedoptionalpresentation; keepprivilegepolicyunchanged.",
       "regression_tests": "Purepolicy+handlerfixture: belowthresholdfakeapprovalID/otheruser, directshifts_manage+fakeapproval, validdelegatedapproval, wrongapprover/consumed; assertAuthorizedBy isactualactor/validatedissuedapproveronly. No writesexecuted.",
-      "independent_pending": true,
+      "independent_pending": false,
       "no_execution": true,
-      "at_utc": "2026-10-17T21:53:47.721986+00:00"
+      "at_utc": "2026-10-17T21:53:47.721986+00:00",
+      "canonical_id": "FIN017",
+      "qualification": "Domain Shift.Close requires nonblank authority/reason above threshold; finding narrowed to unvalidated optional presenter attribution, not null-authority close bypass."
     },
     {
       "candidate_key": "NEGATIVE_DELIVERY_FEE_BYPASSES_PRICE_REDUCTION_PERMISSIONS",
@@ -234,8 +236,8 @@
       "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
       "severity": "MEDIUM_CANDIDATE",
       "confidence": "HIGH_STATIC_TRACE_NO_RUNTIME",
-      "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
-      "independent_pending": true,
+      "status": "INDEPENDENTLY_CORROBORATED_PARENT_CANONICAL",
+      "independent_pending": false,
       "sources": [
         {
           "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
@@ -268,7 +270,7 @@
         "Signed long request fields unannotated PurchasingRequests15; Program2182-2186 forwards existing endpoint directly.",
         "Receive60-67 checks line count/existence but not quantity/cost sign. PurchasingRules10-11 computes decimal product, so two negatives yield +10000 invoice total.",
         "AssertPurchasePayment77-81 accepts paid0,total10000; credit mapsnull86-91 and is valid unpaid invoice.",
-        "Receive129-133 stores negative quantity/unitcost;174-185 creates PurchaseReceipt Direction=In with negative quantity, SupplierLedger debit155 total10000.",
+        "Receive129-133 stores negative quantity/unitcost;167-175 creates PurchaseReceipt Direction=In with negative quantity, SupplierLedger debit155 total10000.",
         "Snapshot PurchaseLine2248-2280 and StockMovement2574-2648 use bigint fields without positive check constraints; repository rg found no HasCheckConstraint/CHECK. InventoryQuery24-26 sums negative In quantity directly, decreasing stock."
       ],
       "root_cause": "Line total arithmetic is used without explicit positive receipt-quantity/nonnegative unit-cost validation at server boundary. An aggregate valid payment does not establish each receipt line valid.",
@@ -287,7 +289,158 @@
         "Valid fractional milliunit purchase rounds predictably; ordinary credit and partial-payment receipt still work."
       ],
       "validation": "Complete static endpoint/request/handler/domain/model/inventory trace, pending independent challenge.",
-      "updated_at_utc": "2026-10-17T22:04:56.652364+00:00"
+      "updated_at_utc": "2026-10-17T22:04:56.652364+00:00",
+      "canonical_id": "FIN018",
+      "qualification": "Authorized purchasing actor/day/supplier/item required; source-only double-negative receipt, no SQL write reproduction."
+    },
+    {
+      "candidate_key": "MIXED_PENDING_DELIVERY_CUSTODY_COUNTS_ALREADY_COLLECTED_LEG",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH_CANDIDATE",
+      "confidence": "HIGH_STATIC_CHAIN_NO_RUNTIME",
+      "status": "INDEPENDENTLY_CORROBORATED_PARENT_CANONICAL",
+      "independent_pending": false,
+      "sources": [
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+          "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs",
+          "git_blob_sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7",
+          "worktree_sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7"
+        },
+        {
+          "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+          "git_blob_sha256": "dba6f7c551676a5899ed1b211a0d8b1d9b8605a67c709a4ef47991de3ff0cfc1",
+          "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs",
+          "git_blob_sha256": "b88f59ee0a9a165c26b4910b0798d03f55183af8068131a594226180654b0321",
+          "worktree_sha256": "b88f59ee0a9a165c26b4910b0798d03f55183af8068131a594226180654b0321"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+          "git_blob_sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b",
+          "worktree_sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
+          "git_blob_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+          "worktree_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+          "git_blob_sha256": "9d73b7f839304f8bd8a88300579e900569067df432ed41f1cb2b9edbed69ae5e",
+          "worktree_sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a"
+        }
+      ],
+      "trigger": "Valid Delivery order total10000 piastres, Multi splits Cash5000 + InstaPay5000 Pending, AmountPaid10000 (required plan tender parameter), valid delivery customer/service/address, authorized POS and dispatch actors, active driver, no refund. The immediate5000 cash leg posts at checkout. Ready and Assign are then invoked normally via existing API.",
+      "evidence": [
+        "CheckoutRules.SelectElectronicLeg50-63 creates pending electronic5000, ComputeIsPaid77-78 false; positive Multi DefersAllMoneyfalse. Handler255-265 posts non-electronicCash5000 and skips InstaPay; no Delivery+Multi restriction in checkout. Delivery row created223-229.",
+        "DeliveryFactsComposer14-29 AmountToCollect=order.Total-refund=10000, PaymentAlreadySettled=order.IsPaid=false, PaymentMethod=Multi. It does not subtract already posted split cash5000.",
+        "DeliveryRules11-12 for any non-Cash method with settledfalse returns WHOLE amount10000; CreateCashCustody18-20 sets Expected10000. MarkReady26-58 and Assign36-137 have no pending-electronic prohibition; actual Assign creates custody from facts87 and storesExpected100-105.",
+        "RecordDeliveryResult expected94; absent CollectedAmount defaults expected95, sets delivery/custody collected10000 at99/108 and no reason because equal. If driver correctly reports remaining5000 with reason, custodyExpected10000 creates artificial5000 difference.",
+        "Settlement scopes Collected amount as expected92 and can post actual10000 into Main110-117 in addition to earlierCash5000 if user really collects/remits full amount demanded by custody; no order paid/electronic transition or reversal of immediate leg in either Result or Settlement. If expected isdefault10000 but actual5000, stricter variance approval triggers even though immediate5000 already in till."
+      ],
+      "root_cause": "Delivery responsibility collapses per-leg payment collection into one whole-order IsPaid flag and Total-refund. Mixed pending order is partially collected, but modeled as wholly uncollected for driver custody.",
+      "impact": "Overstated driver collection/custody by already posted immediate leg; possible duplicate customer collection or artificial driver variance/approval requirement. No claim actual customer payment, cash theft, SQL acceptance or persisted double revenue was reproduced.",
+      "counterevidence": [
+        "Requires a delivery Multi order with a pending electronic leg; all-immediate Multi IsPaidtrue yields zero driver responsibility, normal Cash COD has no immediate checkout treasury collection.",
+        "Cash tender AmountPaid10000 is request-plan sufficient-payment field, not proof whole10000 actually received: handler only posts splitCash5000.",
+        "FIN001 already blocks electronic confirmation, but does not block delivery Ready/Assign or eliminate immediate collection; this is distinct driver responsibility consequence, not second confirmation finding.",
+        "A real cashier may choose not to dispatch unpaid electronic orders through UI, but server API does not enforce that guard.",
+        "Settlement source/driver row locks are strong and prevent ordinary duplicate same-driver settlement; this candidate concerns wrong admitted monetary basis, not missing those locks."
+      ],
+      "correction_design": "Compute outstanding collectible amount from per-leg posted/confirmed state, including refund allocation, or explicitly reject unsupported mixed pending dispatch until valid payment resolution. Keep zero/prepaid/COD behavior and ensure result/settlement do not invent collection or duplicate earlier money.",
+      "regression_tests": [
+        "Valid deliveryCash5000+PendingElectronic5000 expected driver obligation must never include already postedCash5000; explicitly decide collectresidual vs dispatchblock.",
+        "All-immediateMulti and pureCOD controls, partial refund allocation, confirmed/nonconfirmed electronic.",
+        "Result default/explicit5000 and settlement actual5000 must not create false5000 variance.",
+        "Existing FIN001 repair plus custody computation must avoid double confirm/cash fallback collection."
+      ],
+      "related": [
+        "FIN001",
+        "FIN010"
+      ],
+      "runtime": "NOT_EXECUTED; no API/DB/financial/physical printing actions.",
+      "updated_at_utc": "2026-10-18T09:37:32.415446+00:00",
+      "canonical_id": "FIN-019",
+      "parent_evidence": "Deep-Audit/Database-and-Finance/Independent-Challenges/mixed-pending-delivery-custody.json",
+      "qualification": "Freeze or explicit conversion policy; pending electronic is not automatically residual COD; no HTTP/SQL/actual collection reproduced."
+    },
+    {
+      "candidate_key": "INVENTORY_UNIT_CHANGE_STALE_NO_MOVEMENT_ADMISSION",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "MEDIUM_CANDIDATE",
+      "confidence": "HIGH_STATIC_SCHEDULE_NO_DB_TEST",
+      "status": "INDEPENDENTLY_CORROBORATED_PARENT_CANONICAL",
+      "independent_pending": false,
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+          "git_blob_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+          "worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+          "git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+          "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+          "git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+          "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+          "git_blob_sha256": "c88b68327a1dedffb8e51d694d288b8f08cd755ec2c4f0c829f29052d94ccf99",
+          "worktree_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de"
+        }
+      ],
+      "trigger": "Initially valid inventory item with UnitA and no stock movements. Authorized inventory_manage update requests distinct UnitB. Separately authorized purchasing receipt for same existing item uses positive quantity/cost, credit payment0, valid supplier/open day, fresh IDs.",
+      "schedule": [
+        "UpdateInventory loads item81 and checks unitChanged84, then StockMovements.Any87 returnsfalse and Domain guard88 accepts; pause before Save100.",
+        "ReceivePurchase commits a legitimate PurchaseReceipt In movement with quantity milliunits in previously current UnitA: stock167-175, Save207/Commit208. Choose complete receipt before metadata writer resumes, so transactions need not overlap.",
+        "UpdateInventory resumes sets UnitB93 and Save100; no repeated movement query, transaction-held inventory anchor or version token."
+      ],
+      "root_cause": "Immutable-unit predicate is evaluated before write without coordinating the first stock-movement admission. InventoryItem mapping245 is primary key only, no concurrency token; movement FK protects existence, not unit interpretation.",
+      "impact": "Historical bare milliunit movement is reinterpreted under UnitB, contrary explicit InventoryRules40-47 no-unit-snapshot invariant. Current stock display joins current Unit, and valuation/recipe conversions can become semantically inconsistent; no measured monetary loss or actual SQL schedule executed.",
+      "counterevidence": [
+        "If movement already exists when update query runs, guard correctly rejects; selected first-movement race avoids that ordinary protection.",
+        "Receipt itself is transactional, idempotent and FK-valid; chosen nonoverlapping commits release its parent FK locks before unit update Save.",
+        "Source-account locks irrelevant to credit0 receipt and do not protect item metadata anyway.",
+        "Both actors require legitimate inventory/purchasing authority; not unauthorized privilege escalation.",
+        "No runtime queryplan/isolation/EF generated SQL observed. External serialization or unsupported metadata operation policy not certified."
+      ],
+      "correction_design": "Coordinate Unit mutation and every first stock-posting path on same transaction-held item anchor or durable immutable-unit schema contract, recheck movement existence inside protected boundary; do not only add metadata Version if stock writers never modify parent token.",
+      "regression_tests": [
+        "Barrier after unit no-movement read, commit first receipt, then metadata save must reject unit change or receipt must be admitted only under new unit with explicit semantics.",
+        "Reverse order and concurrent stock adjustment/usage paths; existing movement sequential rejection retained.",
+        "Unrelated metadata changes remain possible and same-unit updates do not fail."
+      ],
+      "runtime": "NOT_EXECUTED; no application/stock/DB/configuration write.",
+      "updated_at_utc": "2026-10-19T01:47:09.574878+00:00",
+      "canonical_id": "FIN-020",
+      "parent_evidence": "Deep-Audit/Database-and-Finance/Independent-Challenges/inventory-unit-first-movement.json",
+      "qualification": "MEDIUM source-only first-movement race; no SQL/measured loss, no external serializer proof. InventoryItem mapping is line245, prior244 reference corrected."
     }
   ]
 }

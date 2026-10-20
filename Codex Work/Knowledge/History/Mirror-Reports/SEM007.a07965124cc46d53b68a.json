@@ -1,0 +1,302 @@
+{
+  "id": "FIN-LEAD-TAXMODE-001",
+  "semantic_group": "SEM-MIRROR-007",
+  "at_utc": "2026-10-19T02:06:27.859Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "originator": "Financial specialist numeric-enum lead refined by root client/server semantic comparison",
+  "status": "SOURCE_SUPPORTED_DEFINED_ENUM_WIRE_MISMATCH_PENDING_INDEPENDENT_WRITTEN_CHALLENGE",
+  "severity_proposed": "MEDIUM",
+  "confidence": "HIGH_STATIC_TRACE_NO_API_DB_EXECUTION",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs",
+      "worktree_sha256": "f40a0f0879cbc2789f11cd421dd850213e3a81122819011cc73fe8643dccd4b0",
+      "source_git_blob_sha256": "d1cffe73ec801ac1ee94b6f30d0ed0709fd3fecc87fe2a486b907f7bdf5c91d4",
+      "line_ranges": [
+        [
+          34,
+          42
+        ],
+        [
+          86,
+          99
+        ],
+        [
+          116,
+          117
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2794a4e33e4a5d914df9c98671599d21fb7ebb58227a53b04e8b5d5ae9dbb2c6",
+          "signature": "Falah.Infrastructure.Pricing.CreateTaxRuleHandler.HandleAsync(Falah.Application.Pricing.CreateTaxRuleRequest, CancellationToken)",
+          "span": [
+            28,
+            5,
+            60,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-146f402b94196f28ac23564c61cdf9ff08469b19195614dc9ad297aa03793dd0",
+          "signature": "lambda expression",
+          "span": [
+            38,
+            76,
+            38,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-8bf027fdbf48ddce855735392598e669bcc8e88227dac5f98a4b01321c616040",
+          "signature": "Falah.Infrastructure.Pricing.UpdateTaxRuleHandler.HandleAsync(Falah.Application.Pricing.UpdateTaxRuleRequest, CancellationToken)",
+          "span": [
+            81,
+            5,
+            108,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8be14c87d5227a48b7124d9f6eb3371534ba3d11964c8e7ff66841a411ea40f0",
+          "signature": "lambda expression",
+          "span": [
+            90,
+            76,
+            90,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-fc7d075b2c194f4086a07f2f466f163e299a0ae590eac267c596150f9fe6afbf",
+          "signature": "lambda expression",
+          "span": [
+            94,
+            61,
+            94,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-f3cef89e2255fa6474689c14784d2c603f05551796f8bb5635a3e7eacfccf7cd",
+          "signature": "Falah.Infrastructure.Pricing.TaxRuleQueryService.ListAsync(CancellationToken)",
+          "span": [
+            116,
+            5,
+            117,
+            150
+          ]
+        },
+        {
+          "stable_id": "sym-59c8e311638b5fd437a1308c0acb8a4bfe4fcb72d9770408e52daee0708a0dcd",
+          "signature": "lambda expression",
+          "span": [
+            117,
+            68,
+            117,
+            139
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Financial/TaxRule.cs",
+      "worktree_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+      "source_git_blob_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+      "line_ranges": [
+        [
+          5,
+          7
+        ],
+        [
+          14,
+          29
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b5838f0bc3dbc8f1e4a53c7d0a4a74b7965315052fd33bfa4578e9b3bfc6b619",
+          "signature": "Falah.Domain.Financial.TaxEngine.Calculate(Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?)",
+          "span": [
+            14,
+            5,
+            29,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "line_ranges": [
+        [
+          60,
+          63
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f11f6f0ea18f0433f8da240be60f52552a2ca8d0a573bb71785e13b7c1bb3fae",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            83,
+            60,
+            97
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+      "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+      "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+      "line_ranges": [
+        [
+          122,
+          127
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7efca71b933058a8f89628285fadc885018633c1c2ed5d6801c0bc96905feb76",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LoadMenuAsync()",
+          "span": [
+            109,
+            5,
+            152,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9f9f272cb8f508317330254ae027c3ed21c34d4ddf79d69b1137a458a4626283",
+          "signature": "lambda expression",
+          "span": [
+            124,
+            50,
+            124,
+            64
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+      "worktree_sha256": "75ca06ba893a7b302d51a828fe590119039f6fd1bab1a33f4e9702e9dba4339c",
+      "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+      "line_ranges": [
+        [
+          142,
+          151
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f754cbfa518413e3a2fc4ae181f192430ccdb01f6cb4096204f0a70e03770092",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.LoadMenuAsync()",
+          "span": [
+            129,
+            5,
+            173,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-52c0bf04c54fa5263ac2764896cbc4923015549771ed8ad1f70222b62c623867",
+          "signature": "lambda expression",
+          "span": [
+            148,
+            50,
+            148,
+            64
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Pricing/TaxRuleRequests.cs",
+      "worktree_sha256": "455302a91ad1cb54ee244d2a0fda5aea41b780cc76fb0e6b9daa685f46080cc9",
+      "source_git_blob_sha256": "455302a91ad1cb54ee244d2a0fda5aea41b780cc76fb0e6b9daa685f46080cc9",
+      "line_ranges": [
+        [
+          10,
+          16
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          1647,
+          1666
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c1eaeee6a043bb5ca39c91ae6ead3368d3c33f4d7cb8ea83359a521f360a7b42",
+          "signature": "lambda expression",
+          "span": [
+            1647,
+            31,
+            1656,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-3440ca5580263947dedbaa2287d10b5848d56660184b3b5c4e5ee5a8f13198eb",
+          "signature": "lambda expression",
+          "span": [
+            1658,
+            35,
+            1667,
+            2
+          ]
+        }
+      ]
+    }
+  ],
+  "title": "Accepted numeric Inclusive tax mode is persisted raw and consumed as Exclusive",
+  "evidence_chain": [
+    "TaxMode declares Inclusive first (underlying0). Create36/Update88 Enum.TryParse result is discarded, accepted Mode string stored unchanged42/98. Request Mode is a string, not a typed canonical enum.",
+    "Checkout63, Cashier126 and CallCenter150 interpret only literal Inclusive as inclusive and every other stored string as Exclusive. All three share the same lossy projection, so cross-client agreement would not establish correct input interpretation.",
+    "A legitimate settings_manage request Mode=\"0\", positive tax rate and Enabledtrue parses a defined Inclusive value but stores0; selected active rule then applies exclusive tax to later checkout and client estimates. One selected active rule assumed to avoid unrelated multiple-enabled ambiguity.",
+    "Illustrative source arithmetic only: base10000piastres at1400basispoints should remain total10000 under Inclusive, but Exclusive yields11400. No TaxEngine/API/DB execution performed for this candidate."
+  ],
+  "preconditions": [
+    "Valid authenticated settings_manage actor, new valid config request or update, positive rate, chosen enabled rule subsequently selected and normal valid sale.",
+    "A noncanonical numeric-string configuration value is supplied. Current shipped settings UI may only send canonical names; ordinary UI trigger not claimed."
+  ],
+  "counterevidence": [
+    "TryParse here is case-sensitive; lowercaseinclusive is rejected. Do not claim ignoreCase on this handler.",
+    "Canonical Inclusive/Exclusive work; numeric1 maps Exclusive consistently; rate0 masks economic difference.",
+    "Configuration authority can intentionally change taxes; this is accepted-input interpretation/canonicalization defect, not unauthorized tax change or tax-law guidance.",
+    "Existing orders store frozen tax figures; update affects future selection, not automatic rewrite of historical records."
+  ],
+  "recommended_solution": "Validate explicit defined mode policy, either reject numeric/noncanonical strings or persist parsedMode.ToString and consume with one explicit parser that rejects unknown state. Do not silently default unsupported modes to Exclusive.",
+  "regression_risks": "Changing only one client mapping leaves server and other client divergence. Preserve named modes, optional disabled rule, valid zero rate, historical frozen tax and idempotent config replay.",
+  "required_tests": [
+    "Defined numeric0 versus namedInclusive, numeric1 versusExclusive, undefinednumeric2, whitespace and wrongcase according to explicit policy.",
+    "Selected enabled config across bothclientestimates/server checkout yields same intendedTaxMode; reject unsupported mode before any write.",
+    "Normal namedInclusive/Exclusive, disabled/zero-rate controls and historical-order tax invariants."
+  ],
+  "independent_verification": "Original specialist has source-clarified defined numeric issue in message; formal artifact requested before canonical promotion.",
+  "runtime": "NOT_EXECUTED",
+  "new_financial_callable_receipts": 0,
+  "new_canonical_findings": 0
+}

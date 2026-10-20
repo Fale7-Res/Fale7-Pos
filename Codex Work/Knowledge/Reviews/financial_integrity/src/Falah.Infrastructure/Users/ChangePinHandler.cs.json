@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Users/ChangePinHandler.cs",
+  "source_git_blob_sha256": "92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99",
+  "worktree_sha256": "92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T02:11:22.532940+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-4d42930407ff9559db21e6f65d7a0445eb1dbf76a05c75d62b44ff0f46ebb731",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Users.ChangePinHandler.ChangePinHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        24,
+        5,
+        28,
+        6
+      ],
+      "reasoning": "Stores scoped context and approval registry only; no credential or user state changes occur during construction.",
+      "inputs": "Falah.Infrastructure.Users.ChangePinHandler.ChangePinHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "outputs": "User creation ID/replay flag, credential update or collision exception",
+      "side_effects": "Production user credentials/metadata plus same-Save audit; no application execution by reviewer.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    },
+    {
+      "stable_id": "sym-51aa05d93005a9f1ff153c917852e02fe3c10ad4bde0d53bb4fd7dba4a9086db",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Users.ChangePinHandler.HandleAsync(Falah.Application.Users.ChangePinRequest, CancellationToken)",
+      "span": [
+        30,
+        5,
+        65,
+        6
+      ],
+      "reasoning": "Self-change verifies current salted PIN; admin reset requires actual users_manage and rejects owner target. New PIN scans other active hashes, then Hash validates strength and assigns fresh salt/hash/iterations; metadata-only audit and credential change share one Save. No PIN logged. Uniqueness check before write is not serialized; distinct targets can both pass, existing parent security lead not new finding. No explicit session revocation/idempotent receipt: self retry using old PIN fails after success, admin retry rehashes and audits again. HTTP actor/session binding external.",
+      "inputs": "Falah.Infrastructure.Users.ChangePinHandler.HandleAsync(Falah.Application.Users.ChangePinRequest, CancellationToken)",
+      "outputs": "User creation ID/replay flag, credential update or collision exception",
+      "side_effects": "Production user credentials/metadata plus same-Save audit; no application execution by reviewer.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    },
+    {
+      "stable_id": "sym-191fc26329d37f966137a176bc5b212c9da987f8194c89f450b29eec927b1b15",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        32,
+        58,
+        32,
+        85
+      ],
+      "reasoning": "Exact tracked target ID selects credential row; no Active predicate here. Self identity still requires current secret, and admin path is separately authorized; no anonymous bypass inferred from handler alone.",
+      "inputs": "Captured user identity or salted credential tuple as exact source expression specifies",
+      "outputs": "Identity predicate, hash tuple or verification Boolean",
+      "side_effects": "Production user credentials/metadata plus same-Save audit; no application execution by reviewer.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    },
+    {
+      "stable_id": "sym-a7af5621c7e4b08a636fbb593061349856f96c5f3fa4fd824d13b8cd2e0427c8",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        44,
+        80,
+        44,
+        112
+      ],
+      "reasoning": "Admin-only exact actor lookup feeds real permissions and name. The caller cannot supply actor role directly; owner target refusal follows authorization. Self branch does not use this query.",
+      "inputs": "Captured user identity or salted credential tuple as exact source expression specifies",
+      "outputs": "Identity predicate, hash tuple or verification Boolean",
+      "side_effects": "Production user credentials/metadata plus same-Save audit; no application execution by reviewer.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    }
+  ],
+  "remaining_callable_ids": []
+}

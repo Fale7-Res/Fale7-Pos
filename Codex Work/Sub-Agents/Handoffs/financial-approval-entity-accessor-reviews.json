@@ -1,0 +1,439 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/ManagerApprovalEntity.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-db6da0687e8fe030d4ea4f6e3a0b92e3df00e7943e1c700300551b857d9957e1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApprovalId.get",
+        "span": [
+          7,
+          32,
+          7,
+          36
+        ],
+        "reasoning": "Getter exposes registered approval identity used by Find, IsConsumed and MarkConsumed; PK prevents duplicate persisted IDs but does not authenticate a caller holding the string.",
+        "inputs": "Entity carrying string approval key.",
+        "outputs": "string approval key directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-4a23350c86ab3b4c9f11eefb788dbacbb92cdc096adbf933f2e2f6d0844f3e63",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApprovalId.set",
+        "span": [
+          7,
+          37,
+          7,
+          41
+        ],
+        "reasoning": "Register copies domain-issued ApprovalId into the entity. Auto-setter itself neither generates entropy nor ensures the approval is committed before later use.",
+        "inputs": "string approval key assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-130e73666fba25622b1cc698193132e25952550aa053ed0889b74e3f7325345e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApproverUserId.get",
+        "span": [
+          8,
+          36,
+          8,
+          40
+        ],
+        "reasoning": "Getter exposes the stable recorded approver identity reconstructed into ManagerApproval; this is distinct from the display-name snapshot.",
+        "inputs": "Entity carrying string approver user ID.",
+        "outputs": "string approver user ID directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-a021da8f22d00ccc7049c69623f087baa411e2ac23053eeedc00879aaf73f001",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApproverUserId.set",
+        "span": [
+          8,
+          41,
+          8,
+          45
+        ],
+        "reasoning": "Register copies approver identity after IssueManagerApprovalHandler establishes a user from PIN and policy issues approval; setter itself does not verify identity or current activity.",
+        "inputs": "string approver user ID assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-cd60e9fe80823fd798e1ac71b36f0ff39da59b78e79ce10689adf10b3e26203c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApproverName.get",
+        "span": [
+          9,
+          34,
+          9,
+          38
+        ],
+        "reasoning": "Getter exposes historical manager name returned on issue and reconstructed on find; it is presentation attribution, not a lookup credential.",
+        "inputs": "Entity carrying string approver display name.",
+        "outputs": "string approver display name directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-b029bf02d44396abaa98ef79dafca28e3e6a2d1990c9bb95fd3a03f5e0e32e7d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApproverName.set",
+        "span": [
+          9,
+          39,
+          9,
+          43
+        ],
+        "reasoning": "Register snapshots domain ApproverName; subsequent user renames do not automatically update this stored display value. Field assignment does not grant authority.",
+        "inputs": "string approver display name assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-5af6286993eb01a448d643270297b6f3debacb0c7c9bc5657c6b015a876568bd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApproverRole.get",
+        "span": [
+          10,
+          34,
+          10,
+          38
+        ],
+        "reasoning": "Getter reconstructs role snapshot used by approval policy; it is stored historical role, not an automatic live read of Users.Role.",
+        "inputs": "Entity carrying string approver role snapshot.",
+        "outputs": "string approver role snapshot directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-af2f158b8af367cbf26e74d69b520159ad02a4bbe2f922655e80fdae74e60da2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApproverRole.set",
+        "span": [
+          10,
+          39,
+          10,
+          43
+        ],
+        "reasoning": "Register copies domain-issued role text. Whether a later role change invalidates an old approval is a policy/validation question outside this accessor, not established by the string setter.",
+        "inputs": "string approver role snapshot assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-3046ba8e3d7b98abd4ceddb234f6de167f92786bb00ab0fe5d42ba475c1ea82d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.Action.get",
+        "span": [
+          11,
+          28,
+          11,
+          32
+        ],
+        "reasoning": "Getter exposes action binding reconstructed on Find, keeping an approval for one operation distinct from another action permission.",
+        "inputs": "Entity carrying string permission/action binding.",
+        "outputs": "string permission/action binding directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-5668d7df6575db9622904448638f577b3782413f5c1be6b7ec51d71a97f3b3b5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.Action.set",
+        "span": [
+          11,
+          33,
+          11,
+          37
+        ],
+        "reasoning": "Register copies domain-approved Action. No enum or length constraint appears in this entity/model block; actual action matching belongs authorization policy, not setter.",
+        "inputs": "string permission/action binding assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-d0e85e2b2666e77bbe6b9c6260b89839ca34f101d40d85c2b532e78a67dcbdac",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.Reason.get",
+        "span": [
+          12,
+          29,
+          12,
+          33
+        ],
+        "reasoning": "Getter returns nullable explanation with reconstructed approval; null is not itself proof of invalid approval because required-reason rules are command-specific.",
+        "inputs": "Entity carrying nullable approval reason.",
+        "outputs": "nullable approval reason directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-782e6d89f0da038092ca5dfb3193838b077dc61ef7a1b76199810858f292023d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.Reason.set",
+        "span": [
+          12,
+          34,
+          12,
+          38
+        ],
+        "reasoning": "Register stores domain reason without a second entity normalization layer. It is explanatory metadata and cannot substitute for command reason validation or approval consumption.",
+        "inputs": "nullable approval reason assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-d5c90906f989301171d056f56f956c09561a3217599eac6d93371033fcda9786",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApprovedAtUtc.get",
+        "span": [
+          13,
+          43,
+          13,
+          47
+        ],
+        "reasoning": "Getter returns the original domain-issued UTC instant, permitting policy age checks without regenerating issuance time when read from EF.",
+        "inputs": "Entity carrying DateTimeOffset issuance instant.",
+        "outputs": "DateTimeOffset issuance instant directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-3e870a7f56861123f3958b6d90fb5d80a0fcfd3dbfffdc87f7c2fddd89662aae",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.ApprovedAtUtc.set",
+        "span": [
+          13,
+          48,
+          13,
+          52
+        ],
+        "reasoning": "Register copies ApprovedAtUtc from issued approval; handler uses UtcNow at issuance. The field setter itself neither limits clock skew nor enforces expiry.",
+        "inputs": "DateTimeOffset issuance instant assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-0fd624a413e7255f0bd7e6117977e463fb312ef70439747c4c84c624fe412cef",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.Consumed.get",
+        "span": [
+          14,
+          28,
+          14,
+          32
+        ],
+        "reasoning": "Getter returns stored consumption state independently of Find reconstructed DTO; missing IsConsumed lookup returns false, while Find can separately return null.",
+        "inputs": "Entity carrying bool consumption marker.",
+        "outputs": "bool consumption marker directly returned.",
+        "side_effects": "No side effects or database read inside getter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      },
+      {
+        "stable_id": "sym-e66950a2725de1f81be792e8b6c61adc7d41cd648b717ad66590b27c60f43aba",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ManagerApprovalEntity.Consumed.set",
+        "span": [
+          14,
+          33,
+          14,
+          37
+        ],
+        "reasoning": "Register initializes false and MarkConsumed rejects true before assigning true. EF mapping marks this bool concurrency token so racing false-to-true saves can conflict; assignment alone does not save or guarantee transaction-wide rollback.",
+        "inputs": "bool consumption marker assigned by EfApprovalRegistry.",
+        "outputs": "In-memory field assignment, no return.",
+        "side_effects": "EF change tracking can observe assignment; Register/MarkConsumed do not independently call SaveChanges. No financial or device work inside setter.",
+        "trust_boundaries": "Issue handler resolves active user by verified PIN then domain policy issues approval. Storage field does not authenticate or authorize its caller; no PIN values were accessed or reported.",
+        "database": "FalahDbContext178-184 PK ApprovalId and optimistic Consumed concurrency token. EfApprovalRegistry21-53 uses Local before database query; transaction and SaveChanges belong command caller.",
+        "printing_ui": "Approval metadata can be displayed to clients; no hardware command, printing or UI execution in this review.",
+        "performance": "O(1) accessor. Registry DB query cost and active-user PIN verification loop are caller concerns, not repeated by property access.",
+        "duplicates_conflicts": "Persisted approval is distinct from optional approver display attribution in audit records (FIN017). Consumption token is real counterevidence to unconditional double-spend claims.",
+        "issues_hypotheses": "No independent accessor defect promoted. Persisted role snapshots and Local-first state need policy-aware lifecycle tests rather than assuming always-current role or standalone save semantics.",
+        "tests_missing": "No tests or DB execution. Regression should cover separate-request persistence, expiry/action matching, stale concurrent false-to-true save and rollback with financial operation.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:21-53",
+          "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs:25-43",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:178-184"
+        ]
+      }
+    ]
+  }
+]

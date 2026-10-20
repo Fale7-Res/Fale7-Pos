@@ -1,0 +1,83 @@
+{
+  "at_utc": "2026-10-18T04:42:42.568233+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "SOURCE_LEADS_PENDING_INDEPENDENT_CHALLENGE_NO_DB_REPRODUCTION",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "callable_ids": [
+        "sym-bbe581acbec8f51cadd07eb95e30b18abaa2cbd744b4eb48d3ef4c4a0dd26711",
+        "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+        "sym-d415975fcdd222571155193b1b0c4bcb64d55de10e15f16bb4f7215915314aad",
+        "sym-ad004442fa7ae4f62bdf16814a60c41ca0b263d7cdc0d18007d6983c9040ab26",
+        "sym-55de42ac6cacde06ad3f170d663c3492144be22088c1d3277fad904c945b034e",
+        "sym-c65c8195cd13985e9437f7e838890c0f0714fdded55d4bbf773068740f398cbe",
+        "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+        "sym-d41142832fa515ceaeba1760cf8f0241d08e45fd3b2f6c3a07b46eed5b631e40",
+        "sym-892f55880076fcb31823b9f5418c6bcd28b4aebdebb7a71c72412353a755adfa",
+        "sym-507adc4067f4c909dd6cba918a336717b82a087daf22ec16bab7b7dd2268498b",
+        "sym-43d2cca7fe80e2e1ffe1ad1611ca6a679ac56edfac45955ac473201c15dd5df4"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "callable_ids": [
+        "sym-2fa12fe5881c6621510db44dcc6b7be58eb519969403129baa8964882a42b86b",
+        "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+        "sym-06ef3fcac41481834123e109cd840e1e9e1bae08675f60d60f65be95c527d48a",
+        "sym-5fca3fc66337de8140e5183c9d05168c74cc4c2d39f3cbf2a6d5d652332d218c",
+        "sym-62011427a3ac9705a24805595414379f5ecccee38eb8ddad134348252adefbc8",
+        "sym-9e7789621ff8134f5987aaf1a277391eb4809926e38cd26509c0da5644615f6a",
+        "sym-a955844a5268ea19910739dabf781d5874a1710ff17416b643f44b6fb1009b34"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "worktree_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "source_git_blob_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "callable_ids": [
+        "sym-f2348472350846b39537ad2c057ba308822f53201fa26f814b04302be7b275bf",
+        "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+        "sym-39ffbfdbd5f67aff54ce3d162dbcc75197fb085cf8d02fe504ca45ba03e6fe9d",
+        "sym-ab1cab4e8c36c99831f19baf51f59c8d156c6cc383cb897f617c5e1be9eddc72",
+        "sym-a1089f8e2e9778b3e232b1b77d7de07f2b6eebdff841b51f6641b7f04573c6de",
+        "sym-977573cfab2c1c57973e3fa16d3115b4435cb579b3672209e0f300a04f15a34f",
+        "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+        "sym-b93d59351b0ef702ad543f8a7bfc6f7341781b48ad6088aa47262ca8802012a5",
+        "sym-47579c71f92ccf23c3734cf72f132bb852022cff3919120ab89619ca5ae00ba7"
+      ]
+    }
+  ],
+  "leads": [
+    {
+      "id": "FIN-LEAD-ATTENDANCE-UTC-001",
+      "observation": "CheckIn stores UTC HH:mm without date, CheckOut reconstructs using now.Date (UTC). Same Cairo date can span UTC midnight: check-in2026-10-17T21:30Z and checkout2026-10-18T03:30Z are same Cairo business date during UTC+03. Reconstructed Oct18 21:30 is future, worked minutes clamped0 instead of6hours.",
+      "impact": "WorkHours/overtime understated for night shift, no actual record read or SQL test.",
+      "precondition": "Both events within same Cairo business date, straddling UTC midnight; check-in not overwritten before checkout.",
+      "next": "Independent date/arithmetic challenge with actual zone; isolated synthetic component check, not claim full endpoint reproduction."
+    },
+    {
+      "id": "FIN-LEAD-COMPENSATION-CASING-001",
+      "observation": "Create/Update profile Enum.TryParse(ignoreCase:true) then store raw request string; automatic CheckIn compares CompensationType==nameof(Daily). Lower-case daily accepted at handler can miss automatic daily-wage branch. Numeric undefined enum also accepted absent IsDefined.",
+      "impact": "Potential absent wage/incorrect report classification despite authorized profile input. Normal client may always send canonical enum, which limits routine UI reach, not raw DTO contract.",
+      "next": "Trace profile endpoint/default validators and both client selection serialization before candidate promotion."
+    },
+    {
+      "id": "FIN-LEAD-CORRECTION-RATE-001",
+      "observation": "Correction compares old/new lateness and overtime using current employee DailyWage and current Settings, not original ledger rate snapshot.",
+      "impact": "If old posted earning/deduction used prior rate, delta can fail reconcile original amount. This depends time-varying configuration and policy; no numeric runtime claim.",
+      "next": "Compare actual PayrollRules formulas and stored RateSnapshot to construct isolated example, independently challenge intended historical correction policy."
+    }
+  ],
+  "new_counterevidence": [
+    "Correction DOES serialize attendance row and preserve deterministic audit snapshot for zero-delta retries; do not claim all attendance correction retries duplicate.",
+    "Standalone PayEmployee DOES lock employee anchor and ledger range; current full source notes preserve that counterexample.",
+    "Automatic check-in stale shift lateness guarded by shift.BusinessDate==today; multi-day lateness claim not repeated."
+  ],
+  "runtime_verification": "NOT_EXECUTED",
+  "next_exact_action": "Canonicalize only sufficiently traced candidate evidence; retain source leads and test requirements. Refresh coverage and disjoint team assignment queues."
+}

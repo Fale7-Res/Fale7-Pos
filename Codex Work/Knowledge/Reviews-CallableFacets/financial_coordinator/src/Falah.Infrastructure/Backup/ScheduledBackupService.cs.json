@@ -1,0 +1,129 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:28:53.429298+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-34c0606c3a7ffd33ea3c081e7ea7ba5bbcf1c170fa19bb67c506b174061a71b2",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.ScheduledBackupService.Enabled::get()",
+      "span": [
+        38,
+        5,
+        38,
+        58
+      ],
+      "reasoning": "Reads numeric setting with default1 and compares !=0; any parsed nonzero value enables worker. Setting accepts Boolean or invariant double, no explicit finite/range check. Getter alone does not start worker or execute backup.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Reads numeric setting with default1 and compares !=0; any parsed nonzero value enables worker. Setting accepts Boolean or invariant double, no explicit finite/range check. Getter alone does not start worker or execute backup.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    },
+    {
+      "stable_id": "sym-bfa4d16c70426ea9628b3d9ccc69f342190b49cd79825501fe7bebc892b0d962",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.ScheduledBackupService.MaxAgeHours::get()",
+      "span": [
+        39,
+        5,
+        39,
+        63
+      ],
+      "reasoning": "Returns parsed age threshold default20 hours without positive/finite bound. Whether invalid configuration disrupts scheduling depends on ExecuteAsync consumer; no installed configuration values inspected or worker invoked.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Returns parsed age threshold default20 hours without positive/finite bound. Whether invalid configuration disrupts scheduling depends on ExecuteAsync consumer; no installed configuration values inspected or worker invoked.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    },
+    {
+      "stable_id": "sym-f76903cf9a46fce8cc411c07c188996aaa2a3e9ee45358dfc52bec4f660f1dd1",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.ScheduledBackupService.CheckInterval::get()",
+      "span": [
+        40,
+        5,
+        40,
+        98
+      ],
+      "reasoning": "Converts configured minutes default30 to TimeSpan. Parser accepts invariant double without explicit finite or TimeSpan bounds; malformed text falls back, but parsed nonfinite/out-of-range value may throw in conversion. Not an observed runtime failure.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Converts configured minutes default30 to TimeSpan. Parser accepts invariant double without explicit finite or TimeSpan bounds; malformed text falls back, but parsed nonfinite/out-of-range value may throw in conversion. Not an observed runtime failure.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    },
+    {
+      "stable_id": "sym-fd3f27e1d04fdb79f799e3c0c96d6a2b7bc33e3ee1fc43b5132b9e66b1c721d9",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.ScheduledBackupService.KeepCount::get()",
+      "span": [
+        41,
+        5,
+        41,
+        61
+      ],
+      "reasoning": "Converts configured double default60 to int; fractional values truncate. No positive bound here; retention policy is in BackupRules and nonpositive count does not mean delete every backup. No pruning executed.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Converts configured double default60 to int; fractional values truncate. No positive bound here; retention policy is in BackupRules and nonpositive count does not mean delete every backup. No pruning executed.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    },
+    {
+      "stable_id": "sym-7983ea70931396531f3c2c362b51759ad28ab16df01cc816149e3017dbc613cf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.ScheduledBackupService.StartupDelay::get()",
+      "span": [
+        45,
+        5,
+        45,
+        96
+      ],
+      "reasoning": "Converts parsed seconds default90 to TimeSpan on access. Invalid parsed numeric range can fail conversion despite text-parse fallback; actual deployment values and worker execution untested.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Converts parsed seconds default90 to TimeSpan on access. Invalid parsed numeric range can fail conversion despite text-parse fallback; actual deployment values and worker execution untested.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    }
+  ],
+  "source_git_blob_sha256": "e2dcedf376d9f224d96b69c6187ef8356e662d0307ba16474d43e346f922b7d0",
+  "worktree_sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

@@ -1,0 +1,925 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-a103793571b0b704c60815e91ec696167683779b02b8c0f8f22515412473d5b8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Id.get",
+        "span": [
+          125,
+          24,
+          125,
+          28
+        ],
+        "reasoning": "Getter identifies archived driver settlement row and is deterministic driver-settlement-RequestId, separate from driver identity.",
+        "inputs": "Archive entity containing string settlement PK.",
+        "outputs": "string settlement PK without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-ac38df224a3be1b6b466b264cfba1b31e84f205c9873e43570f138c5d816f4e0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Id.set",
+        "span": [
+          125,
+          29,
+          125,
+          33
+        ],
+        "reasoning": "Setter records request-derived row key. Normal writer shares same string with IdempotencyKey but schema enforces PK and unique key separately.",
+        "inputs": "string settlement PK from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-3491f86da596b97039618da607defc3395181effce8ad35d840115462b709cae",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverId.get",
+        "span": [
+          126,
+          30,
+          126,
+          34
+        ],
+        "reasoning": "Getter identifies settled driver subject, not cashier receiving funds.",
+        "inputs": "Archive entity containing string settled driver ID.",
+        "outputs": "string settled driver ID without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-8c999837bc398bf5d0e4124e4004a1d67a2b1dc3ce28dc95e466a14ae3455da9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverId.set",
+        "span": [
+          126,
+          35,
+          126,
+          39
+        ],
+        "reasoning": "Setter stores request.DriverId after building locked driver scope; nullable driver lookup for display does not itself reject missing driver when no scope exists.",
+        "inputs": "string settled driver ID from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-e144533d0f81fc7edd23358cb5b301f6b82f80ef930e93efd42fbebf43fa369d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverName.get",
+        "span": [
+          127,
+          33,
+          127,
+          37
+        ],
+        "reasoning": "Getter returns optional driver-name snapshot from lookup at settlement time, not current mutable driver name.",
+        "inputs": "Archive entity containing nullable driver snapshot name.",
+        "outputs": "nullable driver snapshot name without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-a5423c1c7321b587b28a496bffc06a601da416bc84718ab0cc360873d3f7c01c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverName.set",
+        "span": [
+          127,
+          38,
+          127,
+          42
+        ],
+        "reasoning": "Setter stores driverEntity?.Name; null is representable and not evidence no driver responsibility existed.",
+        "inputs": "nullable driver snapshot name from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-f598a74cd7985b3de950f154bb01178ca393c4f607344f069511faf1912988be",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderIdsJson.get",
+        "span": [
+          128,
+          34,
+          128,
+          38
+        ],
+        "reasoning": "Getter exposes archived resolved-order ID list, distinct from unsettled custody IDs and trip IDs.",
+        "inputs": "Archive entity containing string resolved order-list JSON.",
+        "outputs": "string resolved order-list JSON without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-cc7efea079fa8d6a3855fa10ce5eb670c3461d11d8557ee74745065464e02a4f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderIdsJson.set",
+        "span": [
+          128,
+          39,
+          128,
+          43
+        ],
+        "reasoning": "Setter serializes scope.OrderIds, including resolved prepaid/failed/returned deliveries; malformed external JSON is not validated by property.",
+        "inputs": "string resolved order-list JSON from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-d00dddff8e61086345834f573f8a612e5990d411a07840f83dc7fa6cfa086e97",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderCount.get",
+        "span": [
+          129,
+          29,
+          129,
+          33
+        ],
+        "reasoning": "Getter returns count of resolved orders in archived scope, not count of cash custodies or successful deliveries only.",
+        "inputs": "Archive entity containing int resolved order count.",
+        "outputs": "int resolved order count without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-0b7f4789682535b67de158de09b739e17848919ea3bdee67ed8e9b9590f8e82c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderCount.set",
+        "span": [
+          129,
+          34,
+          129,
+          38
+        ],
+        "reasoning": "Setter copies scope.OrderIds.Count at settlement. Public field does not automatically recompute if JSON changes.",
+        "inputs": "int resolved order count from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-7fa8336828a714c06fbd9164c1494e1acd67cf84b55008cc64964a9d292d932f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.GrossOrderPiastres.get",
+        "span": [
+          130,
+          38,
+          130,
+          42
+        ],
+        "reasoning": "Getter returns gross value of successful delivered scope orders, not actual cash handed over or total of all failed/returned rows in OrderCount.",
+        "inputs": "Archive entity containing long successful gross order value.",
+        "outputs": "long successful gross order value without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-e263ac7c2054abd81a916d71b9fd630d816d619b10d57176f5a9e4c099489e8d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.GrossOrderPiastres.set",
+        "span": [
+          130,
+          43,
+          130,
+          47
+        ],
+        "reasoning": "Setter copies scope.GrossOrderValue from DeliveryRules64. It is reporting snapshot and does not post treasury.",
+        "inputs": "long successful gross order value from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-82d6526f5aae5061c9f7863ab98c91ba2d3aec4d476bbdb8367a29165d46e539",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.PrepaidPiastres.get",
+        "span": [
+          131,
+          35,
+          131,
+          39
+        ],
+        "reasoning": "Getter returns successful prepaid-order gross value classified by current composed payment responsibility, not sum electronic legs or cashier cash.",
+        "inputs": "Archive entity containing long successful prepaid gross value.",
+        "outputs": "long successful prepaid gross value without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-bece7ccb84942878768bef80f07003cd436e606d44a17889dbfb2bff4962b4e9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.PrepaidPiastres.set",
+        "span": [
+          131,
+          40,
+          131,
+          44
+        ],
+        "reasoning": "Setter copies scope.PrepaidValue from rules65-67. FIN019 mixed pending classification limits remain and no exact residual-COD conversion is added by storage.",
+        "inputs": "long successful prepaid gross value from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-8edb690bcfea051ba7a40b5f93549a381cbaad7861e5110adb29fcbf3082a290",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ExpectedPiastres.get",
+        "span": [
+          132,
+          36,
+          132,
+          40
+        ],
+        "reasoning": "Getter returns expected driver handover equal to sum unsettled custody.Collected, not sum original custody.Expected responsibility.",
+        "inputs": "Archive entity containing long expected handover piastres.",
+        "outputs": "long expected handover piastres without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-b2d830ecc3f3de878e401a580c9d35d2a4db37cd6c19a9089b8bff0b9144d1f6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ExpectedPiastres.set",
+        "span": [
+          132,
+          41,
+          132,
+          45
+        ],
+        "reasoning": "Setter copies totals.Expected after CalculateTripSettlement. Failed/returned zero-collection custody can therefore close with zero expected cash while delivery variance is a separate stage.",
+        "inputs": "long expected handover piastres from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-150531493e047e67b7f5660d48cf2e1ac53207dda1f0f4cc2bfff7be4b73817c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ActualPiastres.get",
+        "span": [
+          133,
+          34,
+          133,
+          38
+        ],
+        "reasoning": "Getter returns nonnegative cashier-reported handover amount, not independently measured drawer/main balance or each order payment.",
+        "inputs": "Archive entity containing long reported cash handed over.",
+        "outputs": "long reported cash handed over without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-6917e152a0537484b10e5c2c266659cf350c91f5ed00eca29010ee5c14875af2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ActualPiastres.set",
+        "span": [
+          133,
+          39,
+          133,
+          43
+        ],
+        "reasoning": "Setter copies request actual via Money after guard42 and variance reason/approval policy; if positive it stages external-to-Main credit, zero creates no treasury movement.",
+        "inputs": "long reported cash handed over from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-487738d8bfe2704ca0808faf3e398eb30633336b28db0a14c42e3cd5f01ef556",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DifferencePiastres.get",
+        "span": [
+          134,
+          38,
+          134,
+          42
+        ],
+        "reasoning": "Getter exposes actual handover minus sum collected, distinct from per-delivery collection minus assignment expectation.",
+        "inputs": "Archive entity containing long signed handover variance.",
+        "outputs": "long signed handover variance without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-ba2945d19e5c2e0d878f169abcf6a4df5d6a5100f166215d999c9c57049067ed",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DifferencePiastres.set",
+        "span": [
+          134,
+          43,
+          134,
+          47
+        ],
+        "reasoning": "Setter copies domain totals.Difference. Nonzero requires reason and dedicated approval/permission, so field is not silently auto-reconciled.",
+        "inputs": "long signed handover variance from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-582e4f143e1ccd5170d2556b4c98fdce0fdfddb8ddb247766e8d2e6ae3cb9513",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Reason.get",
+        "span": [
+          135,
+          29,
+          135,
+          33
+        ],
+        "reasoning": "Getter exposes optional driver-wide settlement explanation, not necessarily each delivery result reason.",
+        "inputs": "Archive entity containing nullable settlement reason.",
+        "outputs": "nullable settlement reason without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-fa7b5db7f70526000590dacb4601e18898b8a23c5ab72ab423f0cc18b32fd8f9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Reason.set",
+        "span": [
+          135,
+          34,
+          135,
+          38
+        ],
+        "reasoning": "Setter stores request.Reason; nonzero variance requires nonblank, while zero variance permits absent reason. Property itself does not authorize discrepancy.",
+        "inputs": "nullable settlement reason from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-f93a92a1aff1268ee432bdfde64704cc75f17eca9fbbfdb38faca569b2f7968a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ApprovedBy.get",
+        "span": [
+          136,
+          33,
+          136,
+          37
+        ],
+        "reasoning": "Getter exposes approval-result name or actor name fallback, not proof a separate manager signed every balanced settlement.",
+        "inputs": "Archive entity containing nullable authorization attribution.",
+        "outputs": "nullable authorization attribution without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-6bd270c7a22cb41bff9b5d08c7729fd3aa27916324754ee6a8d5291ec8004791",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ApprovedBy.set",
+        "span": [
+          136,
+          38,
+          136,
+          42
+        ],
+        "reasoning": "Setter stores authorization.Approver?.ApproverName ?? actorUser.Name; stricter discrepancy gate occurs separately and is not established by nonnull string alone.",
+        "inputs": "nullable authorization attribution from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-3eda6df3e9917682172fb62a3acaaaa87873da82be4e8a0d0e1e0d243ad7fd09",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OperationId.get",
+        "span": [
+          137,
+          33,
+          137,
+          37
+        ],
+        "reasoning": "Getter correlates settlement timeline/audit through idempotencyKey, while treasury movement.OperationId is separately generated op-GUID in writer117.",
+        "inputs": "Archive entity containing string settlement operation correlation.",
+        "outputs": "string settlement operation correlation without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-e28b07bd71af7fd557f1ee60c5cfe305e18871c22c4c459137da113a9e0e4132",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OperationId.set",
+        "span": [
+          137,
+          38,
+          137,
+          42
+        ],
+        "reasoning": "Setter stores idempotencyKey, not the movement operation GUID. Consumers must not assume equality between these two OperationId representations.",
+        "inputs": "string settlement operation correlation from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-069b1c604db25d4a7636e8c4caa1f6eed90f9c378901c7f7ff1f679aa289ce65",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.IdempotencyKey.get",
+        "span": [
+          138,
+          36,
+          138,
+          40
+        ],
+        "reasoning": "Getter is unique settlement business key used for early replay before authorization and scope recomputation.",
+        "inputs": "Archive entity containing string settlement replay key.",
+        "outputs": "string settlement replay key without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-e18506fb8247f2d172218a0780058ac875c402af302e2976c49dea30e1b79d6e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.IdempotencyKey.set",
+        "span": [
+          138,
+          41,
+          138,
+          45
+        ],
+        "reasoning": "Setter stores driver-settlement-RequestId; unique index prevents duplicates, but key-only replay itself does not bind different driver/actual/payload. Parent replay-binding comparison owns broader conclusion.",
+        "inputs": "string settlement replay key from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-bd341183fea3d0b2fa78c064db1e5676b7936fee269ba51597c33e2c26bd6764",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.TreasuryMovementId.get",
+        "span": [
+          139,
+          41,
+          139,
+          45
+        ],
+        "reasoning": "Getter exposes optional actual cash-credit fact ID; null is normal when actual cash is zero, not automatically failed settlement.",
+        "inputs": "Archive entity containing nullable treasury receipt ID.",
+        "outputs": "nullable treasury receipt ID without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-063936ce5af30ffda720a344776df976491fdad00bf3fb7e7b4fc0b9c6f7dceb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.TreasuryMovementId.set",
+        "span": [
+          139,
+          46,
+          139,
+          50
+        ],
+        "reasoning": "Setter stores movementId only after positive actual journal and movement staging; all-zero operational settlements can still close deliveries and custody.",
+        "inputs": "nullable treasury receipt ID from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-235ff7af0e0ed26719c22422258e7b19e79b61352f77561c607a64fb4ec44d6f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ReceivedBy.get",
+        "span": [
+          140,
+          32,
+          140,
+          36
+        ],
+        "reasoning": "Getter names cashier/operator receiving reported driver cash, distinct from driver and authorizer fields.",
+        "inputs": "Archive entity containing string receiving actor name.",
+        "outputs": "string receiving actor name without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-7ccb1be1952490123320f7c16e68196ca16b23fdf0e969e54afd98fa17f43592",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ReceivedBy.set",
+        "span": [
+          140,
+          37,
+          140,
+          41
+        ],
+        "reasoning": "Setter copies actorUser.Name after command authorization. It is historical display attribution, not stable user FK or physical receipt signature.",
+        "inputs": "string receiving actor name from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-4473f6c7157cf50145777409430095f1cd161e79c03e39c31e16c778e18eac61",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.CreatedAtUtc.get",
+        "span": [
+          141,
+          42,
+          141,
+          46
+        ],
+        "reasoning": "Getter records driver settlement archival instant, distinct from earlier positive movement now0 and delivery outcomes.",
+        "inputs": "Archive entity containing DateTimeOffset settlement instant.",
+        "outputs": "DateTimeOffset settlement instant without cash posting.",
+        "side_effects": "No side effect or query.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      },
+      {
+        "stable_id": "sym-99444a3038cadf8750f868d3714dc13bc231d5140d66fa67cffe7673b41dd364",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.CreatedAtUtc.set",
+        "span": [
+          141,
+          47,
+          141,
+          51
+        ],
+        "reasoning": "Setter captures now after optional movement creation; timeline/delivery/custody closures use same latter instant while no automatic monotonic global sequence exists.",
+        "inputs": "DateTimeOffset settlement instant from locked driver settlement scope/calculation.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF assignment; parent transaction stages optional treasury/journal plus custody/delivery status, archive and timeline/audit. No such action executed by audit.",
+        "trust_boundaries": "Actual cash is authorized operator report, not sensor measurement. Permission/approval and nonnegative/variance guards precede settlement; property data is not independent funding or physical attestation.",
+        "database": "DbContext359-363 settlement PK/unique IdempotencyKey. Settle61-123 locks driver delivery/custody scope and stages positive cash credit,130-173 closes facts and commits. No SQL or tests executed.",
+        "printing_ui": "ToResult196-197 returns totals/count/movement; archive may feed driver account, but source review does not verify rendered receipt or actual funds. No physical printing.",
+        "performance": "O(1) accessor. Driver row-set locks and historical/query JSON materialization are caller costs; no measured scalability/provider lock guarantee.",
+        "duplicates_conflicts": "OrderCount includes all resolved; gross/prepaid only successful; Expected is collected handover basis. No claim these independent quantities must always equal. Existing FIN019 and replay contract qualification retained.",
+        "issues_hypotheses": "No new accessor finding promoted. OperationId semantic mismatch is source correlation distinction, not proven lost financial linkage or duplicate transfer.",
+        "tests_missing": "No tests run. Need zero-actual prepaid-only settlement, failed/returned scope, delivery collection versus handover variance, one driver concurrent distinct requests, replay payload binding and treasury-link integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36-173,196-197",
+          "src/Falah.Domain/Delivery/DeliveryRules.cs:32-76",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:359-363"
+        ]
+      }
+    ]
+  }
+]

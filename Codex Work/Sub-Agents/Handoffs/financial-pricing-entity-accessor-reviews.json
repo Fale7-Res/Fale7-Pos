@@ -1,0 +1,993 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/PricingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-017507c5147e4ad938a2023b12854b5b4028ea44bb36c2e49cbb92ab72dd9064",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Id.get",
+        "span": [
+          5,
+          24,
+          5,
+          28
+        ],
+        "reasoning": "Offer primary key identifies replacement and replay binding; it is separate from RequestId receipt identity.",
+        "inputs": "Entity instance containing string offer identity.",
+        "outputs": "string offer identity exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-16a760224e44673ac3fbb771fc3724b978ad951b720bc0ec69d7576af371a524",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Id.set",
+        "span": [
+          5,
+          29,
+          5,
+          33
+        ],
+        "reasoning": "Save handler chooses provided RuleId or price-rule-RequestId; setter does not authorize edits.",
+        "inputs": "string offer identity supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-350226892f0b0c7e082d2e5d410d6489814a937f5d02b3b26329627f93d9f5e7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Name.get",
+        "span": [
+          6,
+          26,
+          6,
+          30
+        ],
+        "reasoning": "Offer name is copied into resolved item snapshots and management DTO, not used as a uniqueness or eligibility key.",
+        "inputs": "Entity instance containing string display name.",
+        "outputs": "string display name exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-8dbbca8b691af74d4d8be64163483fc9d58c53623dd7605715ada887935d7b99",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Name.set",
+        "span": [
+          6,
+          31,
+          6,
+          35
+        ],
+        "reasoning": "Save handler trims validated name; assigning this field alone neither changes offer product eligibility nor validates price.",
+        "inputs": "string display name supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-2f9fdcafac07d477d36bbf7936cc8111feeb56721b4f35e33e434dc524aecd85",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.FixedPricePiastres.get",
+        "span": [
+          7,
+          38,
+          7,
+          42
+        ],
+        "reasoning": "Stored fixed unit offer price becomes Money in ToDomainRule and effective price resolution; it is not an order total.",
+        "inputs": "Entity instance containing long unit price piastres.",
+        "outputs": "long unit price piastres exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-1bde6c3ce4e8ca206a9d1c8f6fed7cf245187d23a7f0203a6c69b145bbf3e4be",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.FixedPricePiastres.set",
+        "span": [
+          7,
+          43,
+          7,
+          47
+        ],
+        "reasoning": "Save handler uses validated Money.Piastres, but entity setter is unrestricted long and does not impose arithmetic upper bounds; FIN016 related monetary bounds remain.",
+        "inputs": "long unit price piastres supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-dc31cf1f459c60437216bb5b3b77dd164ad8d16f685f7fda19b9b7aba5d7bc4e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.StartTime.get",
+        "span": [
+          8,
+          34,
+          8,
+          38
+        ],
+        "reasoning": "Optional local offer start is passed unchanged to the domain rule; temporal eligibility is resolved with Cairo clock, not by getter.",
+        "inputs": "Entity instance containing nullable TimeOnly local start.",
+        "outputs": "nullable TimeOnly local start exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-aeb31b7720c05c14653db27cf729f3001d477caff358aa14034b89addb15bd5f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.StartTime.set",
+        "span": [
+          8,
+          39,
+          8,
+          43
+        ],
+        "reasoning": "Setter accepts nullable request start without timezone conversion; relation with end time is domain eligibility responsibility, not stored UTC.",
+        "inputs": "nullable TimeOnly local start supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-fb50ff59b3aea16f2b217a12d004d6b27c219198bd9ea56011e772088f9ee6ce",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.EndTime.get",
+        "span": [
+          9,
+          32,
+          9,
+          36
+        ],
+        "reasoning": "Optional local offer end joins start and day gate in domain resolution; null is an absent gate endpoint, not expiry metadata.",
+        "inputs": "Entity instance containing nullable TimeOnly local end.",
+        "outputs": "nullable TimeOnly local end exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-8c218547f937c44ceddf8b0ec68ed7bdf944ee73e1566d9bc88420c6ff29acc1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.EndTime.set",
+        "span": [
+          9,
+          37,
+          9,
+          41
+        ],
+        "reasoning": "Setter stores nullable request end; crossing midnight cannot be judged from field alone and must preserve domain rule semantics.",
+        "inputs": "nullable TimeOnly local end supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-55e25e31952761abccfa4ded3e906691d5eb024935d707fd031a08b08756a7ab",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Active.get",
+        "span": [
+          10,
+          26,
+          10,
+          30
+        ],
+        "reasoning": "Active is filtered by both menu and checkout offer queries before resolution; historic order snapshots are not recomputed by changing it.",
+        "inputs": "Entity instance containing bool offer activation.",
+        "outputs": "bool offer activation exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-374e3c81fd81dcf0dcc7a3e3660dd9e1bfcbf2f08fc6ccb6be3f8a9993ac2b15",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Active.set",
+        "span": [
+          10,
+          31,
+          10,
+          35
+        ],
+        "reasoning": "Save handler stores request activation after authorization; this flag enables future selection and is not soft deletion of product links.",
+        "inputs": "bool offer activation supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-2c72a3d1a324bc363f086848c6fa6e4f7b71f5e98f3b5efc327748f48a729f05",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Products.get",
+        "span": [
+          12,
+          52,
+          12,
+          56
+        ],
+        "reasoning": "Getter exposes mutable loaded join collection used by eligibility and DTOs; unloaded navigation is not proof an offer has no products.",
+        "inputs": "Entity instance containing List of PriceRuleProductEntity.",
+        "outputs": "List of PriceRuleProductEntity exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-3f628310780723be06abc7b4ee9868888c2b0844c3d07a321336064fdaaa2795",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Products.set",
+        "span": [
+          12,
+          57,
+          12,
+          61
+        ],
+        "reasoning": "Setter replaces the collection with distinct validated product joins after old joins are removed in transaction; the initialized List can still be externally mutated.",
+        "inputs": "List of PriceRuleProductEntity supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-a1c8f7634abca5f443b686d452f080d9f23c8b1be4fed040507d451a8305474e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Days.get",
+        "span": [
+          13,
+          44,
+          13,
+          48
+        ],
+        "reasoning": "Getter exposes day join collection; an empty loaded collection intentionally maps to null every-day gate, not never-active.",
+        "inputs": "Entity instance containing List of PriceRuleDayEntity.",
+        "outputs": "List of PriceRuleDayEntity exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-149f8daa12ab6083dda9738aba42c3ee4ebf8337189e9895ecbb98b93de67a9f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleEntity.Days.set",
+        "span": [
+          13,
+          49,
+          13,
+          53
+        ],
+        "reasoning": "Setter replaces prior day joins with distinct requested integers; day validity belongs PricingRules before assignment, no accessor range check.",
+        "inputs": "List of PriceRuleDayEntity supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-493ac3a757e88404666220a1c0fca2238872300e78654026fa9d2ccd1e7f60c2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleProductEntity.PriceRuleId.get",
+        "span": [
+          20,
+          33,
+          20,
+          37
+        ],
+        "reasoning": "Getter exposes offer side of composite join key and relation, not a standalone offer detail.",
+        "inputs": "Entity instance containing string offer FK.",
+        "outputs": "string offer FK exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-10558c1b72fd65df9b564fce5e19346a2e5f3417a067496fdf4e301565c60981",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleProductEntity.PriceRuleId.set",
+        "span": [
+          20,
+          38,
+          20,
+          42
+        ],
+        "reasoning": "Setter receives ruleId during replacement; composite key plus cascade relation constrain persistence, but mutable key assignment is not a supported rename workflow.",
+        "inputs": "string offer FK supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-7bc57532d781637c26b3b3fa3f9f5644c0b7c2642579bc5c17fb33cec03dd404",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleProductEntity.ProductId.get",
+        "span": [
+          21,
+          31,
+          21,
+          35
+        ],
+        "reasoning": "Getter identifies eligible product used by Any eligibility filter and management DTO; it does not encode variant selection.",
+        "inputs": "Entity instance containing string product FK.",
+        "outputs": "string product FK exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-159fe49991fcdf4a1ebed9bfaa0add1fb4f33b36bf1e711cc8a739bcd862c6dc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleProductEntity.ProductId.set",
+        "span": [
+          21,
+          36,
+          21,
+          40
+        ],
+        "reasoning": "Setter stores a distinct product validated to exist; EF FK to Product and composite PK prevent dangling/duplicate persisted links under inspected model.",
+        "inputs": "string product FK supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-2a7551bb2aac4ae150f121d3f49d7fe8ebc198d780820c5996dfd3fceb60848f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity.PriceRuleId.get",
+        "span": [
+          29,
+          33,
+          29,
+          37
+        ],
+        "reasoning": "Getter exposes parent offer key for day restriction; day row has no independent request or financial identity.",
+        "inputs": "Entity instance containing string offer FK.",
+        "outputs": "string offer FK exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-11fc1366470b1739ef96e02523314c8f4bf0ec265425c769d7446a2f38f963fa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity.PriceRuleId.set",
+        "span": [
+          29,
+          38,
+          29,
+          42
+        ],
+        "reasoning": "Setter binds newly created day row to replaced offer; parent cascade cleans day rows when offer is deleted, no authorization inside assignment.",
+        "inputs": "string offer FK supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-32256c75a1083915cc45ca7e41450db1076dde69a2b722c47fe68e9e2d480240",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity.DayOfWeek.get",
+        "span": [
+          30,
+          28,
+          30,
+          32
+        ],
+        "reasoning": "Getter supplies integer cast to System.DayOfWeek; collection absence has every-day semantics, unlike a row with an invalid value.",
+        "inputs": "Entity instance containing int day-of-week value.",
+        "outputs": "int day-of-week value exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-b84ec032f5c9205f93d695a2bb0edbc8b8c703f2aa44a5fd5a834868292d03cd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity.DayOfWeek.set",
+        "span": [
+          30,
+          33,
+          30,
+          37
+        ],
+        "reasoning": "Setter stores distinct requested day after PricingRules input validation. Composite offer/day key prevents duplicate days, but does not itself limit integer to 0..6.",
+        "inputs": "int day-of-week value supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-ff01f738e9e32177ff87b7cd23c93f4328f8d181ed46b9178618ed237b417471",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Id.get",
+        "span": [
+          35,
+          24,
+          35,
+          28
+        ],
+        "reasoning": "Getter returns tax identity used in management lookup and eventual order tax snapshot, not a singleton selector.",
+        "inputs": "Entity instance containing string tax identity.",
+        "outputs": "string tax identity exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-ca62fd3258a10190bc3e913561a0a3cf280250d6787383a85b54cc90c708b55d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Id.set",
+        "span": [
+          35,
+          29,
+          35,
+          33
+        ],
+        "reasoning": "Create setter derives tax-RequestId for replay; update finds by existing ID and does not change it. Key uniqueness does not enforce exactly one Enabled row.",
+        "inputs": "string tax identity supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-6a65d131c40e8a0d849f259978414cd9e176de6a0f72d0a0e5175b053b289b6f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Name.get",
+        "span": [
+          36,
+          26,
+          36,
+          30
+        ],
+        "reasoning": "Getter exposes display name snapshotted with selected tax rule at checkout; name does not drive inclusive arithmetic.",
+        "inputs": "Entity instance containing string tax label.",
+        "outputs": "string tax label exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-1f18a6cedc52cc0c4e0d38ac5aae0b1a6994bdf95b9e520f7e06bf3afbe75ed1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Name.set",
+        "span": [
+          36,
+          31,
+          36,
+          35
+        ],
+        "reasoning": "Create/update trim validated name; setter has no validation or impact on previously frozen order names.",
+        "inputs": "string tax label supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-cfb25a187ad7e9b149b694e10158d96a34b386b0865d11346faa6ecf6fbb8089",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.RateBasisPoints.get",
+        "span": [
+          37,
+          34,
+          37,
+          38
+        ],
+        "reasoning": "Getter returns integer hundredths of one percent for TaxRule construction, not a decimal percent or amount.",
+        "inputs": "Entity instance containing int basis points.",
+        "outputs": "int basis points exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-dcf557d8c2f73e400c6226126e8e82cdd0be2848776011b2e1168f3992e1862a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.RateBasisPoints.set",
+        "span": [
+          37,
+          39,
+          37,
+          43
+        ],
+        "reasoning": "Writer rejects negative rate but does not add upper bound here; setter permits any int and does not check multiplication overflow. FIN016 boundary family remains relevant.",
+        "inputs": "int basis points supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "No separate accessor defect established; monetary bounds and authoring concurrency remain caller concerns.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-2fb8afe91a20c678dbf2214cf85efd31aa31ea55574633766e6dd16e6b92cbe0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Mode.get",
+        "span": [
+          38,
+          26,
+          38,
+          30
+        ],
+        "reasoning": "Getter exposes raw stored string; checkout only literal Inclusive selects inclusive. Numeric string 0 can therefore be parsed valid on write yet consumed Exclusive, FIN021.",
+        "inputs": "Entity instance containing string raw tax mode.",
+        "outputs": "string raw tax mode exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "FIN021 existing canonical source defect, no new finding.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-89e1745763ea5c8660926b6f8f2175c3780b7c75d9d2cbd1e4bbf52749d0d3b1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Mode.set",
+        "span": [
+          38,
+          31,
+          38,
+          35
+        ],
+        "reasoning": "Writers discard Enum.TryParse result and store raw Mode, preserving numeric spelling rather than canonical name; this setter does not normalize or validate the string.",
+        "inputs": "string raw tax mode supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "FIN021 existing canonical source defect, no new finding.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-441043f007556028349a405fd3bea2db3ecb6e713fcbf98d0fbc27086e1e8ff3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Enabled.get",
+        "span": [
+          39,
+          27,
+          39,
+          31
+        ],
+        "reasoning": "Getter is used by checkout FirstOrDefault selection, which has no explicit ordering when several rows are enabled in the inspected source.",
+        "inputs": "Entity instance containing bool tax enabled.",
+        "outputs": "bool tax enabled exposed without normalization.",
+        "side_effects": "No query or financial posting in getter; returned navigation list remains mutable.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "Multiple enabled rows produce unordered first-match selection; requirements/expected singleton policy unresolved, no runtime claim.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      },
+      {
+        "stable_id": "sym-b29553c60a3ed9516fd6027b8e3c74117f01d65110952c6babf430faef6ab368",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TaxRuleEntity.Enabled.set",
+        "span": [
+          39,
+          32,
+          39,
+          36
+        ],
+        "reasoning": "Setter stores request bool without disabling other rows; no singleton constraint appears in inspected model. Multiple-enabled policy needs explicit requirements, not a new proven defect here.",
+        "inputs": "bool tax enabled supplied by the verified price/tax command writer.",
+        "outputs": "Field or navigation assignment; no return value.",
+        "side_effects": "In-memory assignment only; EF persistence happens in caller SaveChanges. Collection replacement can affect tracked relationships.",
+        "trust_boundaries": "Pricing/tax permission and request validation live in SavePriceRuleHandler/TaxRuleHandlers; persisted auto-property is not a permission gate.",
+        "database": "FalahDbContext218-231: price PK, product/day composite keys, cascaded parent FKs and product FK; tax PK only in inspected mapping. No SQL executed.",
+        "printing_ui": "Management DTO and menu/checkout source consumers inspected; receipt/order snapshots preserve chosen price/tax identity. No UI or printing run.",
+        "performance": "O(1) auto-property access; loaded collections incur caller traversal/Include costs rather than hidden getter queries.",
+        "duplicates_conflicts": "Product/day relational collections deliberately replace JSON lists; tax raw mode versus domain literal consumer differs as FIN021. No independent duplicate finding counted.",
+        "issues_hypotheses": "Multiple enabled rows produce unordered first-match selection; requirements/expected singleton policy unresolved, no runtime claim.",
+        "tests_missing": "Source-only review, no tests executed. Regression should preserve distinct link replacement, empty day gate, canonical/numeric mode behavior, time eligibility and frozen order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs:30-105",
+          "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs:29-45,84-104",
+          "src/Falah.Infrastructure/Orders/MenuPricingService.cs:29-74",
+          "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:60-63",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:218-231"
+        ]
+      }
+    ]
+  }
+]

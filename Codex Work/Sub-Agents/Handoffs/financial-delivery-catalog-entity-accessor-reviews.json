@@ -1,0 +1,623 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-2b2151a72207b70bd8b3b73439690b0a3e4003aca1901645e12451a929dd64ca",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.Id.get",
+        "span": [
+          12,
+          24,
+          12,
+          28
+        ],
+        "reasoning": "Getter identifies delivery catalog entry snapshotted on orders; names are normalized separately and are not PK.",
+        "inputs": "Entity containing string service PK.",
+        "outputs": "string service PK without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-73a05d9d9a9f747e6aff277185a4851e53142d1904cf12e05de3580acc8b5c26",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.Id.set",
+        "span": [
+          12,
+          29,
+          12,
+          33
+        ],
+        "reasoning": "Setter stores delivery-service-RequestId. Existing by-name create returns prior service even for different request; PK alone does not enforce normalized-name uniqueness.",
+        "inputs": "string service PK from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-938c9fccf17fb4b12389a4dbbbb1a2fb8685953ae9c91ffc05e3cab9b6775e9a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.Name.get",
+        "span": [
+          13,
+          26,
+          13,
+          30
+        ],
+        "reasoning": "Getter exposes current service label while historical orders retain frozen names; ordinary saved customer default label is separate.",
+        "inputs": "Entity containing string normalized service name.",
+        "outputs": "string normalized service name without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-c5977cee9b7cf3989c3e51dddd6b2b812db6b0f3ea45edb9babc2ba9bb48574d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.Name.set",
+        "span": [
+          13,
+          31,
+          13,
+          35
+        ],
+        "reasoning": "Setter normalizes whitespace and checks case-folded clash in handler, but no unique name index appears in model319. No provider collation/concurrent uniqueness claim.",
+        "inputs": "string normalized service name from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-b886ba3c12caa30fb51fe26729f0617b07afd855b6ae14741c7fa114f333e62b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.FeePiastres.get",
+        "span": [
+          14,
+          32,
+          14,
+          36
+        ],
+        "reasoning": "Getter exposes nullable configured default fee; null can require manual/default handling and does not imply forbidden service.",
+        "inputs": "Entity containing nullable service fee piastres.",
+        "outputs": "nullable service fee piastres without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-b4f34dd71085c4451be9f12b6e79120b95d56f6fbe4cf0546f2d10ef69a925c2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.FeePiastres.set",
+        "span": [
+          14,
+          37,
+          14,
+          41
+        ],
+        "reasoning": "Setter copies request fee without sign guard in shown create/update; update null means leave unchanged, so clearing existing fee via null is not supported there. FIN016 negative-fee boundary remains.",
+        "inputs": "nullable service fee piastres from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-bfdeb593cd6b5852ce68727ef9164740c96120da36ec4cfe3e29dd818bd675ac",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.Active.get",
+        "span": [
+          15,
+          26,
+          15,
+          30
+        ],
+        "reasoning": "Getter denotes availability for future selection, not cancellation of historical order/service snapshots.",
+        "inputs": "Entity containing bool service active.",
+        "outputs": "bool service active without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-dc57a46d524ca9020c7a6b18e9028d4c569514a1cbb1bf3f587739ef7e2f1c3d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.Active.set",
+        "span": [
+          15,
+          31,
+          15,
+          35
+        ],
+        "reasoning": "Setter initializes true and updates optional request flag. Retiring service does not reverse prior delivery fees, custody or treasury facts.",
+        "inputs": "bool service active from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-4663f43c33d6905fdd6f203285bcc23474bfe8754b6a7dc91330151b42e6836b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.CreatedBy.get",
+        "span": [
+          16,
+          31,
+          16,
+          35
+        ],
+        "reasoning": "Getter exposes original creator display name, not stable user FK or latest modifier; update leaves original creator unchanged.",
+        "inputs": "Entity containing string creator name.",
+        "outputs": "string creator name without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-c7862ba8dc95dcaa78690d34d41091eade5299f1575b4b389bee4889d9e572c1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.CreatedBy.set",
+        "span": [
+          16,
+          36,
+          16,
+          40
+        ],
+        "reasoning": "Setter copies actorUser.Name after delivery_manage authorization on create. Name assignment does not itself consume/validate approval.",
+        "inputs": "string creator name from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-6efdecd52eed3c7ba553cb330aa0a3458973ef2e76964802a3bed089906d37c7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.CreatedAtUtc.get",
+        "span": [
+          17,
+          42,
+          17,
+          46
+        ],
+        "reasoning": "Getter records original service creation instant, not latest tariff/activation change time.",
+        "inputs": "Entity containing DateTimeOffset service creation.",
+        "outputs": "DateTimeOffset service creation without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-eb1761d1fe8c73bb9a3172f46b138ea6ad272ef13272f0f0f83c02d9c6f6fcd3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity.CreatedAtUtc.set",
+        "span": [
+          17,
+          47,
+          17,
+          51
+        ],
+        "reasoning": "Setter captures UtcNow only at creation; update has no changed-time field, so this timestamp must not be interpreted as fee version date.",
+        "inputs": "DateTimeOffset service creation from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-84d832206ff349ec026b5c710723e6696fd2514025c8b352263998fa271f546e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.Id.get",
+        "span": [
+          22,
+          24,
+          22,
+          28
+        ],
+        "reasoning": "Getter identifies operational driver independently of optional employee link; custody and delivery FK use this ID.",
+        "inputs": "Entity containing string driver PK.",
+        "outputs": "string driver PK without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-f8f0fce334ebb427824030d04167538dfe262c0d39c4395ef49de234766d5e3f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.Id.set",
+        "span": [
+          22,
+          29,
+          22,
+          33
+        ],
+        "reasoning": "Setter stores driver-RequestId. Same-key replay returns existing driver before new validation, while name is not a unique key.",
+        "inputs": "string driver PK from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-85ae59135039725960fc2eff41a3057d231b6e1c02feac97fd8325f79d41ab2e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.Name.get",
+        "span": [
+          23,
+          26,
+          23,
+          30
+        ],
+        "reasoning": "Getter exposes current driver label; some query projections prefer current name over handover snapshot, while delivered archive consumers need explicit snapshot policy.",
+        "inputs": "Entity containing string driver name.",
+        "outputs": "string driver name without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-fc971cf69303111c6b96c3b1f466b0a03fafdb4f9cb31df62e7b808c3b85c6b2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.Name.set",
+        "span": [
+          23,
+          31,
+          23,
+          35
+        ],
+        "reasoning": "Setter stores trimmed validated name at standalone creation. Inspected active-toggle writer does not rename; stored handover name remains separate.",
+        "inputs": "string driver name from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-3dbb8940e8c68c977f4eaaeac1941ec137a4c6f4d45bd4d4b7969c06562e3a19",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.Active.get",
+        "span": [
+          24,
+          26,
+          24,
+          30
+        ],
+        "reasoning": "Getter participates in assignability independently of optional linked employee eligibility; it does not erase unsettled custody.",
+        "inputs": "Entity containing bool driver active.",
+        "outputs": "bool driver active without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-9e059db901de733897010fdf7620cf61da5933bb75bcbad4b5f3bb563681f065",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.Active.set",
+        "span": [
+          24,
+          31,
+          24,
+          35
+        ],
+        "reasoning": "Setter initializes true and toggles via delivery_manage command. Deactivation alone does not settle money or cancel current assigned order.",
+        "inputs": "bool driver active from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-0a5c9202db00416b7f7ed924785aa585970c35699de339a5fb990ece8faa6212",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.EmployeeId.get",
+        "span": [
+          25,
+          33,
+          25,
+          37
+        ],
+        "reasoning": "Getter exposes optional employee link for assignability policy. Comment claiming no HR feature is stale because employee sources exist, so null must not prove HR absence.",
+        "inputs": "Entity containing nullable employee association.",
+        "outputs": "nullable employee association without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-a417ee7eeedf5d4b70e287d5c708046b0eab0ed844c0bccfd05130cd447dd9be",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.EmployeeId.set",
+        "span": [
+          25,
+          38,
+          25,
+          42
+        ],
+        "reasoning": "Setter is not assigned by standalone CreateDriver writer, leaving null. Bounded search found no employee driver creation/link assignment in inspected directories; whole-deployment synchronization remains unverified.",
+        "inputs": "nullable employee association from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-8fc4438a11203c0cde299eac1d813e94cc5c377b919d4176f0e85380ad67898c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.CreatedAtUtc.get",
+        "span": [
+          26,
+          42,
+          26,
+          46
+        ],
+        "reasoning": "Getter records driver row creation instant, separate from assignment/handover/settlement events.",
+        "inputs": "Entity containing DateTimeOffset driver creation.",
+        "outputs": "DateTimeOffset driver creation without dispatch or cash changes.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      },
+      {
+        "stable_id": "sym-d0202f18ae8541afe6a30455a49b5c0132e5a51f92c320955c22356c0344d614",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DriverEntity.CreatedAtUtc.set",
+        "span": [
+          26,
+          47,
+          26,
+          51
+        ],
+        "reasoning": "Setter captures UtcNow on create; active toggle preserves it. It cannot serve as latest dispatch timestamp.",
+        "inputs": "DateTimeOffset driver creation from service/driver management or EF.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Metadata mutation tracked by EF; command SaveChanges persists. No order assignment, fee collection or physical ticket inside accessor.",
+        "trust_boundaries": "delivery_manage authorization occurs in service/driver command handlers, not stored display fields. Optional approval alternative follows existing policy; no expanded security work or credentials accessed.",
+        "database": "DbContext318-319 PKs only; delivery331 preceding relation block enforces driver references separately. Service name clash is app query, not database unique name index. No DB operation executed.",
+        "printing_ui": "Service DTO71 and driver DTO32/53/84 project metadata. Query70 may prefer current driver name; actual rendered historical receipt behavior is not tested here.",
+        "performance": "O(1) accessor. Name normalization and ToLower query belong management handler; no indexed-name/performance/collation guarantee from field access.",
+        "duplicates_conflicts": "Live service tariff/name differs from frozen order fee/name; driver ID, employee ID and handover name are distinct. FIN016 fee admission remains existing finding, no duplicate.",
+        "issues_hypotheses": "No new accessor finding. Stale no-HR comments rejected as architecture evidence. Null-update fee semantics and name uniqueness races require explicit policy/regression, not executed failures.",
+        "tests_missing": "No tests run. Need retire-with-existing-orders, negative/null/clear-fee semantics, normalized-name concurrent creates, driver deactivation with custody, and current-versus-frozen name projection tests.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:26-121",
+          "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs:28-84",
+          "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs:70",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:318-330"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "updated_at_utc": "2026-10-18T09:33:03.848741+00:00",
+  "reviewer": "financial_integrity",
+  "origin": "Root mirror cross-reference; independently traced server pricing and checkout",
+  "status": "SOURCE_CORROBORATED_REMEDIATION_SCOPE_EXTENSION_NOT_NEW_COUNTED_FINDING",
+  "related": [
+    "FIN016",
+    "FIN015"
+  ],
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
+      "git_blob_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "worktree_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da"
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+      "git_blob_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "worktree_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303"
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f"
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderItem.cs",
+      "git_blob_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+      "worktree_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "git_blob_sha256": "72586c396821ff033030936f49f62c5dee957038d129fac80a11040cb88706a3",
+      "worktree_sha256": "98b29b5ace01d781c176b352b054b561973281e4e923c23cb0794412c6107247"
+    }
+  ],
+  "pricing_evidence": [
+    "MenuPricingService39 rejects Quantity<=0, but no upper cap; request type is int. Catalog unit price authoritative at52, offer resolved54. Server revalidation is real, but not range-safe proof.",
+    "Frozen OrderItem TotalPrice at59 multiplies effective Money by quantity; Money34 directly multiplies signed longs without checked expression. OrderItem is positional record with no validation.",
+    "Positive list price of 4611686018427387904 piastres (2^62), quantity2 produces long.MinValue under ordinary unchecked arithmetic. This is extreme configured price, not ability for normal cashier to choose arbitrary price. CreateProduct36 only BasePrice>0, variant price53 copied without local sign/max guard; menu_manage required42.",
+    "CheckoutRules.Sum subtotal33 of a SINGLE wrapped negative line does not itself overflow LINQ Sum; taxable base94 floors negative to0, so no tax/fee/comp and Cash tender0 can become zero payable. Actual HTTP/EF acceptance not executed; source path alone supports bounds defect.",
+    "InventoryDeduction58 separately multiplies base quantity by sold quantity unchecked, so fixing only displayed CartLine arithmetic or only Money operators is insufficient for stock-range policy."
+  ],
+  "qualifications": [
+    "No new finding counted: same unchecked monetary/boundary validation family as FIN016, whose original negative-fee permission trigger remains stronger and independent of extreme catalog setup.",
+    "Client estimate becoming zero does not by itself make backend sale free; backend computes authoritative price again. Here backend repeats unbounded multiplication, so comment zero financial consequence cannot be unconditional.",
+    "Realistic input caps and already-stored catalog prices determine exploit practicality. No live product/config/DB change made to construct example.",
+    "Single-line subtotal case avoids falsely claiming LINQ Sum silently wraps: Sum checked aggregation would throw when addition itself overflows.",
+    "Negative variant price accepted by create source is an additional configuration validation lead requiring full Update/client/DTO constraints before separate report; not promoted here."
+  ],
+  "recommendation": "Extend FIN016 correction design to checked unit-price*quantity, price/quantity bounds at persistence and checkout, checked stock base-quantity*quantity, and explicit rejection instead of converting overflowed negative amounts into zero taxable/payable. Preserve signed Money for legitimate differences.",
+  "tests": [
+    "Pure multiplication max/normal boundaries on actual target framework with linked unchanged code, if permitted by root; not executed here.",
+    "Disposable handler fixture: extreme authoritative catalog price+quantity rejected without order/stock/treasury writes.",
+    "Ordinary quantity2/price1000 and valid discount/tax/comp still consistent between client estimate and server.",
+    "Inventory quantity product rejects overflow and preserves correct direction."
+  ],
+  "runtime": "NOT_EXECUTED; no component assertion run by this reviewer"
+}

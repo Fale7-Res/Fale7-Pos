@@ -1,0 +1,875 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-faa7568cf373bdad2b69665a8ce00d6146e7d3aa59596f34da3ab792a012c035",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Id.get",
+        "span": [
+          134,
+          24,
+          134,
+          28
+        ],
+        "reasoning": "Getter exposes stable account identity used by session resolution, command actor projection and financial creator references.",
+        "inputs": "Entity storing string user PK.",
+        "outputs": "string user PK directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-3d7778178224b4f000cd0e589b55ede5532d713c514fc9f767ca55458f9f7aa7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Id.set",
+        "span": [
+          134,
+          29,
+          134,
+          33
+        ],
+        "reasoning": "Setter stores request-derived/generated user identity in provisioner; property alone neither authenticates a user nor ensures valid financial actor binding.",
+        "inputs": "string user PK from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-897e33b2053a971d41e0b3d66250d589814c852baff8949ecfd23ee29ea71d0f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Name.get",
+        "span": [
+          135,
+          26,
+          135,
+          30
+        ],
+        "reasoning": "Getter exposes current display name copied into many financial audit/movement snapshots; changing current name does not rewrite those historical strings.",
+        "inputs": "Entity storing string account display name.",
+        "outputs": "string account display name directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-26a55a27497a14d1275129e216926b500492a5f20782a7971d3120654607b90a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Name.set",
+        "span": [
+          135,
+          31,
+          135,
+          35
+        ],
+        "reasoning": "Setter stores trimmed provisioned name. No entity uniqueness guarantee makes name a safe replacement for user ID.",
+        "inputs": "string account display name from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-b1ec0d9e6d0587cdf5cf7d68dc2d5cdcd17ad6a2d78d81b6d68a3037c741f70b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Role.get",
+        "span": [
+          136,
+          26,
+          136,
+          30
+        ],
+        "reasoning": "Getter feeds OrderMapper.ToActor role and role-based query behavior independently of explicit permission CSV; it is not just presentation metadata.",
+        "inputs": "Entity storing string role text.",
+        "outputs": "string role text directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-fa19a820704cb162a9c117145aca8f14e74197606da6e006ae9ea1aaf839a6cd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Role.set",
+        "span": [
+          136,
+          31,
+          136,
+          35
+        ],
+        "reasoning": "Setter receives validated user-management role in provisioner; direct assignment is unrestricted string and cannot by itself enforce allowed authority. No new privilege exploit investigation performed.",
+        "inputs": "string role text from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-a1f5b6f977497dd4f59debd68f0aa64f4e3a6fb59bd92eb2877349e5220d2199",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Active.get",
+        "span": [
+          137,
+          26,
+          137,
+          30
+        ],
+        "reasoning": "Getter is rechecked by SessionService on every resolution, so stored false can deny existing sessions without deleting rows.",
+        "inputs": "Entity storing bool account active.",
+        "outputs": "bool account active directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-93322f60cc9814bf23c6ad0e9bd421f98ee54605b4f4bc931a88d6bcc7bb0989",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Active.set",
+        "span": [
+          137,
+          31,
+          137,
+          35
+        ],
+        "reasoning": "Setter changes account activity through lifecycle handler. Reactivation PIN-duplication lead remains paused security followup, not re-investigated or promoted here.",
+        "inputs": "bool account active from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-bc6667e3fe85d8eb704c1ced7f343864067d48a77a697853d5f8e59e88ffb906",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Permissions.get",
+        "span": [
+          140,
+          33,
+          140,
+          37
+        ],
+        "reasoning": "Getter returns stored CSV parsed with trimming/removing empty entries into actor set; literal all is an explicit full-permission representation used by report helper.",
+        "inputs": "Entity storing string permission CSV.",
+        "outputs": "string permission CSV directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-19e8eefd170d79b36ca2fdea27b05f1252b5adf7c130da10b7e6205613a50c66",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.Permissions.set",
+        "span": [
+          140,
+          38,
+          140,
+          42
+        ],
+        "reasoning": "Setter stores joined normalized management permissions. Entity property is not a normalized relation or guarantee role-derived versus explicit permission policy is consistent.",
+        "inputs": "string permission CSV from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-f67a9f0a9c71322ed5f6949ac1b1b402fb30a04865fc5d4e406694bdc6700042",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.PinHash.get",
+        "span": [
+          146,
+          29,
+          146,
+          33
+        ],
+        "reasoning": "Getter exposes stored derived PIN verifier to authentication/uniqueness code; this review accesses declarations and source only, never actual stored verifier values.",
+        "inputs": "Entity storing string PIN-derived verifier.",
+        "outputs": "string PIN-derived verifier directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-4efe277c51794e613884ab13dc324ac559d57744ef38f3585ae1ef54ab1d57cb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.PinHash.set",
+        "span": [
+          146,
+          34,
+          146,
+          38
+        ],
+        "reasoning": "Setter receives hashed.HashBase64 from hashing component on create/change, not plaintext PIN. Auto-property does not perform hashing or prove backfill was executed on older database.",
+        "inputs": "string PIN-derived verifier from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-031ed8c56c52d2d91f8e3d28625cb92db55a0936df18839c785338091e0973f4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.PinSalt.get",
+        "span": [
+          147,
+          29,
+          147,
+          33
+        ],
+        "reasoning": "Getter supplies per-user salt with verifier; equal plaintext PINs need not produce equal hashes, so no direct hash-equality uniqueness assumption is valid.",
+        "inputs": "Entity storing string salt encoding.",
+        "outputs": "string salt encoding directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-8c4d4c9e89bac7dbf3e57f043832114f258fa378aff3fc3bd00af12fc127cb85",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.PinSalt.set",
+        "span": [
+          147,
+          34,
+          147,
+          38
+        ],
+        "reasoning": "Setter receives hashing output salt; no random generation inside accessor. Actual persisted salt values were not queried or displayed.",
+        "inputs": "string salt encoding from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-cb72426899c683bccaf8fd33652ab202ba53b291968843aaa7f0e55a69a7558a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.PinIterations.get",
+        "span": [
+          148,
+          32,
+          148,
+          36
+        ],
+        "reasoning": "Getter supplies stored PBKDF iteration parameter to verification rather than assuming one global current setting.",
+        "inputs": "Entity storing int verifier work parameter.",
+        "outputs": "int verifier work parameter directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-d6973ae196f8f2940fe1e19269ed42f8fdf3dea3a72899090c085402a352207a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserEntity.PinIterations.set",
+        "span": [
+          148,
+          37,
+          148,
+          41
+        ],
+        "reasoning": "Setter receives hashed.Iterations on creation/change. Entity int has no intrinsic lower/upper bounds; parser/verifier behavior belongs existing auth review, not newly executed here.",
+        "inputs": "int verifier work parameter from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-6f1a6baec32144381c3f113c7effd6f4000dd6415c0c2b58a79c02e5e74d4386",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.Id.get",
+        "span": [
+          155,
+          24,
+          155,
+          28
+        ],
+        "reasoning": "Getter identifies session storage row independent of secret bearer token and user identity.",
+        "inputs": "Entity storing string session PK.",
+        "outputs": "string session PK directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-bea4c06ac69bb4f59e1a0e70e5a6ab077ddeea0f8558248fb66e6d1cee6153e1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.Id.set",
+        "span": [
+          155,
+          29,
+          155,
+          33
+        ],
+        "reasoning": "Setter stores sess-GUID in IssueAsync; session row PK does not by itself authenticate a request.",
+        "inputs": "string session PK from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-746f20e03a71cdd18f46d6a207fc422d967dc43f709183ab94e93377fe6db01e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.TokenHash.get",
+        "span": [
+          156,
+          31,
+          156,
+          35
+        ],
+        "reasoning": "Getter supplies hash lookup key for resolving presented token; it is not the bearer token to send to server.",
+        "inputs": "Entity storing string token digest.",
+        "outputs": "string token digest directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-d8bcd5d90859dbe498fe7d17a79c702f4f959f1fd8ff55f7578bca655c8e959c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.TokenHash.set",
+        "span": [
+          156,
+          36,
+          156,
+          40
+        ],
+        "reasoning": "Setter stores SessionToken.Hash(token), with unique max64 mapping. Accessor does not hash or validate format, and no actual session values were accessed.",
+        "inputs": "string token digest from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-452bd8b23b753d0726fc8c53890783e7522f6eda46309a1c7a9d571aa00522f2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.UserId.get",
+        "span": [
+          157,
+          28,
+          157,
+          32
+        ],
+        "reasoning": "Getter binds session to user resolved fresh for Active and current permissions; it is not a serialized frozen actor object.",
+        "inputs": "Entity storing string session user reference.",
+        "outputs": "string session user reference directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-dc306db0336ed462c2eb7f01d46e86226ab0ea092e42f3a59375abd3a57cab0e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.UserId.set",
+        "span": [
+          157,
+          33,
+          157,
+          37
+        ],
+        "reasoning": "Setter copies IssueAsync userId; method itself inserts without user lookup, so validity belongs authenticated caller plus resolve path, not property FK (none authored in inspected mapping).",
+        "inputs": "string session user reference from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-d61e42986defc8b3391c2875f52a42d017f3973aaf5779cfbf22701d3e3d91f6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.CreatedAtUtc.get",
+        "span": [
+          158,
+          42,
+          158,
+          46
+        ],
+        "reasoning": "Getter records session issuance instant, distinct from idle timeout basis LastSeenAtUtc.",
+        "inputs": "Entity storing DateTimeOffset issuance instant.",
+        "outputs": "DateTimeOffset issuance instant directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-83cba32964f5516b117b5ae133ccb75c17337406be122cc53c5080ac91f5b002",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.CreatedAtUtc.set",
+        "span": [
+          158,
+          47,
+          158,
+          51
+        ],
+        "reasoning": "Setter stores current UTC when issuing; later resolution refreshes only LastSeenAtUtc and preserves original creation time.",
+        "inputs": "DateTimeOffset issuance instant from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-f6a9bad4fe2a78f0246c41d2c81fe75e8c0b616f84af7cce0a4ba63e11558950",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.LastSeenAtUtc.get",
+        "span": [
+          160,
+          43,
+          160,
+          47
+        ],
+        "reasoning": "Getter feeds idle expiry predicate; lifetime is based on last seen, not absolute CreatedAt age.",
+        "inputs": "Entity storing DateTimeOffset activity instant.",
+        "outputs": "DateTimeOffset activity instant directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-d2a8507677fe2817067de87eecbed4c6547f0670808713e216c50df115659a98",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.LastSeenAtUtc.set",
+        "span": [
+          160,
+          48,
+          160,
+          52
+        ],
+        "reasoning": "Setter initializes issuance now and refreshes only after more than one minute in ResolveAsync. No concurrency token in inspected mapping; source does not promise exact per-request monotonic durable heartbeat.",
+        "inputs": "DateTimeOffset activity instant from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-2097b524578ec3d2f2ccd1e0b1392d2770c0c81e01266d72084bded276848743",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.RevokedAtUtc.get",
+        "span": [
+          161,
+          43,
+          161,
+          47
+        ],
+        "reasoning": "Getter causes session resolution to fail when nonnull, distinct from account deactivation or idle expiry.",
+        "inputs": "Entity storing nullable revocation instant.",
+        "outputs": "nullable revocation instant directly returned; no secret values inspected.",
+        "side_effects": "No side effects, database access or hashing in getter.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      },
+      {
+        "stable_id": "sym-fd046cfe7947e1e43d3a497a534dbdcb528ee3c897e02def48753a5b82626b5f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.UserSessionEntity.RevokedAtUtc.set",
+        "span": [
+          161,
+          48,
+          161,
+          52
+        ],
+        "reasoning": "Setter records UtcNow in RevokeAsync once found unrevoked. No physical app shutdown or financial rollback follows automatically from property mutation.",
+        "inputs": "nullable revocation instant from trusted provision/session writer or EF.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "EF property assignment only; caller SaveChanges persists. No login/token generation, PIN verification or data mutation executed by audit.",
+        "trust_boundaries": "These fields support financial actor identity and authority projection, but accessor is not authorization. Bounded persistence review only; no expanded security scan, credential attempts or real accounts queried.",
+        "database": "DbContext165-176 user PK with no hash uniqueness;186-193 session PK plus unique TokenHash length64. SessionService22-76 owns issue/resolve/revoke saves and fresh Active lookup. No DB operations run.",
+        "printing_ui": "Actor names/permissions affect financial screens downstream, but actual login, PIN screens, session refresh and UI were not exercised.",
+        "performance": "O(1) accessor; session resolve does indexed hash lookup and user read, refreshing DB heartbeat after >1minute. No performance benchmark or secret-dependent timing probe.",
+        "duplicates_conflicts": "User ID, display name, role, permission CSV and approval snapshots are distinct contracts. Paused reactivation/permission security leads remain separately owned; no duplicate finding promoted.",
+        "issues_hypotheses": "No new accessor finding. Old comments claiming a backfill ran are not deployed migration evidence. Authenticated identity protection and command permissions require separate verified caller contracts.",
+        "tests_missing": "No tests or authentication operations run. Regression should preserve account deactivation, current-permission refresh, idle/revoked semantics, safe verifier materialization and absence of secrets in DTOs/logs.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Authorization/SessionService.cs:22-76",
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:19-21",
+          "src/Falah.Infrastructure/Users/CreateUserHandler.cs:72-76",
+          "src/Falah.Infrastructure/Users/ChangePinHandler.cs:53-55",
+          "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:62",
+          "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:66",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:165-176,186-193"
+        ]
+      }
+    ]
+  }
+]

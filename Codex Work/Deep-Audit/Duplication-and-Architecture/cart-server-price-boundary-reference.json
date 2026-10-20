@@ -1,0 +1,57 @@
+{
+  "at_utc": "2026-10-18T09:32:15.317475+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "purpose": "Targeted server callee check for three shared CartLine implementations, not a duplicated full financial review",
+  "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
+  "worktree_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+  "source_git_blob_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+  "symbol_refs": [
+    {
+      "stable_id": "sym-798c0df56a69e47a1ec4d4f56598a240b51443092a04cb9492850e71b2e96bd5",
+      "signature": "Falah.Infrastructure.Orders.MenuPricingService.ResolveAsync(IReadOnlyList<Falah.Application.Orders.CheckoutItemRequest>, DateTimeOffset, CancellationToken)",
+      "span": [
+        25,
+        5,
+        68,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-bf5a6aedefe869efe2f1cba1e033fcdbd36c405e6b5d935fedd1be4706927aea",
+      "signature": "lambda expression",
+      "span": [
+        49,
+        59,
+        49,
+        89
+      ]
+    },
+    {
+      "stable_id": "sym-7bdf3e976ce1852130a751f8485cc1be2f34bfdc8f923b3edc60b9c4bedf2434",
+      "signature": "lambda expression",
+      "span": [
+        54,
+        52,
+        54,
+        103
+      ]
+    },
+    {
+      "stable_id": "sym-97f32ad1c8957abd333b4cb42d49398bda1372fa26494daead781b669e3082ad",
+      "signature": "lambda expression",
+      "span": [
+        54,
+        72,
+        54,
+        102
+      ]
+    }
+  ],
+  "verified_boundaries": [
+    "Positive quantity guard, actual catalog item/variant resolution, active/current rule revalidation with Cairo clock.",
+    "Server frozen item total still multiplies Money long price by quantity; independent amount validation is not proof overflow impossible.",
+    "Client checkout selectors send no effective unit price, but false preview can still have operational consequences."
+  ],
+  "relay": "Concise exact source cross-reference sent original financial_integrity; financial owner assesses existing FIN016/other arithmetic findings and deduplicates. No financial function receipt increment or new confirmed finding here.",
+  "runtime": "NOT_EXECUTED"
+}

@@ -103360,10 +103360,10 @@
     "Historical remaining-audit-queue counts lag newer agent receipts; exact own latest ledgers authoritative until reconciliation"
   ],
   "latest_financial_checkpoint": {
-    "at_utc": "2026-10-18T04:01:56.062904+00:00",
+    "at_utc": "2026-10-18T04:46:22.994955+00:00",
     "reference": "Codex Work/Sub-Agents/Results/financial-coordinator-coverage.json",
-    "union_original_receipts": 4716,
-    "remaining_original_count": 4088,
+    "union_original_receipts": 5459,
+    "remaining_original_count": 3345,
     "candidates_pending_independent_challenge": [
       "Deep-Audit/Database-and-Finance/payroll-status-race-candidate.json",
       "Deep-Audit/Database-and-Finance/cash-denomination-boundary-lead.json",
@@ -103373,5 +103373,24 @@
     ],
     "last_financial_session_retry": "Original session followup failed: agent thread limit reached. Previous replacement attempt also failed; no replacement exists.",
     "execution": "Root performing financial source review; nonfinancial specialists paused; no repeat launches while last observed limit active."
-  }
+  },
+  "new_preserved_cross_stream_followups": [
+    {
+      "id": "SEM004-PREPAID-DEFAULT",
+      "evidence": "Deep-Audit/Duplication-and-Architecture/delivery-payment-contract-semantic-comparison.json",
+      "independent_challenge": "Sub-Agents/Handoffs/delivery-payment-contract-independent-challenge.json",
+      "owner_when_resumed": "UI/financial contract followup; no specialist automatically resumed",
+      "status": "SOURCE_SUPPORTED_USABILITY_DEFAULT_MISMATCH_GUARD_INTACT; RUNTIME_NOT_EXECUTED",
+      "question": "Prepaid DeliveryDto gross10000 but handler collectible0; initialize dialog from authoritative collectible fact, preserving gross display and server variance controls.",
+      "does_not_block_other_financial_source_review": true
+    },
+    {
+      "id": "EXTERNAL-PRINTING-TOOL-SAFETY-UNRESOLVED",
+      "owner_when_resumed": "Paused printing/tool-safety review",
+      "status": "UNVERIFIED_LEAD_NO_SCRIPT_IDENTIFIED",
+      "evidence": "Conversation-Recovery/EXTERNAL_GITHUB_REVIEW_LEAD_RECONCILIATION.json",
+      "next_action": "Recover exact external review report/script identity and inspect read-only before any execution. No printing reviewer resumed now."
+    }
+  ],
+  "external_review_lead_reconciliation": "Conversation-Recovery/EXTERNAL_GITHUB_REVIEW_LEAD_RECONCILIATION.json"
 }

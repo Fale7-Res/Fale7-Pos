@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Backup/VerifyBackupHandler.cs",
+  "source_git_blob_sha256": "78912431f5f9a41da41bee939275a721de9b9b01aa1f98b34f7de05a935682d8",
+  "worktree_sha256": "61137b752cd98b90fb46121335d443070dcd8d1be48d95c418cef0931eaa9548",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:09:11.776423+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-cd00b03d813f1a0cb7c955219aade22d34e73fb93c246695f83254ff0f97ff90",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.VerifyBackupHandler.VerifyBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)",
+      "span": [
+        22,
+        5,
+        27,
+        6
+      ],
+      "reasoning": "Stores context, approval registry and audit logger; construction performs no verification or metadata change.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Production runs VERIFYONLY and writes status/audit; no statement or filesystem operation executed in audit.",
+      "database": "None",
+      "trust_boundaries": "Handle requires backup_manage; Run trusts internal callers. Stored record path passed as SQL parameter.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native verification can be costly but does not replace database; no disk load benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "VERIFYONLY is partial backup assurance, not end-to-end restore acceptance. Cancellation and broad catch may misclassify verification availability as Invalid; qualified source lead only.",
+      "tests_missing": "DI same context for audit",
+      "verified_callers_callees": "Assignments24-26."
+    },
+    {
+      "stable_id": "sym-169c2e5f19a1969f1629dcd92b3476d5d2a1e45b1aacd4325d0c3fc72f486f62",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.VerifyBackupHandler.HandleAsync(Falah.Application.Backup.VerifyBackupRequest, CancellationToken)",
+      "span": [
+        29,
+        5,
+        36,
+        6
+      ],
+      "reasoning": "Loads user and direct backup_manage permission then delegates with real persisted BackupActor. No arbitrary SQL supplied; record ID resolves stored path inside Run.",
+      "inputs": "Verify request/ct",
+      "outputs": "DTO task",
+      "side_effects": "Production runs VERIFYONLY and writes status/audit; no statement or filesystem operation executed in audit.",
+      "database": "Users read then verification flow",
+      "trust_boundaries": "Handle requires backup_manage; Run trusts internal callers. Stored record path passed as SQL parameter.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native verification can be costly but does not replace database; no disk load benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "VERIFYONLY is partial backup assurance, not end-to-end restore acceptance. Cancellation and broad catch may misclassify verification availability as Invalid; qualified source lead only.",
+      "tests_missing": "Unknown/unauthorized actor, scheduled direct Run attribution",
+      "verified_callers_callees": "User31, authorization33, Run35."
+    },
+    {
+      "stable_id": "sym-0503444d246f10819ac4b6c193557c3e9702eeae0d447ba5551d5f3a763166d9",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        31,
+        76,
+        31,
+        108
+      ],
+      "reasoning": "Exact actor ID predicate loads persisted permissions for policy evaluation. It is not a PIN check or session lookup; actual transport identity binding independent.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "Production runs VERIFYONLY and writes status/audit; no statement or filesystem operation executed in audit.",
+      "database": "Users AsNoTracking",
+      "trust_boundaries": "Handle requires backup_manage; Run trusts internal callers. Stored record path passed as SQL parameter.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native verification can be costly but does not replace database; no disk load benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "VERIFYONLY is partial backup assurance, not end-to-end restore acceptance. Cancellation and broad catch may misclassify verification availability as Invalid; qualified source lead only.",
+      "tests_missing": "Unknown actor; deactivated behavior policy",
+      "verified_callers_callees": "Handle31-33."
+    },
+    {
+      "stable_id": "sym-7dbe0665a70cbed8317e7f7a26ba2c9dd72e6aa38b95d2032b9dd035d36d9cd6",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.VerifyBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string, CancellationToken)",
+      "span": [
+        42,
+        5,
+        69,
+        6
+      ],
+      "reasoning": "Loads record and requires app-process File.Exists before native VERIFYONLY parameterized path. Success marks Valid/audits; any exception inside native/audit block marks Invalid/audits, then VerifiedAt and Save. Missing file throws before verification status write. No restriction Kind=Backup or Status=Succeeded; caller may select restore metadata pointing to same backup. Cancellation/permission/I/O failure is not necessarily corrupt media; broad Invalid classification availability distinction should be designed before promotion. SQL verifier cannot certify actual replacement/startup recovery.",
+      "inputs": "BackupActor/record ID/ct",
+      "outputs": "DTO or exception",
+      "side_effects": "Production runs VERIFYONLY and writes status/audit; no statement or filesystem operation executed in audit.",
+      "database": "Record read44; native53; verification/audit Save69",
+      "trust_boundaries": "Handle requires backup_manage; Run trusts internal callers. Stored record path passed as SQL parameter.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native verification can be costly but does not replace database; no disk load benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "VERIFYONLY is partial backup assurance, not end-to-end restore acceptance. Cancellation and broad catch may misclassify verification availability as Invalid; qualified source lead only.",
+      "tests_missing": "Missing file, SQL service access mismatch, cancellation, native valid but metadata failure; full restore verification deferred",
+      "verified_callers_callees": "File46-47; try51-65; VerifiedAt67; Save69; ToDto70."
+    },
+    {
+      "stable_id": "sym-1d39b686efab262ce3fc1bfb3282d11ebf1fc029de5ccd5ff30e169d3fb014c2",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        44,
+        66,
+        44,
+        93
+      ],
+      "reasoning": "Loads exact stored record ID with tracking for verification metadata update. No filename/type supplied directly by caller; row path integrity depends trusted backup persistence.",
+      "inputs": "Record/captured ID",
+      "outputs": "Boolean",
+      "side_effects": "Production runs VERIFYONLY and writes status/audit; no statement or filesystem operation executed in audit.",
+      "database": "BackupRecords read",
+      "trust_boundaries": "Handle requires backup_manage; Run trusts internal callers. Stored record path passed as SQL parameter.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native verification can be costly but does not replace database; no disk load benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "VERIFYONLY is partial backup assurance, not end-to-end restore acceptance. Cancellation and broad catch may misclassify verification availability as Invalid; qualified source lead only.",
+      "tests_missing": "Unknown row and shared path collision",
+      "verified_callers_callees": "Run44-45; entity.FilePath46/53."
+    }
+  ],
+  "remaining_callable_ids": []
+}

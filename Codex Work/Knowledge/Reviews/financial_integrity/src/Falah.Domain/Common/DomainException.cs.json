@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Common/DomainException.cs",
+  "source_git_blob_sha256": "763b8c5644ed42f312f652daa85cb920474290175021e94b272ca4f02f90e00d",
+  "worktree_sha256": "763b8c5644ed42f312f652daa85cb920474290175021e94b272ca4f02f90e00d",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:56:04.012505+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-68306d6c20b226903088b72472732cc5d823f5adb927a89555e7d6407af6b4eb",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Common.DomainException.DomainException(string)",
+      "span": [
+        9,
+        5,
+        9,
+        63
+      ],
+      "reasoning": "Constructor delegates provided message to baseException without wrappingstatus oraddinglogging/DB behavior. Domainvalidation failures are mapped by endpoints to422orotherconfiguredresponse; messagecontent safety reliescallerusingnonsecrettext. Doesnot rollback byitself; transactiondisposal/catch owns atomicity.",
+      "inputs": "Message string",
+      "outputs": "DomainException",
+      "side_effects": "Allocatesexception only; noexecutioninaudit.",
+      "database": "NoDB.",
+      "trust_boundaries": "Human-readablemessage maycrossAPIboundary throughendpoint mapping.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constantconstructor exceptmessage retained.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newfinding; errorclass doesnotcertifysafepersistence.",
+      "tests_missing": "Message/null propagation and endpointmapping; transactionrollback separatetests.",
+      "verified_callers_callees": "BaseExceptionconstructor9; Programcheckout1392 DomainExceptioncatch independentlyread."
+    }
+  ],
+  "remaining_callable_ids": []
+}

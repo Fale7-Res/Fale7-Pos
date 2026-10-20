@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs",
+  "source_git_blob_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+  "worktree_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T01:46:32.616263+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-0cf32581f9c8687f7a8bcd51401a02fdab4d8b424b708087f8b689d805c385d6",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Inventory.SetEstimatedCostHandler.SetEstimatedCostHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)",
+      "span": [
+        33,
+        5,
+        38,
+        6
+      ],
+      "reasoning": "Stores context, registry and logger without loading current estimate or creating stock. Audit transaction cohesion depends same scoped context.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Production changes estimate metadata and audit only; no purchase, stock, treasury or supplier ledger fact. No execution in audit.",
+      "database": "Item/user read and metadata+audit single Save; no explicit version protection.",
+      "trust_boundaries": "inventory_manage direct permission and negative value rejected; null clears and zero is accepted configuration.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Small constant query/write count.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted defect. Estimate provenance must remain visible; non-Prep real purchase takes precedence while Prep costing follows recipe branch. Config changes can alter current historical-cost reports by documented current-price design.",
+      "tests_missing": "DI context identity",
+      "verified_callers_callees": "Assignments35-37."
+    },
+    {
+      "stable_id": "sym-d06aba080949e4a74a4c7a42d8aa375ca994cad9851dcb0309f9d937b18a9556",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Inventory.SetEstimatedCostHandler.HandleAsync(Falah.Application.Inventory.SetEstimatedCostRequest, CancellationToken)",
+      "span": [
+        40,
+        5,
+        65,
+        6
+      ],
+      "reasoning": "Rejects negative nullable estimate, requires actual actor inventory_manage and existing ingredient. Same nullable value returns no-write/no-audit. Otherwise stores value and audit previous/new strings then Save. Null clear explicit; zero accepted but CostingRules estimate fallback requires>0, so zero means unknown rather than free ingredient cost. No business day or financial journal appropriate because estimate does not assert goods/payment. Concurrent changes may both log old value from stale read; no monetary posting, keep provenance limitation separate from balance race.",
+      "inputs": "Estimate request/ct",
+      "outputs": "Task",
+      "side_effects": "Production changes estimate metadata and audit only; no purchase, stock, treasury or supplier ledger fact. No execution in audit.",
+      "database": "Item/user read and metadata+audit single Save; no explicit version protection.",
+      "trust_boundaries": "inventory_manage direct permission and negative value rejected; null clears and zero is accepted configuration.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Small constant query/write count.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted defect. Estimate provenance must remain visible; non-Prep real purchase takes precedence while Prep costing follows recipe branch. Config changes can alter current historical-cost reports by documented current-price design.",
+      "tests_missing": "Negative/null/zero/same value, actual purchase precedence, Prep source ignores estimate, concurrent audit old-value truth",
+      "verified_callers_callees": "Guard42-43; actor45/auth47; item49; old53/no-op54; write56; audit57-65; Save67."
+    },
+    {
+      "stable_id": "sym-a073e6faa12edf02b47728d87c233cc4a29ffec72946b992a481f7ef93aa277c",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        45,
+        76,
+        45,
+        108
+      ],
+      "reasoning": "Loads persisted actor for direct inventory_manage and truthful audit name/role. No approval fallback or actor label from request.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "Production changes estimate metadata and audit only; no purchase, stock, treasury or supplier ledger fact. No execution in audit.",
+      "database": "Item/user read and metadata+audit single Save; no explicit version protection.",
+      "trust_boundaries": "inventory_manage direct permission and negative value rejected; null clears and zero is accepted configuration.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Small constant query/write count.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted defect. Estimate provenance must remain visible; non-Prep real purchase takes precedence while Prep costing follows recipe branch. Config changes can alter current historical-cost reports by documented current-price design.",
+      "tests_missing": "Missing/denied actor",
+      "verified_callers_callees": "Lookup45-47."
+    },
+    {
+      "stable_id": "sym-3e96a2780d0b60da4913f9ecc08b37d96f20d8e40b6aacc24addf30e195b3ab8",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        49,
+        65,
+        49,
+        101
+      ],
+      "reasoning": "Loads tracked inventory item by exact ID; no cost-source restriction, allowing an estimate note even if current Prep or purchase precedence means no effect on resolved cost. Unknown item throws before mutation.",
+      "inputs": "Item/ID",
+      "outputs": "Boolean",
+      "side_effects": "Production changes estimate metadata and audit only; no purchase, stock, treasury or supplier ledger fact. No execution in audit.",
+      "database": "Item/user read and metadata+audit single Save; no explicit version protection.",
+      "trust_boundaries": "inventory_manage direct permission and negative value rejected; null clears and zero is accepted configuration.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Small constant query/write count.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted defect. Estimate provenance must remain visible; non-Prep real purchase takes precedence while Prep costing follows recipe branch. Config changes can alter current historical-cost reports by documented current-price design.",
+      "tests_missing": "Missing, Prep and purchased ingredient",
+      "verified_callers_callees": "Lookup49-50; CostingRules28-54 source precedence."
+    }
+  ],
+  "remaining_callable_ids": []
+}

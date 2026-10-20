@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/OrderItem.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:41:21.680865+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+  "worktree_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-8d2cb1cc8b43d088bf308c277d46cad75a3a9b2e8c72f6de9b35924cd8fad585",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional OrderItem record captures14 identity/product/variant/name/price/quantity/total/routing/rule/note components. Generated construction and with-copy do not enforce TotalPrice=UnitPrice*Quantity, quantity positive or station allowed. Server MenuPricing builds authoritative snapshot but unchecked multiplication remains FIN016 extension. Immutable strings/Money/scalars copy by value/reference safely; record cannot query current menu, so later product edits do not automatically alter historical snapshot. Value equality all fields is not order-line DB identity.",
+      "inputs": "Exact positional declaration fields at source span [12, 26]",
+      "outputs": "Generated constructor/init/equality/hash/copy/deconstruction/printing context, not enumerated invented CLR methods.",
+      "side_effects": "Value/reference copy and possible generated string construction only; no DB, journal, permission issuance or print transport.",
+      "trust_boundaries": "Generated record behavior does not authenticate or validate financial state.",
+      "database": "No database read/write; identity, uniqueness and transaction rules remain outside record.",
+      "printing_ui": "May be represented as diagnostics or order snapshots; generated ToString is not physical printing.",
+      "performance": "Fixed scalar/string fields; Actor permission collection compared as reference.",
+      "duplicates_conflicts": "Original authored functions and getter facets retained; this is separate generated-context accounting.",
+      "issues_hypotheses": "Specific constraints and existing/pending financial findings distinguished in reasoning; no finding counted from generated behavior alone.",
+      "tests_missing": "Value equality/copy field retention, invalid direct construction rejected by actual boundary, collection alias where applicable.",
+      "verified_callers_callees": "MenuPricingService55-61 constructs frozen item with unchecked quantity product; Order.Create uses item list."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

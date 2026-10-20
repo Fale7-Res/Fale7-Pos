@@ -5,7 +5,7 @@
   "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
   "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
   "reviewer": "financial_coordinator",
-  "updated_at_utc": "2026-10-18T03:47:13.218073+00:00",
+  "updated_at_utc": "2026-10-18T04:19:37.463416+00:00",
   "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW_WITH_CALLER_AND_RUNTIME_LIMITS",
   "evidence": "All202 original callable bodies/predicates/projections manually source-read and reasoned; individual stable receipts. Runtime/provider/endpoint and independent depth checks remain open.",
   "symbols": [
@@ -1583,7 +1583,7 @@
         339,
         6
       ],
-      "reasoning": "Inner joins sold lines through current Products, groups current CategoryId and resolves current names. Deleted products are omitted while top-selling frozen-name query retains them; historical recategorization shifts categories. Scope/requirements clarification needed before defect, but exact cross-report difference preserved. Line totals are not net revenue; dictionary lookup fallback retains category ID.",
+      "reasoning": "Inner joins sold lines through current Products and groups current CategoryId, so legitimate recategorization restates historical category grouping. Orphan/deleted product could be omitted mathematically, but current OnModelCreating103-110 restricts deletion of sold products via OrderItem.ProductId FK. Normal hard-delete omission not established. Line totals remain distinct from net revenue; label policy needed.",
       "inputs": "Declared optional date range, shift identity, supplied names and cancellation token.",
       "outputs": "Read-only report DTO/list/date boundaries or missing-entity error.",
       "side_effects": "Query/local aggregation only; source audit executed no query or business state mutation.",
@@ -2733,7 +2733,7 @@
         332,
         64
       ],
-      "reasoning": "Inner join to current Products by ProductId and project current category plus stored line facts. Deleted product removes line from category report. Exact separately identified lambda: i => i.ProductId",
+      "reasoning": "Inner join current Products by line.ProductId and project category plus stored quantity/line total. Product FK DeleteBehavior.Restrict normally prevents sold-product deletion, countering ordinary orphan omission scenario. Category may still be updated. Exact lambda: i => i.ProductId",
       "inputs": "Captured query bounds and exact row/group types in enclosing reviewed method.",
       "outputs": "Predicate/join key/projection/sort key/aggregate selector described individually.",
       "side_effects": "No explicit persisted writes; database query translation or in-memory projection according to enclosing materialization boundary.",
@@ -2756,7 +2756,7 @@
         332,
         75
       ],
-      "reasoning": "Inner join to current Products by ProductId and project current category plus stored line facts. Deleted product removes line from category report. Exact separately identified lambda: p => p.Id",
+      "reasoning": "Inner join current Products by line.ProductId and project category plus stored quantity/line total. Product FK DeleteBehavior.Restrict normally prevents sold-product deletion, countering ordinary orphan omission scenario. Category may still be updated. Exact lambda: p => p.Id",
       "inputs": "Captured query bounds and exact row/group types in enclosing reviewed method.",
       "outputs": "Predicate/join key/projection/sort key/aggregate selector described individually.",
       "side_effects": "No explicit persisted writes; database query translation or in-memory projection according to enclosing materialization boundary.",
@@ -2779,7 +2779,7 @@
         332,
         141
       ],
-      "reasoning": "Inner join to current Products by ProductId and project current category plus stored line facts. Deleted product removes line from category report. Exact separately identified lambda: (i, p) => new { p.CategoryId, i.Quantity, i.TotalPricePiastres }",
+      "reasoning": "Inner join current Products by line.ProductId and project category plus stored quantity/line total. Product FK DeleteBehavior.Restrict normally prevents sold-product deletion, countering ordinary orphan omission scenario. Category may still be updated. Exact lambda: (i, p) => new { p.CategoryId, i.Quantity, i.TotalPricePiastres }",
       "inputs": "Captured query bounds and exact row/group types in enclosing reviewed method.",
       "outputs": "Predicate/join key/projection/sort key/aggregate selector described individually.",
       "side_effects": "No explicit persisted writes; database query translation or in-memory projection according to enclosing materialization boundary.",

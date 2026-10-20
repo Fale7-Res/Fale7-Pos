@@ -1,0 +1,303 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity",
+  "at_utc": "2026-10-19T09:17:07.553Z",
+  "method": "Independent bounded followup of original root leads; source hashes/spans verified. Existing root full-file/callable receipts not duplicated. No application, API, SQL or pure component execution.",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "worktree_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "source_git_blob_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "line_ranges": [
+        [
+          33,
+          60
+        ],
+        [
+          77,
+          108
+        ],
+        [
+          125,
+          156
+        ]
+      ],
+      "source_excerpts": [
+        "    public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordDailyWageRequest request, CancellationToken ct = default)\n    {\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        ManagerApproval? approval = null;\n        if (!string.IsNullOrEmpty(request.ManagerApprovalId))\n        {\n            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)\n                ?? throw new DomainException(\"المعتمد غير موجود.\");\n            approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,\n                approverUser.Role, DateTimeOffset.UtcNow, \"employees_ledger\", \"تسجيل يومية\");\n        }\n        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), \"employees_ledger\", approval, requireApproval: true);\n\n        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)\n            ?? throw new InvalidOperationException(\"الموظف غير موجود.\");\n\n        var wage = Money.FromPiastres(request.CustomWagePiastres ?? employee.DailyWagePiastres);\n        var date = Falah.Domain.Common.BusinessClock.Today();\n        var id = $\"led-daily-wage-{request.EmployeeId}-{date:yyyy-MM-dd}-{request.ShiftId ?? \"no-shift\"}\";\n\n        var entity = await EmployeeLedgerPoster.PostIfNewAsync(_db, id, request.EmployeeId, nameof(LedgerEntryType.DailyWage),\n            $\"تسجيل يومية عمل ({wage.Piastres} قرش)\", Money.Zero, wage, actorUser.Name, authorization.Approver?.ApproverName,\n            request.ShiftId, null, null, null, wage.Piastres, ct);\n        if (entity is null)\n            throw new DomainException(\"تم تسجيل اليومية العادية لهذا الموظف في نفس اليوم والوردية بالفعل. استخدم تطبيق لوردية إضافية.\");\n        await _db.SaveChangesAsync(ct);\n        return EmployeeQueryService.ToLedgerDto(entity);",
+        "    public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordOvertimeRequest request, CancellationToken ct = default)\n    {\n        if (request.Hours <= 0) throw new DomainException(\"عدد الساعات الإضافية يجب أن يكون أكبر من صفر.\");\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        ManagerApproval? approval = null;\n        if (!string.IsNullOrEmpty(request.ManagerApprovalId))\n        {\n            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)\n                ?? throw new DomainException(\"المعتمد غير موجود.\");\n            approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,\n                approverUser.Role, DateTimeOffset.UtcNow, \"employees_ledger\", \"ساعات إضافية\");\n        }\n        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), \"employees_ledger\", approval, requireApproval: true);\n\n        var settings = await new Falah.Infrastructure.Settings.SettingsQueryService(_db).GetAsync(ct);\n        var rate = Money.FromPiastres(request.CustomRatePiastres ?? settings.OvertimeHourlyRatePiastres);\n        var totalAmount = Money.FromPiastres((long)Math.Round(rate.Piastres * request.Hours));\n\n        var id = $\"led-overtime-{request.RequestId}\";\n        var entity = await EmployeeLedgerPoster.PostIfNewAsync(_db, id, request.EmployeeId, nameof(LedgerEntryType.Overtime),\n            $\"ساعات إضافية ({request.Hours} ساعة × {rate.Piastres} قرش/ساعة = {totalAmount.Piastres} قرش)\" + (request.Notes is null ? \"\" : $\" - {request.Notes}\"),\n            Money.Zero, totalAmount, actorUser.Name, authorization.Approver?.ApproverName, null, null, request.Hours, rate.Piastres, null, ct);\n        if (entity is null)\n        {\n            // A genuine retry of the same RequestId is a safe replay, not an error - unlike daily\n            // wage, legacy names no \"you already recorded overtime\" business rule for this command.\n            var replay = await _db.EmployeeLedgerEntries.AsNoTracking().FirstAsync(e => e.Id == id, ct);\n            return EmployeeQueryService.ToLedgerDto(replay);\n        }\n        await _db.SaveChangesAsync(ct);\n        return EmployeeQueryService.ToLedgerDto(entity);",
+        "    public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordExtraShiftRequest request, CancellationToken ct = default)\n    {\n        if (request.ShiftCount <= 0) throw new DomainException(\"عدد الشيفتات يجب أن يكون أكبر من صفر.\");\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        ManagerApproval? approval = null;\n        if (!string.IsNullOrEmpty(request.ManagerApprovalId))\n        {\n            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)\n                ?? throw new DomainException(\"المعتمد غير موجود.\");\n            approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,\n                approverUser.Role, DateTimeOffset.UtcNow, \"employees_ledger\", \"تطبيق وردية إضافية\");\n        }\n        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), \"employees_ledger\", approval, requireApproval: true);\n\n        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)\n            ?? throw new InvalidOperationException(\"الموظف غير موجود.\");\n        var shiftValue = Money.FromPiastres(employee.ShiftValuePiastres > 0 ? employee.ShiftValuePiastres : employee.DailyWagePiastres);\n        var totalAmount = shiftValue * request.ShiftCount;\n\n        var id = $\"led-extra-shift-{request.RequestId}\";\n        var entity = await EmployeeLedgerPoster.PostIfNewAsync(_db, id, request.EmployeeId, nameof(LedgerEntryType.ExtraShift),\n            $\"تطبيق وردية إضافية ({request.ShiftCount} شيفت × {shiftValue.Piastres} قرش = {totalAmount.Piastres} قرش)\" + (request.Notes is null ? \"\" : $\" - {request.Notes}\"),\n            Money.Zero, totalAmount, actorUser.Name, authorization.Approver?.ApproverName, null, null, null, null, shiftValue.Piastres, ct);\n        if (entity is null)\n        {\n            // Same idempotent-replay reasoning as RecordOvertimeHandler above.\n            var replay = await _db.EmployeeLedgerEntries.AsNoTracking().FirstAsync(e => e.Id == id, ct);\n            return EmployeeQueryService.ToLedgerDto(replay);\n        }\n        await _db.SaveChangesAsync(ct);\n        return EmployeeQueryService.ToLedgerDto(entity);"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+      "worktree_sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "source_git_blob_sha256": "0aaa061bb34735cb398e7022e910874ec5176262ec71b40ecb4c1f61593220bf",
+      "line_ranges": [
+        [
+          28,
+          40
+        ],
+        [
+          57,
+          75
+        ]
+      ],
+      "source_excerpts": [
+        "    public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordManualLedgerEntryRequest request, CancellationToken ct = default)\r\n    {\r\n        // Parsed leniently, stored canonically. The type used to be validated case-insensitively\r\n        // and then written down exactly as it arrived, so a bonus recorded as \"bonus\" was accepted,\r\n        // appeared on the employee's statement, and was then skipped by the payroll calculation -\r\n        // which matches \"Bonus\". The employee simply did not get paid it, and nothing anywhere said\r\n        // so. Whatever casing the caller uses, one spelling reaches the database.\r\n        if (!Enum.TryParse<LedgerEntryType>(request.Type, ignoreCase: true, out var entryType))\r\n            throw new DomainException(\"نوع حركة كشف الحساب غير صالح.\");\r\n        var canonicalType = entryType.ToString();\r\n        var amount = Money.FromPiastres(request.AmountPiastres);\r\n        EmployeeRules.AssertLedgerAmount(amount);\r\n        if (string.IsNullOrWhiteSpace(request.Description)) throw new DomainException(\"وصف الحركة مطلوب.\");\r",
+        "        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, \"employees_ledger\", approval, requireApproval: true);\r\n\r\n        var currentBalance = Money.FromPiastres(await _db.EmployeeLedgerEntries.AsNoTracking()\r\n            .Where(e => e.EmployeeId == request.EmployeeId)\r\n            .Select(e => e.CreditPiastres - e.DebitPiastres).SumAsync(ct));\r\n        var debit = request.IsCredit ? Money.Zero : amount;\r\n        var credit = request.IsCredit ? amount : Money.Zero;\r\n        var newBalance = currentBalance + credit - debit;\r\n\r\n        var entity = new EmployeeLedgerEntryEntity\r\n        {\r\n            Id = $\"led-{Guid.NewGuid():N}\", EmployeeId = request.EmployeeId, Type = canonicalType,\r\n            Description = request.Description.Trim(), DebitPiastres = debit.Piastres, CreditPiastres = credit.Piastres,\r\n            BalanceAfterPiastres = newBalance.Piastres, RecordedBy = actorUser.Name,\r\n            AuthorizedBy = authorization.Approver?.ApproverName, CreatedAtUtc = DateTimeOffset.UtcNow,\r\n        };\r\n        _db.EmployeeLedgerEntries.Add(entity);\r\n        await _db.SaveChangesAsync(ct);\r\n        return EmployeeQueryService.ToLedgerDto(entity);\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "line_ranges": [
+        [
+          15,
+          49
+        ]
+      ],
+      "source_excerpts": [
+        "    public static async Task<Money> GetCurrentBalanceAsync(FalahDbContext db, string employeeId, CancellationToken ct)\n    {\n        var entries = await db.EmployeeLedgerEntries.AsNoTracking().Where(e => e.EmployeeId == employeeId)\n            .Select(e => new { e.CreditPiastres, e.DebitPiastres }).ToListAsync(ct);\n        // A single command can append more than one movement before SaveChanges (for\n        // example, a late penalty followed by overtime). Include its earlier pending\n        // appends, otherwise the second row's displayed running balance omits the first.\n        var pendingDelta = db.ChangeTracker.Entries<EmployeeLedgerEntryEntity>()\n            .Where(e => e.State == EntityState.Added && e.Entity.EmployeeId == employeeId)\n            .Sum(e => e.Entity.CreditPiastres - e.Entity.DebitPiastres);\n        return Money.FromPiastres(entries.Sum(e => e.CreditPiastres - e.DebitPiastres) + pendingDelta);\n    }\n\n    /// <summary>Returns null (posts nothing) if an entry with this exact Id already exists - the\n    /// deterministic-id dedup that makes a retried biometric event or duplicate correction a safe\n    /// no-op rather than a double-post.</summary>\n    public static async Task<EmployeeLedgerEntryEntity?> PostIfNewAsync(\n        FalahDbContext db, string id, string employeeId, string type, string description, Money debit, Money credit,\n        string recordedBy, string? authorizedBy, string? shiftId, string? referenceId, double? hours,\n        long? rateSnapshotPiastres, long? valueSnapshotPiastres, CancellationToken ct)\n    {\n        if (db.EmployeeLedgerEntries.Local.Any(e => e.Id == id)\n            || await db.EmployeeLedgerEntries.AsNoTracking().AnyAsync(e => e.Id == id, ct)) return null;\n\n        var currentBalance = await GetCurrentBalanceAsync(db, employeeId, ct);\n        var newBalance = currentBalance + credit - debit;\n        var entity = new EmployeeLedgerEntryEntity\n        {\n            Id = id, EmployeeId = employeeId, Type = type, Description = description,\n            DebitPiastres = debit.Piastres, CreditPiastres = credit.Piastres, BalanceAfterPiastres = newBalance.Piastres,\n            RecordedBy = recordedBy, AuthorizedBy = authorizedBy, ShiftId = shiftId, ReferenceId = referenceId,\n            Hours = hours, RateSnapshotPiastres = rateSnapshotPiastres, ValueSnapshotPiastres = valueSnapshotPiastres,\n            CreatedAtUtc = DateTimeOffset.UtcNow,\n        };\n        db.EmployeeLedgerEntries.Add(entity);"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Employees/Employee.cs",
+      "worktree_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "source_git_blob_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "line_ranges": [
+        [
+          17,
+          22
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from EmployeeLedgerEntry's own `type: LedgerEntryType` in types.ts.</summary>\npublic enum LedgerEntryType\n{\n    DailyWage, Salary, Advance, Withdrawal, Overtime, ExtraShift, Deduction, Bonus,\n    OtherEarning, PayrollSettlement, Adjustment, Settlement,\n}"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Employees/EmployeeRules.cs",
+      "worktree_sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "source_git_blob_sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "line_ranges": [
+        [
+          30,
+          33
+        ]
+      ],
+      "source_excerpts": [
+        "    public static void AssertLedgerAmount(Money amount)\n    {\n        if (!amount.IsPositive) throw new DomainException(\"قيمة الحركة يجب أن تكون أكبر من صفر.\");\n    }"
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/AttendanceRequests.cs",
+      "worktree_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "source_git_blob_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "line_ranges": [
+        [
+          29,
+          47
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from recordDailyWage - assertUniqueDailyWage's own deterministic id\n/// (`led-daily-wage-{employeeId}-{date}-{shiftId|no-shift}`) is the actual idempotency mechanism,\n/// exactly as legacy documents it: a retried/duplicate call for the same employee/date/shift is a\n/// safe no-op, never a duplicate wage. Gated on `employees_ledger` for direct/manual invocation -\n/// see BiometricCheckInHandler's own doc comment for why the AUTOMATIC posting from a check-in does\n/// not go through this same authorized command.</summary>\npublic sealed record RecordDailyWageRequest(string EmployeeId, long? CustomWagePiastres, string? ShiftId, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);\n\n/// <summary>RequestId is minted once per submit and reused unchanged by a retry. A real idempotency\n/// gap found during re-verification: legacy's own recordOvertime never gives\n/// recordManualLedgerEntry a metadata.id either, so a double-click genuinely double-posts overtime\n/// pay there too - but this session's standing pattern is to close every such un-protected\n/// financial write found rather than reproduce it (the same treatment already given to\n/// recordManualLedgerEntry's own missing permission gate), so a real key is required here instead.</summary>\npublic sealed record RecordOvertimeRequest(string RequestId, string EmployeeId, double Hours, long? CustomRatePiastres, string? Notes, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);\n\n/// <summary>See RecordOvertimeRequest's own doc comment - recordExtraShift has the identical gap\n/// in legacy, closed the same way here.</summary>\npublic sealed record RecordExtraShiftRequest(string RequestId, string EmployeeId, int ShiftCount, string? Notes, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);"
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+      "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "source_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "line_ranges": [
+        [
+          35,
+          45
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from recordManualLedgerEntry - a real, un-gated command in the reference app\n/// (no authorizeCommand call in that function at all); a real gap closed here, matching this\n/// codebase's established pattern of fixing an un-gated write rather than reproducing it (see\n/// PurchasingScreen.tsx's own addSupplier fix for the precedent this follows). Gated on\n/// `employees_ledger`, the same permission its sibling advance/withdrawal commands already use.\n/// No RequestId/idempotency key: matches legacy's own metadata.id-or-random shape, but a manual\n/// entry (unlike an automated biometric posting) has no natural dedup key of its own - a caller\n/// wanting idempotency should use RecordAdvance/RecordWithdrawal instead, which do have one.</summary>\npublic sealed record RecordManualLedgerEntryRequest(\n    string EmployeeId, string Type, long AmountPiastres, bool IsCredit, string Description,\n    string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);"
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          709,
+          718
+        ],
+        [
+          748,
+          778
+        ]
+      ],
+      "source_excerpts": [
+        "app.MapPost(\"/api/employees/{employeeId}/ledger-entries\", async (string employeeId, Falah.Application.Employees.RecordManualLedgerEntryRequest body, RecordManualLedgerEntryHandler handler, CancellationToken ct) =>\r\n{\r\n    try\r\n    {\r\n        var request = body with { EmployeeId = employeeId };\r\n        return Results.Ok(await handler.HandleAsync(request, ct));\r\n    }\r\n    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }\r\n    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }\r\n});\r",
+        "app.MapPost(\"/api/employees/{employeeId}/daily-wage\", async (string employeeId, Falah.Application.Employees.RecordDailyWageRequest body, RecordDailyWageHandler handler, CancellationToken ct) =>\r\n{\r\n    try\r\n    {\r\n        var request = body with { EmployeeId = employeeId };\r\n        return Results.Ok(await handler.HandleAsync(request, ct));\r\n    }\r\n    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }\r\n    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }\r\n});\r\n\r\napp.MapPost(\"/api/employees/{employeeId}/overtime\", async (string employeeId, Falah.Application.Employees.RecordOvertimeRequest body, RecordOvertimeHandler handler, CancellationToken ct) =>\r\n{\r\n    try\r\n    {\r\n        var request = body with { EmployeeId = employeeId };\r\n        return Results.Ok(await handler.HandleAsync(request, ct));\r\n    }\r\n    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }\r\n    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }\r\n});\r\n\r\napp.MapPost(\"/api/employees/{employeeId}/extra-shift\", async (string employeeId, Falah.Application.Employees.RecordExtraShiftRequest body, RecordExtraShiftHandler handler, CancellationToken ct) =>\r\n{\r\n    try\r\n    {\r\n        var request = body with { EmployeeId = employeeId };\r\n        return Results.Ok(await handler.HandleAsync(request, ct));\r\n    }\r\n    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }\r\n    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
+      "worktree_sha256": "04f70fc8f689932e34bc5cdf5f9ee1b5c04dbdb35a053f6ed2719a17cfd0eb7b",
+      "source_git_blob_sha256": "ab1cb0a573412633b4c33fce3282e37859163da8cecc156ff2df507fa8f468d8",
+      "line_ranges": [
+        [
+          319,
+          333
+        ]
+      ],
+      "source_excerpts": [
+        "                case \"daily_wage\":\r\n                    if (!CashInput.TryParse(CashOutAmountText, out var wage) || wage <= 0)\r\n                    { CashOutError = \"أدخل المبلغ بشكل صحيح.\"; return; }\r\n                    await CompleteDailyWageAsync(new RecordDailyWageRequest(\r\n                        CashOutEmployee.Employee.Id, wage, _session.ShiftId, _session.CurrentUser!.Id, approvalId, approverId));\r\n                    break;\r\n                case \"overtime\":\r\n                    await CompleteOvertimeAsync(new RecordOvertimeRequest(\r\n                        _cashOutRequestId!, CashOutEmployee.Employee.Id, OvertimeHours, null,\r\n                        string.IsNullOrWhiteSpace(CashOutReason) ? null : CashOutReason, _session.CurrentUser!.Id, approvalId, approverId));\r\n                    break;\r\n                case \"extra_shift\":\r\n                    await CompleteExtraShiftAsync(new RecordExtraShiftRequest(\r\n                        _cashOutRequestId!, CashOutEmployee.Employee.Id, 1,\r\n                        string.IsNullOrWhiteSpace(CashOutReason) ? null : CashOutReason, _session.CurrentUser!.Id, approvalId, approverId));\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "source_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "line_ranges": [
+        [
+          37,
+          56
+        ],
+        [
+          68,
+          90
+        ]
+      ],
+      "source_excerpts": [
+        "        var earningsTypes = new[] { nameof(LedgerEntryType.DailyWage), nameof(LedgerEntryType.Salary), nameof(LedgerEntryType.Overtime), nameof(LedgerEntryType.ExtraShift) };\n        var additionTypes = new[] { nameof(LedgerEntryType.Bonus), nameof(LedgerEntryType.OtherEarning) };\n        var deductionTypes = new[] { nameof(LedgerEntryType.Deduction), nameof(LedgerEntryType.Adjustment) };\n        var paymentTypes = new[] { nameof(LedgerEntryType.Withdrawal), nameof(LedgerEntryType.Settlement), nameof(LedgerEntryType.PayrollSettlement) };\n\n        var result = new List<EmployeeFinancialReportLineDto>(employees.Count);\n        foreach (var employee in employees)\n        {\n            var allForEmployee = allEntries.Where(e => e.EmployeeId == employee.Id).ToList();\n            var inRange = allForEmployee.Where(e =>\n                (start is null || e.CreatedAtUtc >= start) && (end is null || e.CreatedAtUtc < end)).ToList();\n\n            long SumCredit(IEnumerable<string> types) => inRange.Where(e => types.Contains(e.Type)).Sum(e => e.CreditPiastres);\n            long SumDebit(IEnumerable<string> types) => inRange.Where(e => types.Contains(e.Type)).Sum(e => e.DebitPiastres);\n            var balance = allForEmployee.Sum(e => e.CreditPiastres) - allForEmployee.Sum(e => e.DebitPiastres);\n\n            result.Add(new EmployeeFinancialReportLineDto(\n                employee.Id, employee.Name, SumCredit(earningsTypes), SumCredit(additionTypes),\n                SumDebit(deductionTypes), SumDebit(new[] { nameof(LedgerEntryType.Advance) }),\n                SumDebit(paymentTypes), balance));",
+        "    public Task<List<EmployeeLedgerEntryDto>> ListLedgerEntriesAsync(string employeeId, CancellationToken ct = default) =>\n        _db.EmployeeLedgerEntries.AsNoTracking().Where(e => e.EmployeeId == employeeId)\n            .OrderByDescending(e => e.CreatedAtUtc).Select(e => ToLedgerDto(e)).ToListAsync(ct);\n\n    /// <summary>Ported verbatim from calculateEmployeeBalance: sum(credit) - sum(debit) across\n    /// every ledger entry for this employee.</summary>\n    public async Task<long> GetBalanceAsync(string employeeId, CancellationToken ct = default)\n    {\n        var entries = await _db.EmployeeLedgerEntries.AsNoTracking().Where(e => e.EmployeeId == employeeId)\n            .Select(e => new { e.DebitPiastres, e.CreditPiastres }).ToListAsync(ct);\n        return entries.Sum(e => e.CreditPiastres) - entries.Sum(e => e.DebitPiastres);\n    }\n\n    internal static EmployeeDto ToDto(EmployeeEntity e) => new(\n        e.Id, e.Name, e.EmployeeNumber, e.JobTitle, e.Phone, e.HireDate, e.CompensationType,\n        e.DailyWagePiastres, e.ShiftValuePiastres, e.MonthlySalaryPiastres, e.UserId, e.CanDeliver,\n        e.Role, e.IsActive, e.Notes, e.Address, e.NationalId, e.Department, e.EmploymentArrangement,\n        e.FingerprintId, e.LifecycleStatus, e.OvertimeRatePiastres);\n\n    internal static EmployeeLedgerEntryDto ToLedgerDto(EmployeeLedgerEntryEntity e) => new(\n        e.Id, e.EmployeeId, e.Type, e.Description, e.DebitPiastres, e.CreditPiastres, e.BalanceAfterPiastres,\n        e.RecordedBy, e.AuthorizedBy, e.ShiftId, e.ReferenceId, e.Hours, e.RateSnapshotPiastres,\n        e.ValueSnapshotPiastres, e.PayrollRunId, e.CreatedAtUtc);"
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml",
+      "worktree_sha256": "049e44a2eab52ee2cb47c91f052debbd00ff3e5c8b704c1a8d242f75926ee8ee",
+      "source_git_blob_sha256": "17bf5f2d9ca55948e1ef9b4d8c80f1910d23b0eea65316dcee5144065e7b04b2",
+      "line_ranges": [
+        [
+          179,
+          187
+        ]
+      ],
+      "source_excerpts": [
+        "                                                <TextBlock Text=\"{Binding Description}\" Style=\"{StaticResource TableCellText}\" TextWrapping=\"Wrap\"/>\r\n                                                <TextBlock Text=\"{Binding Type, Converter={StaticResource EmployeeLedgerTypeLabelConverter}}\" Style=\"{StaticResource CaptionText}\"/>\r\n                                            </StackPanel>\r\n                                            <TextBlock Grid.Column=\"1\" VerticalAlignment=\"Center\" Foreground=\"{ThemeResource DangerBrush}\"\r\n                                                       Text=\"{Binding DebitPiastres, Converter={StaticResource PiastresToDisplayConverter}}\"/>\r\n                                            <TextBlock Grid.Column=\"2\" VerticalAlignment=\"Center\" Foreground=\"{ThemeResource SuccessBrush}\"\r\n                                                       Text=\"{Binding CreditPiastres, Converter={StaticResource PiastresToDisplayConverter}}\"/>\r\n                                            <TextBlock Grid.Column=\"3\" VerticalAlignment=\"Center\" FontWeight=\"SemiBold\"\r\n                                                       Text=\"{Binding BalanceAfterPiastres, Converter={StaticResource PiastresToDisplayConverter}}\"/>\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "line_ranges": [
+        [
+          75,
+          104
+        ]
+      ],
+      "source_excerpts": [
+        "        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            // Same \"lock the employee row first\" discipline as RecordEmployeeCashOutHandler: an\n            // employee with no ledger rows yet has no stable row of their own to serialize two\n            // concurrent first-payments on.\n            await _db.Employees\n                .FromSqlRaw(\"SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}\", request.EmployeeId)\n                .Select(e => e.Id).SingleAsync(ct);\n            if (await LoadReplayAsync() is { } settledConcurrently) return settledConcurrently;\n\n            ManagerApproval? approval = null;\n            if (!string.IsNullOrEmpty(request.ManagerApprovalId))\n            {\n                var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)\n                    ?? throw new DomainException(\"المعتمد غير موجود.\");\n                approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,\n                    approverUser.Role, DateTimeOffset.UtcNow, \"employees_ledger\", request.Reason ?? \"دفع مستحقات موظف\");\n            }\n            var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, \"employees_ledger\", approval, requireApproval: true);\n\n            // Two concurrent payments for the SAME employee (different RequestIds) must not both\n            // read the same stale balance and both pass the balance check - same UPDLOCK-on-the-\n            // ledger pattern RecordEmployeeCashOutHandler already uses.\n            var lockedEntries = await _db.EmployeeLedgerEntries\n                .FromSqlRaw(\"SELECT * FROM EmployeeLedgerEntries WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE EmployeeId = {0}\", request.EmployeeId)\n                .Select(e => new { e.CreditPiastres, e.DebitPiastres })\n                .ToListAsync(ct);\n            var currentBalance = Money.FromPiastres(lockedEntries.Sum(e => e.CreditPiastres - e.DebitPiastres));\n            EmployeeRules.AssertPaymentWithinBalance(amount, currentBalance);"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          447,
+          452
+        ]
+      ],
+      "source_excerpts": [
+        "        modelBuilder.Entity<EmployeeLedgerEntryEntity>(b =>\r\n        {\r\n            b.HasKey(e => e.Id);\r\n            b.HasIndex(e => e.EmployeeId);\r\n            b.HasIndex(e => e.IdempotencyKey).IsUnique().HasFilter(\"[IdempotencyKey] IS NOT NULL\");\r\n        });\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          95,
+          109
+        ]
+      ],
+      "source_excerpts": [
+        "            var baseAmount = emp.CompensationIsMonthly\n                ? (emp.MonthlySalary ?? Money.Zero)\n                : Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is \"DailyWage\" or \"Salary\").Sum(e => e.Credit.Piastres));\n            var overtime = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == \"Overtime\").Sum(e => e.Credit.Piastres));\n            var extraShifts = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == \"ExtraShift\").Sum(e => e.Credit.Piastres));\n            var bonuses = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is \"Bonus\" or \"OtherEarning\").Sum(e => e.Credit.Piastres));\n            var deductions = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is \"Deduction\" or \"Adjustment\").Sum(e => e.Debit.Piastres));\n\n            if (emp.RequestedAdvanceDeduction.IsNegative || emp.RequestedAdvanceDeduction > emp.AvailableAdvance)\n                throw new DomainException($\"استقطاع السلفة للموظف {emp.EmployeeId} يتجاوز الرصيد المتفق عليه.\");\n\n            var net = baseAmount + overtime + extraShifts + bonuses - deductions - emp.RequestedAdvanceDeduction;\n            if (net.IsNegative) net = Money.Zero;\n\n            result.Add(new PayrollLine(emp.EmployeeId, baseAmount, overtime, extraShifts, bonuses, deductions, emp.RequestedAdvanceDeduction, net));"
+      ]
+    }
+  ],
+  "dispositions": [
+    {
+      "key": "SIGNED_EARNING_INPUT_ADMISSION",
+      "status": "SOURCE_CONFIRMED_CANDIDATE_PENDING_ROOT_CHALLENGE",
+      "severity_proposed": "MEDIUM",
+      "trigger": "Legitimate employees_ledger actor or valid fallback approval, existing employee and fresh operation. DailyCustomWage negative valid long, or positiveHours with negativeCustomRate; custom daily/rate alone suffices without corruptprofile.",
+      "evidence": "Daily50/54-56 posts signedwage asCredit without AssertLedgerAmount. Overtime93-99 uses signedrate*positivefiniteHours, postsnegativeCredit. ExtraShift142-148 can fall backnegativestoredDailyWage; actual employeeprofile permitsrawsignedwage, but not needed for firsttwo triggers. No model nonnegativeDebit/Credit constraint in DbContext447-452.",
+      "source_example": "CustomWagePiastres=-1000 produces DailyWage Credit=-1000, Debit0; or Hours1 and CustomRate=-1000 produces Overtime Credit=-1000. Employee balance/earnings sums decrease, wrong earning-side taxonomy rather than explicit deduction. Source arithmetic only; no actual record.",
+      "counterevidence": [
+        "Authority required; authorized ledger actor can also post explicit deductions, so not unauthorized payroll manipulation.",
+        "Current ordinary cashier daily UI319-323 demands positive amount, overtime327 sends nullCustomRate, extraShift332 count1. Direct accepted API caller or negativeconfiguration needed; no ordinaryUIrepro.",
+        "ManualLedgerEntry calls AssertLedgerAmount>0 and explicitDebit/Credit choice, positivecontrol; do not globally prohibit signedMoney/deltas.",
+        "JSON nonfiniteHours behavior not probed; finiteHours1 sufficient, no NaN/Infinity HTTPclaim.",
+        "Zero/freewage policy needs explicit decision; request only rejects unsupportednegativeearning semantics, not blanketallzero invalid."
+      ],
+      "correction_design": "Validate command-specific nonnegative/positive wage/rate and checked finite supported products before posting, preserve signed balances and legitimate explicit deductions. Align configuredstored rates atauthoring and boundary. No silentclamp that disguises deduction.",
+      "tests": [
+        "Negativecustomdaily/rate rejected before anyledgerSave; validpositive and agreedzero policy controls.",
+        "Negativefallbackstoredwage and upperbound quantity/rate products; samekey overtime/extra replay and deliberatemanualdailyduplicateerror preserved."
+      ]
+    },
+    {
+      "key": "UNDEFINED_NUMERIC_MANUAL_LEDGER_TYPE",
+      "status": "SOURCE_CONFIRMED_INPUT_SHAPE_GAP_PENDING_ROOT_DISPOSITION",
+      "severity_proposed": "MEDIUM_OR_POLICY_QUALIFIED",
+      "trigger": "Authorized employees_ledger writer sends undefinednumeric string asType with valid positiveamount/description and knownemployee.",
+      "evidence": "TryParse35 accepts numeric underlying values, ToString37 remains numeric forundefinedvalue. Enumdefined12values0..11, value999 unsupported; storedType999 at68. Query37-56 andPayroll95-101 classify explicitnames, whileGetBalance sumsallcredit/debit, so unknowncredit canappear inremainingbalance butnotcategorizedearnings/payroll.",
+      "counterevidence": [
+        "Namedcasevariants alreadycanonicalized, actualfixedbonuscommentpositivecontrol; numericdefinedvalues0..11 canonicalizeToString properly.",
+        "No unauthorizedactor/no claimallledgercreditsmustbePayrollbase: legitimateAdvance/Adjustment requireseparatepolicy.",
+        "DefaultJSONMode typedstring meansnumericstring accepted, not numericJSONtokenbinding claim.",
+        "No runtime/SQL acceptance test; current UI typechoices may avoidunsupportedvalue."
+      ],
+      "correction_design": "Require definedmember and agreed supportedmanualtypes/creditdebitmeaning beforewrite; preserve actualknownledgercategories and explicitly classify existingunsupporteddata instead of silently coercing.",
+      "tests": [
+        "Definednumeric vsnamedcontrol, unsupportednumeric999 andnegativeenum rejected or explicitlyhandled; resultingreporttotal/balance reconciliation."
+      ]
+    },
+    {
+      "key": "DISTINCT_CREDIT_CACHED_BALANCE_AFTER",
+      "status": "SOURCE_CONFIRMED_DISPLAY_CACHE_CANDIDATE_PENDING_ROOT_CHALLENGE",
+      "severity_proposed": "MEDIUM",
+      "trigger": "Two authorized distinctcredit commands for sameemployee read balance before eitherwrites, thenbothcommit uniqueIDs. Bothcreditspositive, no sourceaccountpayout necessary.",
+      "evidence": "Manual59-70 and sharedPoster15-49 readsum thenstoreBalanceAfter withnoownlock/Tx; daily/overtime/extrashiftwrappersnoexplicitTx. Two readbase0,credits100/200 store100/200; finalfacts300 butlastrowcache200 (or100 ifcommitorderreversed). PKdedupsamekey doesnotcoverdistinctIDs. EFsingleSaveimplicitTx beginsafterstaleread. Poster includesownpendingDelta protects intra-contextmultientry, notanothercontext.",
+      "impact": "Wrong persisted runningbalance is exposed by EmployeeQuery.ToLedgerDto87-90 and actuallyboundEmployeesView.xaml187. Fact-derived GetBalance74-78/report51 remain correct; no actualmoneyoverdraft/doublepaymentasserted.",
+      "counterevidence": [
+        "PayEmployee75-104 realemployeeanchor+ledgerlocks andactualbalancecheck; notsameunprotectedpayoutclaim.",
+        "Manual/Posterpendinglocalrowscontrols prevent some intra-commandcacheomission.",
+        "Read-onlysource schedule, no concurrentSQLreproduction or runtimeUItest.",
+        "Even serializingcachedrowstore must define totalorder/timestamps; equalCreatedAt tieorder couldstillmislead statement."
+      ],
+      "correction_design": "Either serializeallledgerappendsusingconsistentemployeeanchor+ledgerorder, or derive orderedrunningbalance atquery withdefinedstableorder and removeauthorityfromunreliablecache. Preserve payoutlockorder anddeterministickeyreplay; avoidnewdeadlockpolicy.",
+      "tests": [
+        "Disposablebarrier two distinctpositivecredits noexistingrows andexistingbalance; bothfactsretained andcache/statementreconciles once.",
+        "Samekeyduplicate, singlecommandmultiplependingentries, mixedcredit/payout, rollback/restart and stableties; no liveDBtestauthorizedhere."
+      ]
+    },
+    {
+      "key": "MANUAL_GUID_NO_REQUEST_ID_REPLAY",
+      "status": "REJECTED_AS_HIDDEN_CONTRACT_DEFECT_RETAINED_DOCUMENTED_RECOVERY_LIMIT",
+      "evidence": "EmployeeRequests35-45 explicitly saysmanualentry noRequestId/randomshape and adviseskeyedadvance/withdrawal fordedup. Handler68 freshGuid eachinvocation, endpoint709-718 no duplicatekeyfield. Thus request replay cancreateanothermanualrecord, but not a hiddenpromiseof idempotency; retain disclosedoperationalrisk, no newcanonicaldefect merelydifferentpreference.",
+      "counterevidence": [
+        "Overtime/ExtraShift explicitRequestId anddeterministicPosterIDs haveexistingreplaycontract; directdailyduplicate deliberatelythrows, despite its older requestcommentcallingnoop.",
+        "No automaticclient/network retryexecution inspected inthisboundedfollowup; do notclaimactualdoublepost."
+      ],
+      "recommendation": "Ifownerrequiresreliablemanualfinancialsubmission underlostresponse, explicitlydesign requestID/receiptcontract andclientpendingrecovery, not misuseadvance/withdrawal for unrelatedearningtypes.",
+      "tests": [
+        "Documentcurrenttwoindependentmanualsubmissionsdistinct; futurelost-response/retrycontract onlyafterapprovedrequirement."
+      ]
+    }
+  ],
+  "canonical_registry_owner": "root",
+  "new_canonical_findings_written": 0,
+  "remaining_completion_note": "These dispositions do not close entity/migration/testsource/callable gaps, liveprovider/concurrency acceptance remains notexecuted."
+}

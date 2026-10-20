@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.cs",
+  "source_git_blob_sha256": "e6c5f106ac12eaba3482cf830244ad10d33975bc23eccc52bb7a15000a41df14",
+  "worktree_sha256": "1c505300965819d06f2ecc7ea359b3ab096baf9c233e488cf08d866945afa9c6",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:09:38.782960+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-5f7b5305c2e03b0de39d2aebc548b4c2af413e5df1ba3ded1587b48475960f60",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.RenameDineInOrdersToPickup.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        16,
+        9,
+        19,
+        10
+      ],
+      "reasoning": "Up is data-only SQL UPDATE converting stored dine_in/dinein order types to pickup; no schema or money total changes. It deliberately changes historical classification while legacy parser still accepts old spelling. Existing different-case behavior follows deployed SQL collation, not an inferred exact CLR rule. No records were updated by audit.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-10053923043ad4c026cbf871c42eb2439ff878e539eb298b065a4e35f9211034",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.RenameDineInOrdersToPickup.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        22,
+        9,
+        25,
+        10
+      ],
+      "reasoning": "Down updates every pickup row to dine_in, including genuinely new pickup orders created after upgrade; it cannot distinguish origin of prior converted rows. This is broad classification reversal, not lossless data restoration or recovery of table labels. Monetary/stock facts unchanged by authored statement.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

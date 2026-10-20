@@ -1,0 +1,80 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:05:41.493131+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+  "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-04781f0f9779ebeac9474ca1848c76c39fad49d7684daf2216681a8fc6770b38",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positionalrecord UnitCost nullableMoney andSourceenum synthesizesconstruction/copy/equality/deconstruct withoutenforcingSourceUnknowniffcostnull. RecursiveprepreturnsnullwithSourcePrep intentionally (sourceofattemptedvaluation differsknownness). Generatedequalityincludesbothfields; caller musttestUnitCostratherthanSourcealone forcompleteness.",
+      "inputs": "Mapped positionalcost components for IngredientCostResult",
+      "outputs": "Generatedconstruction/init/copy/equality/deconstruct context.",
+      "side_effects": "Value/referencecopy only; noinventory ormoneywrites.",
+      "trust_boundaries": "Generatedrecorddoesnotvalidatecostcoverage ortrustedfacts.",
+      "database": "NoDB; currentcostsnapshotprovidedbyqueryservice.",
+      "printing_ui": "Cost/profitpresentationelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperations; Missinglistreferenceequality, notscan.",
+      "duplicates_conflicts": "Sourceoriginalcallables alreadycovered; explicitgetterrootreceiptpreserved; generatedcontextcountseparate.",
+      "issues_hypotheses": "Rootpackagingcompletenesscrossfilecandidate independentlycorroborated, nottheseconstructorsalone.",
+      "tests_missing": "Partialcostnull,emptyrecipecompleteness, withcopylistalias/equality, sourceflagcostnullsemantics.",
+      "verified_callers_callees": "IngredientUnitCost30-54; ComputePrepRecipeCost97-127; ComputeRecipeCost153-175; MenuItemProfitability197-204 independentlyreadrelevantbodies; existingauthoredreceiptsretained."
+    },
+    {
+      "stable_id": "sym-311ee87093f4428b58aef09f091c1a713f4eb46778d51e6bd9da74f9c3b0bcac",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positionalrecord includesnullableUnitCost, partialKnownCost, doubleCompleteness, Missinglistreference andlinecounts. Generatedcopy/equalitydoesnotcheckratio/counts, deepfreezeMissing orensureUnitCostnullunlessallknown; authored ComputePrepRecipeCost enforcesordinaryrange. SamecontentsdifferentMissinglists unequalviareference, andwithcopyretainsalias. Partialknownamountneverauthoritativetotal.",
+      "inputs": "Mapped positionalcost components for PrepRecipeCostResult",
+      "outputs": "Generatedconstruction/init/copy/equality/deconstruct context.",
+      "side_effects": "Value/referencecopy only; noinventory ormoneywrites.",
+      "trust_boundaries": "Generatedrecorddoesnotvalidatecostcoverage ortrustedfacts.",
+      "database": "NoDB; currentcostsnapshotprovidedbyqueryservice.",
+      "printing_ui": "Cost/profitpresentationelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperations; Missinglistreferenceequality, notscan.",
+      "duplicates_conflicts": "Sourceoriginalcallables alreadycovered; explicitgetterrootreceiptpreserved; generatedcontextcountseparate.",
+      "issues_hypotheses": "Rootpackagingcompletenesscrossfilecandidate independentlycorroborated, nottheseconstructorsalone.",
+      "tests_missing": "Partialcostnull,emptyrecipecompleteness, withcopylistalias/equality, sourceflagcostnullsemantics.",
+      "verified_callers_callees": "IngredientUnitCost30-54; ComputePrepRecipeCost97-127; ComputeRecipeCost153-175; MenuItemProfitability197-204 independentlyreadrelevantbodies; existingauthoredreceiptsretained."
+    },
+    {
+      "stable_id": "sym-daa9e5cc134cfa30941cc7632196863565c378eab867cc5822c6bc4670d8bccb",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positionalrecord includesKnown/Food/Packaging Money, percent, Missinglistreference andlinecounts; generatedconstructor/withcopydoesnotrecomputecomponentssumorcompleteness. ExplicitauthoredIsComplete usesLineCount>0 andknown==total, correctlyemptyrecipeincomplete. Missinglistshallowcopycanbechangedintrustedcodeindependentcounts; noactualAPIaliasmutationproved. Generatedrecordequalitycomparesstoredcomponents, notfreshcostquery.",
+      "inputs": "Mapped positionalcost components for RecipeCostResult",
+      "outputs": "Generatedconstruction/init/copy/equality/deconstruct context.",
+      "side_effects": "Value/referencecopy only; noinventory ormoneywrites.",
+      "trust_boundaries": "Generatedrecorddoesnotvalidatecostcoverage ortrustedfacts.",
+      "database": "NoDB; currentcostsnapshotprovidedbyqueryservice.",
+      "printing_ui": "Cost/profitpresentationelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperations; Missinglistreferenceequality, notscan.",
+      "duplicates_conflicts": "Sourceoriginalcallables alreadycovered; explicitgetterrootreceiptpreserved; generatedcontextcountseparate.",
+      "issues_hypotheses": "Rootpackagingcompletenesscrossfilecandidate independentlycorroborated, nottheseconstructorsalone.",
+      "tests_missing": "Partialcostnull,emptyrecipecompleteness, withcopylistalias/equality, sourceflagcostnullsemantics.",
+      "verified_callers_callees": "IngredientUnitCost30-54; ComputePrepRecipeCost97-127; ComputeRecipeCost153-175; MenuItemProfitability197-204 independentlyreadrelevantbodies; existingauthoredreceiptsretained."
+    },
+    {
+      "stable_id": "sym-a0d8cce24350d172fba69f82932c998d0272ac9ba8b52446730193edf70a5033",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positionalrecord storesnullableFoodCostPercent/ContributionMoney/ContributionPercent. Generatedvalueequality/copyallowsindependentnullcombinations; authoredMenuItemProfitability returnsallnullwheninvalidprice/incompletecost, otherwisethreevalues. Itdoesnotfetchmoney,postprofit ormarkwholeownerdashboardcomplete. DoubleNaN/equalityordinaryrecordsemantics, no nonfiniteproducerproved.",
+      "inputs": "Mapped positionalcost components for ProfitabilityResult",
+      "outputs": "Generatedconstruction/init/copy/equality/deconstruct context.",
+      "side_effects": "Value/referencecopy only; noinventory ormoneywrites.",
+      "trust_boundaries": "Generatedrecorddoesnotvalidatecostcoverage ortrustedfacts.",
+      "database": "NoDB; currentcostsnapshotprovidedbyqueryservice.",
+      "printing_ui": "Cost/profitpresentationelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperations; Missinglistreferenceequality, notscan.",
+      "duplicates_conflicts": "Sourceoriginalcallables alreadycovered; explicitgetterrootreceiptpreserved; generatedcontextcountseparate.",
+      "issues_hypotheses": "Rootpackagingcompletenesscrossfilecandidate independentlycorroborated, nottheseconstructorsalone.",
+      "tests_missing": "Partialcostnull,emptyrecipecompleteness, withcopylistalias/equality, sourceflagcostnullsemantics.",
+      "verified_callers_callees": "IngredientUnitCost30-54; ComputePrepRecipeCost97-127; ComputeRecipeCost153-175; MenuItemProfitability197-204 independentlyreadrelevantbodies; existingauthoredreceiptsretained."
+    }
+  ],
+  "remaining_getter_ids": [
+    "sym-b4218901b8d1a1cacd0684ed39bbf07e39563bd43fa85e17283976ef67cabe9e"
+  ],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

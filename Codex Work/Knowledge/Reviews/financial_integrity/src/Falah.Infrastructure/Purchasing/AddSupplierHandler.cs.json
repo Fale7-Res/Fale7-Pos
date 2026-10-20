@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs",
+  "source_git_blob_sha256": "26347f4197448f39f6801e3e4a5ffae64ac1611b578e9d091542099e23cfa825",
+  "worktree_sha256": "26347f4197448f39f6801e3e4a5ffae64ac1611b578e9d091542099e23cfa825",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T02:04:51.561438+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-3c637c4d1afdc2875ffd250dfddf11c559ac319dc1f2d1a4b94a2bc40b0b1725",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Purchasing.AddSupplierHandler.AddSupplierHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        19,
+        5,
+        23,
+        6
+      ],
+      "reasoning": "Stores context and approval registry, no audit logger. Construction does not create supplier or initial account balance; supplier command only authors metadata.",
+      "inputs": "Falah.Infrastructure.Purchasing.AddSupplierHandler.AddSupplierHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "outputs": "Supplier create replay result or full PurchaseDto/date metadata update",
+      "side_effects": "Production inserts supplier metadata only; no balance, ledger or audit event implemented.",
+      "trust_boundaries": "Dedicated policy permits either purchasing_manage orsuppliers_manage, bound approval fallback only when neither present.",
+      "database": "Single Save implicit transaction; stable create key only supplier, due-date logical no-op replay without immutable receipt. No row version or business account locking necessary for no-money metadata command itself.",
+      "printing_ui": "No printer or UI rendering call.",
+      "performance": "Fixed indexed ID lookups; due-date loads whole invoice lines/payments for DTO. No benchmark or maximum line limit verified.",
+      "duplicates_conflicts": "SameID create race protected PK; distinct supplier IDs may represent same real vendor. Concurrent date metadata audit may stale but no whole-invoice financial lost update asserted.",
+      "issues_hypotheses": "No new promoted finding. Supplier creation lacks audit event; paid/cancelled invoice due-date policy and contact uniqueness are product-policy leads, not invented mandatory invariants.",
+      "tests_missing": "Both legitimate capabilities and fallback; invalid approval; samekey/changedpayload create retry; unknownactor/invoice; null/equal/new due date; concurrent settlement+dueDate preservation; interleavedmetadata edits.",
+      "verified_callers_callees": "Verified full source AddSupplier19-65 ->Policy45; independently read ApprovalRegistry149-153 either-capability/fallback. SetDueDate34-60 ->Policy38/ToDto46,59/EfAuditLog49/Save58. No runtime/DBexecution."
+    },
+    {
+      "stable_id": "sym-72946a9663cdd0f2b4b4c09444bb428bb51089ba10462900a86ad3f060433807",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Purchasing.AddSupplierHandler.HandleAsync(Falah.Application.Purchasing.AddSupplierRequest, CancellationToken)",
+      "span": [
+        25,
+        5,
+        65,
+        6
+      ],
+      "reasoning": "Derives supplier ID from request and replays existing row before guards. Requires name, loads actual actor/optional approver and invokes dedicated AddSupplier policy permitting purchasing_manage ORsuppliers_manage or bound fallback approval. Creates Active metadata with default category/empty phone/address, saves once; no supplier opening balance or audit append implemented. SameID race reloaded on DbUpdateException, other failures rethrow. No uniqueness by real supplier name/phone so distinct requests may intentionally create duplicates; no financial ledger movement created.",
+      "inputs": "Falah.Infrastructure.Purchasing.AddSupplierHandler.HandleAsync(Falah.Application.Purchasing.AddSupplierRequest, CancellationToken)",
+      "outputs": "Supplier create replay result or full PurchaseDto/date metadata update",
+      "side_effects": "Production inserts supplier metadata only; no balance, ledger or audit event implemented.",
+      "trust_boundaries": "Dedicated policy permits either purchasing_manage orsuppliers_manage, bound approval fallback only when neither present.",
+      "database": "Single Save implicit transaction; stable create key only supplier, due-date logical no-op replay without immutable receipt. No row version or business account locking necessary for no-money metadata command itself.",
+      "printing_ui": "No printer or UI rendering call.",
+      "performance": "Fixed indexed ID lookups; due-date loads whole invoice lines/payments for DTO. No benchmark or maximum line limit verified.",
+      "duplicates_conflicts": "SameID create race protected PK; distinct supplier IDs may represent same real vendor. Concurrent date metadata audit may stale but no whole-invoice financial lost update asserted.",
+      "issues_hypotheses": "No new promoted finding. Supplier creation lacks audit event; paid/cancelled invoice due-date policy and contact uniqueness are product-policy leads, not invented mandatory invariants.",
+      "tests_missing": "Both legitimate capabilities and fallback; invalid approval; samekey/changedpayload create retry; unknownactor/invoice; null/equal/new due date; concurrent settlement+dueDate preservation; interleavedmetadata edits.",
+      "verified_callers_callees": "Verified full source AddSupplier19-65 ->Policy45; independently read ApprovalRegistry149-153 either-capability/fallback. SetDueDate34-60 ->Policy38/ToDto46,59/EfAuditLog49/Save58. No runtime/DBexecution."
+    },
+    {
+      "stable_id": "sym-170eecbed757546f436c5d76714d7d1dae84d07d6e0cd6f983a40bac5fb01aa5",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        79,
+        28,
+        94
+      ],
+      "reasoning": "Exact request-derived supplier ID replay avoids duplicate new row on same key. Does not bind actor or compare changed input; returns only prior identity, not modifying contact details.",
+      "inputs": "Captured actor/supplier/purchase ID and EF row specified by expression",
+      "outputs": "Identity predicate or included navigation as described",
+      "side_effects": "Production inserts supplier metadata only; no balance, ledger or audit event implemented.",
+      "trust_boundaries": "Dedicated policy permits either purchasing_manage orsuppliers_manage, bound approval fallback only when neither present.",
+      "database": "Single Save implicit transaction; stable create key only supplier, due-date logical no-op replay without immutable receipt. No row version or business account locking necessary for no-money metadata command itself.",
+      "printing_ui": "No printer or UI rendering call.",
+      "performance": "Fixed indexed ID lookups; due-date loads whole invoice lines/payments for DTO. No benchmark or maximum line limit verified.",
+      "duplicates_conflicts": "SameID create race protected PK; distinct supplier IDs may represent same real vendor. Concurrent date metadata audit may stale but no whole-invoice financial lost update asserted.",
+      "issues_hypotheses": "No new promoted finding. Supplier creation lacks audit event; paid/cancelled invoice due-date policy and contact uniqueness are product-policy leads, not invented mandatory invariants.",
+      "tests_missing": "Both legitimate capabilities and fallback; invalid approval; samekey/changedpayload create retry; unknownactor/invoice; null/equal/new due date; concurrent settlement+dueDate preservation; interleavedmetadata edits.",
+      "verified_callers_callees": "Verified full source AddSupplier19-65 ->Policy45; independently read ApprovalRegistry149-153 either-capability/fallback. SetDueDate34-60 ->Policy38/ToDto46,59/EfAuditLog49/Save58. No runtime/DBexecution."
+    },
+    {
+      "stable_id": "sym-0a50c3a5a2702d278cc1117c45f92070d02e7b6ea9c394008ed51299ce6f63d4",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        33,
+        76,
+        33,
+        108
+      ],
+      "reasoning": "Actual actor lookup feeds dedicated policy rather than raw role in request. This action supports purchasing managers legitimately even without dedicated suppliers_manage, verified policy149-153.",
+      "inputs": "Captured actor/supplier/purchase ID and EF row specified by expression",
+      "outputs": "Identity predicate or included navigation as described",
+      "side_effects": "Production inserts supplier metadata only; no balance, ledger or audit event implemented.",
+      "trust_boundaries": "Dedicated policy permits either purchasing_manage orsuppliers_manage, bound approval fallback only when neither present.",
+      "database": "Single Save implicit transaction; stable create key only supplier, due-date logical no-op replay without immutable receipt. No row version or business account locking necessary for no-money metadata command itself.",
+      "printing_ui": "No printer or UI rendering call.",
+      "performance": "Fixed indexed ID lookups; due-date loads whole invoice lines/payments for DTO. No benchmark or maximum line limit verified.",
+      "duplicates_conflicts": "SameID create race protected PK; distinct supplier IDs may represent same real vendor. Concurrent date metadata audit may stale but no whole-invoice financial lost update asserted.",
+      "issues_hypotheses": "No new promoted finding. Supplier creation lacks audit event; paid/cancelled invoice due-date policy and contact uniqueness are product-policy leads, not invented mandatory invariants.",
+      "tests_missing": "Both legitimate capabilities and fallback; invalid approval; samekey/changedpayload create retry; unknownactor/invoice; null/equal/new due date; concurrent settlement+dueDate preservation; interleavedmetadata edits.",
+      "verified_callers_callees": "Verified full source AddSupplier19-65 ->Policy45; independently read ApprovalRegistry149-153 either-capability/fallback. SetDueDate34-60 ->Policy38/ToDto46,59/EfAuditLog49/Save58. No runtime/DBexecution."
+    },
+    {
+      "stable_id": "sym-ec08d21cea1a1f43c7cef063b3b612823c20efe5d9595e8044b1383cbcce5ee6",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        40,
+        83,
+        40,
+        125
+      ],
+      "reasoning": "Optional approver lookup creates suppliers_manage-bound presentation; policy only consumes fallback if actor lacks either permitted capability. No attribution stored on supplier, so unused optional presentation cannot falsely populate ApprovedBy here.",
+      "inputs": "Captured actor/supplier/purchase ID and EF row specified by expression",
+      "outputs": "Identity predicate or included navigation as described",
+      "side_effects": "Production inserts supplier metadata only; no balance, ledger or audit event implemented.",
+      "trust_boundaries": "Dedicated policy permits either purchasing_manage orsuppliers_manage, bound approval fallback only when neither present.",
+      "database": "Single Save implicit transaction; stable create key only supplier, due-date logical no-op replay without immutable receipt. No row version or business account locking necessary for no-money metadata command itself.",
+      "printing_ui": "No printer or UI rendering call.",
+      "performance": "Fixed indexed ID lookups; due-date loads whole invoice lines/payments for DTO. No benchmark or maximum line limit verified.",
+      "duplicates_conflicts": "SameID create race protected PK; distinct supplier IDs may represent same real vendor. Concurrent date metadata audit may stale but no whole-invoice financial lost update asserted.",
+      "issues_hypotheses": "No new promoted finding. Supplier creation lacks audit event; paid/cancelled invoice due-date policy and contact uniqueness are product-policy leads, not invented mandatory invariants.",
+      "tests_missing": "Both legitimate capabilities and fallback; invalid approval; samekey/changedpayload create retry; unknownactor/invoice; null/equal/new due date; concurrent settlement+dueDate preservation; interleavedmetadata edits.",
+      "verified_callers_callees": "Verified full source AddSupplier19-65 ->Policy45; independently read ApprovalRegistry149-153 either-capability/fallback. SetDueDate34-60 ->Policy38/ToDto46,59/EfAuditLog49/Save58. No runtime/DBexecution."
+    },
+    {
+      "stable_id": "sym-d520f6d3a70becfd482ef1370acaa6341fffed846217333eece923560dc99fa8",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        60,
+        81,
+        60,
+        96
+      ],
+      "reasoning": "After failed Save reloads same supplier ID to resolve concurrent same-key creation. No row =>rethrows original DB failure, unlike catch-all conversion. Context tracked loser not resaved by method.",
+      "inputs": "Captured actor/supplier/purchase ID and EF row specified by expression",
+      "outputs": "Identity predicate or included navigation as described",
+      "side_effects": "Production inserts supplier metadata only; no balance, ledger or audit event implemented.",
+      "trust_boundaries": "Dedicated policy permits either purchasing_manage orsuppliers_manage, bound approval fallback only when neither present.",
+      "database": "Single Save implicit transaction; stable create key only supplier, due-date logical no-op replay without immutable receipt. No row version or business account locking necessary for no-money metadata command itself.",
+      "printing_ui": "No printer or UI rendering call.",
+      "performance": "Fixed indexed ID lookups; due-date loads whole invoice lines/payments for DTO. No benchmark or maximum line limit verified.",
+      "duplicates_conflicts": "SameID create race protected PK; distinct supplier IDs may represent same real vendor. Concurrent date metadata audit may stale but no whole-invoice financial lost update asserted.",
+      "issues_hypotheses": "No new promoted finding. Supplier creation lacks audit event; paid/cancelled invoice due-date policy and contact uniqueness are product-policy leads, not invented mandatory invariants.",
+      "tests_missing": "Both legitimate capabilities and fallback; invalid approval; samekey/changedpayload create retry; unknownactor/invoice; null/equal/new due date; concurrent settlement+dueDate preservation; interleavedmetadata edits.",
+      "verified_callers_callees": "Verified full source AddSupplier19-65 ->Policy45; independently read ApprovalRegistry149-153 either-capability/fallback. SetDueDate34-60 ->Policy38/ToDto46,59/EfAuditLog49/Save58. No runtime/DBexecution."
+    }
+  ],
+  "remaining_callable_ids": []
+}

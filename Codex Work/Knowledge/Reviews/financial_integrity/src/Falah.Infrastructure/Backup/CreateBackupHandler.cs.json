@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+  "source_git_blob_sha256": "d35b9622b2d01aa0d96c9fa2bb6c97e42d89a6d3cdbb01acb3f5ebbc6fc2de69",
+  "worktree_sha256": "df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:09:11.754617+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-fe8b49f52402e0f341ea2c57f35a693c4a99d408032e463c57c545979205b265",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.CreateBackupHandler.CreateBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Microsoft.Extensions.Configuration.IConfiguration)",
+      "span": [
+        26,
+        5,
+        32,
+        6
+      ],
+      "reasoning": "Stores context, registry, audit logger and configuration. No default directory creation or DB operation until Run.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Production creates directories and SQL backup plus records/audit; audit executed none of those operations.",
+      "database": "None",
+      "trust_boundaries": "Public operator Handle authorizes backup_manage; Run trusts internal scheduler/restore callers and BackupActor attribution.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native backup potentially lengthy, outside user transaction; no throughput or cancellation test.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN007 second-resolution filename plus FORMAT collision remains. SQL success and metadata save are not a single atomic unit; status/cancellation qualifications preserved.",
+      "tests_missing": "Scoped DI and logger context",
+      "verified_callers_callees": "Fields21-24; assignments28-31."
+    },
+    {
+      "stable_id": "sym-09b234d19c2dce358b0c0b82c70583b13f72eab8d6c2493e946c31f62a217eef",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.CreateBackupHandler.HandleAsync(Falah.Application.Backup.CreateBackupRequest, CancellationToken)",
+      "span": [
+        34,
+        5,
+        41,
+        6
+      ],
+      "reasoning": "Loads actual operator actor and requires direct backup_manage without fallback approval argument, then delegates Run with persisted identity. This is legitimate permission-only create policy; delegated Restore approval may fail nested safety backup through this path, a contract/availability lead not mandatory-approval bypass.",
+      "inputs": "CreateBackupRequest/ct",
+      "outputs": "Backup DTO task",
+      "side_effects": "Production creates directories and SQL backup plus records/audit; audit executed none of those operations.",
+      "database": "User read before native backup",
+      "trust_boundaries": "Public operator Handle authorizes backup_manage; Run trusts internal scheduler/restore callers and BackupActor attribution.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native backup potentially lengthy, outside user transaction; no throughput or cancellation test.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN007 second-resolution filename plus FORMAT collision remains. SQL success and metadata save are not a single atomic unit; status/cancellation qualifications preserved.",
+      "tests_missing": "Missing/denied actor, delegated restore safety backup, chosen directory",
+      "verified_callers_callees": "User36; authorization38; Run40; Restore calls CreateHandler internally."
+    },
+    {
+      "stable_id": "sym-ae45dd81c824cf8813746993962ff67e50dd57bbb50ce50dd936e37aed884012",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        36,
+        76,
+        36,
+        108
+      ],
+      "reasoning": "Matches requested actor ID against stored user; role/permissions from database, not request. Session binding belongs middleware and parent security review.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "Production creates directories and SQL backup plus records/audit; audit executed none of those operations.",
+      "database": "Users AsNoTracking",
+      "trust_boundaries": "Public operator Handle authorizes backup_manage; Run trusts internal scheduler/restore callers and BackupActor attribution.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native backup potentially lengthy, outside user transaction; no throughput or cancellation test.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN007 second-resolution filename plus FORMAT collision remains. SQL success and metadata save are not a single atomic unit; status/cancellation qualifications preserved.",
+      "tests_missing": "Unknown/inactive actor and transport binding",
+      "verified_callers_callees": "Handle36-38; OrderMapper.ToActor."
+    },
+    {
+      "stable_id": "sym-803e04758d0d10fe653f641c33c2d4241405ba769c447cd3dc5c8c75c5c64cae",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Backup.CreateBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string?, CancellationToken)",
+      "span": [
+        47,
+        5,
+        103,
+        6
+      ],
+      "reasoning": "Chooses explicit/config/default directory, validates then creates it; validates connected database identifier and builds filename only to second precision. Persists Requested record before BACKUP COPY_ONLY CHECKSUM FORMAT, then marks success/size/audit or Failed/error/audit in broad catch, finally saves again. Native statement cannot share user transaction. FIN007 concurrent same-second distinct IDs can target same path and FORMAT overwrite. Cancellation caught as failure but final Save with cancelled ct may fail, leaving Requested metadata despite partial/successful disk backup; exact server behavior unexecuted. File.Exists false can leave size null yet Succeeded because SQL operation succeeded, not proof local path visibility.",
+      "inputs": "Trusted BackupActor/optional directory/ct",
+      "outputs": "Backup DTO or subsequent save exception",
+      "side_effects": "Production creates directories and SQL backup plus records/audit; audit executed none of those operations.",
+      "database": "Requested Save65; native SQL77-79; metadata/audit then Save104",
+      "trust_boundaries": "Public operator Handle authorizes backup_manage; Run trusts internal scheduler/restore callers and BackupActor attribution.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Native backup potentially lengthy, outside user transaction; no throughput or cancellation test.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN007 second-resolution filename plus FORMAT collision remains. SQL success and metadata save are not a single atomic unit; status/cancellation qualifications preserved.",
+      "tests_missing": "Same-second filename collision; native success then metadata failure; cancellation before/during/after SQL; SQL service vs app path access; no actual execution",
+      "verified_callers_callees": "Directory49-51; filename56; SQL77-79; catch90-99; finalSave102-103 as actual source body."
+    }
+  ],
+  "remaining_callable_ids": []
+}

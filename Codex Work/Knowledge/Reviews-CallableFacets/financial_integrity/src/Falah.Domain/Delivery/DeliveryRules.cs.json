@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:59:54.074295+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "dba6f7c551676a5899ed1b211a0d8b1d9b8605a67c709a4ef47991de3ff0cfc1",
+  "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-ad444e29851502619a2b3d13571deb1209c4ab0e4f4e3ab968dd8cdfc1778f69",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly TripSettlementResult positional record holds Expected/Actual/Difference independently; generatedconstruction/copy/equality doesnotassertDifference=Actual-Expected ornonnegativeActual. Verified CalculateTripSettlement37 constructsconsistentordinaryrange result; nofinancialsettlementautomaticallyposted.",
+      "inputs": "Mapped positional sourcecomponents.",
+      "outputs": "Generated recordvalueconstruction/copy/equality/deconstruction context.",
+      "side_effects": "NoDB/settlement; value/referencecopyonly.",
+      "trust_boundaries": "Callerownslist/facts; generatedrecordprovidesnoauthorization/financialvalidation.",
+      "database": "NoDBwritesorconcurrencycoordination.",
+      "printing_ui": "Scope/settlementvaluesdisplayedelsewhere, nohardware.",
+      "performance": "Fixedcomponentrecordoperations, listreferencecomparison.",
+      "duplicates_conflicts": "Generatedcontextseparatefrom34authoredcallables; noCLRmethodcountclaim.",
+      "issues_hypotheses": "No newpromotedrecordfinding.",
+      "tests_missing": "Default/copy/equality andlistalias; resultinvariants throughauthoredfactory.",
+      "verified_callers_callees": "CalculateTripSettlement37 createsresult; BuildDriverSettlementScope76 createsScope."
+    },
+    {
+      "stable_id": "sym-3db001258d184cc5be3f0fcdefdd9eb909492559367ada4476f16c3c320b9fc0",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly DriverSettlementScope positionalrecord holds fiveIReadOnlyList references plusGross/Prepaid Money. Generatedwithcopy/equality isshallowreferencebasedforlists, notdeepsnapshot orcrosslistconsistencycheck. Authored BuildScope constructsnewlistsbutrecordconstructor itselfcanacceptoverlappingactive/resolved ormutablealiases; no externaluntrustedconstructionproved. No tripclosure/custodywrite synthesized.",
+      "inputs": "Mapped positional sourcecomponents.",
+      "outputs": "Generated recordvalueconstruction/copy/equality/deconstruction context.",
+      "side_effects": "NoDB/settlement; value/referencecopyonly.",
+      "trust_boundaries": "Callerownslist/facts; generatedrecordprovidesnoauthorization/financialvalidation.",
+      "database": "NoDBwritesorconcurrencycoordination.",
+      "printing_ui": "Scope/settlementvaluesdisplayedelsewhere, nohardware.",
+      "performance": "Fixedcomponentrecordoperations, listreferencecomparison.",
+      "duplicates_conflicts": "Generatedcontextseparatefrom34authoredcallables; noCLRmethodcountclaim.",
+      "issues_hypotheses": "No newpromotedrecordfinding.",
+      "tests_missing": "Default/copy/equality andlistalias; resultinvariants throughauthoredfactory.",
+      "verified_callers_callees": "CalculateTripSettlement37 createsresult; BuildDriverSettlementScope76 createsScope."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

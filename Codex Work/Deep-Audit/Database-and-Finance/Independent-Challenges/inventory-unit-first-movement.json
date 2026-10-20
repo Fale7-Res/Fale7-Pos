@@ -1,0 +1,1021 @@
+{
+  "id": "FIN-020",
+  "at_utc": "2026-10-19T01:45:37.831310+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root independent coordinator",
+  "originator": "Original /root/financial_integrity",
+  "classification": "SOURCE_CORROBORATED_MEDIUM_CONCURRENCY_NOT_RUNTIME",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+      "source_git_blob_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "line_ranges": [
+        [
+          74,
+          100
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2e2b5e95b71536d69b2ff31dbe0ff69c05cd8a375c19d1c2ed23d1957b80193a",
+          "signature": "Falah.Infrastructure.Inventory.UpdateInventoryItemHandler.HandleAsync(Falah.Application.Inventory.UpdateInventoryItemRequest, CancellationToken)",
+          "span": [
+            73,
+            5,
+            101,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-76acce50bad13326489047a5f85ee9617fdbd2043cb250334fe9dd8c2bf54959",
+          "signature": "lambda expression",
+          "span": [
+            77,
+            76,
+            77,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-a6b6e7a32fb82a98ad69bc24968a79672de1dd6bc5e7fd1ebefb80f699fbc4d7",
+          "signature": "lambda expression",
+          "span": [
+            81,
+            67,
+            81,
+            90
+          ]
+        },
+        {
+          "stable_id": "sym-90fa0416d33a88e21d55a9711d5ad3f17470123f546b32b8cef8c33b9510bb3b",
+          "signature": "lambda expression",
+          "span": [
+            87,
+            81,
+            87,
+            116
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+      "source_git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "line_ranges": [
+        [
+          40,
+          47
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d29677d22882ca6d3157df4a9173e9a1bceb314d865878c8cd30690da826d2d5",
+          "signature": "Falah.Domain.Inventory.InventoryRules.AssertUnitChangeAllowed(bool, bool)",
+          "span": [
+            44,
+            5,
+            48,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "line_ranges": [
+        [
+          60,
+          100
+        ],
+        [
+          165,
+          178
+        ],
+        [
+          206,
+          209
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+          "signature": "Falah.Infrastructure.Purchasing.ReceivePurchaseHandler.HandleAsync(Falah.Application.Purchasing.ReceivePurchaseRequest, CancellationToken)",
+          "span": [
+            36,
+            5,
+            229,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-575af0fc0b1396f30d1f6b98083fec698ef03e39acf09417c160c0fbc592f150",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            42,
+            64,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-3e29c42e80fb16b27373638e4f8d843cd0acbd3a2dc9e8673045f28f64ec806a",
+          "signature": "lambda expression",
+          "span": [
+            65,
+            36,
+            65,
+            58
+          ]
+        },
+        {
+          "stable_id": "sym-ff27daaa0abd9578370c1d60ad7252a896d557596cb047e5b1843e513ab0c8cc",
+          "signature": "lambda expression",
+          "span": [
+            66,
+            81,
+            66,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-ff328ad40985a4071116fd0feb927bb0596c738e093c1f5eff08447c8449fa6a",
+          "signature": "lambda expression",
+          "span": [
+            69,
+            50,
+            69,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-5af8c3173496ae2520d5c317da82ba1c0e374f74e8f1e536fb31983aed27655b",
+          "signature": "lambda expression",
+          "span": [
+            87,
+            24,
+            88,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-e8411fd0b6c5ea0f0bb69b1d49f93ac06bbe57ecce63b79f65482bafb2ae387a",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            36,
+            89,
+            55
+          ]
+        },
+        {
+          "stable_id": "sym-1ecb1c4abd16337651002ecca03e8b15bc1afb88c086e152e3e16935f78f65bb",
+          "signature": "lambda expression",
+          "span": [
+            90,
+            25,
+            90,
+            48
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "line_ranges": [
+        [
+          245,
+          255
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "span": [
+            76,
+            5,
+            480,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5bdeaa46e82dbc7df97fd3355f465ff79f930df12e799bea83078ebf53138223",
+          "signature": "lambda expression",
+          "span": [
+            245,
+            50,
+            245,
+            74
+          ]
+        },
+        {
+          "stable_id": "sym-77c6dd480e45eb0603c18ea188d038526acfee9227f5c59a6262070584e4e340",
+          "signature": "lambda expression",
+          "span": [
+            245,
+            64,
+            245,
+            73
+          ]
+        },
+        {
+          "stable_id": "sym-420259ca1bd64ea47f53b0b8354fb87f3997e4de3127742c435b10e920f62032",
+          "signature": "lambda expression",
+          "span": [
+            247,
+            50,
+            255,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-450c9f51fc467d67417eca404bf9500488eb0676d25332d710b6564da3626c61",
+          "signature": "lambda expression",
+          "span": [
+            249,
+            22,
+            249,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-48a493c3b30f8b79a501d6e10b9ba06eb52ed367a3e20d124e83d42cbee3df05",
+          "signature": "lambda expression",
+          "span": [
+            252,
+            24,
+            252,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-41ffb8be6c8b0cbac783de25fc03378ab1aedf58f18e8650b958a0ccfa6338b8",
+          "signature": "lambda expression",
+          "span": [
+            253,
+            70,
+            253,
+            92
+          ]
+        },
+        {
+          "stable_id": "sym-b8b0595ce6e26e7c0e6d8ba689849b3b6aa3f8206f77c79daabd29516e8b75f6",
+          "signature": "lambda expression",
+          "span": [
+            254,
+            65,
+            254,
+            82
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+      "source_git_blob_sha256": "c88b68327a1dedffb8e51d694d288b8f08cd755ec2c4f0c829f29052d94ccf99",
+      "worktree_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34",
+      "line_ranges": [
+        [
+          24,
+          76
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-41e9df6df0dd7a12c4cc17affc00d472cd470dcf31f188f07c08d0deda08ae48",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Id.get",
+          "span": [
+            25,
+            24,
+            25,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-f5f7a80371f5eb1bf3aea6d3c99531bff85905ceb3d32194d9d2541210ce448c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Id.set",
+          "span": [
+            25,
+            29,
+            25,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-a0ee447df53051f40f2792a4047f2b8a1a3fac9fd69dc6750d4000e1e11b00e2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Name.get",
+          "span": [
+            26,
+            26,
+            26,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-5d1c748ffcb7370a39277abc86cc3090f270611ec1b6df144fc06a4ac26c5cf5",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Name.set",
+          "span": [
+            26,
+            31,
+            26,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-6d3f6e0ac6e90a2bcf1f09e1272d1070e9ca4516d9833466143fb249557657b7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.CostSource.get",
+          "span": [
+            27,
+            32,
+            27,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-6f1c243f1ef6d2f766f6c79095ffcdd1f24c5b0079e67b5f9c4ed3886c098599",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.CostSource.set",
+          "span": [
+            27,
+            37,
+            27,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-a54ff0dc7b77521ed1eeaa7971b4cae6916799590a6e44cd9a6d4bcfddcd65e1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Category.get",
+          "span": [
+            28,
+            30,
+            28,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-0e9355c270da6e40082345fd9d036b079f01f44c41d580c7e4e29b8050ec6eaa",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Category.set",
+          "span": [
+            28,
+            35,
+            28,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-4cdb4ca89fcdb4e5de043eef75c3d8d7b549ccfe868bbdb8418dcfb4cc555bde",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Unit.get",
+          "span": [
+            29,
+            26,
+            29,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-ec49702463518ace7dceb691acb5df2b8afcb86ef733a07e6307ec3aec1ba49c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Unit.set",
+          "span": [
+            29,
+            31,
+            29,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-0039f7be7bf727ce3819b8bd8f2f49c192a0d869ef02a955f3dd5ae532d05c6e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.MinimumMilliUnits.get",
+          "span": [
+            30,
+            37,
+            30,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-2b33d8a05406ddc3a749dae6449eb5c85f1f0110ef54d83e7e8337d0e7f85a81",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.MinimumMilliUnits.set",
+          "span": [
+            30,
+            42,
+            30,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-a714fc76151bccb29a26b7f40e13e6df5df1dbb428ba68bcab4942543ecc4f21",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Active.get",
+          "span": [
+            31,
+            26,
+            31,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-6f8b67478544d100b8f3c036ed8ace99af7e7313b0741c6749346c4615b402ca",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.Active.set",
+          "span": [
+            31,
+            31,
+            31,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-2c41022b6677b563d6fc08287ae4f4b1255ef0a12111f9e31ad2a5159175cf3d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.IsPackaging.get",
+          "span": [
+            34,
+            31,
+            34,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-f5c50849d788ed6279da3f6e54fc9a1980e70e95d75a248061890cbc21800012",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.IsPackaging.set",
+          "span": [
+            34,
+            36,
+            34,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-78394e10537302daffdb33248c7610ce4977349872212e5ab621c37fd8742951",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.EstimatedUnitCostPiastres.get",
+          "span": [
+            41,
+            46,
+            41,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-051a97498ce09ee1eca15b9b9eab7713ca5276375a28598d3bad68a23878c02f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.EstimatedUnitCostPiastres.set",
+          "span": [
+            41,
+            51,
+            41,
+            55
+          ]
+        },
+        {
+          "stable_id": "sym-f35898b7b1cfb022ee361fac1021bfd8211ff4cf2bfe17b9009f765dcd3e3e0e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.StandardDailyUsageMilliUnits.get",
+          "span": [
+            45,
+            49,
+            45,
+            53
+          ]
+        },
+        {
+          "stable_id": "sym-d8ebfd4bf8864b71831868ee2854ff2be102cb3714b438539f7bbfd28cee74b9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.InventoryItemEntity.StandardDailyUsageMilliUnits.set",
+          "span": [
+            45,
+            54,
+            45,
+            58
+          ]
+        },
+        {
+          "stable_id": "sym-fd3a8666728b6febe62f6f966e7a3feb13379689fab0838a99552ea3b0447f4c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Id.get",
+          "span": [
+            50,
+            21,
+            50,
+            25
+          ]
+        },
+        {
+          "stable_id": "sym-3dcd70ac8eb938c2ec1a92d939bbbcb177d7d51b7d2443cf3a12066accff2276",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Id.set",
+          "span": [
+            50,
+            26,
+            50,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-99288568354baa25022f5e531388306fdd4b8fbd83a1b2d326895e2ed5e426c3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.IdempotencyKey.get",
+          "span": [
+            54,
+            36,
+            54,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-ebc6510b7490d0a6ef04b0a36a806c6076355ff19170908547e4d8a749ea37f5",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.IdempotencyKey.set",
+          "span": [
+            54,
+            41,
+            54,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-4b1283736c29ad6f8ee26fba2beb3e8013f85435d1a1d1f668697bc021bb28d6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.InventoryItemId.get",
+          "span": [
+            55,
+            37,
+            55,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-d4fc61d109c8499b57f73cbf8dbe42bed92a469707e882b3428118612661854f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.InventoryItemId.set",
+          "span": [
+            55,
+            42,
+            55,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-efe7d2be4452a77a258805f6daf73b51a759b6ce601297f31c227cb7f25f02ee",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Type.get",
+          "span": [
+            56,
+            26,
+            56,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-df6cbf9d6511f68bf2477cab9b0235e8c7d30c36b5e33ce3c52fdc4c85c8fb81",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Type.set",
+          "span": [
+            56,
+            31,
+            56,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-b2d8a39bbee466cab645692d74d6a1e39925374f84e72bbd60c74dfcd95ba26c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Direction.get",
+          "span": [
+            59,
+            31,
+            59,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-e80213cb74c9a480d55ec20d5ea6dd3424e26f055a3905d3db8534d5ce3e3c84",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Direction.set",
+          "span": [
+            59,
+            36,
+            59,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-097286ea4ac3890c62e2d54f915118e9fd53110f3a2478badb39abc4eefd691f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.QuantityMilliUnits.get",
+          "span": [
+            60,
+            38,
+            60,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-6a992a88702ae4e015a013e863b926630b2b87ff951930d7a71020534ac8d5da",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.QuantityMilliUnits.set",
+          "span": [
+            60,
+            43,
+            60,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-52ff0c4956c6e36c1896ac8c63c9f635606a971aa3e6810c120f8bc3608d1c25",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.UnitCostPiastres.get",
+          "span": [
+            63,
+            37,
+            63,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-81d4b40a16f9e840520680941fb1bdd04f631d96df414d942c23938adede9ce8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.UnitCostPiastres.set",
+          "span": [
+            63,
+            42,
+            63,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-b57396ec71417ab1f59f0b4a33cd7a21b0365a65c3875da7dfe301eaa96f925d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.LossValuePiastres.get",
+          "span": [
+            66,
+            38,
+            66,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-dcf18f6b75fd95d6ef89bdfcb46be344176a879e7dc7e760345df486a3df7653",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.LossValuePiastres.set",
+          "span": [
+            66,
+            43,
+            66,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-5ac77b492f8d20c57ce52dcbca0c6f1e6bcd3bb531fdcb26f6e98cc381ef538b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.ReferenceType.get",
+          "span": [
+            67,
+            35,
+            67,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-6624a9ba21c56c11dbd5afa353ebee6756859a67112c3aa0568fe336183bff60",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.ReferenceType.set",
+          "span": [
+            67,
+            40,
+            67,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-45f085e67d914dc77c4755500e490663b4ffcce88b332ef66eaa5e6997a98489",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.ReferenceId.get",
+          "span": [
+            68,
+            33,
+            68,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-4a33f078b831d31ff9e4d7db954b0b8e111d893fdbafb30d08b43e593c7c7e14",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.ReferenceId.set",
+          "span": [
+            68,
+            38,
+            68,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-1ea079389c87f17b91c10308a3e6aaa758e8f26b4bc5a84a44b321cc55a42bd2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Reason.get",
+          "span": [
+            69,
+            28,
+            69,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-86330247d6ff19f74b410ec221f3634bbffd73ffcbc9daa80ac992e1d928ba71",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.Reason.set",
+          "span": [
+            69,
+            33,
+            69,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-6d0b11cc13f51702bd19751d58d751303d5dd464e899f22ad33cf217f152e547",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.CreatedBy.get",
+          "span": [
+            70,
+            31,
+            70,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-9c33a5ac66f84415b5ff5f4b4d8bc79056cd8b633272d9b49042d9d17b65960e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.CreatedBy.set",
+          "span": [
+            70,
+            36,
+            70,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-af94a417828ee4eec1a4c01590071e1aff9305febf526ac36fc703a40b979a6f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.ApprovedBy.get",
+          "span": [
+            71,
+            33,
+            71,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-bd905cb9ca9ce278939445ff6ed90c4b19cce852238c4bca418603506f293a88",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.ApprovedBy.set",
+          "span": [
+            71,
+            38,
+            71,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-575e550fc4a962b0fd15dce2d0101ffd44a94bdda35495ac9f8e96fcc772fea8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.OperationId.get",
+          "span": [
+            72,
+            34,
+            72,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-9c2e6814dd019737f7c6294ceb7658f9f18adf1875154bffc0672bdc46c1a475",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.OperationId.set",
+          "span": [
+            72,
+            39,
+            72,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-707091a4342df398f6dad9e51c86ddb2124b987039f7ed110b0e42badf74d30d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.CreatedAtUtc.get",
+          "span": [
+            73,
+            42,
+            73,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-e73caa438ca33207fcc3996fb0d3b5c0d1ed8688c50825c73f47bb08de0fcf3b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.CreatedAtUtc.set",
+          "span": [
+            73,
+            47,
+            73,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-8cfa7636c6d67208894308c3c6aaf326df7f96b617bd28a2fbcd6303fd1d832f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.SupplierId.get",
+          "span": [
+            75,
+            33,
+            75,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-d67ad090716ac78ff2d5eedd71292f85e50e5a9ae9d2c325b9b6fb0523ffe80e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.StockMovementEntity.SupplierId.set",
+          "span": [
+            75,
+            38,
+            75,
+            42
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "line_ranges": [
+        [
+          20,
+          34
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8db96d208b788eeb4c7c1b2f9f314e6bc9ebc69d3fdceaf0b10bb5642817b1f9",
+          "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.ListInventoryItemsAsync(CancellationToken)",
+          "span": [
+            20,
+            5,
+            35,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4bafd7ab722f271bc317a293d1ec3dfb3f9bd8d8a4bea57f111f5a240e89e578",
+          "signature": "lambda expression",
+          "span": [
+            24,
+            21,
+            24,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-477479e027dd7f192a5e876fa22654022da4ab69a99e18c3fce6bb03a83eb924",
+          "signature": "lambda expression",
+          "span": [
+            25,
+            42,
+            25,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-5caec418ac1cdbfadd0dff0b598ac73ba1db503249c97fbc8a7da8afb7a100cf",
+          "signature": "lambda expression",
+          "span": [
+            26,
+            27,
+            26,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-0e7e8c0614e3e17b704b56790e639338b05fcf47722b34a0996b84c03ea17f7f",
+          "signature": "lambda expression",
+          "span": [
+            26,
+            39,
+            26,
+            143
+          ]
+        },
+        {
+          "stable_id": "sym-b38cb17462115c8ccd4354a533a22bb54d0d4b42888b8ff5e1495cf83bd18a94",
+          "signature": "lambda expression",
+          "span": [
+            26,
+            50,
+            26,
+            142
+          ]
+        },
+        {
+          "stable_id": "sym-59b775dd763bdd19bedf87f022c4158397ed5087e746e487085de68a25c76b2f",
+          "signature": "lambda expression",
+          "span": [
+            28,
+            29,
+            34,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Inventory/InventoryItemRequests.cs",
+      "source_git_blob_sha256": "73b19c1ed74f1318815e794f065fe191ffe4cccfa801be9b4ff95f883189f317",
+      "worktree_sha256": "1db9910fe257d0e653719898cf3ba32f622bdeafe7028fd62936e7ff26445992",
+      "line_ranges": [
+        [
+          14,
+          26
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "line_ranges": [
+        [
+          909,
+          916
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-37ee87f2bf0f0fae13352892948c607b4fe5793f785c57ca2e39552d178e19b1",
+          "signature": "lambda expression",
+          "span": [
+            909,
+            41,
+            925,
+            2
+          ]
+        }
+      ]
+    }
+  ],
+  "original_candidate": {
+    "candidate_key": "INVENTORY_UNIT_CHANGE_STALE_NO_MOVEMENT_ADMISSION",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "severity": "MEDIUM_CANDIDATE",
+    "confidence": "HIGH_STATIC_SCHEDULE_NO_DB_TEST",
+    "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+    "independent_pending": true,
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+        "git_blob_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+        "worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427"
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+        "git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+        "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+        "git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+        "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+        "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+        "git_blob_sha256": "c88b68327a1dedffb8e51d694d288b8f08cd755ec2c4f0c829f29052d94ccf99",
+        "worktree_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+        "git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+        "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de"
+      }
+    ],
+    "trigger": "Initially valid inventory item with UnitA and no stock movements. Authorized inventory_manage update requests distinct UnitB. Separately authorized purchasing receipt for same existing item uses positive quantity/cost, credit payment0, valid supplier/open day, fresh IDs.",
+    "schedule": [
+      "UpdateInventory loads item81 and checks unitChanged84, then StockMovements.Any87 returnsfalse and Domain guard88 accepts; pause before Save100.",
+      "ReceivePurchase commits a legitimate PurchaseReceipt In movement with quantity milliunits in previously current UnitA: stock167-175, Save207/Commit208. Choose complete receipt before metadata writer resumes, so transactions need not overlap.",
+      "UpdateInventory resumes sets UnitB93 and Save100; no repeated movement query, transaction-held inventory anchor or version token."
+    ],
+    "root_cause": "Immutable-unit predicate is evaluated before write without coordinating the first stock-movement admission. InventoryItem mapping244 is primary key only, no concurrency token; movement FK protects existence, not unit interpretation.",
+    "impact": "Historical bare milliunit movement is reinterpreted under UnitB, contrary explicit InventoryRules40-47 no-unit-snapshot invariant. Current stock display joins current Unit, and valuation/recipe conversions can become semantically inconsistent; no measured monetary loss or actual SQL schedule executed.",
+    "counterevidence": [
+      "If movement already exists when update query runs, guard correctly rejects; selected first-movement race avoids that ordinary protection.",
+      "Receipt itself is transactional, idempotent and FK-valid; chosen nonoverlapping commits release its parent FK locks before unit update Save.",
+      "Source-account locks irrelevant to credit0 receipt and do not protect item metadata anyway.",
+      "Both actors require legitimate inventory/purchasing authority; not unauthorized privilege escalation.",
+      "No runtime queryplan/isolation/EF generated SQL observed. External serialization or unsupported metadata operation policy not certified."
+    ],
+    "correction_design": "Coordinate Unit mutation and every first stock-posting path on same transaction-held item anchor or durable immutable-unit schema contract, recheck movement existence inside protected boundary; do not only add metadata Version if stock writers never modify parent token.",
+    "regression_tests": [
+      "Barrier after unit no-movement read, commit first receipt, then metadata save must reject unit change or receipt must be admitted only under new unit with explicit semantics.",
+      "Reverse order and concurrent stock adjustment/usage paths; existing movement sequential rejection retained.",
+      "Unrelated metadata changes remain possible and same-unit updates do not fail."
+    ],
+    "runtime": "NOT_EXECUTED; no application/stock/DB/configuration write.",
+    "updated_at_utc": "2026-10-19T01:43:00.383072+00:00"
+  },
+  "verified_schedule": [
+    "Authorized metadata request reads existing UnitA, no movements, passes explicit Domain unit-lock guard, pauses before Save.",
+    "Separate authorized legitimate positive credit receipt (paid0) commits first movement, supplier debt and invoice. Receipt transaction is fully finished before metadata Save resumes.",
+    "Metadata update writes UnitB without requery/stock admission guard. Item mapping245 has primary key only, entity has no version field; stock FK restricts deletion/existence, not immutable Unit. DTO query joins current item Unit with bare signed movement quantity."
+  ],
+  "counterevidence": [
+    "Sequential update after preexisting movement correctly rejects; only first-movement admission race described.",
+    "Receipt FK/source-account locks do not negate selected schedule because receipt has completed before update Save; credit0 avoids unrelated protected-account risk.",
+    "Changing unrelated metadata or keeping same Unit remains legitimate. Valid different unit strings assumed; arbitrary malformed units not needed.",
+    "No DB SQL/query plan/triggers/isolation observed; any external deployment serialization/trigger could change runtime outcome. Source defect with unexecuted race, no quantified monetary loss.",
+    "Adding metadata optimistic token alone cannot detect inserted movements if posting does not modify item token; both writer families must participate in same invariant."
+  ],
+  "root_cause": "Immutable-unit predicate is evaluated before write without coordinating the first stock-movement admission. InventoryItem mapping244 is primary key only, no concurrency token; movement FK protects existence, not unit interpretation.",
+  "impact": "Historical bare milliunit movement is reinterpreted under UnitB, contrary explicit InventoryRules40-47 no-unit-snapshot invariant. Current stock display joins current Unit, and valuation/recipe conversions can become semantically inconsistent; no measured monetary loss or actual SQL schedule executed.",
+  "recommended_solution": "Coordinate Unit mutation and every first stock-posting path on same transaction-held item anchor or durable immutable-unit schema contract, recheck movement existence inside protected boundary; do not only add metadata Version if stock writers never modify parent token.",
+  "required_tests": [
+    "Barrier after unit no-movement read, commit first receipt, then metadata save must reject unit change or receipt must be admitted only under new unit with explicit semantics.",
+    "Reverse order and concurrent stock adjustment/usage paths; existing movement sequential rejection retained.",
+    "Unrelated metadata changes remain possible and same-unit updates do not fail."
+  ],
+  "verification": {
+    "independent_static": true,
+    "isolated_reproduction": "NOT_EXECUTED",
+    "live_end_to_end": "NOT_EXECUTED"
+  },
+  "deduplication": "Distinct immutable-unit invariant; related stale-admission family but not duplicate negative purchase FIN018 or prep-cycle candidate.",
+  "new_callable_count": 0
+}

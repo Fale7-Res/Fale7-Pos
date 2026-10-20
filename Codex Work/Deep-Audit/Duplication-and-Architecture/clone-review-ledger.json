@@ -1,5 +1,5 @@
 {
-  "at_utc": "2026-10-17T22:07:42.732601+00:00",
+  "at_utc": "2026-10-18T09:05:42.147679+00:00",
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "source_artifact_sha256": "c8546561cb9747a4107e3989483df74df8a6496d014c3e3a53b1bd948c693239",
   "method": "AST exact token bodies >=20tokens, trivia ignored, identifiers/literals preserved. Manual scope qualifications retained.",
@@ -28863,8 +28863,8 @@
     },
     {
       "group_id": "clone-555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Five approval helpers same bool short-circuit, min4inputlength, one server IssueManagerApproval call and returned issued token/approver IDs. No client-selected arbitrary authority accepted from successful result.",
       "token_count": 117,
       "occurrences": [
         {
@@ -28928,7 +28928,10 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.369944+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-200381a22b134ca7a2945bc94ad9f42b0bf2cfb272b7329d0c8dc7ea0fcb2077",
@@ -29184,8 +29187,8 @@
     },
     {
       "group_id": "clone-d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "ReadResult shared body interprets success JSON or null outcome-unknown; error body parse failure falls back status message, >=500 unknown. Same known/unknown outcome policy for financial idempotent commands; malformed success is unknown, not proof rollback. Both share common Application request/response types where imported; local generic result/error wrappers remain separate.",
       "token_count": 177,
       "occurrences": [
         {
@@ -29213,7 +29216,18 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.096336+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-76e7ac7960f59d32e1bf8b61d5d01768054414c2118f094c402e267acf4b5ead",
@@ -29331,8 +29345,8 @@
     },
     {
       "group_id": "clone-796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three login Submit bodies identical: busy/error, API LoginByPin, failure clears input, success assigns CurrentUser then clears and emits LoggedIn, exception shows message, finally clears busy.",
       "token_count": 99,
       "occurrences": [
         {
@@ -29372,12 +29386,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.371787+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Login bodies equal: obtain server-issued token, set HttpClient default Authorization and return projected current-user fields. Successful login mutates shared ApiClient auth before view-model followup. UI020 context remains qualified prior finding; helper equality is not proof identical callers or permissions. PIN values never captured or executed.",
       "token_count": 145,
       "occurrences": [
         {
@@ -29405,7 +29422,18 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.102474+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-c2eae080955647d2a993adadb50bc29f7af955da2d99af8887b79eed4ec388be",
@@ -29613,8 +29641,8 @@
     },
     {
       "group_id": "clone-d9a43647f233bf352232598cb5dd2c5d8b06df688991a49423a41b878269adfd",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two employee-create test helper bodies identical, but default name/employee-number signatures DIFFER. Both create Daily staff via actual API using captured HR actor and fixed test compensation.",
       "token_count": 105,
       "occurrences": [
         {
@@ -29642,7 +29670,10 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.002344+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-08183029b0e2d33ef2598e4c24d034ca1e55749db460e8899a408f4ce4d6ce6d",
@@ -29679,8 +29710,8 @@
     },
     {
       "group_id": "clone-179df3ec0cb276b577999ba395cb1dc91dd0392406f24a05da7b1d90f5a2df61",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Six sales-line/order-type timestamp predicates match exact noncancelled plus optional start/end. They serve product, hour, category and food-cost queries; reuse does not normalize dates or decide payment collection.",
       "token_count": 34,
       "occurrences": [
         {
@@ -29756,12 +29787,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.857595+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two CairoBusinessDate converters identical including Arabic weekday table and dd/MM/yyyy. DateOnly input is already calendar date; DateTimeOffset uses dto.DateTime WITHOUT Cairo conversion, DateTime likewise unchanged, string parses current culture.",
       "token_count": 96,
       "occurrences": [
         {
@@ -29789,12 +29823,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.697659+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-334c1355eba61c034787ccfd29072a96ee27c3e49226feb22f16daac43356dbc",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Delivery intake and pricing inventory InitializeAsync setup bodies identical: new API factory, authenticated client, seeded pos/open-own cashier, funded active day and opening shift.",
       "token_count": 93,
       "occurrences": [
         {
@@ -29822,7 +29859,10 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.005795+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-8f2148fdb52f58c0c12572322b5ed69cd8964e19ef8b6f28cb3ea9cf4e6c313e",
@@ -29868,8 +29908,8 @@
     },
     {
       "group_id": "clone-d683c07587f62b646b96221ddfdcd9530a9d73a712dfff66720c6c0b15e76dfb",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Six captured delivery-ID lookup lambdas identical Orders->Delivery unique identity query. Capture order from different scenario workflows: audit, unsettled custody, ready exception, assigned control, daily/report outcomes.",
       "token_count": 30,
       "occurrences": [
         {
@@ -29945,12 +29985,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.018859+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Four Arabic-digit normalization lambdas identical: ArabicIndic/EasternIndic digits to ASCII, Arabic decimal mark to dot. Parent parsers differ: CashInput decimal2digits/nonnegative/maxlong100; MilliUnits decimal3digits/maxlong1000; Attendance finite double hours/nonnegative or nonnegative int count.",
       "token_count": 45,
       "occurrences": [
         {
@@ -30002,12 +30045,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.756576+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-01fde7092060d82358a6220530d2c35e4d351e9fd835733aa3a96b4791274c19",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two identical direct purchase stock seed lambdas add same positive receipt facts and SaveChanges, but capture separate inventory identity and surrounding product prices differ.",
       "token_count": 89,
       "occurrences": [
         {
@@ -30035,7 +30081,10 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.022642+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-ca33a52ba54a187d8ce31dd25fd82396c688ec8ca79be5003d059e27167bb565",
@@ -30171,8 +30220,8 @@
     },
     {
       "group_id": "clone-70cd7851f05a4ff705bf948a8ea170508ced426e32d2eeeaff1e572fa9666086",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same status-pill property callback copies text to label then calls client-local StatusToPillBrushConverter. Callee mapping predicates same, but CallCenter resource indexer differs Cashier ThemeResources.Get ActualTheme lookup.",
       "token_count": 78,
       "occurrences": [
         {
@@ -30200,12 +30249,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.674635+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two image converters cache absolute URI BitmapImage under static Dictionary lock, decode width320, return cached object, unsupported input null. Both caches are per-type/per-process, unbounded and no eviction shown.",
       "token_count": 77,
       "occurrences": [
         {
@@ -30233,12 +30285,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.705347+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "SendAsync shared body disposes HTTP response, maps HTTP/cancellation/JSON/IO exceptions to financial outcome unknown and same-key retry wording. Does not itself retain/retry requests or ensure idempotency; server journal and calling view model do that. Cashier separate ReadAsync changes message for reads, CallCenter uses SendAsync more broadly.",
       "token_count": 67,
       "occurrences": [
         {
@@ -30266,12 +30321,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.108206+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-ceb3bc69ef5390d9913f066cd901a6e162b78028e06c54bb640bb5fbf7655574",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "ApplyItemWidth bodies identical but captured ProductTargetWidth differs CallCenter190 versusCashier212. Both force>=2columns and leave ItemHeight unset; ProductMinWidth/MaxWidth declared but unused by shown method.",
       "token_count": 66,
       "occurrences": [
         {
@@ -30299,12 +30365,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.675919+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-2fdd8ea2efa4a5a6e7c0ddd8311ef62a7c4537c12922ad3fd5eb053b8d7841f7",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Three Domain test Item helper bodies identical build one fixed quantity1 OrderItem with same list/effective/total Money.FromEgp price and no discounts/notes.",
       "token_count": 43,
       "occurrences": [
         {
@@ -30344,12 +30413,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.025116+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three UpdateClock methods use DateTime.Now and ar-EG clock/day formatting, independent server Cairo BusinessClock. Identical output logic.",
       "token_count": 40,
       "occurrences": [
         {
@@ -30389,12 +30461,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.373582+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-6681a2c84a5a8cc148becf22e2f86f4f79ba95e0482fce785069604031f5a123",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "OrderHistory/ShiftClose test initialization identical factory+authenticated client, cashier pos/open/blind-close, manager all and funded active day.",
       "token_count": 56,
       "occurrences": [
         {
@@ -30422,7 +30497,10 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.027768+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-69317c9d59d9d794ce6caa06b7aad1203d2ce3d766516491304a02fe2b71d51b",
@@ -30459,8 +30537,8 @@
     },
     {
       "group_id": "clone-8ed19dac49ac38fb7d75123ffb1a50459ebfeac2f054c455f7266feed102d3c7",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two window PropertyChanged routers same three property names trigger ApplyIsLoggedIn,ApplyIsOnline,ApplyCurrentView. Callees intentionally route different screen types.",
       "token_count": 52,
       "occurrences": [
         {
@@ -30488,12 +30566,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.677043+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "TimeOfDay converters identical. DateTimeOffset ToLocalTime uses workstation zone then ar-EG formatting; DateTime formats supplied value without conversion.",
       "token_count": 52,
       "occurrences": [
         {
@@ -30521,12 +30602,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.713062+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-2170c88033f441d768f8df9f4390bc966e778efaa703d0b0d1acee8c26b994c9",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Five order-row NoTracking exact-ID reload lambdas identical, assertions differ frozen price8000, offer6000, print financial immutability and concurrent/refused refund state.",
       "token_count": 20,
       "occurrences": [
         {
@@ -30590,12 +30674,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.043466+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two WinUI Header.Refresh methods notify same6computed properties, no fetch or mutation. Captured AppSession differs by client capability.",
       "token_count": 50,
       "occurrences": [
         {
@@ -30623,12 +30710,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.374804+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-e941cb56ff3ef9322a3d0b2112242a9a605ba8628521967c299dc91903e98512",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Five same FindExistingAsync bodies query NoTracking treasury movement by unique idempotency key. Prefixes, permissions, transaction placement and account movement policies live callers, not these helpers.",
       "token_count": 20,
       "occurrences": [
         {
@@ -30692,12 +30782,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.861129+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-e7fd938c061914281410281674d91f8b672d808bb804735793d57ef5851b373e",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same caption property callback sets caption text and hides null/empty, whitespace remains visible. Dependency property contract string, no money math.",
       "token_count": 49,
       "occurrences": [
         {
@@ -30725,12 +30818,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.678161+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-b63fa2c78fdd19dad82723824eec86c168dfbf1f93c0c58dd4c4f4d95422fc11",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two PrintRules TextOf overloads use identical TicketText/TicketRow flattening, unsupported elements empty. One receives ComposedTicket.Lines, one IEnumerable elements.",
       "token_count": 47,
       "occurrences": [
         {
@@ -30758,12 +30854,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.052625+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-2eb704cf6bd757db2ed6a4cd1d89de7f9c7b5d00de6fd0459c72b724c0c8ab8f",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two OpenShiftAsync test helpers same HTTP request, parameterized opening cash and captured cashier, deserialize ShiftId without explicit status assertion.",
       "token_count": 47,
       "occurrences": [
         {
@@ -30791,12 +30890,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.065751+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "OrderStatus labels normalize lower invariant then same Arabic names for pending/preparing/ready/completed/cancelled/refunded; unknown raw string retained, nonstring empty.",
       "token_count": 45,
       "occurrences": [
         {
@@ -30824,12 +30926,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.719408+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "CallCenterWinUI and legacyWPF constructors same session assignment, initial clock update,30sDispatcherTimer tick/start. DispatcherTimer symbols bind different UI frameworks. CashierWinUI near-copy adds OperationStateChanged subscription.",
       "token_count": 45,
       "occurrences": [
         {
@@ -30857,12 +30962,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.376364+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-754aa0615c60b2006d0f0369fc4c13d89f07d2022b2a5e4870f9c2be263e3a5a",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same empty-cart update toggles hint and scroll visibility from null VM/Cart.Count0. Surrounding subscription lifecycle DIVERGES: Cashier detaches previous/unloaded, CallCenter adds on every DataContext change without detach.",
       "token_count": 45,
       "occurrences": [
         {
@@ -30890,7 +30998,10 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.679333+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-5b2861c78267a53cb876db7e5474e85b774430499e3cc1835b70b2ae34c8deb7",
@@ -30978,8 +31089,8 @@
     },
     {
       "group_id": "clone-f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Both WinUI image-URI helpers return null for missing version/base address; otherwise escape ID/version into same route. Cashier comments differ only. No financial amount calculated; generic gateway duplication only, preexisting image authentication candidate remains paused, not validated by this comparison.",
       "token_count": 43,
       "occurrences": [
         {
@@ -31007,12 +31118,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.114210+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Logout bodies equal: attempt server revoke, swallow failure then clear local token/header. Local end does not prove remote invalidation on network failure; server expiry separate. No cross-client singleton/session sharing proven.",
       "token_count": 42,
       "occurrences": [
         {
@@ -31040,12 +31162,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.119991+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-94a1ee0a84bad3c6b8207da556fc2a8dd05a2d43a67ff19a3f87e617f25d1d73",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two EF entity configuration lambda bodies define Id key and restrictive InventoryItem FK for PrepRecipeLine and PurchaseLine. Generic entity types and parent relationship differ despite body equality.",
       "token_count": 42,
       "occurrences": [
         {
@@ -31073,12 +31206,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.868896+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-d3ea26765c5f37ddf57dcc072d92e8212e5b4be576799f333a921be80ed0cc34",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three signed destination-minus-source treasury sum bodies identical; DailyStatement uses all-time Posted history, CloseEvaluator also all-time Posted for protected-negative checks, Reporting business-day report only selected BusinessDayId Posted movements.",
       "token_count": 27,
       "occurrences": [
         {
@@ -31118,12 +31254,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.878753+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-ab89aa566e296313ab599ce939fedaafe8b063f4407d783b3b2b22a3be426d1a",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same catalogue constructors InitializeComponent then SizeChanged and Loaded ApplyItemWidth handlers. Capture station-local target width rather than actual shared layout constant.",
       "token_count": 40,
       "occurrences": [
         {
@@ -31151,12 +31290,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.680387+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-21f7b599520cd0377c8d6a3cb7bf7b2154acfa8b5ab12031fbb7046272c5237b",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two IssueApprovalAsync fixture helpers use seeded-manager PIN from factory, supplied action, API issued ApprovalId; helper bodies same, action passed caller varies.",
       "token_count": 39,
       "occurrences": [
         {
@@ -31184,12 +31326,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.083123+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Three string-base constructors (legacy WPF, CashierWinUI, CallCenter) construct HttpClient with same default localhost5151 and10second timeout. Injected-HttpClient overload/configuration can differ, so identical constructor body does not prove identical deployed host/session/lifetime. No runtime connection initiated.",
       "token_count": 25,
       "occurrences": [
         {
@@ -31229,12 +31374,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.126583+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "CreatePrintJobs wrappers equal route-escaped order ID/body/result. Queue request separate from financial success; no paper sent. This is narrow API mirror classification, not resumed printing audit.",
       "token_count": 37,
       "occurrences": [
         {
@@ -31262,12 +31418,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.132453+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three AppSession.HasPermission bodies check nonnull CurrentUser and exact permission/all membership. They do not check Active, refresh/revoke token or validate issued server role.",
       "token_count": 24,
       "occurrences": [
         {
@@ -31307,12 +31474,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.379047+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "AppendNoteText same CanEditOperation guard and comma-separated appended line Notes. Captured CartLine and root operation predicates belong separate clients.",
       "token_count": 36,
       "occurrences": [
         {
@@ -31340,12 +31510,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.383127+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-ebda8b17c54b0a19ba69e2cd164b1479ee0292a4ce1a96935318ecca40671673",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same offer tapped handler marks event Handled then dispatches typed OfferChoice to station VM SelectOfferCommand. Any invalid sender still handled by design.",
       "token_count": 35,
       "occurrences": [
         {
@@ -31373,12 +31546,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.681410+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-03a4999b19507b0914da5b9be7b3beec5c744e0f85249172ba791b51a6af81de",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Open/Reopen projection into BusinessDayRecord same six-field body, but Open input already active-only while Reopen input all other IDs; current reopen target separately carries SnapshotId.",
       "token_count": 35,
       "occurrences": [
         {
@@ -31406,12 +31582,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.881133+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three checkout item selectors serialize ProductId/VariantId/Quantity/AppliedOfferId/Notes into same shared Application CheckoutItemRequest. No client unit price included.",
       "token_count": 23,
       "occurrences": [
         {
@@ -31451,12 +31630,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.389084+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two DecreaseQuantity handlers guard CanEditOperation, decrement above1 else remove, then recompute local totals. Different parent subtotal/tax/comp capability intentionally remains.",
       "token_count": 34,
       "occurrences": [
         {
@@ -31484,12 +31666,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.393023+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-ce9588b93795f36c244d39a1f4ea518c6933afbc96205f9c43e07b4241868ca6",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same note-chip handler pattern-matches Button DataContext CartLine and Tag string then delegates AppendNoteText. Separate CartLine/VM types bind by namespace.",
       "token_count": 34,
       "occurrences": [
         {
@@ -31517,12 +31702,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.682407+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-4fba33c686e0731623dcf8f3b45c9bbc86c9e419a892b4726d5e093137146c2c",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "DailyStatement and business-day report local Balance functions are whole-function clones wrapping same sum but capture different materialized movement lists.",
       "token_count": 34,
       "occurrences": [
         {
@@ -31550,12 +31738,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.886670+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-799dd3e1f68659fe8d098aef7f8c114171cf991a97dec3c82de6f89c8c34972a",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "BusinessDayGate and Open handler active-status predicates both Open/Closing/Reopened. Gate chooses first; Open validates list against Domain active-day rule, so same body does not guarantee deterministic single active day.",
       "token_count": 32,
       "occurrences": [
         {
@@ -31583,12 +31774,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.888027+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-419455eacc41dbe7761156aba264068b8f1c032b60cad92202df9540c1c90567",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two fake HTTP callbacks collect RequestUri then return path-matched JSON fixture; captures different requests lists/scenario VM.",
       "token_count": 31,
       "occurrences": [
         {
@@ -31616,12 +31810,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.088555+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-403e7bd9bfa73f4b970931efbe5ebfbd3142d3ccf7b8d6e92d0319bc93a9496f",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two refund movement-sum lambdas same order-ID/type filter and Amount Sum. One scenario over-request clamp, other concurrent different amount refunds.",
       "token_count": 31,
       "occurrences": [
         {
@@ -31649,12 +31846,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:04:32.093064+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
     },
     {
       "group_id": "clone-91287ffc45a7c005bc574f25f5ea7885e741d7bfc5fe7f626416cab935268abe",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Three treasury Count cash_in by shift lambdas identical; one initial cash-in, one sequential same-key retry, one concurrent same-key race. Different test concurrency stimulus retained.",
       "token_count": 20,
       "occurrences": [
         {
@@ -31694,12 +31894,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.016798+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Both WinUI PingHealth dispose response and return HTTP success, catch all including cancellation as false. It tests endpoint reachability/status, not DB/payment readiness. Legacy WPF health response lacks using and is not in this exact-body group; do not infer identical lifetime across legacy.",
       "token_count": 30,
       "occurrences": [
         {
@@ -31727,12 +31930,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.138985+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three digit-entry handlers guard EXISTING Pin.Length>=6, then append provided digit string and clear error. Does not validate parameter is one digit; normal keypad binding constrains it.",
       "token_count": 20,
       "occurrences": [
         {
@@ -31772,12 +31986,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.395103+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Three OnIsBusyChanged hooks notify CanEditAction and register !CanEditAction in shared session. Captured predicates differ Delivery(assign/outcome/settle),Inventory(count/waste),Purchasing(supplier/receive/pay).",
       "token_count": 20,
       "occurrences": [
         {
@@ -31817,12 +32034,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.401504+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-d260dbc5faeba3e76b3b5cc34060895fc6e0338564bf1bf4df309b2b20d439ad",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Before/after refund row reload lambdas exact same Include Items/no-tracking/order key, intentionally repeated within one frozen-fields test.",
       "token_count": 29,
       "occurrences": [
         {
@@ -31850,12 +32070,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.027098+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-7af017c91616c66e2cfa36071ac3ea5a6bf51c4c89a5d2eaddfde5585c0d4df2",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Treasury and stock significant-action predicates both nonnull ApprovedBy and optional timestamp interval. Entity types and audit DTO mapping differ; one filter is not one monetary workflow.",
       "token_count": 29,
       "occurrences": [
         {
@@ -31883,12 +32106,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.895951+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Money display converters accept long/int, decimal divide100 and format2decimals with currency suffix. Null emdash; unexpected type silently0.00. Same Format helper bodies and contracts read.",
       "token_count": 28,
       "occurrences": [
         {
@@ -31916,12 +32142,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.725932+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-443be0237f9e3373f9c634e1cc4510a8829d564b18951edaf3d51a4919e2e65e",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same GridView item click chooses ProductTile.Product and executes SelectProductCommand, no alternative price/variant calculation here.",
       "token_count": 28,
       "occurrences": [
         {
@@ -31949,12 +32178,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.683415+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "GetSettings identical wrapper delegates to SendAsync and common Application SettingsDto; no local settings/database mutation. Transport failure classification shared even though read-only request.",
       "token_count": 27,
       "occurrences": [
         {
@@ -31982,12 +32214,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.144620+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-57eeeb59771c0eed51e722b523201855f58b1dd9080f8b58dd50cc30a9674e1f",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same DeliveryService DTO projection used Active query and All-management query. Filter difference is intentional caller policy; inactive rows retained for management.",
       "token_count": 27,
       "occurrences": [
         {
@@ -32015,12 +32258,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.687162+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-df604888e5a61a55a8ebd2fe8d4ee4bbe42d296995aec3141352dccc5392e20f",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Inventory costing context and food-cost report map current inventory entities to same Domain InventoryItem ID/name/cost source/estimated price. Neither snapshots historical input cost on sold date.",
       "token_count": 27,
       "occurrences": [
         {
@@ -32048,12 +32294,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.902920+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-216a31a3a10a3e03558743a3211c44e933f4f660205f26f6299f0c56d5fab08d",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Both current costing loaders convert purchase movement facts to Domain PurchaseReceipt with nonnull UnitCost. Surrounding filters require actual PurchaseReceipt and UnitCost!=null in both.",
       "token_count": 27,
       "occurrences": [
         {
@@ -32081,12 +32330,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.910159+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "OpenShift wrappers equal route/request type. Neither calculates opening cash or enforces balance/permission locally; server OpenShift handler owns FIN011 lock issue.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32114,12 +32366,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.150994+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "PrepareShiftClose wrappers equal request/route and nullable result handling. Read-only preview represented POST; not actual close or movement. Same transport unknown classification does not post money itself.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32147,12 +32410,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.157458+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "CloseShift wrappers equal shared DTO and endpoint. Client body equality does not supply server concurrency/reconciliation or validated approval provenance; FIN017 authoritative server issue retained.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32180,12 +32454,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.163492+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Checkout wrappers equal shared request/route/result; prices, fees, stock and totals resolved server-side. No client cash/callcenter alternate formula in these bodies. FIN016 server signed-fee boundary cannot be repaired merely by merging wrappers.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32213,12 +32498,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.169193+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Refund wrappers equal shared DTO/route. Shared HTTP method does not establish same caller role, original/current shift attribution or refund eligibility; server FIN003/004 semantics independent.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32246,12 +32542,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.175055+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Electronic-confirm wrappers equal common request/result and route. No payment-leg arithmetic in client wrapper; server FIN001 mixed-idempotency issue survives both clients.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32279,12 +32586,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.181648+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Cancel-pending wrappers equal common request/result and route. Server FIN002 cancellation-versus-collected split cash concern is not a differing client formula.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32312,12 +32630,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.187238+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "IssueManagerApproval wrappers equal body/endpoint. Requests are server authority, not client-generated manager proof. Same client methods present does not mean CallCenter role may execute every financial API.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32345,12 +32674,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.194197+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Expense wrappers equal route/common DTO. Server chooses real source account permission and validates amounts; no duplicated expense calculation here.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32378,12 +32718,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.199838+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "SafeDrop wrappers equal body/result/route; server owns drawer/account/shift authorization and transaction. Wrapper does not guard current shift status or overdraw independently.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32411,12 +32762,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.205418+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Cashier cash movement wrappers equal DTO/route; server movement type/account logic remains one authoritative implementation.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32444,12 +32806,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.211974+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Cash-drawer-open wrappers equal shared request/route. This comparison invoked no API/hardware; no physical drawer or print operation performed.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32477,12 +32850,23 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.217693+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two selected-category hooks refresh catalogue then mark tile selected by object ReferenceEquals, not ID string. Same instance assumption in each client.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32510,12 +32894,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.405482+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-df5cb23dc946eccfc66eccb7d5067c39e9f1476225ba7799ed3f91c80c1548ef",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same category click adapter matches CategoryTile then invokes selected-category command. Station controls use separate models and one differs constructor presentation.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32543,12 +32930,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.688311+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-1a01c72e691dfa89a2d1f160fab35627b4ddcc38005b95bbee15fc9990fa1c8c",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Daily/hourly trend group value selector sums net total-refund and count identically. Group key differs Cairo date versus Cairo hour, and same-day hourly emits24fixed labels.",
       "token_count": 26,
       "occurrences": [
         {
@@ -32576,12 +32966,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.915415+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-5693b1a9b62bd806dcd414fc79dd838880b353bc9771c7c5682a47afb6c9dd86",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same RetryVisible dependency callback toggles RetryButton from bool. It does not retry any operation or mint financial request key.",
       "token_count": 25,
       "occurrences": [
         {
@@ -32609,12 +33002,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.689431+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Visibility equality converters use ordinal comparison of value/parameter cast to string; both null becomes equal/Visible. Same type/parameter behavior on both clients.",
       "token_count": 24,
       "occurrences": [
         {
@@ -32642,12 +33038,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.732185+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-1c8f59764638a29ff8cd9d155123fa8d780dd6cbd719c4ae87aa95e3531160f1",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two fake client callbacks capture serialized body then throw HttpRequestException; scenarios differ retained cash movement versus refund.",
       "token_count": 23,
       "occurrences": [
         {
@@ -32675,12 +33074,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.032310+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-d236b8d847d0c44a90ae6907a344fe4ecba72e854852febe524078dbc9d1adf3",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two Shift.Close throwing lambdas same arguments, but result comes large shortage versus large overage. Null reason/authority expected DomainException.",
       "token_count": 23,
       "occurrences": [
         {
@@ -32708,12 +33110,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.035630+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two health checks await PingHealth then update IsOnline only if not stopped. Full root shells use5sDispatcherTimer and initial fire-and-forget check; Cashier adds recovered-operation notice.",
       "token_count": 23,
       "occurrences": [
         {
@@ -32741,12 +33146,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.407195+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     },
     {
       "group_id": "clone-11522eacb0abd71e46f280c18c7d28425db6f80b0122232da54ae5f54a96e31b",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "LastPurchaseUnitCost and LastPurchaseAt share exact item/type/positive-cost eligibility and descending time ordering, then project price versus nullable timestamp.",
       "token_count": 23,
       "occurrences": [
         {
@@ -32774,12 +33182,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.917167+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-1227169a3bd8b6d34883382f875edfdc0e25eaba09b64414d6b6ab196e4ed098",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two InitializeAsync methods instantiate per-suite API factory and authenticated client then CompletedTask; same tiny setup only.",
       "token_count": 22,
       "occurrences": [
         {
@@ -32807,12 +33218,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.046135+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "EmptyCollection visibility converter only recognizes nongeneric ICollection Count0 OR null, else collapsed. Identical copies.",
       "token_count": 22,
       "occurrences": [
         {
@@ -32840,12 +33254,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.739574+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-9b1fc0772b1d794360c91c20ead0e37dac2868af9d059232ce962f3231aaea7c",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Owner dashboard daily/hourly queries have identical noncancelled CreatedAt half-open bound predicates and projection. Shared row cohort, different grouping/padding produces chart shape.",
       "token_count": 22,
       "occurrences": [
         {
@@ -32873,12 +33290,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:55:34.922071+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
     },
     {
       "group_id": "clone-57a3112949f2e084ff9674ae5312d958e100de71be754f4256a36bea71f0174a",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Reprint test before/after order reload lambdas same NoTracking exact ID; financial footprint measured separately around reprint.",
       "token_count": 21,
       "occurrences": [
         {
@@ -32906,12 +33326,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.054690+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "CountGreaterThanOne converter recognizes ICollection Count>1 only. Null/unsupported/one/zero collapsed, copies identical.",
       "token_count": 21,
       "occurrences": [
         {
@@ -32939,12 +33362,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.746239+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "NonEmpty converter recognizes ICollection Count>0 only, not arbitrary IEnumerable. Both identical, different predicate intentionally from Empty and GreaterThanOne.",
       "token_count": 21,
       "occurrences": [
         {
@@ -32972,12 +33398,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T08:57:56.753776+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
     },
     {
       "group_id": "clone-8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_CLIENT_API_TRANSPORT",
+      "reasoning": "Nested sender lambda within CreatePrintJobs identical. Captures its own HttpClient/order/request/ct; no shared instance or financial ledger effect inferred from token equality.",
       "token_count": 21,
       "occurrences": [
         {
@@ -33005,7 +33434,18 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root financial_coordinator",
+      "reviewed_at_utc": "2026-10-18T04:14:56.223836+00:00",
+      "comparison_scope": "Actual source bodies read for both WinUI occurrences and legacy constructor; contextual service headers and additional read-path differences inspected. Existing AST token equality re-used only after raw source hash validation.",
+      "recommended_improvement": "Consider one shared transport/typed API contract library with compatible facade signatures; keep command outcome-unknown semantics distinct from read messaging and keep server business authority. No refactor implemented.",
+      "required_tests": [
+        "Shared HTTP response/null/malformed/4xx/5xx/cancellation cases",
+        "Existing same-key command retries and role/session isolation",
+        "Both client adapters same JSON Application contract",
+        "Read-only methods must not trigger monetary retry UX"
+      ],
+      "runtime_tested": false
     },
     {
       "group_id": "clone-d72d658d7090a56e5652ef7a356e699b07ee158dc6a03d7fbb8a22ddfceb34f4",
@@ -33051,8 +33491,8 @@
     },
     {
       "group_id": "clone-7287e499b646cc477d43ccff92dcf1aaf7c221f1ad5edb81f74c8a6946219613",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two shift readback lambdas same exact opened shift ID NoTracking, differing tests custom opening amount versus setting changed after opening.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33080,12 +33520,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.061755+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-50e9b1c75e8a8aca267cd00eacc705da1e536a602c134f96d4055067f9b3684f",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two driver settlement movement count lambdas same driver/type; one same-key retry, other concurrent different request IDs for SAME custody.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33113,12 +33556,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.103388+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-968febb28268b13b54324e30755c12235e43b1b27840d57c074aa2de1d7c4820",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two handover lookup lambdas same shift/type but exact expected facts differ balanced close versus small shortage.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33146,12 +33592,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.113946+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-333face1621e50b1cae8855088e28ce3091e15e9270d53b42b67c47c945537c3",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Same shift_reconciliation reference lookup lambda used shortage and overage; subsequent type expected cash_shortage versuscash_overage.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33179,12 +33628,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.122926+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-39702f83e2a43a4c3f5ddafd158e0414ffe0df7bfd39208c52a2c0da7a4d43d8",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two handover Count lambdas same shift/type, one same-key concurrent close race, other new-key reclose rejection.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33212,12 +33664,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.138868+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-4d2a3c2dad81b4e6c74bb860a9408c2457fbecd5d295746741405ad47952a8fa",
-      "status": "PENDING_MANUAL_TEST_FIXTURE_CONTEXT",
-      "reasoning": "Potential fixture/helper duplication; shared fixtures may hide scenario-specific differences, so no automatic refactor recommendation.",
+      "status": "MANUALLY_COMPARED_TEST_CONTEXT",
+      "reasoning": "Two local MakeRequest functions identical stable captured requestId deposit payload; one sequential retry, one six concurrent sends.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33245,12 +33700,15 @@
           "category": "TEST_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:05:42.147604+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
     },
     {
       "group_id": "clone-a70f6ec68eb2b399dfb9c466bf8f085c198dd6559981488f0e436c95c2f3c51a",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Same close automation-ID callback copies dependency string into CloseButton AutomationProperties; no CloseCommand execution in this callback.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33278,12 +33736,15 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:02:59.690563+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
     },
     {
       "group_id": "clone-dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
-      "status": "PENDING_MANUAL_APPLICATION_CONTEXT",
-      "reasoning": "Lexical body equality alone does not establish semantic duplication or a defect.",
+      "status": "MANUALLY_COMPARED_APPLICATION_CONTEXT",
+      "reasoning": "Two RemoveLine handlers guard CanEditOperation then remove item and recompute totals. Same mutation body, separate CartLine classes and specialized pending-operation guards.",
       "token_count": 20,
       "occurrences": [
         {
@@ -33311,16 +33772,20 @@
           "category": "APPLICATION_OR_TOOL_SOURCE"
         }
       ],
-      "independent_whole_method_correctness_claim": false
+      "independent_whole_method_correctness_claim": false,
+      "reviewer": "root mirrored-code coordinator",
+      "reviewed_at_utc": "2026-10-18T09:00:25.410149+00:00",
+      "evidence_artifact": "Deep-Audit/Duplication-and-Architecture/mirror-client-state-batch-evidence.json"
     }
   ],
   "status_counts": {
     "GENERATED_HISTORY_REPETITION_ACCOUNTED_NOT_REFACTOR_DEBT": 102,
     "SOURCE_CHALLENGED_TYPED_ADAPTER_PATTERN_NOT_DUPLICATE_BUSINESS_LOGIC": 13,
-    "PENDING_MANUAL_APPLICATION_CONTEXT": 72,
+    "MANUALLY_COMPARED_APPLICATION_CONTEXT": 50,
+    "MANUALLY_COMPARED_CLIENT_API_TRANSPORT": 22,
     "MANUALLY_TRIAGED_DUPLICATED_CURRENCY_INPUT_HELPER": 1,
     "MANUALLY_TRIAGED_DUPLICATED_CLIENT_JOURNAL_HELPER": 6,
-    "PENDING_MANUAL_TEST_FIXTURE_CONTEXT": 24
+    "MANUALLY_COMPARED_TEST_CONTEXT": 24
   },
   "scope_limits": [
     "Candidate lexical body equivalence only: signatures, types, bindings, captured context, constructor initializers and surrounding lifecycle may differ.",
@@ -33328,5 +33793,5 @@
     "Bodies under20 tokens and inactive preprocessor regions are not examined for clone grouping; this is not exhaustive semantic duplicate detection.",
     "Only source parsed; no POS assembly, handler, database, printer or runtime workload executed."
   ],
-  "next_action": "Continue79nonProgram application groups and24test groups through manual context triage; generatedbehavior and remaining callable review remain separate global queues."
+  "next_action": "Continue exact pending clone groups; no completed group restarted. Financial specialist owns financial function queue."
 }

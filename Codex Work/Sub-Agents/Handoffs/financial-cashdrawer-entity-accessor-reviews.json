@@ -1,0 +1,511 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/CashDrawerEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-e169d928bb2bc3bf0abc063b893c18911753c83a331395edc6a98bcf923cf4c1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.Id.get",
+        "span": [
+          19,
+          24,
+          19,
+          28
+        ],
+        "reasoning": "The getter exposes the cash-drawer request identity, constructed as cash-drawer plus RequestId; replay and primary-key lookup use this value, not evidence that hardware opened.",
+        "inputs": "Stored string command identity on the entity instance.",
+        "outputs": "string command identity returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "Id primary key; handler31-35,57-59,75-79; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-5ccb12ba706c830d22edf05196a7a9c7401a1b36142480743632f098289e3a28",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.Id.set",
+        "span": [
+          19,
+          29,
+          19,
+          33
+        ],
+        "reasoning": "The setter accepts the request-derived identifier used by OpenCashDrawerHandler before insert. PK uniqueness supports replay but this auto-setter neither binds a payload nor authorizes a replay.",
+        "inputs": "string command identity assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "Id primary key; handler31-35,57-59,75-79; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-e8cd03ac8f80d890ab32662a437e364260f2a08b0e9ec40cc157d6a661a744f7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.ShiftId.get",
+        "span": [
+          20,
+          29,
+          20,
+          33
+        ],
+        "reasoning": "The getter attributes the hardware request to its original shift; it is indexed for lookup but contributes no drawer amount or reconciliation movement.",
+        "inputs": "Stored string shift reference on the entity instance.",
+        "outputs": "string shift reference returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler43-45,59; model423-427 index only; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-2c91a4c52f7dd24e8e55e57f960d52f9c963a29b021029a355a859f4b223a216",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.ShiftId.set",
+        "span": [
+          20,
+          34,
+          20,
+          38
+        ],
+        "reasoning": "The setter records the shift found and checked Open by the command handler. The entity itself has no open-shift guard or relationship constraint, so callers carry this validation.",
+        "inputs": "string shift reference assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler43-45,59; model423-427 index only; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-c7bc10c9a46da5f01fceff0298ef5fcaf7f718e2be73e72ed596c40a620de49f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.Reason.get",
+        "span": [
+          21,
+          28,
+          21,
+          32
+        ],
+        "reasoning": "The getter exposes the trimmed operational explanation returned in the DTO and copied to warning audit details; it is descriptive rather than a treasury entry.",
+        "inputs": "Stored string explanation on the entity instance.",
+        "outputs": "string explanation returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler37,59,69-72,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-221b514aadd339d12348998f1c89cdaafef8f002e9d30c442c1740c10fd026ed",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.Reason.set",
+        "span": [
+          21,
+          33,
+          21,
+          37
+        ],
+        "reasoning": "The setter stores command text after the handler rejects blank reason and trims it. It has no intrinsic nonempty validation and must not substitute for permission or manager approval.",
+        "inputs": "string explanation assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler37,59,69-72,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-4523859de2f84efdce6fde2ed676d9094479a4557b85801ae2f9268e8ca2b0fb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.RequestedBy.get",
+        "span": [
+          22,
+          33,
+          22,
+          37
+        ],
+        "reasoning": "The getter returns a historical user-name snapshot for display, not a stable actor key or a permission assertion; actual audit actor ID is separately recorded.",
+        "inputs": "Stored string requester display name on the entity instance.",
+        "outputs": "string requester display name returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler39-41,55,59,69-70,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-94a1f2619e2db1cd04a325d70e9d4f945cfad3671033a61dedb57fcf39df53f3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.RequestedBy.set",
+        "span": [
+          22,
+          38,
+          22,
+          42
+        ],
+        "reasoning": "The setter captures actorUser.Name after a user lookup and command authorization. A later rename does not rewrite this snapshot, and a writable name field cannot authorize the command.",
+        "inputs": "string requester display name assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler39-41,55,59,69-70,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-0c209ef730321034621824e54e5bb036295b13b106c1556dc7d00391fb8c77c9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.ApprovedBy.get",
+        "span": [
+          23,
+          33,
+          23,
+          37
+        ],
+        "reasoning": "The getter exposes optional approver display attribution from the authorization result. Null can represent the documented permission alternative, not proof of bypass.",
+        "inputs": "Stored nullable approver name on the entity instance.",
+        "outputs": "nullable approver name returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler47-55,60,72,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-9d3870b94690376249f49c3de2b123275edcd177e3a4ab0bd0b00452730445a5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.ApprovedBy.set",
+        "span": [
+          23,
+          38,
+          23,
+          42
+        ],
+        "reasoning": "The setter records authorization.Approver?.ApproverName and leaves null when no approver accompanies successful permission-based authorization. It is not an approval registry receipt or immutable actor ID.",
+        "inputs": "nullable approver name assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler47-55,60,72,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-de3e7a6dc8b4df54de78efd2919d96ba5367049a625b87ab76409f4936eb39be",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.Status.get",
+        "span": [
+          24,
+          28,
+          24,
+          32
+        ],
+        "reasoning": "The getter returns the latest stored Requested/Succeeded/Failed label; it reports software acknowledgement rather than a physical sensor observation or financial posting.",
+        "inputs": "Stored string command status on the entity instance.",
+        "outputs": "string command status returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler60,98-106; enum3 and model423-427; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "Mutable report result permits replacement; preserve as source behavior, no new financial-loss finding or runtime reproduction.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-4707947cbb41f524a5fdb8860f99d9648ac90748eb8cd2ef05cf90702f8c0153",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.Status.set",
+        "span": [
+          24,
+          33,
+          24,
+          37
+        ],
+        "reasoning": "The setter is used at request creation and overwritten by each result report. No token, terminal-state condition or enum enforcement exists on the property; repeated contradictory reports can replace the label without moving funds.",
+        "inputs": "string command status assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler60,98-106; enum3 and model423-427; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "Mutable report result permits replacement; preserve as source behavior, no new financial-loss finding or runtime reproduction.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-dcb9a23a8d2f9ce778bbc9464d11027b07b148d8e769284f69eeddf2ccff0d72",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.LastError.get",
+        "span": [
+          25,
+          32,
+          25,
+          36
+        ],
+        "reasoning": "The getter exposes optional latest reporting error through the DTO; null does not establish successful physical opening while status may still be Requested.",
+        "inputs": "Stored nullable reported error on the entity instance.",
+        "outputs": "nullable reported error returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler103-105,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-2a40b921ca84f212cd8b97eeab98960d60a30d97eea4ab674dc7d42966cb9723",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.LastError.set",
+        "span": [
+          25,
+          37,
+          25,
+          41
+        ],
+        "reasoning": "The setter clears error on a succeeded report or accepts reported error on failure. It does not sanitize, classify or independently verify a hardware fault; the result handler controls replacement.",
+        "inputs": "nullable reported error assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler103-105,84-85; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-35be3c8851ef93d37cf952e50e0cc0fff1d0790f08b5313193d14f94f55a61c0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.RequestedAtUtc.get",
+        "span": [
+          26,
+          44,
+          26,
+          48
+        ],
+        "reasoning": "The getter exposes the original UTC request time used by the warning audit and DTO. This is request chronology, not the time a hardware pulse was observed.",
+        "inputs": "Stored UTC DateTimeOffset request instant on the entity instance.",
+        "outputs": "UTC DateTimeOffset request instant returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler61,71,84-85; migration25 datetimeoffset; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-e38aea68c81a505108612f651e05690f0f5c9e8d806f3c370ec2f0e0284faf8e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.RequestedAtUtc.set",
+        "span": [
+          26,
+          49,
+          26,
+          53
+        ],
+        "reasoning": "The setter assigns DateTimeOffset.UtcNow at creation; subsequent result reporting leaves it unchanged. The auto-setter itself does not enforce immutable creation time.",
+        "inputs": "UTC DateTimeOffset request instant assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler61,71,84-85; migration25 datetimeoffset; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "No separate accessor defect established; caller validation and historical attribution limitations apply.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-2285038415822658259e032d2f217f83514b42f4abfb4059056bfe260972ac03",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.ReportedAtUtc.get",
+        "span": [
+          27,
+          44,
+          27,
+          48
+        ],
+        "reasoning": "The getter provides a nullable persisted result-report time; it is absent from CashDrawerOpenDto and therefore not visible through that DTO even after an acknowledgement.",
+        "inputs": "Stored nullable UTC report instant on the entity instance.",
+        "outputs": "nullable UTC report instant returned without transformation.",
+        "side_effects": "None; ordinary auto-property read.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler105; DTO12 lacks field; migration26 datetimeoffset; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "Mutable report result permits replacement; preserve as source behavior, no new financial-loss finding or runtime reproduction.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      },
+      {
+        "stable_id": "sym-c56a58c5d9e3323e869444409245d2dced16a420cf60473d7eec02a4485d5672",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity.ReportedAtUtc.set",
+        "span": [
+          27,
+          49,
+          27,
+          53
+        ],
+        "reasoning": "The setter records current UTC on each result report, replacing the previous time. This marks software report processing and cannot prove hardware success or an exactly-once device effect.",
+        "inputs": "nullable UTC report instant assigned by the verified command writer.",
+        "outputs": "In-memory field assignment tracked when attached; setter returns no value.",
+        "side_effects": "Assignment only; SaveChanges in command handlers persists it. No treasury, stock, hardware or printer action inside accessor.",
+        "trust_boundaries": "Entity accessor is not authorization. Open command resolves user/shift and invokes AuthorizeCommand; result handler verifies reporter existence. Endpoint privilege semantics not re-audited here.",
+        "database": "handler105; DTO12 lacks field; migration26 datetimeoffset; AddCashDrawer14-36 creates PK and ShiftId index, no FK/check/token in inspected mapping. SQL was not executed.",
+        "printing_ui": "Hardware-command metadata only. DTO mapping84-85 exposes all except ReportedAtUtc. No physical device command was sent or claimed verified.",
+        "performance": "O(1) accessor; handler initial identity lookup uses PK. No query/allocation is performed by accessor.",
+        "duplicates_conflicts": "Separate from cash-in/out treasury movements by explicit entity contract; report overwrites are metadata, not cash reconciliation entries.",
+        "issues_hypotheses": "Mutable report result permits replacement; preserve as source behavior, no new financial-loss finding or runtime reproduction.",
+        "tests_missing": "Source-only review. Regression should cover same-request replay, initial Requested versus reported outcome, DTO omissions and no treasury mutation; no device or database tests run.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31-85,96-108",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:423-427",
+          "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs:14-36",
+          "src/Falah.Application/CashDrawer/CashDrawerRequests.cs:10-17"
+        ]
+      }
+    ]
+  }
+]

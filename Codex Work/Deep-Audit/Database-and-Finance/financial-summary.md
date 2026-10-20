@@ -57,3 +57,5 @@ No integration fixtures were executed by this agent. `FalahApiFactory` creates a
 ## Next work
 
 Continue the exact original callable queue through payment queries, protected-account validation, purchasing/payroll and the remaining domain/infrastructure/test callables. Reconcile supplemental getter facets when the parent publishes their map. Preserve source-only candidates, rejected interpretations and uncertain workflow assumptions; do not publish a partial Git checkpoint or claim the original15 phases are complete.
+
+FIN-005 citation correction: Purchase concurrency evidence is DbContext277-305 plus PurchasingEntities20-60/75-112, replacing irrelevant legacy Customer/Delivery excerpt309-328. Predecessor retained; [independent correction](Independent-Challenges/FIN005-model-reference-correction.json). Source finding remains static-only.

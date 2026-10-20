@@ -1,0 +1,127 @@
+{
+  "at_utc": "2026-10-18T04:40:29.628919+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "UNPROMOTED_SOURCE_LEADS_PENDING_CALLER_AND_INDEPENDENT_CHALLENGE",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "source_git_blob_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "worktree_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "lines": [
+        32,
+        155
+      ],
+      "symbols": [
+        "sym-c3253f90b39b119d016833c044b040bc5745a0bbde102785ec02afa10db1df08",
+        "sym-f6b854abc816089d41d34cbfc17182264c8c639e6efc19f2ac641d17aed65624",
+        "sym-52bd0334e2639edc092ff2afa559d4b3a7289fc3c0bfdd9f0c0293754395d500",
+        "sym-1f3ed6312b3bacaff4c2630cc648b7faf1dd571777e0fe49e1c3721b372f4621",
+        "sym-c0116241f4ac8522f1dadff50c830fc6a82c6d45632beeb8ee0e57dd7b023ae9",
+        "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+        "sym-ec4cf635fecbae7453d93d752e82cf9ce6e5556d419d76c9a11086348b961114",
+        "sym-c790689aac664ac8ea11bc749b33eccdf605e165baad9ac3c03f76935787b7b2",
+        "sym-2c03f4417755e84f424cef62cbb7abad483ee56d656973d52822c4d662769e8a",
+        "sym-92647d071b0b8ad2a9c5b2378588915bdec015ea2ea02f2cd26831bc7b062ecf",
+        "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+        "sym-7d6184eec380a3e07bbee6236241f597533047bebdc7def72fe80b4558679671",
+        "sym-8602dd808d98a3ee57b31b1453f261ff6cc9abf35466c575f6d980d2b4c480c0",
+        "sym-243201f28cb1b7b0feb7f4bb9222489c193fc1064526b19bf892e55c02ece0e0",
+        "sym-1303d2da04bec22ef9a551b2402b37f8d7b5a9a621a971eb4ddb2baad45fd5eb"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+      "source_git_blob_sha256": "0aaa061bb34735cb398e7022e910874ec5176262ec71b40ecb4c1f61593220bf",
+      "worktree_sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "lines": [
+        27,
+        77
+      ],
+      "symbols": [
+        "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+        "sym-06a1d3cab4ce8e51365d469ac95d4a821b0858d0438f27a056a572ba87607e13",
+        "sym-8caf2217988971bad23103d838fc8e1f38d532884f68961a6f20e5eb0dd94580",
+        "sym-cefedaff2b4e83e42bd663d44d32e3dbbc17d96851bca6bc398b6e3e6368f529",
+        "sym-77a0b2c85038a76a7ce76ef7a93ea409d8ddadb3c18ea65c43cb1fec753d070b",
+        "sym-581bc8acdbbbe2896ff3c87704ee598215c42ad6d9ce76b9497b8a95c19bc9cc"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "lines": [
+        15,
+        51
+      ],
+      "symbols": [
+        "sym-d3b8fffa6c0a2f51f94df87127b9de342c7e8fc1492b3b37026c4651808e8171",
+        "sym-d2494e7315c7ef33464eb4be4beacd1f745d1370ef236964062221f2f0120e70",
+        "sym-a651e4115cc0e5219b295a50d762e47a4bd3c97cded8915f0b4fd3e10c78d8dc",
+        "sym-53f3b26f360799aa2198d76cf17db55dd97adb08847174b0a1456986545aeac8",
+        "sym-8529d16da96926ba1068a539f89e965450946936a05ac3e9fd9986d545db3bbc",
+        "sym-5cf0107ecab22e8934446507430c23ad09e826b3c09fe522d6cc1781f8aaef01",
+        "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+        "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+        "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247"
+      ]
+    }
+  ],
+  "leads": [
+    {
+      "name": "negative wage/rate admission",
+      "observation": "RecordDailyWage accepts signed nullable custom wage or stored DailyWage with no positivity guard before credit posting; overtime only Hours<=0 guard, no custom rate sign/finite product bounds; extra shift only ShiftCount positive, fallback stored wage can be negative.",
+      "impact": "Can post negative employee earning or invalid arithmetic if admitted by actual DTO/endpoint/client path; authorized writer, not permission bypass.",
+      "next": "Read request and endpoints, trace stored employee input validation, then pure arithmetic/guard probe if useful."
+    },
+    {
+      "name": "manual ledger unknown enum and replay identity",
+      "observation": "Enum.TryParse(ignoreCase:true) alone permits numeric undefined underlying values; canonical ToString is still numeric. Manual request generates fresh GUID for each invocation and lacks deterministic key in handler.",
+      "impact": "Potential unbucketed ledger category and repeat records after lost response; enum member existence and retry contract require specific verification.",
+      "next": "Check DTO RequestId absence, endpoint behavior and any middleware duplicate-request policy before promotion."
+    },
+    {
+      "name": "concurrent cached BalanceAfter",
+      "observation": "Manual writer reads balance before implicit SaveChanges transaction, shared Poster does not lock or start transaction. Wage/overtime/extra shift wrappers have no explicit transaction or employee anchor lock.",
+      "impact": "Two distinct successful credits can each store BalanceAfter omitting sibling while fact totals remain correct; do not claim actual double spending from cached display risk alone.",
+      "counterevidence": "PayEmployee has real employee anchor/range locks; same deterministic daily key rejected by PK, distinct-key race needed.",
+      "next": "Trace attendance and manual writer interleavings plus DB isolation; no SQL test authorized."
+    }
+  ],
+  "runtime_verification": "NOT_EXECUTED",
+  "independent_verification": "PENDING",
+  "review_boundary": "No original receipt/file completion claimed merely from this discovery artifact.",
+  "updated_at_utc": "2026-10-18T04:41:20.626397+00:00",
+  "source_contract_counterevidence": [
+    "EmployeeRequests34-45 explicitly documents manual entry lacks RequestId and recommends keyed advance/withdrawal for deduplication. Preserve as disclosed requirements/recovery gap, not claimed hidden behavior.",
+    "Default JSON double binding rejects nonfinite numeric literals; pure handler double acceptance alone is not full HTTP NaN exploit.",
+    "Deterministic daily duplicate intentionally errors while overtime/extra replay; concurrent same-key PK conflict still may surface because handlers lack catch."
+  ],
+  "request_and_endpoint_refs": [
+    {
+      "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+      "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "lines": [
+        34,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/AttendanceRequests.cs",
+      "worktree_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "lines": [
+        29,
+        47
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "lines": [
+        709,
+        720
+      ]
+    }
+  ],
+  "next_exact_action": "Read remaining attendance/correction and employee setting validation source to bound wage/credit snapshot leads; independent review and safe isolated tests still outstanding. Do not mark a static lead runtime-confirmed."
+}

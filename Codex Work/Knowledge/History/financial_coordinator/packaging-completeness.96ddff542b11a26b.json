@@ -1,0 +1,82 @@
+{
+  "candidate_id": "FIN-CAND-PACKAGING-COVERAGE-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "at_utc": "2026-10-18T03:45:08.288040+00:00",
+  "status": "SOURCE_SUPPORTED_MEDIUM_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "lines": [
+        399,
+        423
+      ],
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "symbols": [
+        "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "lines": [
+        181,
+        190
+      ],
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "symbols": [
+        "sym-a37184daa74a29ceaf9a0a0efae1fb2687dbc0e55f16a843284f7761fc8466dd"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "lines": [
+        205,
+        223
+      ],
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "symbols": [
+        "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "lines": [
+        35,
+        46
+      ],
+      "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "symbols": [
+        "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db"
+      ]
+    }
+  ],
+  "preconditions": "Selected sold dish lines all have fully known recipe cost. An active once-per-order packaging rule for sold order type references ingredient with unknown cost.",
+  "evidence_chain": [
+    "Reporting399-408 increments total/known for complete sold dish recipes.",
+    "CostingRules181-190 returns Known=false for configured packaging ingredient without unit cost.",
+    "Reporting413-419 adds missing packaging name and continues without any completeness counter change. Returns identical knownLineCount=soldLineCount plus nonempty Missing422.",
+    "OwnerDashboard211-215 passes only numeric counts and known amount to profitability; gross.IsComplete forwarded222, while Missing forwarded223 separately and does not alter flag.",
+    "ProfitabilityRules38 deems knownLineCount>=soldLineCount complete, so numeric margin from incomplete packaging cost can carry IsComplete=true."
+  ],
+  "impact": "Contradictory financial report completeness and overstated numerical profit/operating result when packaging cost unknown. No ledger money lost or actual UI presentation verified.",
+  "counterevidence": [
+    "Missing packaging name remains in FoodCostReportDto and ProfitabilityDto.Missing; not silently deleted. UI may show that independent warning (not inspected here).",
+    "No active packaging rule is intentionally known zero optional cost; candidate requires configured rule with unresolved cost.",
+    "Partial unknown dish recipe correctly changes counts; this candidate concerns separately accounted order packaging.",
+    "Current-price historical recipe costing is documented limitation, distinct from missing packaging completeness."
+  ],
+  "root_cause": "Completeness counts represent dish lines only, while monetary food-cost total includes separately processed order-level packaging; missing packaging status not included in completeness boolean calculation.",
+  "recommendation": "Carry explicit aggregate completeness including dish and order packaging costs into profitability; preserve separate unit/count semantics rather than inventing dish counts. Keep missing descriptions and no-known-cost policy.",
+  "required_tests": [
+    "One known dish plus missing active packaging must mark profit incomplete",
+    "Known packaging retains true completeness and charges once per order",
+    "No packaging rule stays optional known zero",
+    "Many items one order vs many orders packaging cardinality",
+    "Missing name may warn visually, but returned IsComplete must agree with aggregate cost coverage"
+  ],
+  "independent_review": "PENDING; root originator cannot independently certify own candidate",
+  "runtime_executed": false
+}

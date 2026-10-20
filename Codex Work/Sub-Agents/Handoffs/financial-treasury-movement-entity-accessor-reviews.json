@@ -1,0 +1,935 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-b3b82dc6ae6eacaabb212f6e8275b3aa2aae1fedf04c9f03f36075ab4cb36586",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Id.get",
+        "span": [
+          93,
+          24,
+          93,
+          28
+        ],
+        "reasoning": "Getter exposes movement row PK, distinct from business idempotency key and operation grouping; balance math does not derive sign from identity.",
+        "inputs": "Movement entity carrying string movement PK.",
+        "outputs": "string movement PK exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-fb6d1ba224cb0136f794f60fea134abf474fcb2d51209aea070dca2a0fc5d5fe",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Id.set",
+        "span": [
+          93,
+          29,
+          93,
+          33
+        ],
+        "reasoning": "Setter copies domain movement.Id through OrderMapper, not arbitrary new allocation inside entity. PK enforces row identity, while business duplicate protection is separate index.",
+        "inputs": "string movement PK from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-0b901380afac6bfc3d8de7ab378dfda773d1846fb9cfd4ffb90d53fb154b359d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.IdempotencyKey.get",
+        "span": [
+          94,
+          36,
+          94,
+          40
+        ],
+        "reasoning": "Getter identifies unique financial event for replay across terminals; one operation can still legitimately create several separately keyed movements.",
+        "inputs": "Movement entity carrying string business event key.",
+        "outputs": "string business event key exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-045dd9835bbed65763ceb20713fa89f6ce1cb5167605b3bb69d55b86f25a0124",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.IdempotencyKey.set",
+        "span": [
+          94,
+          41,
+          94,
+          45
+        ],
+        "reasoning": "Setter copies domain key; unique model index rejects duplicate persisted business keys, but cannot validate correct key scope or same-payload replay.",
+        "inputs": "string business event key from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-fb538275da82b8e640572b84d361aeffadbf908f36e4eb9d6f46a450830b9871",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.OperationId.get",
+        "span": [
+          95,
+          33,
+          95,
+          37
+        ],
+        "reasoning": "Getter groups related financial movements by command/order lifecycle; it is not unique and does not itself enforce exactly-once money posting.",
+        "inputs": "Movement entity carrying string operation correlation.",
+        "outputs": "string operation correlation exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-90adbfcbb7a90a51546f7d0610658496be20f371254ce38d91a56ea1632f86d8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.OperationId.set",
+        "span": [
+          95,
+          38,
+          95,
+          42
+        ],
+        "reasoning": "Setter copies domain operation correlation unchanged. Multiple movements may intentionally share it, so it cannot replace IdempotencyKey.",
+        "inputs": "string operation correlation from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-baab610f4a5984a2be27908aa7c00063a1299131d7ef70a8e903754459b3009a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Type.get",
+        "span": [
+          96,
+          26,
+          96,
+          30
+        ],
+        "reasoning": "Getter returns financial movement classification for reports; account balance arithmetic uses source/destination and Posted status rather than trusting this label to choose sign.",
+        "inputs": "Movement entity carrying string movement classification.",
+        "outputs": "string movement classification exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-838e1c04480933571e099c814d9797b837d3f3302c9341c1108aa63926bd0c1c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Type.set",
+        "span": [
+          96,
+          31,
+          96,
+          35
+        ],
+        "reasoning": "Setter stores domain type text, with no closed enum guard in entity. Authoring commands/factories determine allowed action shape.",
+        "inputs": "string movement classification from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-32aa64906012218bece9475240b521b2d0c53cfc40e68de0dfa2a3e59ccadb90",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.SourceAccountId.get",
+        "span": [
+          97,
+          38,
+          97,
+          42
+        ],
+        "reasoning": "Getter identifies debit account; null represents no internal source for external inflow, not a zero debit account row.",
+        "inputs": "Movement entity carrying nullable debit account ID.",
+        "outputs": "nullable debit account ID exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-6bf396c7773e4d713ee228188b9d57b0950207d6b84dbdfd01c3976c281bf5c9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.SourceAccountId.set",
+        "span": [
+          97,
+          43,
+          97,
+          47
+        ],
+        "reasoning": "Setter copies optional source. Account whitelist and sufficient-funds lock are command responsibilities; inspected persistence model does not declare account FK.",
+        "inputs": "nullable debit account ID from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-e6533d869dd5aafc4daee2ed503588b384871dac5113e20798a941d65dd58b10",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.DestinationAccountId.get",
+        "span": [
+          98,
+          43,
+          98,
+          47
+        ],
+        "reasoning": "Getter identifies credit account; null represents no internal destination for external outflow. Matching both source and destination would net zero in inspected balance equation.",
+        "inputs": "Movement entity carrying nullable credit account ID.",
+        "outputs": "nullable credit account ID exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-339db6ad567830d6807e9bd3476130225535035a2ff5b64f68bd254b02cb122b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.DestinationAccountId.set",
+        "span": [
+          98,
+          48,
+          98,
+          52
+        ],
+        "reasoning": "Setter copies optional destination unchanged; entity does not forbid same-source/destination or enforce destination whitelist, so domain/handler rules remain necessary.",
+        "inputs": "nullable credit account ID from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-ac71eb83abef6949dfdf1a42342496f330794e3df2d634ca308a79886981101e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.AmountPiastres.get",
+        "span": [
+          99,
+          34,
+          99,
+          38
+        ],
+        "reasoning": "Getter returns amount magnitude consumed as signed Money in balance equation; negative amount would invert effects and is not globally rejected by this field.",
+        "inputs": "Movement entity carrying long movement piastres.",
+        "outputs": "long movement piastres exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-27936a0ed67d66bbfc96a946b33093c4bcee5e9c23ea685b287382464d9194a1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.AmountPiastres.set",
+        "span": [
+          99,
+          39,
+          99,
+          43
+        ],
+        "reasoning": "Setter copies movement.Amount.Piastres without local validation. Global nonnegative Money is not an appropriate inferred fix because signed ledgers exist; validate movement boundary/type semantics.",
+        "inputs": "long movement piastres from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-8ec5c876a3e2a016ab9dc3bad34817e84d8f482dbf425745c67942d96c77a3e2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ReferenceType.get",
+        "span": [
+          100,
+          35,
+          100,
+          39
+        ],
+        "reasoning": "Getter labels polymorphic financial subject type, pairing with ReferenceId for traceability rather than a single FK.",
+        "inputs": "Movement entity carrying string subject type.",
+        "outputs": "string subject type exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-b4f8db8bc064a7ab7ea7c357842a8c7e098e4dcffeb5f33bb937817b181c7a47",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ReferenceType.set",
+        "span": [
+          100,
+          40,
+          100,
+          44
+        ],
+        "reasoning": "Setter copies reference kind chosen by factory/handler; storage property does not ensure supported type or correspondence with referenced entity.",
+        "inputs": "string subject type from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-a38031474e29dbe4ccf3bf1871b88533626b811d1708d40ae3ab2ab71119c14e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ReferenceId.get",
+        "span": [
+          101,
+          33,
+          101,
+          37
+        ],
+        "reasoning": "Getter identifies financial subject such as order/refund/payroll run; it is not itself unique because subject can cause distinct lifecycle facts.",
+        "inputs": "Movement entity carrying string subject ID.",
+        "outputs": "string subject ID exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-4b9d15771a242cadd9ce633583458e9279540ca0de425f318a5cd779cfc6b807",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ReferenceId.set",
+        "span": [
+          101,
+          38,
+          101,
+          42
+        ],
+        "reasoning": "Setter copies domain reference ID; no polymorphic FK appears in inspected Treasury mapping, so entity alone cannot prove reference exists.",
+        "inputs": "string subject ID from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-4c62aa4fd671ee7332a7dc1d906049f5104c715b637b85f4d33cba8ba264119d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.BusinessDayId.get",
+        "span": [
+          102,
+          36,
+          102,
+          40
+        ],
+        "reasoning": "Getter attributes movement to operational day for reporting; nullable historic rows require explicit fallback semantics outside the accessor.",
+        "inputs": "Movement entity carrying nullable business day ID.",
+        "outputs": "nullable business day ID exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-b0460d094864381aa15be617b39809aada3bfa32de60217cd073fbf87bcf297d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.BusinessDayId.set",
+        "span": [
+          102,
+          41,
+          102,
+          45
+        ],
+        "reasoning": "Setter copies optional business day from command. Account balance is all-time and not filtered by this field in TreasuryBalanceQuery, so date attribution cannot redefine current balance.",
+        "inputs": "nullable business day ID from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-cf34494746050fc4f445be6c6b6f0ed8272bc2b6354eb3390984cf2bdbbf5266",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ShiftId.get",
+        "span": [
+          103,
+          30,
+          103,
+          34
+        ],
+        "reasoning": "Getter attributes movement to shift for operational reconciliation, separate from all-time source/destination balance.",
+        "inputs": "Movement entity carrying nullable shift ID.",
+        "outputs": "nullable shift ID exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-4df105c1a957f8faa6738d157e9b94da5c0489410a79c70b7e17c435b87459d6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ShiftId.set",
+        "span": [
+          103,
+          35,
+          103,
+          39
+        ],
+        "reasoning": "Setter copies optional shift ID and does not verify shift is open/current. Existing FIN004/015 chronology/admission concerns are not solved by storing a string.",
+        "inputs": "nullable shift ID from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-71288db0a8332221ce47fc40541473678d565396e5f0bde35d2a5c8427e17988",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Reason.get",
+        "span": [
+          104,
+          28,
+          104,
+          32
+        ],
+        "reasoning": "Getter exposes movement explanation, not an authorization token or receipt proving money physically transferred.",
+        "inputs": "Movement entity carrying string movement rationale.",
+        "outputs": "string movement rationale exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-0fbf0d48e20033292c072378d59a09acc0ff46249cfe4dc455792cdafbb5a88a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Reason.set",
+        "span": [
+          104,
+          33,
+          104,
+          37
+        ],
+        "reasoning": "Setter copies domain reason without additional normalization; required explanation and approval policy belong individual command validation.",
+        "inputs": "string movement rationale from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-19cb9fa6f331e9d93cd34bca6116b9a2f619e1593ac834ae3107a60c2b11b1ba",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.CreatedBy.get",
+        "span": [
+          105,
+          31,
+          105,
+          35
+        ],
+        "reasoning": "Getter exposes actor display attribution in domain movement, not a stable user relation or current authorization proof.",
+        "inputs": "Movement entity carrying string actor label.",
+        "outputs": "string actor label exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-66c1cc008dd7838dcfb85806983a6ec994353772d00462de2f1d8a8839017a35",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.CreatedBy.set",
+        "span": [
+          105,
+          36,
+          105,
+          40
+        ],
+        "reasoning": "Setter copies movement.CreatedBy. Database mapping declares no actor FK here; caller must bind and authorize identity before building fact.",
+        "inputs": "string actor label from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-3fe3f0df9a57b0e278f4ee2171d1fe8fdd25a90a9fb19300703ae17ac9162b42",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ApprovedBy.get",
+        "span": [
+          106,
+          33,
+          106,
+          37
+        ],
+        "reasoning": "Getter exposes optional manager display attribution; null can accompany valid permission path and name alone is not consumed approval evidence.",
+        "inputs": "Movement entity carrying nullable approver label.",
+        "outputs": "nullable approver label exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-ac2395ed52500a1c85be5f2ad8191e5723c0084e4ce0a72e9951d4c45a686fb8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.ApprovedBy.set",
+        "span": [
+          106,
+          38,
+          106,
+          42
+        ],
+        "reasoning": "Setter copies optional domain approver. FIN017 attribution limits must not be conflated with actual permission/approval consumption in command policy.",
+        "inputs": "nullable approver label from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-4b75c70bd419f2024fc7604e48b59abcc6357514dd564387be9fc9b223ed10dc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.CreatedAtUtc.get",
+        "span": [
+          107,
+          42,
+          107,
+          46
+        ],
+        "reasoning": "Getter provides event instant for chronology/report ranges, not a unique commit sequence or business date conversion.",
+        "inputs": "Movement entity carrying DateTimeOffset fact time.",
+        "outputs": "DateTimeOffset fact time exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-2abd9d6d80048cc385e84ad11739d46ed34d1e3b471180d32f7593c15ac96a74",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.CreatedAtUtc.set",
+        "span": [
+          107,
+          47,
+          107,
+          51
+        ],
+        "reasoning": "Setter copies domain timestamp, potentially captured before transaction. No DB-generated monotonic counter or immutable timestamp enforcement exists in inspected mapping.",
+        "inputs": "DateTimeOffset fact time from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-e75c2270964ecbca974813f5326cbe92673dd1cf0125ddb17a6a51a4964f322b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Status.get",
+        "span": [
+          108,
+          28,
+          108,
+          32
+        ],
+        "reasoning": "Getter maps stored text to MovementStatus; only Posted facts count toward balances, Reversed rows are excluded rather than automatically posting an opposite amount.",
+        "inputs": "Movement entity carrying string posting status.",
+        "outputs": "string posting status exposed without posting.",
+        "side_effects": "No side effect, query or balance recomputation.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      },
+      {
+        "stable_id": "sym-b12664b45da8f0bffa597d07e5c5bda7597eb50577ee2d3d4eeca5fdcca84a05",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity.Status.set",
+        "span": [
+          108,
+          33,
+          108,
+          37
+        ],
+        "reasoning": "Setter stores domain enum.ToString. Public string assignment bypasses enum validation and mapper Enum.Parse can fail corrupt text; no automatic reversal movement is created by assigning Reversed.",
+        "inputs": "string posting status from mapped domain movement.",
+        "outputs": "In-memory assignment only.",
+        "side_effects": "Assignment tracked by EF; actual journal, movement SaveChanges and account-lock transaction occur in command caller.",
+        "trust_boundaries": "Movement field is persisted financial data, not an authorizer. Caller validates accounts, sign, permission, replay and open-day/shift policy before mapping; property alone enforces none.",
+        "database": "FalahDbContext131-135 movement Id PK and unique IdempotencyKey. Mapper164-182 copies all fields. TreasuryBalanceQuery15-46 filters Posted/accounts, protected update variant requires caller transaction. No SQL run.",
+        "printing_ui": "Financial fact can feed report and reconciliation, but storing property does not make UI drawer count or physical cash verified. No tickets/device interactions.",
+        "performance": "O(1) auto-property access. Account movement query may materialize all historical matching facts; index/lock-plan efficiency is not established by accessor reasoning.",
+        "duplicates_conflicts": "Stored fact differs from account balance and operational shift/day aggregates; all-time balance equation adds destination/subtracts source for Posted only. Existing FIN findings retain qualified independent evidence.",
+        "issues_hypotheses": "No new accessor defect. Corrupt/malformed external stored data is not shown accepted via normal writer unless separately established by canonical boundary findings.",
+        "tests_missing": "No tests executed. Need exactly-once key/payload semantics, debit-credit sign, reversed exclusion, same-account/type guards, historical attribution and atomic journal plus movement rollback.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:164-182",
+          "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15-54",
+          "src/Falah.Domain/Financial/FinancialRules.cs:35-38,52-56",
+          "src/Falah.Domain/Financial/TreasuryMovement.cs:12-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:131-135"
+        ]
+      }
+    ]
+  }
+]

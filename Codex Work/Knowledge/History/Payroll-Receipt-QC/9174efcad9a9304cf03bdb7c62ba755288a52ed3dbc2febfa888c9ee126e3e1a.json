@@ -1,0 +1,59 @@
+{
+  "at_utc": "2026-10-19T09:32:31.658Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "scope": "One high-risk existing receipt-depth spotcheck with exact amount-writer references; not duplicate authored financial review",
+  "primary_reviewer": "financial_integrity",
+  "receipt_path": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs.json",
+  "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+  "receipt_sha256": "45437874328dd45638842b239c66a03e64751da4e6c580492a77c84374811848",
+  "reviewed_span": [
+    39,
+    182
+  ],
+  "conclusions": [
+    "Main receipt correctly describes pretransactionrun/lines snapshot, protectedtreasurybalance insideTx, run-key journal and settlement/movement atomic save; source read39-182 corroborates.",
+    "Old pending competing-status investigation is resolved by existing qualified FIN-CAND-PAYROLL-001 challenge, not proof of duplicate payout. Current receipt should cross-reference resolved evidence instead of stale investigation wording.",
+    "PayPayroll87 sums allstoredline.NetPayable;137 postsonlypositive lines. Negative corruptline could make mismatch, but currentdirectsource writer CreatePayroll84 stores Domain line.NetPayable, whose106-107 clamps negatives. Targeted rg found no other directassigning sourcewriter; client property=>isreadonlyprojection and migrationfield iscolumn declaration. Normal sanctionednegative-line trigger not established; no newdefect promoted.",
+    "Dynamic/reflection/externalSQL/unknownlegacydata not cleared; schema boundary validation absence may be defense-in-depth followup, not runtime-known corruption. Existing actualpaycancel weakness remains distinct."
+  ],
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "line_ranges": [
+        [
+          39,
+          182
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "line_ranges": [
+        [
+          74,
+          86
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          95,
+          109
+        ]
+      ]
+    }
+  ],
+  "limitations": [
+    "No SQL/payroll/testexecution or storagecorruption test.",
+    "One receipt and targeted assignment search, not fullfinancialdepth certification.",
+    "No addedauthorreceipt orcanonicalfinding."
+  ],
+  "new_author_receipts": 0,
+  "correction_requested": "Primaryreviewer update stale investigation clauses/history without increment; retain current source controls and unresolved externaldata assumptions."
+}

@@ -1,0 +1,1015 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/CustomerEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-9c584e23cd6c44146220df14a39cb13dfe00b423167dd0b37332b14445d4d9e3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Id.get",
+        "span": [
+          8,
+          24,
+          8,
+          28
+        ],
+        "reasoning": "Getter exposes generated customer row identity used by address parent lookup, while phone is the business find-or-create key.",
+        "inputs": "Entity instance storing string customer PK.",
+        "outputs": "string customer PK directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-c7f4a4fa943782f8d2d479da2b87d22c481b1a1fda1d5099df92def8feed1182",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Id.set",
+        "span": [
+          8,
+          29,
+          8,
+          33
+        ],
+        "reasoning": "Setter receives cust-GUID only for new customer; concurrent normalized-phone conflict falls back to winning row rather than treating generated ID as customer identity.",
+        "inputs": "string customer PK from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-71755fd52226b768da17bab9f9fe3a1203142c2e7a3b3faf017777f1e6e44ccc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Phone.get",
+        "span": [
+          9,
+          27,
+          9,
+          31
+        ],
+        "reasoning": "Getter exposes stored normalized phone used by exact lookup and unique index; name changes do not merge two customers.",
+        "inputs": "Entity instance storing string normalized phone.",
+        "outputs": "string normalized phone directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-c702efa0bf17ffd2863dce9b53163bda9ffcef994b9d5a5b0e44682bc1e361c7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Phone.set",
+        "span": [
+          9,
+          32,
+          9,
+          36
+        ],
+        "reasoning": "Setter stores NormalizePhone output on creation after input validation; public assignment is not normalization, so callers outside this path must preserve same identity invariant.",
+        "inputs": "string normalized phone from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-7705f07863a325359d5ad94a960cd246544419a8fe9429aeb0d9cacb3bb8fcef",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Name.get",
+        "span": [
+          10,
+          26,
+          10,
+          30
+        ],
+        "reasoning": "Getter returns current customer label through DTO, not a unique identity or financial account owner binding.",
+        "inputs": "Entity instance storing string current name.",
+        "outputs": "string current name directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-63830b5cdff6ba8f486941ce771936c108f1db8f782de161710f6efc585d5e91",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Name.set",
+        "span": [
+          10,
+          31,
+          10,
+          35
+        ],
+        "reasoning": "Setter stores trimmed incoming name under customer row lock in phase two; last completed update wins while phone remains unchanged.",
+        "inputs": "string current name from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-3380b6b1f3812157ba8c77b5d934138db8ebb32a6a16adabd962b85394a322f4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.CreatedAtUtc.get",
+        "span": [
+          11,
+          42,
+          11,
+          46
+        ],
+        "reasoning": "Getter exposes original row creation time, distinct from most recent name/address refresh and independent of order history.",
+        "inputs": "Entity instance storing DateTimeOffset creation instant.",
+        "outputs": "DateTimeOffset creation instant directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-178211a1662967d4c4188fbd10103189e1623ccdac9673c2c21adf4f6efc9ff4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.CreatedAtUtc.set",
+        "span": [
+          11,
+          47,
+          11,
+          51
+        ],
+        "reasoning": "Setter initializes once on new-row creation; subsequent upsert only updates UpdatedAtUtc. Entity itself does not make this field immutable.",
+        "inputs": "DateTimeOffset creation instant from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-6512abbaac2663cbefb1ee051c389890076d8b4e01704c75afa1d7097c4a4f8f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.UpdatedAtUtc.get",
+        "span": [
+          12,
+          42,
+          12,
+          46
+        ],
+        "reasoning": "Getter exposes stored last upsert time in DTO; a request timestamp taken before lock acquisition need not be monotonically increasing under concurrent callers.",
+        "inputs": "Entity instance storing DateTimeOffset update instant.",
+        "outputs": "DateTimeOffset update instant directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-72ab15e6e7306f82be9a38226b5ee5cf238a37c930d0eafccaea270912aea8a6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.UpdatedAtUtc.set",
+        "span": [
+          12,
+          47,
+          12,
+          51
+        ],
+        "reasoning": "Setter assigns request-start now during locked phase two. It records caller request time rather than server commit order, so do not use it as concurrency token.",
+        "inputs": "DateTimeOffset update instant from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-b060f64a61cf0c150800e3f6b37edaa15162d3f4f6ce2f72bd312e85cc7979fb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Addresses.get",
+        "span": [
+          14,
+          52,
+          14,
+          56
+        ],
+        "reasoning": "Getter returns mutable navigation list, but verified queries explicitly load address rows separately and DTO receives that separate list. An unpopulated navigation is not no-address proof.",
+        "inputs": "Entity instance storing List of CustomerAddressEntity.",
+        "outputs": "List of CustomerAddressEntity directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-fce0c3969779600d72fcf62e6ee779eee8df53e107f30e04767d90e86d96f27d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerEntity.Addresses.set",
+        "span": [
+          14,
+          57,
+          14,
+          61
+        ],
+        "reasoning": "Setter can replace initialized list and affect EF relationship tracking; actual upsert adds or updates DbSet rows, not blanket navigation replacement.",
+        "inputs": "List of CustomerAddressEntity from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-eee8b575674e5d1ffe8008d6dc8264c2f73ff318d89ce127a6d24be5d359ed0a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Id.get",
+        "span": [
+          23,
+          24,
+          23,
+          28
+        ],
+        "reasoning": "Getter identifies saved reusable address row, used to find matched entity after domain geographic match. It does not identify an order delivery snapshot.",
+        "inputs": "Entity instance storing string address PK.",
+        "outputs": "string address PK directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-35cd022f0e846fd5557a85641d1980ebbad98b25be2eadba0b9d3bd4afd5394f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Id.set",
+        "span": [
+          23,
+          29,
+          23,
+          33
+        ],
+        "reasoning": "Setter assigns addr-GUID only for a new unmatched address. Existing matched rows retain ID while supplemental landmark/service fields refresh.",
+        "inputs": "string address PK from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-fc765020d4bfc9f54262de8e054f7984691ba398e07f7081e80e68b919b707e6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.CustomerId.get",
+        "span": [
+          24,
+          32,
+          24,
+          36
+        ],
+        "reasoning": "Getter supplies parent customer FK used by indexed relational lookup and scoped address locks. It is absent from nested CustomerAddressDto because parent is implicit.",
+        "inputs": "Entity instance storing string customer FK.",
+        "outputs": "string customer FK directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-69018564c74af899ecbff33962e84a41a06c32218d481eedb07c5a30fb472f70",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.CustomerId.set",
+        "span": [
+          24,
+          37,
+          24,
+          41
+        ],
+        "reasoning": "Setter stores customerId found or created in phase one; EF cascade relation ties lifecycle to parent, not historical order delivery records.",
+        "inputs": "string customer FK from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-b5cdea7c801c989a7e0150c5d13ec5742693596e5d9a698a775f2588dcb18965",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Area.get",
+        "span": [
+          25,
+          26,
+          25,
+          30
+        ],
+        "reasoning": "Getter supplies geographic identity component; domain comparison trims null-coalesced area and performs exact ordinal equality.",
+        "inputs": "Entity instance storing string area.",
+        "outputs": "string area directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-b522f9ad0c52a08ec32429ec4dab4f8454d42f3070849fe2b4896a688cc7fde8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Area.set",
+        "span": [
+          25,
+          31,
+          25,
+          35
+        ],
+        "reasoning": "Setter stores trimmed request Area for newly inserted row. A matched row does not rewrite Area, preserving original spelling after trim-based equivalence.",
+        "inputs": "string area from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-1422222eb599bae631b27c3f4215e78b7010fe634c781ba136d6d225ec6024e3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Street.get",
+        "span": [
+          26,
+          28,
+          26,
+          32
+        ],
+        "reasoning": "Getter supplies geographic street identity using trimmed exact comparison, independent of landmark and service default.",
+        "inputs": "Entity instance storing string street.",
+        "outputs": "string street directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-cafd37b39206c2fe9accbc96a807633d5cf7d1f3db2e7700aec7b0860dacade5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Street.set",
+        "span": [
+          26,
+          33,
+          26,
+          37
+        ],
+        "reasoning": "Setter writes trimmed Street only on insertion; matched refresh updates other fields and last-used time rather than replacing street text.",
+        "inputs": "string street from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-390d95c244c70c35c4af7b59b7c21318b6aa05ea1a801c9ba25f01f58e0974a0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Building.get",
+        "span": [
+          27,
+          31,
+          27,
+          35
+        ],
+        "reasoning": "Getter supplies optional building match component; null and empty compare equal but whitespace is not trimmed by domain match.",
+        "inputs": "Entity instance storing nullable building.",
+        "outputs": "nullable building directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-35782687853fb6a0a17456739d42c5b04b6c91d1a840dc6428964878678c2520",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Building.set",
+        "span": [
+          27,
+          36,
+          27,
+          40
+        ],
+        "reasoning": "Setter stores raw request Building on insertion and matching refresh; changing building normally forms a different match rather than editing an existing address identified by ID.",
+        "inputs": "nullable building from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-94dbd03ac5710c8068459ea07f0daee33d5db90db5ec710707432f7ff5b6d45d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Floor.get",
+        "span": [
+          28,
+          28,
+          28,
+          32
+        ],
+        "reasoning": "Getter supplies optional floor match component; raw string comparison after empty coalescing means formatting variants can create distinct rows.",
+        "inputs": "Entity instance storing nullable floor.",
+        "outputs": "nullable floor directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-a3b6b24c7321c2eb4add2d5b5824e3b5072b59d13fae2e981492811bee9b2e01",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Floor.set",
+        "span": [
+          28,
+          33,
+          28,
+          37
+        ],
+        "reasoning": "Setter stores raw request floor on insert or matched refresh. It does not parse numeric floors or normalize whitespace, preserving documented match semantics.",
+        "inputs": "nullable floor from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-4588586f52b889ed5d40f0db161b9969ed49d3742ad430bbd01f38bccce2f45b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Apartment.get",
+        "span": [
+          29,
+          32,
+          29,
+          36
+        ],
+        "reasoning": "Getter supplies optional apartment match component with null/empty equivalence, not a parsed numeric unit.",
+        "inputs": "Entity instance storing nullable apartment.",
+        "outputs": "nullable apartment directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-803d7547853554cf7aae6feaa4e2b7a5255e16d58a67d8965a92bc16ecfcba01",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Apartment.set",
+        "span": [
+          29,
+          37,
+          29,
+          41
+        ],
+        "reasoning": "Setter stores request apartment without numeric conversion; geographic match determines whether to reuse row, not address ID supplied by caller.",
+        "inputs": "nullable apartment from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-a6a66515d46b76c14eced7cdf6e45042354b4e1ccc150da2f0c49e5ee86fecbf",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Landmark.get",
+        "span": [
+          30,
+          31,
+          30,
+          35
+        ],
+        "reasoning": "Getter returns reusable descriptive landmark excluded from geographic identity, allowing an updated instruction on the same physical address.",
+        "inputs": "Entity instance storing nullable landmark.",
+        "outputs": "nullable landmark directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-fc22d49bdaea3fd6418ae0e5263f87f55ae353da61a0c099be5587243aec3c03",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.Landmark.set",
+        "span": [
+          30,
+          36,
+          30,
+          40
+        ],
+        "reasoning": "Setter refreshes landmark even on matched address; this changes saved default instructions and is not evidence of historical order snapshot mutation.",
+        "inputs": "nullable landmark from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-0e4d18525cff36fa735a1d26751d5757190bfae3a57655097dea7d444ab7f315",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.ServiceId.get",
+        "span": [
+          32,
+          32,
+          32,
+          36
+        ],
+        "reasoning": "Getter exposes last-used delivery service default, excluded from physical address matching; it is not forced future dispatch selection.",
+        "inputs": "Entity instance storing nullable service reference.",
+        "outputs": "nullable service reference directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-1030088f804154bfb7e51e65c562664257ff777794145babe987ceeec828a670",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.ServiceId.set",
+        "span": [
+          32,
+          37,
+          32,
+          41
+        ],
+        "reasoning": "Setter accepts request service ID during insert and matched refresh. Inspected customer model has no FK to service, so validity/current availability must be handled when ordering.",
+        "inputs": "nullable service reference from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-a22bf4dd709e62557c163e3f709ab6e47ea078354004c3e0b9faa9ef7a1f58f2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.ServiceName.get",
+        "span": [
+          33,
+          34,
+          33,
+          38
+        ],
+        "reasoning": "Getter exposes last-used service name snapshot alongside optional service ID; label can outlive current service rename.",
+        "inputs": "Entity instance storing nullable service label.",
+        "outputs": "nullable service label directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-224417e26f36a36b1ed8a610a2aec186ddd2f98d91aea1d566fbbb06fbc3e5b9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.ServiceName.set",
+        "span": [
+          33,
+          39,
+          33,
+          43
+        ],
+        "reasoning": "Setter accepts supplied service label independently of ID without lookup in this handler. It is a saved presentation default, not authority for fee calculation.",
+        "inputs": "nullable service label from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-e62e3b1491a8f94d17f435795f12cb36d10ee47c5cf1bb2e18d938fcc3f973dd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.CreatedAtUtc.get",
+        "span": [
+          34,
+          42,
+          34,
+          46
+        ],
+        "reasoning": "Getter exposes saved-address creation instant and is preserved when a matched address is reused.",
+        "inputs": "Entity instance storing DateTimeOffset address creation.",
+        "outputs": "DateTimeOffset address creation directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-45d37872f6ab994336cfd193c6443d154bece34f917029539d792998c7277bd9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.CreatedAtUtc.set",
+        "span": [
+          34,
+          47,
+          34,
+          51
+        ],
+        "reasoning": "Setter initializes now only for new unmatched address; matched refresh changes LastUsedAtUtc while retaining creation chronology.",
+        "inputs": "DateTimeOffset address creation from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-08b5f7be215ede6e7dc717e3e76754ac0ac1c4c4dab3b7926338b509784529cd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.LastUsedAtUtc.get",
+        "span": [
+          35,
+          43,
+          35,
+          47
+        ],
+        "reasoning": "Getter drives descending address ordering in customer queries, representing saved/upserted use rather than necessarily a completed sale.",
+        "inputs": "Entity instance storing DateTimeOffset last-used instant.",
+        "outputs": "DateTimeOffset last-used instant directly returned.",
+        "side_effects": "No side effects; navigation returns mutable collection without loading database.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      },
+      {
+        "stable_id": "sym-564cd492bc0f1071bd65cd3782e2c2440874a90aafff375ccfafdfc2a8bbf295",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CustomerAddressEntity.LastUsedAtUtc.set",
+        "span": [
+          35,
+          48,
+          35,
+          52
+        ],
+        "reasoning": "Setter records request-start now for inserts and matched reuse. Cancellation after phase one can leave a customer row without successful phase-two update; accessor gives no whole-workflow atomicity guarantee.",
+        "inputs": "DateTimeOffset last-used instant from customer upsert or EF materialization.",
+        "outputs": "In-memory assignment only; no returned value.",
+        "side_effects": "May change EF tracked field/navigation; upsert SaveChanges controls persistence. No money, stock or printer action.",
+        "trust_boundaries": "CustomerRules validates nonempty normalized phone/name; ordinary order-taking is documented non-management operation. Entity setters do not enforce authentication, ownership, normalization or service validity.",
+        "database": "FalahDbContext307-316: customer Id PK, unique Phone index, cascade address CustomerId FK, address Id PK. Upsert31-45 separate initial row save,52-91 transaction and customer/address update locks. No SQL run.",
+        "printing_ui": "CustomerDto maps fields at Upsert100-104 and queries order by LastUsedAtUtc. Historical delivery independence is documented in domain/entity; no UI or order rewrite executed.",
+        "performance": "O(1) auto-property operation. Customer queries load all addresses for one customer; no paging occurs inside accessor and no global scan is introduced by getter.",
+        "duplicates_conflicts": "Normalized phone uniqueness is an actual DB constraint countercontrol. Geographic match excludes landmark/service; null/empty optional components and request-time chronology require semantics-aware regression.",
+        "issues_hypotheses": "No separate accessor financial defect promoted. Saved defaults and mutable timestamps must not be interpreted as financial facts, authorization or globally monotonic commit markers.",
+        "tests_missing": "No tests or fixtures run. Regression should cover same-phone races, same-address merges, null/empty match equivalence, differing optional whitespace, refreshed service defaults and immutable order snapshots.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs:21-104",
+          "src/Falah.Infrastructure/Customers/CustomerQueryService.cs:16-36",
+          "src/Falah.Domain/Customers/Customer.cs:24-55",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:307-316"
+        ]
+      }
+    ]
+  }
+]

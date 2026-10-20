@@ -1,0 +1,52 @@
+{
+  "at_utc": "2026-10-19T09:11:19.254Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "primary_reviewer": "financial_integrity",
+  "scope": "Independent bounded receipt-quality challenge, not duplicate full-file financial receipt or SQL test",
+  "receipt": {
+    "path": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Persistence/OrderSequenceService.cs.json",
+    "sha256": "dcd422052a80963a82ef50fb68358ffe0e016293255e0fa0c470c98b78c0109f",
+    "stable_id": "sym-19e519b9c3d199d1c0491a3ff3b0b0f8733b02d907cd992185d4acd71aa2f095"
+  },
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
+      "line_ranges": [
+        [
+          19,
+          29
+        ]
+      ],
+      "worktree_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "line_ranges": [
+        [
+          145,
+          159
+        ],
+        [
+          278,
+          289
+        ]
+      ],
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c"
+    }
+  ],
+  "conclusion": "MAIN_SYMBOL_REASONING_CORROBORATED_WITH_ANCILLARY_FIELD_QUALITY_NOTE",
+  "reasoning": [
+    "Allocator19-29 uses one UPDATE OUTPUT on Id1 and assigns current transaction if present. There is no helper nonnull transaction guard. Source contract therefore depends on callers.",
+    "Read all tracked source .cs candidates for exact OrderSequenceService.AllocateNextAsync calls; one observed call in Checkout156 follows BeginTransaction145. SaveChanges278 then Commit279 share that transaction. DbUpdate/CheckoutConflict catch282-288 explicitly rolls back before replay lookup. Other errors are not all caught here; await-using transaction disposal is distinct from explicit catch rollback.",
+    "No defect inferred from optional helper transaction alone because observed caller satisfies its contract. SQL overflow and transaction lock behavior not independently exercised.",
+    "Primary per-symbol reasoning accurately distinguishes helper contract from caller assurance. Ancillary printing/performance/tests/duplicates fields include unrelated Seeder/CommandReceipt batch material; those shared fields cannot be counted as additional Sequence behavior reasoning or more symbols. Preserve genuine focused main reasoning and annotate quality limitation."
+  ],
+  "limitations": [
+    "No SQL sequence allocation/concurrency/rollback/overflow execution.",
+    "Source search does not certify dynamic/reflection calls or external consumers.",
+    "One symbol/context checked; not independent depth certification for all financial receipts."
+  ],
+  "new_author_receipts": 0,
+  "new_findings": 0
+}

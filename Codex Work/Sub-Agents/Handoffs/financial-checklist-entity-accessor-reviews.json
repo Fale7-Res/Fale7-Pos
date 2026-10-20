@@ -1,0 +1,645 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/ControlCenterEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-9fa9789fa4ff644f8b0fb78ee95055077352e33e6262338b921ae768ac9dd09f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Id.get",
+        "span": [
+          9,
+          24,
+          9,
+          28
+        ],
+        "reasoning": "Getter returns deployment-seeded catalog key used to join a day completion; it is not an order, money movement or independently generated completion identifier.",
+        "inputs": "Entity containing string catalog ID.",
+        "outputs": "string catalog ID directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-4b73ad0dc5ea67169a6ef002cd4b0bf1e05985c48199c7d38d583c65c228a58a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Id.set",
+        "span": [
+          9,
+          29,
+          9,
+          33
+        ],
+        "reasoning": "Setter carries seeded catalog identity. CompleteChecklistItem looks up the existing ID rather than creating runtime catalog rows; assigning an ID does not validate deployment seed uniqueness.",
+        "inputs": "string catalog ID assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-3cdb18d58091b839f217d6d2333556180c58be9930ee88dfc0a54cc37436e3a0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Label.get",
+        "span": [
+          10,
+          27,
+          10,
+          31
+        ],
+        "reasoning": "Getter exposes localized checklist instruction shown in status DTO; text is presentation and never used as blocker identity.",
+        "inputs": "Entity containing string instruction label.",
+        "outputs": "string instruction label directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-3c8ac919ada587b04cb743e907e5affed2b7a433329b53aee76f41a3bd493ccc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Label.set",
+        "span": [
+          10,
+          32,
+          10,
+          36
+        ],
+        "reasoning": "Setter is deployment-seed metadata with no management CRUD observed in inspected checklist writer. Changing label does not change the completion composite key.",
+        "inputs": "string instruction label assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-698b2d0916aa803467a5c792117dd7cf231fa9efafdea1ecf48d390347906dfa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Phase.get",
+        "span": [
+          13,
+          27,
+          13,
+          31
+        ],
+        "reasoning": "Getter supplies phase to projection and close/reopen filters. Closing items alone enter mandatory-close evaluation and reopening completion deletion.",
+        "inputs": "Entity containing string ceremony phase.",
+        "outputs": "string ceremony phase directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-eb87d62ab2caf0bbec39573d9a7dea32769c171d418a4a436893148ced62e06f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Phase.set",
+        "span": [
+          13,
+          32,
+          13,
+          36
+        ],
+        "reasoning": "Setter stores string phase, with seeded Opening/Closing values; entity has no closed enum guard. SQL comparison behavior remains provider/collation dependent, no ordinal SQL claim.",
+        "inputs": "string ceremony phase assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-beb6c60b4afdf7263db50bbe2426f2260b4f40b66d2a0c785c55065f5f8d0e67",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Required.get",
+        "span": [
+          14,
+          28,
+          14,
+          32
+        ],
+        "reasoning": "Getter participates with Active and Closing in blocker selection; Required on an Opening item does not itself block business-day close.",
+        "inputs": "Entity containing bool requirement flag.",
+        "outputs": "bool requirement flag directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-41f59fd2ffd6923856bd80c47ae8b76b993fee4c51b6fd868d5f6244ac3744f5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Required.set",
+        "span": [
+          14,
+          33,
+          14,
+          37
+        ],
+        "reasoning": "Setter records deployment policy requirement. A true value is not proof completed work or a runtime permission requirement; evaluation combines item and day state.",
+        "inputs": "bool requirement flag assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-70b69e10f210d09c0a1960c4871eb6c930199ceb9853a5fdced8c471cf737898",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Active.get",
+        "span": [
+          15,
+          26,
+          15,
+          30
+        ],
+        "reasoning": "Getter filters catalog display and required closing evaluation; inactive item rows can still exist and retain historical completion data.",
+        "inputs": "Entity containing bool active flag.",
+        "outputs": "bool active flag directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-3352176fb8cdbe09136349d6667e09c4ddb68c30da5cacdf1206d5e2065d7b0e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.Active.set",
+        "span": [
+          15,
+          31,
+          15,
+          35
+        ],
+        "reasoning": "Setter changes catalog availability only. CompleteChecklistItem writer looks up item ID without checking Active; this is source behavior, not newly demonstrated financial bypass.",
+        "inputs": "bool active flag assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-6eee570a14e5fd23ce5c35fa08e5cb34c63b0fe5a8ba9661cb54e2e2c3b0f05d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.SortOrder.get",
+        "span": [
+          16,
+          28,
+          16,
+          32
+        ],
+        "reasoning": "Getter provides ordering after Phase in query, not a unique index or financial sequence; equal ordering values have no explicit tie-break in inspected query.",
+        "inputs": "Entity containing int display order.",
+        "outputs": "int display order directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-a948d536a5a57d7c68d4f1391c46c217d24e4b3ac413a522b70564a782751a33",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistItemEntity.SortOrder.set",
+        "span": [
+          16,
+          33,
+          16,
+          37
+        ],
+        "reasoning": "Setter assigns seeded display order; no range or uniqueness checks in auto-property, which is appropriate only as presentation metadata.",
+        "inputs": "int display order assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-2d5833ea150f7be161cea45b751b614663d750c3188238aef4c053fbbbe62e7c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.BusinessDayId.get",
+        "span": [
+          26,
+          35,
+          26,
+          39
+        ],
+        "reasoning": "Getter exposes day half of composite key, scoping item completion to one business day rather than all days.",
+        "inputs": "Entity containing string day identity.",
+        "outputs": "string day identity directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-39d5f34fd2bb4466a600f1045311f0daac01d56d88c50732d85bd927e95dbac0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.BusinessDayId.set",
+        "span": [
+          26,
+          40,
+          26,
+          44
+        ],
+        "reasoning": "Setter uses a day verified to exist by handler. Inspected model declares composite key but no authored relation at this block; existence validation is caller responsibility.",
+        "inputs": "string day identity assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-9df6721899b41d6f2e1c7e93d4480f0ff3005b90ff889d42eb5b5c0e3f2a9caf",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.ItemId.get",
+        "span": [
+          27,
+          28,
+          27,
+          32
+        ],
+        "reasoning": "Getter exposes checklist half of composite key used by projection matching and Closing-phase reset on reopen.",
+        "inputs": "Entity containing string catalog item identity.",
+        "outputs": "string catalog item identity directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-8a73d8a2334fd785080bd4d8d1b66597638c8243a04980f524f23f8c4f345cd2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.ItemId.set",
+        "span": [
+          27,
+          33,
+          27,
+          37
+        ],
+        "reasoning": "Setter binds a verified catalog item to the requested day. Composite key stops duplicate persisted pairs but does not make concurrent first inserts both succeed.",
+        "inputs": "string catalog item identity assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-6afde8bac3080fe84e800fe20e55f942814d357fc38c8d19e767c32c5ec73bac",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.Completed.get",
+        "span": [
+          28,
+          29,
+          28,
+          33
+        ],
+        "reasoning": "Getter supplies current boolean acknowledgement; absent row projects false. It is a human checkbox, not evidence device/financial checks really passed.",
+        "inputs": "Entity containing bool completion acknowledgement.",
+        "outputs": "bool completion acknowledgement directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-fd9b5d7de3e6a084d82437d46bc6494a60e180d2878b01196626ba593c1f06a6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.Completed.set",
+        "span": [
+          28,
+          34,
+          28,
+          38
+        ],
+        "reasoning": "Setter stores requested bool on insert or update; repeated calls refresh metadata and no RequestId receipt exists by documented toggle contract.",
+        "inputs": "bool completion acknowledgement assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-f739876251407dafe542fbd30ae4e1f7f2ee949cdfe46345f2e0b457c33d9c3f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.CompletedAtUtc.get",
+        "span": [
+          29,
+          45,
+          29,
+          49
+        ],
+        "reasoning": "Getter exposes nullable acknowledgement time shown with completion state and serialized into close snapshot. A null cannot independently distinguish absent/unchecked row without Completed.",
+        "inputs": "Entity containing nullable UTC completion time.",
+        "outputs": "nullable UTC completion time directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-f8669302a09968f028ac2d4a2e833845269639d2d3e7151336e2134af06e3250",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.CompletedAtUtc.set",
+        "span": [
+          29,
+          50,
+          29,
+          54
+        ],
+        "reasoning": "Setter sets now when true and null when false; repeated true submissions replace the prior time. Auto-property imposes no immutable first-completion guarantee.",
+        "inputs": "nullable UTC completion time assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-955d6636a4118651f2aee68a0d4bee16508a608a6805327863861f117c16d885",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.CompletedBy.get",
+        "span": [
+          30,
+          34,
+          30,
+          38
+        ],
+        "reasoning": "Getter exposes optional completing user-name snapshot, not stable actor ID or evidence of permission at read time.",
+        "inputs": "Entity containing nullable actor display name.",
+        "outputs": "nullable actor display name directly returned.",
+        "side_effects": "No side effects or lazy query authored in accessor.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      },
+      {
+        "stable_id": "sym-b1bad553bb7e2cc4858178f7a4230c36e8ba3462509f80b192c214f19aefcba7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ChecklistCompletionEntity.CompletedBy.set",
+        "span": [
+          30,
+          39,
+          30,
+          43
+        ],
+        "reasoning": "Setter stores actorUser.Name for true, clears it for false. Handler authorizes business_day_close before assignment; name snapshot itself does not enforce authorization.",
+        "inputs": "nullable actor display name assigned by seed or completion writer.",
+        "outputs": "Field assignment with no return value.",
+        "side_effects": "Assignment only; caller EF SaveChanges persists. No hardware, ledger or financial movement executed.",
+        "trust_boundaries": "Completion handler authorizes business_day_close and verifies day/item existence before writing; auto-properties do not authorize or prove physical checklist work.",
+        "database": "FalahDbContext384-398 seeds catalog and declares composite day/item completion key. Complete handler36-51 reads then upserts; conflict handling and whole-close admission are caller concerns. No database operation run.",
+        "printing_ui": "GetChecklist55-63 projects active items with stored completions; open-printer catalog instruction is human acknowledgement, not physical printing verification.",
+        "performance": "O(1) accessor. Query materializes small catalog and day completion list then FirstOrDefault per item; no benchmark or scalability assertion.",
+        "duplicates_conflicts": "Toggle semantics intentionally lack RequestId. Composite uniqueness is not a concurrency retry mechanism. Existing day admission findings remain separate from field access.",
+        "issues_hypotheses": "No new accessor defect promoted; inactive-item completion and mutable acknowledgement timestamps retained as source behaviors, not financial fraud reproduction.",
+        "tests_missing": "No tests executed. Source regression needs Opening versus required Closing, inactive items, repeated true/false toggles, per-day isolation and reopen clearing Closing completions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs:24-51",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:55-63",
+          "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:34-35",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:86-88",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:384-398"
+        ]
+      }
+    ]
+  }
+]

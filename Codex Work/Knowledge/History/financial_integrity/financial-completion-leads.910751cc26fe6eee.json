@@ -1,0 +1,68 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T21:55:50.623Z",
+  "scope": "Explicit disposition of original coordinator financial source leads, not completion certificate or extra callable reviews.",
+  "records": [
+    {
+      "original_lead": "FIN-LEAD-COMPENSATION-CASING-001",
+      "canonical": "FIN-022",
+      "disposition": "INDEPENDENT_STATIC_CORROBORATION",
+      "evidence": "Sub-Agents/Handoffs/compensation-mode-independent-challenge.json"
+    },
+    {
+      "original_lead": "FIN-LEAD-ATTENDANCE-UTC-001",
+      "canonical": "FIN-023",
+      "disposition": "INDEPENDENT_STATIC_CORROBORATION_CONDITIONAL_ZONE_NO_RUNTIME",
+      "evidence": "Sub-Agents/Handoffs/attendance-utc-reconstruction-independent-disposition.json"
+    },
+    {
+      "original_lead": "FIN-LEAD-CORRECTION-RATE-001",
+      "canonical": "FIN-CAND-CORRECTION-BASIS-001",
+      "disposition": "REQUIREMENTS_QUESTION_WITH_SOURCE_SUPPORTED_COUNTEREXAMPLE",
+      "owner_policy_unresolved": true,
+      "evidence": "Sub-Agents/Handoffs/attendance-correction-rate-independent-disposition.json"
+    },
+    {
+      "original_lead": "negative wage/rate admission",
+      "canonical": "FIN-024",
+      "disposition": "INDEPENDENT_STATIC_CORROBORATION_AUTHORIZED_INPUT_SHAPE",
+      "evidence": "Sub-Agents/Handoffs/employee-credit-completion-dispositions.json"
+    },
+    {
+      "original_lead": "manual ledger unknown enum",
+      "canonical": "FIN-025",
+      "disposition": "INDEPENDENT_STATIC_CORROBORATION_NO_DEPLOYED_SQL_TEST",
+      "evidence": "Sub-Agents/Handoffs/employee-credit-completion-dispositions.json"
+    },
+    {
+      "original_lead": "concurrent cached BalanceAfter",
+      "canonical": "FIN-026",
+      "disposition": "INDEPENDENT_STATIC_DISPLAY_CACHE_CORROBORATION_FACT_TOTALS_CORRECT",
+      "evidence": "Sub-Agents/Handoffs/employee-credit-completion-dispositions.json"
+    },
+    {
+      "original_lead": "manual GUID/no RequestId replay",
+      "canonical": null,
+      "disposition": "REJECTED_AS_HIDDEN_CONTRACT_DEFECT_DOCUMENTED_RECOVERY_LIMIT",
+      "evidence": "Sub-Agents/Handoffs/employee-credit-completion-dispositions.json"
+    },
+    {
+      "original_lead": "SNAPSHOT_REPORT_PERMISSION_BOUNDARY",
+      "canonical": "FIN-027",
+      "disposition": "INDEPENDENT_STATIC_CORROBORATION_WITH_PRECONDITIONS",
+      "evidence": "Sub-Agents/Handoffs/financial-snapshot-contract-independent-challenge.json"
+    },
+    {
+      "original_lead": "SNAPSHOT_AUTHORITATIVE_REVISION_CONCURRENCY",
+      "canonical": "FIN-CAND-CLOSE-SNAPSHOT-REVISION-001",
+      "disposition": "SOURCE_INVARIANT_GAP_WITH_UNVERIFIED_CONCURRENT_COMMIT_OUTCOME",
+      "evidence": "Sub-Agents/Handoffs/financial-snapshot-contract-independent-challenge.json",
+      "qualification": "No duplicate-current commit outcome proved; EF ordering, parent FK locks and deadlock remain counterevidence/provider test gate."
+    }
+  ],
+  "all_original_leads_classified": true,
+  "remaining_gate": "Entity/migration/test-source function knowledge and60generatedcontexts still incomplete;161directPrinting paused; noSQL/API/UIfinancialacceptance.",
+  "parent_canonical_owner": "root",
+  "new_shared_registry_writes": 0
+}

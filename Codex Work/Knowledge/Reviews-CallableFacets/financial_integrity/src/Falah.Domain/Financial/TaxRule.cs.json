@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Financial/TaxRule.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:04:35.385390+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+  "worktree_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-808b0e6660bff06e357354346775b5f8e4ca273cbc6b9fc07fe375757cd562ff",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional TaxRule record hasId,Name,RateBasisPoints,Mode,Enabled. Generatedconstructor/init/withcopy/equalitydoesnotvalidaterateorMode; TaxEnginefiltersnonpositiveanduseselseExclusiveforunknownmode. Valueequalityallcomponents, notruleIdonly; copydoesnotenable/persistconfigurationautomatically.",
+      "inputs": "Exactsourcepositionalcomponents for TaxRule",
+      "outputs": "Generatedrecordproperties/construction/copy/equality/deconstructioncontext.",
+      "side_effects": "Value/referencecopyonly; noDB/journalchanges.",
+      "trust_boundaries": "Noauthorizationorbusinessvalidationgenerated.",
+      "database": "Recordequalitynotrowidentity/idempotencyconstraint; transactionexternal.",
+      "printing_ui": "Financialfacts maybedisplayedelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperation,stringhashlinearfieldlength.",
+      "duplicates_conflicts": "Originalauthoredfactory/engine stableIDs separate; contextnotcountedinventedCLRmethods.",
+      "issues_hypotheses": "FIN001/003/004 relevantauthoredworkflowgaps, notrecordgenerateddefect.",
+      "tests_missing": "Copy/equalityfieldretention; invalidconstructortuplecallerpolicy; defaultstructtaxvalues.",
+      "verified_callers_callees": "TaxEngine16-27 constructsTaxCalculation; CheckoutHandler61-63 createsTaxRule; factories41-102 createTreasuryMovement as applicable."
+    },
+    {
+      "stable_id": "sym-8d6f98d88ba961ef485a8300bfb949cc7d7393615b2e99f6482a917b64c0a067",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positional TaxCalculation record storesTaxable/Tax/Final independently. Generatedvalueequality/copy/deconstructdoesnotrecomputeFinal=Taxable+Tax; TaxEngine constructsordinaryrangeconsistentresults. Awithcopycanviolateidentityin trustedcode, noactualAPIinjectionproved.",
+      "inputs": "Exactsourcepositionalcomponents for TaxCalculation",
+      "outputs": "Generatedrecordproperties/construction/copy/equality/deconstructioncontext.",
+      "side_effects": "Value/referencecopyonly; noDB/journalchanges.",
+      "trust_boundaries": "Noauthorizationorbusinessvalidationgenerated.",
+      "database": "Recordequalitynotrowidentity/idempotencyconstraint; transactionexternal.",
+      "printing_ui": "Financialfacts maybedisplayedelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperation,stringhashlinearfieldlength.",
+      "duplicates_conflicts": "Originalauthoredfactory/engine stableIDs separate; contextnotcountedinventedCLRmethods.",
+      "issues_hypotheses": "FIN001/003/004 relevantauthoredworkflowgaps, notrecordgenerateddefect.",
+      "tests_missing": "Copy/equalityfieldretention; invalidconstructortuplecallerpolicy; defaultstructtaxvalues.",
+      "verified_callers_callees": "TaxEngine16-27 constructsTaxCalculation; CheckoutHandler61-63 createsTaxRule; factories41-102 createTreasuryMovement as applicable."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

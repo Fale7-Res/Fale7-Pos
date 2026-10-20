@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Customers/Customer.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:57:43.920623+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "1cd133bfadd3dec6e841be4aa37526162b63d1591a35fbb083c8e7c4c5c3ec63",
+  "worktree_sha256": "1cd133bfadd3dec6e841be4aa37526162b63d1591a35fbb083c8e7c4c5c3ec63",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-bd644773cb3d28b3a7485d96979e1513425b7cad205404bf8707ea01381be3c6",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional Customer record synthesizes init/deconstruct/equality/hash/copy overId, Phone and nullableName. Equality is allcomponents exactstrings, not normalizedphoneidentity; two format-equivalent phones do notcompareequal automatically. Withcopy doesnotvalidateupsertinput ormergecustomers. No financialamount orsecretcredential field.",
+      "inputs": "Mapped positional customer/address components.",
+      "outputs": "Generated init/construction/equality/copy/deconstruction context.",
+      "side_effects": "NoDB/orderchanges; immutablecomponentcopy.",
+      "trust_boundaries": "Recordconstruction doesnotvalidatephoneorcustomerownership.",
+      "database": "NoDB; recordequality isnot normalizeduniquephone/addressmatchkey.",
+      "printing_ui": "Addressmayfeedfutureorderform, historicalorderfreezesownsnapshot; nohardware.",
+      "performance": "Fixedcomponentstringequality/hash, nohistorysearch.",
+      "duplicates_conflicts": "Original7callables separate from2generatedcontexts.",
+      "issues_hypotheses": "Unicodephonecanonicalization policyquestion, notnewconfirmedfinancialdefect.",
+      "tests_missing": "Equalitydifferentformatphones; addresschange onlylandmark/time vsgeographicmatch; defaulttimestamps.",
+      "verified_callers_callees": "FindByPhone29; AddressMatches36-41; UpsertCustomer66 domainaddressmatching; Customer/Address declarations6,13-16."
+    },
+    {
+      "stable_id": "sym-d1b2d1e97ef6271b8c3727494549326794afb8d4477d3408b3defc809e9ae6ed",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional CustomerAddress record includes identity/customer, geography, landmark/service and two timestamps withdefault optionaltail. Generated valueequality includes allcomponents, unlike AddressMatches which ignoreslandmark/service/time. Withcopy leavesoriginalsnapshotunchangedbecausefieldsstrings/value-times, but constructingrecorddoesnotenforcecustomerownership orvalidaddress. Defaulttimestampsyear1 representlegacyunknown, notcurrentclock.",
+      "inputs": "Mapped positional customer/address components.",
+      "outputs": "Generated init/construction/equality/copy/deconstruction context.",
+      "side_effects": "NoDB/orderchanges; immutablecomponentcopy.",
+      "trust_boundaries": "Recordconstruction doesnotvalidatephoneorcustomerownership.",
+      "database": "NoDB; recordequality isnot normalizeduniquephone/addressmatchkey.",
+      "printing_ui": "Addressmayfeedfutureorderform, historicalorderfreezesownsnapshot; nohardware.",
+      "performance": "Fixedcomponentstringequality/hash, nohistorysearch.",
+      "duplicates_conflicts": "Original7callables separate from2generatedcontexts.",
+      "issues_hypotheses": "Unicodephonecanonicalization policyquestion, notnewconfirmedfinancialdefect.",
+      "tests_missing": "Equalitydifferentformatphones; addresschange onlylandmark/time vsgeographicmatch; defaulttimestamps.",
+      "verified_callers_callees": "FindByPhone29; AddressMatches36-41; UpsertCustomer66 domainaddressmatching; Customer/Address declarations6,13-16."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

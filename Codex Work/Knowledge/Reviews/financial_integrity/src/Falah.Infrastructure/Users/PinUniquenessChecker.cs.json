@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Users/PinUniquenessChecker.cs",
+  "source_git_blob_sha256": "bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b",
+  "worktree_sha256": "bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T02:11:22.542503+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-2136584e5ca5e6dc6b849a84baac2bc05c100c5832011e11e961cba5d640ba44",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Users.PinUniquenessChecker.AssertNotInUseAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string?, CancellationToken)",
+      "span": [
+        16,
+        5,
+        23,
+        6
+      ],
+      "reasoning": "Loads other active user hash tuples and sequentially verifies candidate against each salted hash, throws on match. Salt means equal PIN has different stored hash; no DB hash uniqueness proof. No transaction/anchor lock, so distinct-target concurrent checks may both pass. No plaintext credential read/log. CPU work O(active users*KDF cost), no cancellation inside Any; strength guard happens later in Hash, not here. Existing parent security lead, not new finding.",
+      "inputs": "Falah.Infrastructure.Users.PinUniquenessChecker.AssertNotInUseAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string?, CancellationToken)",
+      "outputs": "User creation ID/replay flag, credential update or collision exception",
+      "side_effects": "Production read/KDF comparisons only.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    },
+    {
+      "stable_id": "sym-6e2cb63f2945b754dbc1b7ad5ac85f2ccd6e6589173256b9e8b29456951d2c5e",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        19,
+        20,
+        19,
+        58
+      ],
+      "reasoning": "Active-only filter excludes target own ID, allowing unchanged own PIN and intentionally ignoring inactive credentials. Reactivation must enforce uniqueness separately; that handler is next unreviewed file, not assumed safe.",
+      "inputs": "Captured user identity or salted credential tuple as exact source expression specifies",
+      "outputs": "Identity predicate, hash tuple or verification Boolean",
+      "side_effects": "Production read/KDF comparisons only.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    },
+    {
+      "stable_id": "sym-5c8d04892b970d356248a1f6b933ef51d63d0e46d42f5e6b99adc7c5cf4f4d95",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        20,
+        21,
+        20,
+        71
+      ],
+      "reasoning": "Projection fetches hash/salt/iterations only, no user names/raw PIN. Corrupt encoding/KDF parameters can throw Verify and abort check; no per-row quarantine here.",
+      "inputs": "Captured user identity or salted credential tuple as exact source expression specifies",
+      "outputs": "Identity predicate, hash tuple or verification Boolean",
+      "side_effects": "Production read/KDF comparisons only.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    },
+    {
+      "stable_id": "sym-06f6ac477a5afc08be064a2c03b2fd1c66bbe90a79e53305a057622ce55ae70d",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        21,
+        29,
+        21,
+        103
+      ],
+      "reasoning": "Any invokes Verify until first matching hash. FixedTimeEquals covers one comparison but overall scan time depends on row position/count; no constant-time whole search claim. A negative result reserves no credential identity against concurrent writes.",
+      "inputs": "Captured user identity or salted credential tuple as exact source expression specifies",
+      "outputs": "Identity predicate, hash tuple or verification Boolean",
+      "side_effects": "Production read/KDF comparisons only.",
+      "trust_boundaries": "Actual users_manage for create/admin reset; current-secret proof self-change; owner/explicit-permission guards. Session binding external, no credentials reported.",
+      "database": "Single Save for writes, no serialization around cross-user uniqueness. Same-ID replay is not distinct-user collision protection.",
+      "printing_ui": "No UI rendering or printing.",
+      "performance": "Active-user KDF scan O(user count*hash cost); no benchmark or CPU cancellation test.",
+      "duplicates_conflicts": "Existing parent security owns PIN/owner concurrency and role-derived capability candidates; no duplicate promoted finding.",
+      "issues_hypotheses": "Source-only limits on concurrent admission, role versus explicit grants and session revocation preserved. No validated exploit or authentication attempt.",
+      "tests_missing": "Self current-PIN control, owner admin refusal, different-target concurrent PIN create/change, inactive/reactivation, first-owner concurrent keys, explicit grant subset, replay and no secret audit.",
+      "verified_callers_callees": "Full Change24-65/Create23-95/Checker16-23 and domain UserManagementRules/PinHasher read; Checker->Verify, new Hash->AssertValidPin. No DB/auth execution."
+    }
+  ],
+  "remaining_callable_ids": []
+}

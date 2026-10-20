@@ -1,0 +1,62 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Common/BusinessClock.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:28:53.444048+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-6dd52893bd42c1ca1393352565d12214c95d09eb32d05ba2610e0eeb3cce22b8",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Common.BusinessDateRange.DayCount::get()",
+      "span": [
+        73,
+        5,
+        73,
+        62
+      ],
+      "reasoning": "Subtracts inclusive DateOnly day numbers without normalizing From/To. Reversed input can yield zero/negative count while ToUtcRange swaps endpoints and Days yields none. Exact endpoint/report inconsistency preserved in reverse-date-range-source-lead.json; no int overflow within DateOnly domain claimed.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Subtracts inclusive DateOnly day numbers without normalizing From/To. Reversed input can yield zero/negative count while ToUtcRange swaps endpoints and Days yields none. Exact endpoint/report inconsistency preserved in reverse-date-range-source-lead.json; no int overflow within DateOnly domain claimed.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    },
+    {
+      "stable_id": "sym-f2da720096cb9bddeeab764d6a6382d057f830922515556b51a98efe693eaa25",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Common.BusinessDateRange.IsSingleDay::get()",
+      "span": [
+        74,
+        5,
+        74,
+        43
+      ],
+      "reasoning": "Tests original From==To only, does not validate ordering or normalize. Non-single reversed range still flows through ToUtcRange endpoint swap; this Boolean is not evidence of valid reporting range.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Tests original From==To only, does not validate ordering or normalize. Non-single reversed range still flows through ToUtcRange endpoint swap; this Boolean is not evidence of valid reporting range.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    }
+  ],
+  "source_git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+  "worktree_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [
+    "sym-8d598061cc38f432188bc216dff0bef4c1156a0791e2acdc18ba4d18e41fcc22"
+  ],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

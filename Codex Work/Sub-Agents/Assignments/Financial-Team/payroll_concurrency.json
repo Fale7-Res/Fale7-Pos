@@ -1,0 +1,2985 @@
+{
+  "role": "payroll_concurrency",
+  "primary_source_paths": [
+    "src/Falah.Domain/Employees/Attendance.cs",
+    "src/Falah.Domain/Employees/Employee.cs",
+    "src/Falah.Domain/Employees/EmployeeRules.cs",
+    "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+    "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+    "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+    "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+    "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+    "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+    "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+    "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+    "src/Falah.Infrastructure/Employees/PayrollQueryService.cs",
+    "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+    "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+    "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+    "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+    "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+    "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+    "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+    "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+    "tests/Falah.Server.IntegrationTests/EmployeeVerticalSliceTests.cs",
+    "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+    "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs"
+  ],
+  "remaining_original_symbols": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-68203f1524cf056ccb0597829b5d4a46f32db93d9d4c22c1772f0a34398a060b",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Id.get",
+      "span": [
+        7,
+        24,
+        7,
+        28
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-7f4b2af4b55385b26e61edb2c41d8d6972d2e2f23b16980b6cf10593a9966f6c",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Id.set",
+      "span": [
+        7,
+        29,
+        7,
+        33
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d577f91af333d57035f8e3e831ed1c6c1c6b662f63be43184c5be7bd322065b0",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Name.get",
+      "span": [
+        8,
+        26,
+        8,
+        30
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-525beb840202b1839f207f01193da47612ad0ce0134daa7a395a3927ef03373c",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Name.set",
+      "span": [
+        8,
+        31,
+        8,
+        35
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-c29c320f9c6c9e46e6f06bcab8f833f2bfe8377566d8f56fec626ee816799c63",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.EmployeeNumber.get",
+      "span": [
+        9,
+        36,
+        9,
+        40
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-048c1cdf69bfce47730ea786b095973906774c2a675d573267ae65c60d71ac0d",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.EmployeeNumber.set",
+      "span": [
+        9,
+        41,
+        9,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-b1a102d354dcf2d70785a4a8df6a161dc8a9d7a6de7ece2d795cc267b0b91ab1",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.JobTitle.get",
+      "span": [
+        10,
+        30,
+        10,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d6a74769097a12bfd8a0a94d8cc194cac33b458d3d9827f5d6557f26eb608e96",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.JobTitle.set",
+      "span": [
+        10,
+        35,
+        10,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-f1ee001a97f02a6acbe829b646c3772db87376ab00be28f0e29d3c21452b3331",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Phone.get",
+      "span": [
+        11,
+        27,
+        11,
+        31
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d30d3c6fbd5d73922f7dcb4166610eb7eb29888d702266b28f478c1ff457aa9d",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Phone.set",
+      "span": [
+        11,
+        32,
+        11,
+        36
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-cd46bd470d38677d6cca84241c1fcda0a725d5048d8f8dae70de4b11dfe70507",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.HireDate.get",
+      "span": [
+        12,
+        32,
+        12,
+        36
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-e4a494a9f57fd773c8fe20a46d6798af1d7f7aa7e9a26ad90fbd6ca3dc14add0",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.HireDate.set",
+      "span": [
+        12,
+        37,
+        12,
+        41
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-491814e40011998c55ff8c20de1a4e0ebba026483b1ffa5584ccefac18f9ea99",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.CompensationType.get",
+      "span": [
+        13,
+        38,
+        13,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-9f505e7b377fd503ac20dffe0f4e7195d4f512e4403944b436ca9e2d778cdc06",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.CompensationType.set",
+      "span": [
+        13,
+        43,
+        13,
+        47
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-70880de7f2836b4c0c047d08e50563bb69905edd03fafafcba90056975f8a90a",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.DailyWagePiastres.get",
+      "span": [
+        14,
+        37,
+        14,
+        41
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-946c831d9ad4954f22d32423cdca45266e13b1afb19760b8acd37c4f5cfdedb8",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.DailyWagePiastres.set",
+      "span": [
+        14,
+        42,
+        14,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-137c78bd03b23008c8e1e652b25d0d8af7b6582a791dccbeb6844c24bb362e2b",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.ShiftValuePiastres.get",
+      "span": [
+        15,
+        38,
+        15,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-c85a29f727ce3796e075556566db961a38c7a5bfdfd7b0213d5c408c99d313b9",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.ShiftValuePiastres.set",
+      "span": [
+        15,
+        43,
+        15,
+        47
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d8767f2a8a889f6d6aa40f017b25fa5f294796a57b64a0fc988f88ff5eb40209",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.MonthlySalaryPiastres.get",
+      "span": [
+        16,
+        42,
+        16,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d8a06e00a4d77c58776bf4ab45f20c5db41789a8aeceec1f2e213a653b943dd6",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.MonthlySalaryPiastres.set",
+      "span": [
+        16,
+        47,
+        16,
+        51
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-37aa9d044e91096b8a0ff7f255540879a012cbe524709f7c47e0413d1aefad58",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.UserId.get",
+      "span": [
+        17,
+        29,
+        17,
+        33
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-09ec3c7b9347ad281482b4c1bd67b8a042f39a2773230174412494c7233ffb1b",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.UserId.set",
+      "span": [
+        17,
+        34,
+        17,
+        38
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-362e34794fcdff95a67645b04b11f1610c4c345dc172599f74c39b53dbb3ade8",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.CanDeliver.get",
+      "span": [
+        18,
+        30,
+        18,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-3f81d24278a00ff551b9679c8d0ae8b6fa461dcfb81339cd3e92613efd1dda31",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.CanDeliver.set",
+      "span": [
+        18,
+        35,
+        18,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-38467eba049c6710eb199a10574a951c3e03ec9c4a835d0c96666a514b8893e7",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Role.get",
+      "span": [
+        19,
+        26,
+        19,
+        30
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d32321213fbbc0209cb82d31a4531b0301b363becb61175725016481c76e8ad6",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Role.set",
+      "span": [
+        19,
+        31,
+        19,
+        35
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-fb37f12a8620671fc28f98745e9f9c609567d3267407c564ba91c7d526356b57",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.IsActive.get",
+      "span": [
+        20,
+        28,
+        20,
+        32
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-213bd11532bd370569f8e9595fa6719d0af4c9afa97cd7b2ff8c05d71b0f68cc",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.IsActive.set",
+      "span": [
+        20,
+        33,
+        20,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-7b8e3029ff664ed1cf61f50796001d4979d74edefd7941ee65a2ea2b85f3c0ba",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Notes.get",
+      "span": [
+        21,
+        28,
+        21,
+        32
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-cb2c5e8ae3e3d1ae58cf31c542590629c3dc5442c2af3a8bb030ca9842091c74",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Notes.set",
+      "span": [
+        21,
+        33,
+        21,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-dc905da1559f5cb9f684b84c632dfe870b42b2bd0d5b3bc3cefde0351f0a3674",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Address.get",
+      "span": [
+        22,
+        30,
+        22,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-099f0c77204007a8d692e339fe32bab726b9320d359d960b2ef4094e1678dc0c",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Address.set",
+      "span": [
+        22,
+        35,
+        22,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-7473549c64fddab16681f3ff018073216dd4992f3f4051aa3ceb8045f217c1e7",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.NationalId.get",
+      "span": [
+        23,
+        33,
+        23,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-c21a1ded97a9f5d4c3e2776c03b5471f1704b374bfc1a3ddbbabc0a6009948ab",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.NationalId.set",
+      "span": [
+        23,
+        38,
+        23,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-5ff71246c36b4002f0f8f52f90c3d87aef0580ac5739675b15af2f9207af642e",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Department.get",
+      "span": [
+        24,
+        33,
+        24,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-db356558fa83405bdc569c1ead112d751fc35c07e590b41471b1d037bd555bff",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.Department.set",
+      "span": [
+        24,
+        38,
+        24,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-720f3da36695e212ec21c06081118c73a60d9173e7de9fa1040e2c742603cb2d",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.EmploymentArrangement.get",
+      "span": [
+        25,
+        44,
+        25,
+        48
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-daaa66805643958d6127078dc5fbf900df4f37e9353b102605d8d6569289b0a4",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.EmploymentArrangement.set",
+      "span": [
+        25,
+        49,
+        25,
+        53
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-ca46b3e04700ca506bca1f769f2933953cdea818d68298095f9087209a958042",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.FingerprintId.get",
+      "span": [
+        26,
+        36,
+        26,
+        40
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-402d3b6bb8019e1d89af984420e009f5ea50684d41d1f5a4a38b6ac6f922f4ae",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.FingerprintId.set",
+      "span": [
+        26,
+        41,
+        26,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-25840319f8702658416ac64f696dff4c81163dcf22e74eb6f548cdc8ab484c99",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.LifecycleStatus.get",
+      "span": [
+        27,
+        38,
+        27,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-d1566c034aaa0055ed1476c2f8aafc07d8426880023e39dbb58a9c9341b4e210",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.LifecycleStatus.set",
+      "span": [
+        27,
+        43,
+        27,
+        47
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-f3be7601d6dedc115a9f589a5e8910ebe2fc30aee945269b02c8aad116752081",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.OvertimeRatePiastres.get",
+      "span": [
+        28,
+        41,
+        28,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-93e7b5c81e56046b26e544d6bbff2dba12b318cc02fc83f11f6fd296d13d6758",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.OvertimeRatePiastres.set",
+      "span": [
+        28,
+        46,
+        28,
+        50
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-2e22664a68ace7c8ce155ab05fd0c0534c493723658e59e833101de60446eca7",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.CreatedAtUtc.get",
+      "span": [
+        29,
+        42,
+        29,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-0ea56b4b8939f5d6cc0d92b365b2e1f48ec93de0cf743b623ca9df71fce06833",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeEntity.CreatedAtUtc.set",
+      "span": [
+        29,
+        47,
+        29,
+        51
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-42a060ce8802de6c39262e7b17734c7f4c622e0398db6c275537858bdae280bc",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Id.get",
+      "span": [
+        36,
+        24,
+        36,
+        28
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-e206f6fe92e953f140fc5617c025cd9da36517c3302b74810add597816310bcb",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Id.set",
+      "span": [
+        36,
+        29,
+        36,
+        33
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-37f6a09519ff9adcc96a5ef710d562b0e2d4bc8a2bf4287f211fcefe166cf8f9",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.EmployeeId.get",
+      "span": [
+        37,
+        32,
+        37,
+        36
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-c82fee3b3d07becf86cb944e838d3afd6a9d7bfa56b5b164514dbdccfb906bab",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.EmployeeId.set",
+      "span": [
+        37,
+        37,
+        37,
+        41
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-033f64e6c0aa4d1d3f9fe9cd4c57a980da75cbfe43f017c5e0c6ea9864020929",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Type.get",
+      "span": [
+        38,
+        26,
+        38,
+        30
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-fbfa343140c3608498527315d0129922c7a1bf82c988fb110cbfc4834a6cc36f",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Type.set",
+      "span": [
+        38,
+        31,
+        38,
+        35
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-8a179a21b447b58b351da465e244df09cd87ea376d74b0cc0ca054c60966b997",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Description.get",
+      "span": [
+        39,
+        33,
+        39,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-cfa393fb3aae46dca4344cd28552ba7b753c909893105a6cc4436fefc1df4012",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Description.set",
+      "span": [
+        39,
+        38,
+        39,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-cb7fbc4fb11b090d26626c83d59bb5e45e85d5b50e831859ba35e616bea72938",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.DebitPiastres.get",
+      "span": [
+        40,
+        33,
+        40,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-13a39a06d0e7646ccb5db14b9f4304ae331d9e2bda07085964ead3f88f15df6d",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.DebitPiastres.set",
+      "span": [
+        40,
+        38,
+        40,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-ee4c9067b99e19f68025880c96938009c460ab086d9fc3ace38ae5475933295a",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreditPiastres.get",
+      "span": [
+        41,
+        34,
+        41,
+        38
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-27ab198996cf43d7913e3c5f67321c179f4d5742865f9cc82d5ea8e84e0b362d",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreditPiastres.set",
+      "span": [
+        41,
+        39,
+        41,
+        43
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-0723101dcc8aa30c4fd54c731879b9b39659c60d8e9b846495fa52f84bbb682f",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.BalanceAfterPiastres.get",
+      "span": [
+        42,
+        40,
+        42,
+        44
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-54c0136b795e861d48d3381365844b90ca1cad3254d94008137f45d8f071eda9",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.BalanceAfterPiastres.set",
+      "span": [
+        42,
+        45,
+        42,
+        49
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-244137f454147563463ac9c45d7814557e21663ff1c838b6d0eaa383b6d61478",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RecordedBy.get",
+      "span": [
+        43,
+        32,
+        43,
+        36
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-5a831ce214a0880e2c5a7c7f3d5bf7520c28dbd12fbed3f1cd02ebf6ab5f18c9",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RecordedBy.set",
+      "span": [
+        43,
+        37,
+        43,
+        41
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-a1cd75362959f18de3ef5acf9c232eb5ba418e706376c79d2fc8ad7ef91c4598",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.AuthorizedBy.get",
+      "span": [
+        44,
+        35,
+        44,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-396554b96f925d466f0a0fe96db77d48a9d29e01ddeef0b67f4d0cf6e68a2f13",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.AuthorizedBy.set",
+      "span": [
+        44,
+        40,
+        44,
+        44
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-af4c0ae4b85fc4ce6cf9446949b0aefb01203b318dc34a0035552b8aa7abf032",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ShiftId.get",
+      "span": [
+        45,
+        30,
+        45,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-5d9480cdc86363c883493e93b0e67051f4c0b3c2dd756af134e3d07acca17303",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ShiftId.set",
+      "span": [
+        45,
+        35,
+        45,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-19f598b13e3e5dc901108149ee1bce04bb6c568062322166daef6d9e00312042",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ReferenceId.get",
+      "span": [
+        46,
+        34,
+        46,
+        38
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-aaa674fc4e2ce8e4cd27ce624d0f06aadfdfc5dacb22bf32f74e061d1d22d742",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ReferenceId.set",
+      "span": [
+        46,
+        39,
+        46,
+        43
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-6e0121540ca8dc73b5e7765e809c1b8a641111313bbb427f3251bb7fc2475fc7",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Hours.get",
+      "span": [
+        47,
+        28,
+        47,
+        32
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-ab54b4270d40621cff24e7ce2f8062afa3d430788c472e9b643cb1d71c976085",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.Hours.set",
+      "span": [
+        47,
+        33,
+        47,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-9d843c132f3707cc564e0dcf1ddabace607111d1db42e9fe74f8c9d986e2f240",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RateSnapshotPiastres.get",
+      "span": [
+        48,
+        41,
+        48,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-759859989b14f2599fd3eedd03a62889b5d6ad9036251c7d3c6bd5a413c876c2",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.RateSnapshotPiastres.set",
+      "span": [
+        48,
+        46,
+        48,
+        50
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-cd68c96d58e7600596a3139aa9079e849330b4a9256416282169fb28192e67b4",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ValueSnapshotPiastres.get",
+      "span": [
+        49,
+        42,
+        49,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-0978ab05c10ce84f8edb232ec67088fecf2f329d9ad274d2522fa75b1fb00f25",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.ValueSnapshotPiastres.set",
+      "span": [
+        49,
+        47,
+        49,
+        51
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-a91fdc9964651e00e44beabbdc8ba3357a811d5abf2c1323f2f522952e50133e",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.PayrollRunId.get",
+      "span": [
+        50,
+        35,
+        50,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-53a77c5415f1e7481ab06ce610f50b942b6093875dc99f3c2fae8a20aff4c9c6",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.PayrollRunId.set",
+      "span": [
+        50,
+        40,
+        50,
+        44
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-f025860ecc01a7e669786c209a5585a72371c064f20d47ad0e909b1ad1ab0cf0",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.TreasuryMovementId.get",
+      "span": [
+        51,
+        41,
+        51,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-57a4440a24cf6912b598d0c2fc5b217943ce14dd09c388625e00eb5f10682fad",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.TreasuryMovementId.set",
+      "span": [
+        51,
+        46,
+        51,
+        50
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-0caf0e6012dc130527027b32a27d3ffc7df8357efca8beb518102c2f6ed61411",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.IdempotencyKey.get",
+      "span": [
+        52,
+        37,
+        52,
+        41
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-3a2b6314c48a04bc0c396105455611cd9d76cf52291fcff6bcfca03b692c472a",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.IdempotencyKey.set",
+      "span": [
+        52,
+        42,
+        52,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-913c530c72afe7e6ea291e9669003771aab8ba1257e75adaef9d1e5a53428a7b",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreatedAtUtc.get",
+      "span": [
+        53,
+        42,
+        53,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-0c1020e81f394617c8cdec09fef54311a68bcfc0f3591735e238534f18f374c4",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity.CreatedAtUtc.set",
+      "span": [
+        53,
+        47,
+        53,
+        51
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-63126d481c10f7398c38166fbec7d171e7f1c87d1856ee518ad7f3cde231a249",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Id.get",
+      "span": [
+        61,
+        24,
+        61,
+        28
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-a061fb6f177b114129d230f2ea6c9923e65a46106f3a70c05f554d10a304631a",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Id.set",
+      "span": [
+        61,
+        29,
+        61,
+        33
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-f69a06e3fa1a5a178dd4614c9c5e0be379a85c1598c7c497eda3a784dacf1ae1",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeId.get",
+      "span": [
+        62,
+        32,
+        62,
+        36
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-39f070195c4264afe88f0e9111e0940ce38bfec3c01f9de51e835126905cf52a",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeId.set",
+      "span": [
+        62,
+        37,
+        62,
+        41
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-0abdfef854a35f2be5eea0145cc4d63bcaf983f00ddc2a6b0a28d5f0e1c1c6a0",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeName.get",
+      "span": [
+        63,
+        34,
+        63,
+        38
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-6a0814a3728bcaf959439229b7db3facf3c63aab74fc0c81b2694318c2fc95c3",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeName.set",
+      "span": [
+        63,
+        39,
+        63,
+        43
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-5a4e22a9e5ab06f26abb10f853b22565e4a02b5793fb1ebd743ca55f28709754",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Date.get",
+      "span": [
+        64,
+        28,
+        64,
+        32
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-b6d083b39f96bd92ce0edf1b431d324178778afbacce9623e42f661256b5f546",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Date.set",
+      "span": [
+        64,
+        33,
+        64,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-e3bdb154c918843bcf6bebc513ebcd5e80f3f70a7ab129f248ca435c02c477c0",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckIn.get",
+      "span": [
+        65,
+        30,
+        65,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-ed609847379a6c80dd2fba779c2308ff064d58d9b40307175a46a28cfc735530",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckIn.set",
+      "span": [
+        65,
+        35,
+        65,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-16bd964372e92cded4285546e38d59945593fc18e143fdd9607dcdef50d304c6",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckOut.get",
+      "span": [
+        66,
+        31,
+        66,
+        35
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-baa6a352a58f4dd78d4aefabb2a9e4aa0c44cdf3cf49e43289ebca770ae30d50",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckOut.set",
+      "span": [
+        66,
+        36,
+        66,
+        40
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-c37bcb3206e63c7e3855fd0c43b13782caa7214b5d92b700356a0d216219afb1",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.ShiftName.get",
+      "span": [
+        67,
+        31,
+        67,
+        35
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-dbb957990599f79e840aae3d4eb5d6c7eb2e723d3ce223cea21318322f5592b1",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.ShiftName.set",
+      "span": [
+        67,
+        36,
+        67,
+        40
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-2d807f0d87242aaab05a2898afb809ebf94fdfc9108fbffa6cff3c4ab6ddca9b",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Status.get",
+      "span": [
+        68,
+        28,
+        68,
+        32
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-f4638d3fb1c5f0dec3b855916c54a6e6182448d17a31baa0b093b029e953b081",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Status.set",
+      "span": [
+        68,
+        33,
+        68,
+        37
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-9dfb3e04732db458da67d323296ef627bf658565b24c0867c7baabb4ed2e0ac6",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LateMinutes.get",
+      "span": [
+        69,
+        30,
+        69,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-10bf0abde97bc3c9174c318bfe9556feffeeaeabec22ae67b26daa655ab57b68",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LateMinutes.set",
+      "span": [
+        69,
+        35,
+        69,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-648579db5498722edcd61048d4a5d91ff83988014ffb7d4c1f9295f31e87ef8e",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.WorkHours.get",
+      "span": [
+        70,
+        31,
+        70,
+        35
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-9748f4041ebb716a96f2af4ce5a19f172a4d721833bce42801c25e893641a0a9",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.WorkHours.set",
+      "span": [
+        70,
+        36,
+        70,
+        40
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-ecb7d6a20c426f0db254b62efc7c5f8eaf7e0774a9f14658e53573ab2678a6fc",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.OvertimeHours.get",
+      "span": [
+        71,
+        35,
+        71,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-704a85675380f9a7ce50d7c1773c6954cb1e85b2387da9aec98d8d5de8866fd6",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.OvertimeHours.set",
+      "span": [
+        71,
+        40,
+        71,
+        44
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-789c064ccc996b444266e1c80552d2ca8816d72af863377fc0c1d4cefb205658",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.TatbiqCount.get",
+      "span": [
+        72,
+        30,
+        72,
+        34
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-2475151620726bedb27321c7c58da0b0d6e488a8499919fa5f2c681345648f85",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.TatbiqCount.set",
+      "span": [
+        72,
+        35,
+        72,
+        39
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-6ec94e363cfd0a6669d8ad09647eb2ddf97c8755cadcc13585dd639bef49115e",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.IsManualCorrection.get",
+      "span": [
+        73,
+        38,
+        73,
+        42
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-497017e66538e81c636d3c7f79e2105b5e3d671706acd38a8410ceb299995e22",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.IsManualCorrection.set",
+      "span": [
+        73,
+        43,
+        73,
+        47
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-c18a9e8bf7a6bfb481e65a8331833a7849afdfff499a0adeac9cb948470d40d7",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectedBy.get",
+      "span": [
+        74,
+        34,
+        74,
+        38
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-ce7d7b037f80086cccfc6a9649719d6d90a5031c731917a1374b998c8421f3f3",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectedBy.set",
+      "span": [
+        74,
+        39,
+        74,
+        43
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-4002b8c314e032aa5c29a3ccb24c000f662b7f107d3a183ada94eda900e96fd5",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectionReason.get",
+      "span": [
+        75,
+        39,
+        75,
+        43
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-b07464f2f3a3ab86f1e0555cb04468982da3ae7257805778a198507c8539a328",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectionReason.set",
+      "span": [
+        75,
+        44,
+        75,
+        48
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-4436242aaf36f6a69513b1631bf44f536eb6e4fb89b67ed452f5210fa81d1be4",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckInEventId.get",
+      "span": [
+        76,
+        41,
+        76,
+        45
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-f2496cf3fe3aff7607ba904859a1faf18cd964ef7666dab7318057ef5dc74a19",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckInEventId.set",
+      "span": [
+        76,
+        46,
+        76,
+        50
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-e51bef1b11b0aa4c3ded540c2b32c2e53a9e5437c332e8bd3c0a1c8aa6d92d92",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckOutEventId.get",
+      "span": [
+        77,
+        42,
+        77,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-cd9e5ddfab0d07a31246559beacf9aac803d92f5e893a423f29609c8c57f6c50",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckOutEventId.set",
+      "span": [
+        77,
+        47,
+        77,
+        51
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-b10b5293bd3cd5207dab0551c4a7d85a7bf5ffd4b7061d53eae9ea0705f95c89",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Source.get",
+      "span": [
+        78,
+        29,
+        78,
+        33
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-deec8fa035e802f2219316301090fcffb578b2f09ca950894c18e71ab0502a6c",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Source.set",
+      "span": [
+        78,
+        34,
+        78,
+        38
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-de88afc020d792664cb1f5f55367cf4172091cf385edc3848770c4d9e12936bc",
+      "kind": "GetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CreatedAtUtc.get",
+      "span": [
+        79,
+        42,
+        79,
+        46
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "stable_id": "sym-13d73b6b2c16299b82d494e0418bdab6d9ca75272e995526450a3ac8297762cc",
+      "kind": "SetAccessorDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CreatedAtUtc.set",
+      "span": [
+        79,
+        47,
+        79,
+        51
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-e679d1272fedebb2a0f644a910771ff675f29575fa4d003bb055451bea046253",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateLatePenaltyHours_matches_the_owner_approved_tiers(int, int, int, int)",
+      "span": [
+        11,
+        5,
+        19,
+        102
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-6d7b69cc0969727ef492dc455b8cc444346fe3079fcefa07cff1ec82bbd2034d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.NormalHourlyRate_is_zero_when_workday_hours_is_non_positive()",
+      "span": [
+        21,
+        5,
+        26,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-6afb1bec50bea494021e9cd76588d97955c2f204d186d899c2b2df2ae496f120",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateLateDeduction_computes_rate_hours_and_amount_together()",
+      "span": [
+        28,
+        5,
+        37,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-fbefeb42aed95f287a5d55d00a309b30dae278131b13e99a3e676e92756fae7c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateLateDeduction_is_zero_within_grace()",
+      "span": [
+        39,
+        5,
+        45,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-dca78f0c8b2ec045c43303f6ed0a1f50cba321e522b5ba060958e08ceca7d4c2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateOvertimeAmount_is_zero_for_non_positive_hours()",
+      "span": [
+        49,
+        5,
+        54,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-49ceba32e9f58b8de8d8c9a5dae399c7f1286bede1dad80138bf29c256e1ea89",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateOvertimeAmount_applies_the_overtime_multiplier()",
+      "span": [
+        56,
+        5,
+        63,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-93ceca84e3cc7f068470153d50b9e28137ca42c60c0e18e38c6e947c46205077",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.AssertTransition_enforces_the_payroll_lifecycle(Falah.Domain.Payroll.PayrollRunStatus, Falah.Domain.Payroll.PayrollRunStatus, bool)",
+      "span": [
+        67,
+        5,
+        80,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-b01f46bf46a7481f186367dadfa3bfd5d3f2acc024d0c8ef4d4fd5c8aaa384b6",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        79,
+        45,
+        79,
+        90
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-6e4f0f9a7af059ef1a42a01f36c1378de1fbb1b83ca1492f4391965878575a01",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.OutstandingAdvance_nets_advances_against_prior_settlement_deductions_floored_at_zero()",
+      "span": [
+        84,
+        5,
+        93,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-5f71066106ea3f0c759e1fa31f761b8578f46af9bade23111080b4a24ef25e2b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.OutstandingAdvance_never_goes_negative()",
+      "span": [
+        95,
+        5,
+        104,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-d973a5c8e7d964f1e66d1ad1ac9057e081003d34311f3772be807e81af6d484e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.DailyEmployee(string, bool, IReadOnlyList<(string, Falah.Domain.Common.Money, Falah.Domain.Common.Money)>, Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+      "span": [
+        108,
+        5,
+        110,
+        85
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-e4b7f1520e715a0a737c2d3b48843878a5fe49ba11b8fcb867410f7b98f0cc26",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_sums_daily_wage_overtime_extra_shifts_bonuses_and_deductions()",
+      "span": [
+        112,
+        5,
+        133,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-3463aa8bf693bf9d037873921cef38e32c06b3eecdf4fba5da74f214cdb4beb4",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_uses_the_monthly_salary_for_a_monthly_employee_not_period_entries()",
+      "span": [
+        135,
+        5,
+        143,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-1c0ffaa44797b690ca929da80894b884ad2561fb98d03c0e044be94f0f388983",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_excludes_an_inactive_employee_with_no_earning_activity()",
+      "span": [
+        145,
+        5,
+        150,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-fc0b7113172357922598ac90a6315001cc74c6331ad63746683f5346ac5bab3d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_includes_an_inactive_employee_if_they_still_earned_something_this_period()",
+      "span": [
+        152,
+        5,
+        158,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-e4e688e3fd766a7f465394d82edc1643a1ce3574213f782211519d03072e2feb",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_rejects_an_advance_deduction_beyond_what_is_available()",
+      "span": [
+        160,
+        5,
+        166,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-e5116567d3b3654566ae49e310d5422ee477218c1a312a31ef39716ef06d3ec0",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        165,
+        40,
+        165,
+        97
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "stable_id": "sym-2f68b00873ac5c1a1a6ecfec0e267298a9c35ab8317951bff0734e7ec908a1f3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_never_produces_a_negative_net_payable()",
+      "span": [
+        168,
+        5,
+        174,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-a1401d86841bf083c20f4c1e3324fb566cacd6a67ff9b51aa0ccb434c52bf3ff",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.InitializeAsync()",
+      "span": [
+        22,
+        5,
+        28,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-7cdd3957e156e0383f80b757f2d92dcf524fa0b3046a2ea93a131250506c57dd",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.DisposeAsync()",
+      "span": [
+        30,
+        5,
+        30,
+        82
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-f9797ef7bd794393bb0697778792e7511c3d89e12ab5079b23db3861207be1b7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.CreateDailyEmployeeAsync(long, long)",
+      "span": [
+        32,
+        5,
+        40,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-ecf5d2340f184c4523084f5f6cca48efed6dff7e96d24b7cd2209fd43f87b5fd",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_in_with_no_open_shift_creates_a_present_record_with_no_lateness()",
+      "span": [
+        42,
+        5,
+        53,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-294521c6c99d845cc4b0a1b96106a7e6cbdfb4402c1295dd5afa556758665d8a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_in_credits_exactly_one_daily_wage_and_is_idempotent_across_duplicate_events()",
+      "span": [
+        55,
+        5,
+        69,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-72389857acc2d3caf0847fb723a7a73ccdd02e11711aba29bde9edeac6da0565",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        68,
+        33,
+        68,
+        59
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-37a99fe649a897e4290e8b34ffea199451a423a56845609477b02fe88373e5bc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_in_late_beyond_grace_posts_an_automatic_late_penalty_deduction()",
+      "span": [
+        71,
+        5,
+        88,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-2d2c0124b13d5c53373dc760dd66163c31eb5853986481533c8e3156dcf42906",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        87,
+        41,
+        87,
+        67
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-88910f32f3c69671424439c58e9be39d9931d9ed69a79e67f4f0b5e643bbc6c3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_out_without_a_check_in_record_today_is_rejected()",
+      "span": [
+        90,
+        5,
+        96,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-74bf4ee30e844fd70bed9c51da751038c5dba44056aa8d8a48686c4ca1c1d552",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_out_records_a_check_out_time_and_zero_overtime_for_a_short_shift()",
+      "span": [
+        98,
+        5,
+        109,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-a563c2e6a4c386dc71be87587861f01f5efea28ea4bcd28cffe6f04e06b5742b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Recording_a_daily_wage_manually_requires_employees_ledger()",
+      "span": [
+        113,
+        5,
+        120,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-7f6244fe5cd1e338479890713d460139839e8ecf8e641f618c65667a066d000d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Recording_the_same_daily_wage_manually_twice_for_the_same_day_is_rejected()",
+      "span": [
+        122,
+        5,
+        139,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-b0d6d12d4afa282f1de5e75c5d8930e18b9ed3a01de1e5cd8c1e42dc11d6aa9c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Checking_in_twice_for_the_same_day_via_the_biometric_device_stays_a_safe_no_op()",
+      "span": [
+        141,
+        5,
+        155,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-e0478a84af5d7327e8657807cc65b558a94c54d0b2c009fb72da7f4e3279b46f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Recording_overtime_credits_hours_times_rate()",
+      "span": [
+        157,
+        5,
+        166,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-4082524dab278b81640b29a2d554fb48e119922f355d24628e38199bb3b97c0f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Recording_an_extra_shift_credits_the_employees_own_shift_value()",
+      "span": [
+        168,
+        5,
+        177,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-a6d9c9f7d2cb484ec759599b1db5cb7f86e7d55c856b840b1dbba004cb9a5c7b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Correcting_attendance_requires_attendance_manage()",
+      "span": [
+        181,
+        5,
+        191,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-03158fe6fe2fb0184a9a0016169cd3d42548bfa2a57e374381d599616c736fbe",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Correcting_attendance_requires_a_reason()",
+      "span": [
+        193,
+        5,
+        203,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-4368590531be03cf6575ec24b25d5ea136784338ec4edf90449d838787d7dbba",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Correcting_overtime_upward_posts_the_delta_as_an_adjustment_credit()",
+      "span": [
+        205,
+        5,
+        218,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-40b2bc86cf436a7b3b31182f92277aab343deaf380f5e0a052493debf861bd5c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        217,
+        35,
+        217,
+        86
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-3ac2baccc0e73d3826ccbf86b6c5450612fca41acb3f09b0bc6967587227ee5d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Retrying_the_same_correction_request_never_double_posts_the_adjustment()",
+      "span": [
+        220,
+        5,
+        237,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-f9a7c4eacddf7445452fad4717a2b97ca9b3818b0ab5bc104f04a56a29987b2a",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        236,
+        33,
+        236,
+        60
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-9f921824dbcb0fdbe5db1bd321f588f56ac78134878680f8b55628eff28aa81a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Retrying_an_older_correction_cannot_overwrite_a_later_correction(double)",
+      "span": [
+        241,
+        5,
+        265,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-dfdf38e1c943fc1c9ab44b748d2071c3ce7b95674a769ae21a0d140ba8db0fc8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        264,
+        38,
+        264,
+        47
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-b8625f79bd8976124e6f2534e07941c34265866debf861ff1523ae7c56012684",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        264,
+        65,
+        264,
+        74
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-f4e8ddce6e1a9a1bc84e9db46e6b2b8e106ad6b4a48b240af676ab2f3dd3dfa3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Combined_penalty_and_overtime_correction_records_a_consistent_running_balance()",
+      "span": [
+        267,
+        5,
+        284,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-f6ce47908ec826d8b6d8f94a7405a71e25b77fa5fb3d70a0811a3e616f3f76a5",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        277,
+        40,
+        277,
+        67
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-fd2fff244fdd362598b3a3c074ed57242dd9f1a3dff7c0d34219abfa528ea124",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        279,
+        48,
+        279,
+        67
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-9a70994d050fbd5d670c47065d2666a79e09b90484a980d0df097689917faf4e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.A_correction_receipt_survives_server_restart_and_a_consumed_manager_approval()",
+      "span": [
+        286,
+        5,
+        306,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-b3d5304cbbb94639252e072586249f6e06de3b1788b15e22edd29737f202659c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        305,
+        33,
+        305,
+        60
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-3eee5f99295ffd252ba50cc0e556bcb62d4856d4c8a35b79d8e8c1cd1c040527",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.AttendanceVerticalSliceTests.Concurrent_corrections_serialize_record_and_financial_deltas(bool)",
+      "span": [
+        308,
+        5,
+        328,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "stable_id": "sym-9b19bb2c8c243c566c7e2cdfdb8730a5a46a88b58dc70adc43ecc639613f1f1d",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        323,
+        58,
+        323,
+        85
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-30c820450d3e7f063e269eb2afc3b908be7b11ea58065a3674974f9eb9baadc8",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.InitializeAsync()",
+      "span": [
+        23,
+        5,
+        31,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-0188b472c6fa413ae6456b6a3164b6999b0768d63a6497255bbd2d0a5a68ac0b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.DisposeAsync()",
+      "span": [
+        33,
+        5,
+        33,
+        82
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-5b03eae1c30cb2330afa96c6096ea4a741bf0d64c6f0cce793918f8601a254be",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.CreateEmployeeAsync(long)",
+      "span": [
+        35,
+        5,
+        43,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-4da6b178a8539f2203f2cfebf05df60e4f408879f69feacc1e368b95045ac1da",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.CurrentPeriod()",
+      "span": [
+        45,
+        5,
+        45,
+        82
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-07f4c1c3be0ea68a7fb2c7fad67c96a13f01f8eaa2b95b42a37c5eaf87064829",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Creating_a_payroll_run_is_idempotent_per_period()",
+      "span": [
+        47,
+        5,
+        61,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-7b4f30adb38950056e57b637b37709bcb937abcd962f7482ca7b167a56e51f16",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Eight_simultaneous_creates_still_produce_one_run_for_the_month()",
+      "span": [
+        67,
+        5,
+        83,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-bafbd2fc58996ef2bb79a28ce1c04c5fb02abc91aba777564be5b8837be00c1e",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        73,
+        74,
+        74,
+        129
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-3e69134d305ba3abd5c16089c9dd3f1a1262d4ceaecde8fa043e4cf227049e6d",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        77,
+        56,
+        77,
+        105
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-fa4d273b6ddfe2c371c62dae2dc1ef5cc50c10e636a72e4a43733293b7a01222",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        78,
+        35,
+        78,
+        45
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-62722f97c245b5c91ce9302cff59b22489d4e173a2504f47158643e3ccb51839",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        80,
+        48,
+        81,
+        84
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-9bafbb47aba4001ceefb5343374bd597910883771dc261c072942ed9ba5ce875",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        81,
+        20,
+        81,
+        70
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-81064d2835490bb333741b1e78e64166ab68ae3cd5568fc516033046f6f4d863",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Creating_a_payroll_run_requires_employees_manage()",
+      "span": [
+        85,
+        5,
+        91,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-c3f0fe1c5ec463b05976812fc031032cc86b986fac22c781ae9c804e952a5e5f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.A_payroll_run_computes_one_line_per_employee_with_earning_activity_this_period()",
+      "span": [
+        93,
+        5,
+        109,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-1596ca1386149e1857ef5340fcc5179abc58518a08160a0358ced69ea5c10062",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        105,
+        42,
+        105,
+        74
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-840831f60c5a11c9428d4494db11961ed5616e43bb87f2f9fe55b3f0f1c5cb10",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.A_bonus_entered_in_lowercase_is_still_paid()",
+      "span": [
+        114,
+        5,
+        131,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-07790b7f6f4e7d40faa880020127dfed82e0c7739838463a68f04991f15d26f4",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        127,
+        42,
+        127,
+        74
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-b3a349358e2192504c67d3f5c04352b4f149e994fe3de3dd3f32628832aa15f7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.CreateDraftRunAsync(string)",
+      "span": [
+        135,
+        5,
+        140,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-6bde3d59fe36c33955efd3502f3aa5688c43ae168f773ed25fd284aa1380dfa9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.The_lifecycle_moves_draft_to_calculated_to_reviewed_to_approved_to_paid()",
+      "span": [
+        142,
+        5,
+        154,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-2d74afa7fcf8b4d3c41afd49d1b223c6366246551b20f8f1a5483b0ee98a5911",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Approving_a_run_requires_payroll_approve_not_just_employees_manage()",
+      "span": [
+        156,
+        5,
+        165,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-96ad026521391f50ddc47bd095380c8203538e854e46419694a9ec5fe20cbd01",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.An_illegal_transition_is_rejected()",
+      "span": [
+        167,
+        5,
+        173,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-6f90ee73b5b869d4fa9d6eaef7853a17ed4cde9d7f52545f1cc1e0b94b6dfd4a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.CreateApprovedRunWithEmployeeAsync(string, Falah.Application.Employees.EmployeeDto)",
+      "span": [
+        177,
+        5,
+        186,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-132578ab3f11c4ab2c29a5cb5054fd6dcd49c2868330b589f4c68192d3050f35",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_an_approved_run_posts_one_movement_and_settles_every_line()",
+      "span": [
+        188,
+        5,
+        206,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-468fbc12e53ee9f60407cdb875cd175b9be26c84641f6909fac047a324c17dab",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        204,
+        55,
+        204,
+        163
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-82a573fd1425de7438e2a8d488cec75e6f8eefabf750f6efc6af0ba782a34d86",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        204,
+        93,
+        204,
+        162
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-653073cb83d9d39280a3d7951e292512529d014ac8960b5d93aac75dda4e0a77",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_the_same_run_twice_never_double_pays()",
+      "span": [
+        208,
+        5,
+        224,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-9825b15de25189b3d9edb912b1e25d31ec198459778dfb2146f79391bdaa2c6c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        222,
+        55,
+        222,
+        126
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-c7de9b3f65819ed3a37496dd49f169be4e2e7d5284c7d47f893cbf1a51480caa",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        222,
+        93,
+        222,
+        125
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-63c6870a31fbf8be20f8f95eaa31f60fa22cf573d7066c2dfb763456a8974dae",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_a_run_that_is_not_approved_is_rejected()",
+      "span": [
+        226,
+        5,
+        233,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-ac7649aa390721700dabe05719c02582bfa4a5fd59d69055317050c82c9f5db8",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_a_run_requires_payroll_pay()",
+      "span": [
+        235,
+        5,
+        242,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-5e089a47da7115869a58d42e5b31b9a4dbf617ede8aa8d7320dd5ca5dbe9c478",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Six_concurrent_pay_requests_for_the_same_run_settle_exactly_once()",
+      "span": [
+        244,
+        5,
+        258,
+        6
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-44293528be81a62647bd6f216b3b7e8d7f46241c4103c2997d21974a09e11400",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        250,
+        51,
+        250,
+        177
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-fa74c86e0ecf874989123865dfd62c2fefab6aa1c8dd43bddbddafbf856162cd",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        252,
+        31,
+        252,
+        107
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-8c9490c7dc635963e149296f9795843ef5e27ae2d99d3fb729f504ffa526ecdb",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        254,
+        55,
+        254,
+        126
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-d57651389b2611382fd487990d9dbc968cea35be49d5573f7aa3880e47193c49",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        254,
+        93,
+        254,
+        125
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-d77ba4e3dd2c9c82a7c6bcc59783223586fbac07daaa7118486fd59703d74b88",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        256,
+        57,
+        256,
+        134
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "stable_id": "sym-e812c7c6ff956c06c928f5a7788d63e9e6ccdc3108d97dc897fc7a9f3a5038f2",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        256,
+        99,
+        256,
+        133
+      ]
+    }
+  ],
+  "remaining_original_count": 205,
+  "candidate_challenges": [
+    "Codex Work/Deep-Audit/Database-and-Finance/payroll-status-race-candidate.json"
+  ],
+  "ownership": "Primary file owner only writes own reviewer shard and checkpoint. Other roles targeted read-only cross-reference allowed; no duplicate full-file promotion.",
+  "reviewer": null,
+  "session_id": null,
+  "status": "NOT_STARTED",
+  "checkpoint": "Codex Work/Sub-Agents/Checkpoints/financial-team-payroll_concurrency.json",
+  "evidence_directory": "Codex Work/Sub-Agents/Results/Financial-Team/payroll_concurrency",
+  "next": "First independently challenge assigned root-originated candidate, then exact remaining owned symbols. Do not restart saved complete receipts.",
+  "initial_assignment_symbol_ids": [
+    "sym-d3e9ca3b245fc2f117bbaa8a35226967078acbc939f5bd1abdcb63005f1e585d",
+    "sym-a7a6f521fb2997a965392485db9253893c687eac2e607bfecfc50242790e41a9",
+    "sym-ab686a83429d1e97f7f87f164575f04babbd840d0849571eef19aa1535d9f718",
+    "sym-1d03eb0e0a57eefa8759a44e9920d98bf7e88a5090151bad13ca3eebdbbdd9b4",
+    "sym-9fa15a3f54a928ceb1359c280f335ab3677320fae74edba8ccd9e12c3a98884e",
+    "sym-f61d4ab759c0259f3d5313f98b59720344876ed266575d900ac2102f7a52343d",
+    "sym-508de0e25ed3c287616aea0832e0408987e7892966a173e082f0b5f6c76aa415",
+    "sym-bbe581acbec8f51cadd07eb95e30b18abaa2cbd744b4eb48d3ef4c4a0dd26711",
+    "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+    "sym-d415975fcdd222571155193b1b0c4bcb64d55de10e15f16bb4f7215915314aad",
+    "sym-ad004442fa7ae4f62bdf16814a60c41ca0b263d7cdc0d18007d6983c9040ab26",
+    "sym-55de42ac6cacde06ad3f170d663c3492144be22088c1d3277fad904c945b034e",
+    "sym-c65c8195cd13985e9437f7e838890c0f0714fdded55d4bbf773068740f398cbe",
+    "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+    "sym-d41142832fa515ceaeba1760cf8f0241d08e45fd3b2f6c3a07b46eed5b631e40",
+    "sym-892f55880076fcb31823b9f5418c6bcd28b4aebdebb7a71c72412353a755adfa",
+    "sym-507adc4067f4c909dd6cba918a336717b82a087daf22ec16bab7b7dd2268498b",
+    "sym-43d2cca7fe80e2e1ffe1ad1611ca6a679ac56edfac45955ac473201c15dd5df4",
+    "sym-2fa12fe5881c6621510db44dcc6b7be58eb519969403129baa8964882a42b86b",
+    "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+    "sym-06ef3fcac41481834123e109cd840e1e9e1bae08675f60d60f65be95c527d48a",
+    "sym-5fca3fc66337de8140e5183c9d05168c74cc4c2d39f3cbf2a6d5d652332d218c",
+    "sym-62011427a3ac9705a24805595414379f5ecccee38eb8ddad134348252adefbc8",
+    "sym-9e7789621ff8134f5987aaf1a277391eb4809926e38cd26509c0da5644615f6a",
+    "sym-a955844a5268ea19910739dabf781d5874a1710ff17416b643f44b6fb1009b34",
+    "sym-d3b8fffa6c0a2f51f94df87127b9de342c7e8fc1492b3b37026c4651808e8171",
+    "sym-d2494e7315c7ef33464eb4be4beacd1f745d1370ef236964062221f2f0120e70",
+    "sym-a651e4115cc0e5219b295a50d762e47a4bd3c97cded8915f0b4fd3e10c78d8dc",
+    "sym-53f3b26f360799aa2198d76cf17db55dd97adb08847174b0a1456986545aeac8",
+    "sym-8529d16da96926ba1068a539f89e965450946936a05ac3e9fd9986d545db3bbc",
+    "sym-5cf0107ecab22e8934446507430c23ad09e826b3c09fe522d6cc1781f8aaef01",
+    "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+    "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+    "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247",
+    "sym-f2348472350846b39537ad2c057ba308822f53201fa26f814b04302be7b275bf",
+    "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+    "sym-39ffbfdbd5f67aff54ce3d162dbcc75197fb085cf8d02fe504ca45ba03e6fe9d",
+    "sym-ab1cab4e8c36c99831f19baf51f59c8d156c6cc383cb897f617c5e1be9eddc72",
+    "sym-a1089f8e2e9778b3e232b1b77d7de07f2b6eebdff841b51f6641b7f04573c6de",
+    "sym-977573cfab2c1c57973e3fa16d3115b4435cb579b3672209e0f300a04f15a34f",
+    "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+    "sym-b93d59351b0ef702ad543f8a7bfc6f7341781b48ad6088aa47262ca8802012a5",
+    "sym-47579c71f92ccf23c3734cf72f132bb852022cff3919120ab89619ca5ae00ba7",
+    "sym-dbdcd0c4c91e0ac44af6056bdb3e41c37ac7ab0dbe9ccdfe2cda4443313bd5fa",
+    "sym-3689200e3441f8f78fb46ebc7cc4cd8a35092a1591d917f5bfcd026b9b2da1e2",
+    "sym-43363afb909d03549aa3b2c2143a641cc091a97a3bc08f7e7282ff482832492c",
+    "sym-887da38e56297ba6a1f62f322e5cb2b1cfcf092d99f89ef4bd939cea16fb2952",
+    "sym-438aafc0b8e8e6b8febaf94e50d7fd0094df4450308305838154e02a347179d5",
+    "sym-65ac087a3ee68135e8a15b8cfd9359c36a42fa59ed54416e680f2e277282cea2",
+    "sym-1df593f957fdb0353e1da8259d3dc9f248df25382647f36e1b4f6273795727c5",
+    "sym-bdae50df4bf92e785b316f91b6c90f42824e402fa5814bc544d75d93b384af7e",
+    "sym-a8d96f26597f61f6cb42544b887194e902a1d8058475f406bb2a929f6eacd8dc",
+    "sym-165649a87da37bfb47f2aae6175a15f069c7490e012ac363a0f6a234a29d6fe9",
+    "sym-077ffd751542261e7be70b70e31fa2cada2cdce879948da408bdd95d252414ba",
+    "sym-b30e3d446de5d31e70d48cdb418eec34e7be2987daae246ba8051fd2359995ff",
+    "sym-94c59d5c0dd8a29578e0da981baa5d780ef35eedbaddac5129305ee96c36973b",
+    "sym-b3b275269579a178781fe1660f966f15d83ff04a7094c4d3115f57b4f1fdce38",
+    "sym-e76811f336ad727f286c732f0ce11b2a51074b9dba22890cb4ee45b109f4549b",
+    "sym-7ea60776c9dbda429987d1e76c88ce80ffe64bbdd8f79d723388d7c6aefbaf28",
+    "sym-6f5a795851b5af215df79445ff9cd154c04109e435656ca678015eef103c38cb",
+    "sym-ef545a9a367eaf74e83ed7efcd12eb01597a76785996aa17c94854910c12d847",
+    "sym-2ed121f00f80838ebeec6c4b890351d41ab519c1583d7bf72953c7f9e8bb064e",
+    "sym-51e2a3491a05b4d9f8bfc1164c6b115f541c3bd3c3dd4b92d662a9b244b2da0c",
+    "sym-eebf19554e2d9a1b6a63637f922795c457391603d835317f571f4f494c72b83e",
+    "sym-6c0ba966915bb6731eef7c6adb90f7165737a0dae672ef4eedaf06e8ae7c79f3",
+    "sym-c94d422d246f92c086fe4e4e4868be5892484dc98eef9bff68b7e340b82cb4ee",
+    "sym-c647dbba58ed1df29aff022b923d2be0540d354f42f3bc2ac07e8a2e60416669",
+    "sym-fd3d8002e8e0765471429f929e7c8f5a4d2cca3d48a115c16707cb570134d411",
+    "sym-d1b9816437ee9f0f9603081f22eaa00e6f9a6d3d57c07747657195b4ad115235",
+    "sym-77a2e0bbad83d36c690a02cfcd5c5ebe07bd07d3c1f380c0fb82c200103ceb7c",
+    "sym-cb36ca91e25953caff451fbdaa5cda4411cff1147d4b113579d67824eaba53b9",
+    "sym-993092d097bb197edfec9996c12e929dff5cd9c63c0b09c76a7d4850137fa8b2",
+    "sym-201d7b2ef8478bb6c261d88ac2d9992a42aa187508077edda0f9fe83fb008471",
+    "sym-c37863789f44cd3f347bcb6e3b7a38092671ff6ca30caa9c86d9c7f43707b6f8",
+    "sym-2a2364452bcb61001aba207fb3d60872eabeea01d957d4c3ac0715f2fbdadb15",
+    "sym-d257f16fb54add7b7bcb6f2c1b559ce9c41398595eca8365a9132b8a3e925bfa",
+    "sym-31bcdf4dc1865cfb6967d0c0661f3c7f9a469cf6993b2836c3ae887e9e064904",
+    "sym-1c8db0b39920869f8e8319fcbe55acf1202736042aec5097ed52f8d46e5f31d4",
+    "sym-f9188ec8de3df4c3a40b08aa7518b6d3f9603aa2b4102b1b284078e141d6c781",
+    "sym-4495510bb68425475d394d7be7076f5afe1e3a336e94a21601d25595222540e2",
+    "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+    "sym-507cc99d8e94efd1b25afb289fcd8d2ea223da312139dd7d1289d0b59848567f",
+    "sym-2b1f7b9ca0b82a5239cc2dbde576c370d5c9b69e3d94d879e104a2cd8a06e314",
+    "sym-49ac8ecd309f59996efafd92aded337ab9fe96811dda789bf2f0e411d198679e",
+    "sym-6bc9450e7f0331c8a677e5fba386122163d016f5aa2fd6e32fdc958836543e4c",
+    "sym-8ae5a37763d69995f863bbe8be1be294f61fbea8c381ecf3b801b813154a3f6c",
+    "sym-787ab07633d93e847bac931d3cd7e9cea41b57675fc9eadfa1160132b7302b25",
+    "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+    "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+    "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587",
+    "sym-292b1b2aa84c7468de41c3916630833c6fa9d095ea05e0f6de204d0aca010344",
+    "sym-a774e9fb7f18730ab662f8db9b359ac092adcc22cec64788edb19f96af63b713",
+    "sym-af59b71cdf8827eea559f9ccd86fdfc99335d4621d42d1509cf21239229e8823",
+    "sym-a24db1eb64f12d8fdfc0365fccc38e0edc21d5f97112f6ae39322182e860170d",
+    "sym-ed3f44daff65a2f917220b0c9deaff1ddeffae745ef637490d724569615959ac",
+    "sym-c9651892ec227a85ff8a7e1832e9b09f805538d5eee44a89849cae6962794e81",
+    "sym-89d5017e1c16f6c50b500d012941167dbf5b4432403cd4914261516ec791508f",
+    "sym-5575a99fc4d2c72753bcee1e41ba1b36ebc0a6b0086d6e8d36ea011d3dbfd83b",
+    "sym-9364d456e7fcbd50906e609f711e86863709d142f19045b44e7e47df51ede828",
+    "sym-e7cbdd86107c86d02e1ff9cc95db8cfd653e1ee32f2cecfbd8bc2864ec8936b7",
+    "sym-c3253f90b39b119d016833c044b040bc5745a0bbde102785ec02afa10db1df08",
+    "sym-f6b854abc816089d41d34cbfc17182264c8c639e6efc19f2ac641d17aed65624",
+    "sym-52bd0334e2639edc092ff2afa559d4b3a7289fc3c0bfdd9f0c0293754395d500",
+    "sym-1f3ed6312b3bacaff4c2630cc648b7faf1dd571777e0fe49e1c3721b372f4621",
+    "sym-c0116241f4ac8522f1dadff50c830fc6a82c6d45632beeb8ee0e57dd7b023ae9",
+    "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+    "sym-ec4cf635fecbae7453d93d752e82cf9ce6e5556d419d76c9a11086348b961114",
+    "sym-c790689aac664ac8ea11bc749b33eccdf605e165baad9ac3c03f76935787b7b2",
+    "sym-2c03f4417755e84f424cef62cbb7abad483ee56d656973d52822c4d662769e8a",
+    "sym-92647d071b0b8ad2a9c5b2378588915bdec015ea2ea02f2cd26831bc7b062ecf",
+    "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+    "sym-7d6184eec380a3e07bbee6236241f597533047bebdc7def72fe80b4558679671",
+    "sym-8602dd808d98a3ee57b31b1453f261ff6cc9abf35466c575f6d980d2b4c480c0",
+    "sym-243201f28cb1b7b0feb7f4bb9222489c193fc1064526b19bf892e55c02ece0e0",
+    "sym-1303d2da04bec22ef9a551b2402b37f8d7b5a9a621a971eb4ddb2baad45fd5eb",
+    "sym-f6d1eb827c0a90c428877cd7972f402dabf60a43bc7f07c6f4042a3f523b60c9",
+    "sym-dac8c78e0ff3698f49f59dc0a4bac674d1630557ca7398979c57884de5220cca",
+    "sym-faa2f878bed1ed64ae75fb57b1c914a96d1e87c900d47396153a4659717ec58d",
+    "sym-a80b5a2a9274a6fb9fc8b13118a9b440c8ae762f54d65e5e2792957da8906758",
+    "sym-ab79e4d5d8499938ccfd0b36b55ca2477f5e9d413cda4047b61d1e41deec6f8a",
+    "sym-e0a9198c600392c91fd5a16f7efc2f21d23ddbaf9c1cd761174969feba8135de",
+    "sym-64af0bdc9a1d35fa1fcf2e8b072c3a50f90a9d56a90e5fb8796f3dd25e33bab6",
+    "sym-c808d119f017816afa515dfbf1d9ee663d92a7ce4deb11292a68ca993081e896",
+    "sym-374b93474d04228fbfa7b54544c9f3031d9e34fe799ccb925df2ca973e446b36",
+    "sym-f1e1f2ef0eabf62c125a1419e13528c6640a13ecbcb8eb7198e401d665677de2",
+    "sym-fc1096eff1061417f85a37af7c4d2d57606a6d647a83cd0585d01a1504370a2c",
+    "sym-3c7db4dc863bb45138e3d00a1550fe84593891f20fb6771f7d31d6c93bfc9eb2",
+    "sym-0dd8da7814dc996a2874a2c9dd77dabd1a9a898e7fe8934707b710c0c8ceebb4",
+    "sym-fe6ffc6c6489b8e23e9879c149404afe30afe9f516577d15469f964ffe3e2147",
+    "sym-4682cf9daad756667e5d1b14fef544627cccc256a9a782e204d4d4d9628723d8",
+    "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+    "sym-06a1d3cab4ce8e51365d469ac95d4a821b0858d0438f27a056a572ba87607e13",
+    "sym-8caf2217988971bad23103d838fc8e1f38d532884f68961a6f20e5eb0dd94580",
+    "sym-cefedaff2b4e83e42bd663d44d32e3dbbc17d96851bca6bc398b6e3e6368f529",
+    "sym-77a0b2c85038a76a7ce76ef7a93ea409d8ddadb3c18ea65c43cb1fec753d070b",
+    "sym-581bc8acdbbbe2896ff3c87704ee598215c42ad6d9ce76b9497b8a95c19bc9cc",
+    "sym-68203f1524cf056ccb0597829b5d4a46f32db93d9d4c22c1772f0a34398a060b",
+    "sym-7f4b2af4b55385b26e61edb2c41d8d6972d2e2f23b16980b6cf10593a9966f6c",
+    "sym-d577f91af333d57035f8e3e831ed1c6c1c6b662f63be43184c5be7bd322065b0",
+    "sym-525beb840202b1839f207f01193da47612ad0ce0134daa7a395a3927ef03373c",
+    "sym-c29c320f9c6c9e46e6f06bcab8f833f2bfe8377566d8f56fec626ee816799c63",
+    "sym-048c1cdf69bfce47730ea786b095973906774c2a675d573267ae65c60d71ac0d",
+    "sym-b1a102d354dcf2d70785a4a8df6a161dc8a9d7a6de7ece2d795cc267b0b91ab1",
+    "sym-d6a74769097a12bfd8a0a94d8cc194cac33b458d3d9827f5d6557f26eb608e96",
+    "sym-f1ee001a97f02a6acbe829b646c3772db87376ab00be28f0e29d3c21452b3331",
+    "sym-d30d3c6fbd5d73922f7dcb4166610eb7eb29888d702266b28f478c1ff457aa9d",
+    "sym-cd46bd470d38677d6cca84241c1fcda0a725d5048d8f8dae70de4b11dfe70507",
+    "sym-e4a494a9f57fd773c8fe20a46d6798af1d7f7aa7e9a26ad90fbd6ca3dc14add0",
+    "sym-491814e40011998c55ff8c20de1a4e0ebba026483b1ffa5584ccefac18f9ea99",
+    "sym-9f505e7b377fd503ac20dffe0f4e7195d4f512e4403944b436ca9e2d778cdc06",
+    "sym-70880de7f2836b4c0c047d08e50563bb69905edd03fafafcba90056975f8a90a",
+    "sym-946c831d9ad4954f22d32423cdca45266e13b1afb19760b8acd37c4f5cfdedb8",
+    "sym-137c78bd03b23008c8e1e652b25d0d8af7b6582a791dccbeb6844c24bb362e2b",
+    "sym-c85a29f727ce3796e075556566db961a38c7a5bfdfd7b0213d5c408c99d313b9",
+    "sym-d8767f2a8a889f6d6aa40f017b25fa5f294796a57b64a0fc988f88ff5eb40209",
+    "sym-d8a06e00a4d77c58776bf4ab45f20c5db41789a8aeceec1f2e213a653b943dd6",
+    "sym-37aa9d044e91096b8a0ff7f255540879a012cbe524709f7c47e0413d1aefad58",
+    "sym-09ec3c7b9347ad281482b4c1bd67b8a042f39a2773230174412494c7233ffb1b",
+    "sym-362e34794fcdff95a67645b04b11f1610c4c345dc172599f74c39b53dbb3ade8",
+    "sym-3f81d24278a00ff551b9679c8d0ae8b6fa461dcfb81339cd3e92613efd1dda31",
+    "sym-38467eba049c6710eb199a10574a951c3e03ec9c4a835d0c96666a514b8893e7",
+    "sym-d32321213fbbc0209cb82d31a4531b0301b363becb61175725016481c76e8ad6",
+    "sym-fb37f12a8620671fc28f98745e9f9c609567d3267407c564ba91c7d526356b57",
+    "sym-213bd11532bd370569f8e9595fa6719d0af4c9afa97cd7b2ff8c05d71b0f68cc",
+    "sym-7b8e3029ff664ed1cf61f50796001d4979d74edefd7941ee65a2ea2b85f3c0ba",
+    "sym-cb2c5e8ae3e3d1ae58cf31c542590629c3dc5442c2af3a8bb030ca9842091c74",
+    "sym-dc905da1559f5cb9f684b84c632dfe870b42b2bd0d5b3bc3cefde0351f0a3674",
+    "sym-099f0c77204007a8d692e339fe32bab726b9320d359d960b2ef4094e1678dc0c",
+    "sym-7473549c64fddab16681f3ff018073216dd4992f3f4051aa3ceb8045f217c1e7",
+    "sym-c21a1ded97a9f5d4c3e2776c03b5471f1704b374bfc1a3ddbbabc0a6009948ab",
+    "sym-5ff71246c36b4002f0f8f52f90c3d87aef0580ac5739675b15af2f9207af642e",
+    "sym-db356558fa83405bdc569c1ead112d751fc35c07e590b41471b1d037bd555bff",
+    "sym-720f3da36695e212ec21c06081118c73a60d9173e7de9fa1040e2c742603cb2d",
+    "sym-daaa66805643958d6127078dc5fbf900df4f37e9353b102605d8d6569289b0a4",
+    "sym-ca46b3e04700ca506bca1f769f2933953cdea818d68298095f9087209a958042",
+    "sym-402d3b6bb8019e1d89af984420e009f5ea50684d41d1f5a4a38b6ac6f922f4ae",
+    "sym-25840319f8702658416ac64f696dff4c81163dcf22e74eb6f548cdc8ab484c99",
+    "sym-d1566c034aaa0055ed1476c2f8aafc07d8426880023e39dbb58a9c9341b4e210",
+    "sym-f3be7601d6dedc115a9f589a5e8910ebe2fc30aee945269b02c8aad116752081",
+    "sym-93e7b5c81e56046b26e544d6bbff2dba12b318cc02fc83f11f6fd296d13d6758",
+    "sym-2e22664a68ace7c8ce155ab05fd0c0534c493723658e59e833101de60446eca7",
+    "sym-0ea56b4b8939f5d6cc0d92b365b2e1f48ec93de0cf743b623ca9df71fce06833",
+    "sym-42a060ce8802de6c39262e7b17734c7f4c622e0398db6c275537858bdae280bc",
+    "sym-e206f6fe92e953f140fc5617c025cd9da36517c3302b74810add597816310bcb",
+    "sym-37f6a09519ff9adcc96a5ef710d562b0e2d4bc8a2bf4287f211fcefe166cf8f9",
+    "sym-c82fee3b3d07becf86cb944e838d3afd6a9d7bfa56b5b164514dbdccfb906bab",
+    "sym-033f64e6c0aa4d1d3f9fe9cd4c57a980da75cbfe43f017c5e0c6ea9864020929",
+    "sym-fbfa343140c3608498527315d0129922c7a1bf82c988fb110cbfc4834a6cc36f",
+    "sym-8a179a21b447b58b351da465e244df09cd87ea376d74b0cc0ca054c60966b997",
+    "sym-cfa393fb3aae46dca4344cd28552ba7b753c909893105a6cc4436fefc1df4012",
+    "sym-cb7fbc4fb11b090d26626c83d59bb5e45e85d5b50e831859ba35e616bea72938",
+    "sym-13a39a06d0e7646ccb5db14b9f4304ae331d9e2bda07085964ead3f88f15df6d",
+    "sym-ee4c9067b99e19f68025880c96938009c460ab086d9fc3ace38ae5475933295a",
+    "sym-27ab198996cf43d7913e3c5f67321c179f4d5742865f9cc82d5ea8e84e0b362d",
+    "sym-0723101dcc8aa30c4fd54c731879b9b39659c60d8e9b846495fa52f84bbb682f",
+    "sym-54c0136b795e861d48d3381365844b90ca1cad3254d94008137f45d8f071eda9",
+    "sym-244137f454147563463ac9c45d7814557e21663ff1c838b6d0eaa383b6d61478",
+    "sym-5a831ce214a0880e2c5a7c7f3d5bf7520c28dbd12fbed3f1cd02ebf6ab5f18c9",
+    "sym-a1cd75362959f18de3ef5acf9c232eb5ba418e706376c79d2fc8ad7ef91c4598",
+    "sym-396554b96f925d466f0a0fe96db77d48a9d29e01ddeef0b67f4d0cf6e68a2f13",
+    "sym-af4c0ae4b85fc4ce6cf9446949b0aefb01203b318dc34a0035552b8aa7abf032",
+    "sym-5d9480cdc86363c883493e93b0e67051f4c0b3c2dd756af134e3d07acca17303",
+    "sym-19f598b13e3e5dc901108149ee1bce04bb6c568062322166daef6d9e00312042",
+    "sym-aaa674fc4e2ce8e4cd27ce624d0f06aadfdfc5dacb22bf32f74e061d1d22d742",
+    "sym-6e0121540ca8dc73b5e7765e809c1b8a641111313bbb427f3251bb7fc2475fc7",
+    "sym-ab54b4270d40621cff24e7ce2f8062afa3d430788c472e9b643cb1d71c976085",
+    "sym-9d843c132f3707cc564e0dcf1ddabace607111d1db42e9fe74f8c9d986e2f240",
+    "sym-759859989b14f2599fd3eedd03a62889b5d6ad9036251c7d3c6bd5a413c876c2",
+    "sym-cd68c96d58e7600596a3139aa9079e849330b4a9256416282169fb28192e67b4",
+    "sym-0978ab05c10ce84f8edb232ec67088fecf2f329d9ad274d2522fa75b1fb00f25",
+    "sym-a91fdc9964651e00e44beabbdc8ba3357a811d5abf2c1323f2f522952e50133e",
+    "sym-53a77c5415f1e7481ab06ce610f50b942b6093875dc99f3c2fae8a20aff4c9c6",
+    "sym-f025860ecc01a7e669786c209a5585a72371c064f20d47ad0e909b1ad1ab0cf0",
+    "sym-57a4440a24cf6912b598d0c2fc5b217943ce14dd09c388625e00eb5f10682fad",
+    "sym-0caf0e6012dc130527027b32a27d3ffc7df8357efca8beb518102c2f6ed61411",
+    "sym-3a2b6314c48a04bc0c396105455611cd9d76cf52291fcff6bcfca03b692c472a",
+    "sym-913c530c72afe7e6ea291e9669003771aab8ba1257e75adaef9d1e5a53428a7b",
+    "sym-0c1020e81f394617c8cdec09fef54311a68bcfc0f3591735e238534f18f374c4",
+    "sym-63126d481c10f7398c38166fbec7d171e7f1c87d1856ee518ad7f3cde231a249",
+    "sym-a061fb6f177b114129d230f2ea6c9923e65a46106f3a70c05f554d10a304631a",
+    "sym-f69a06e3fa1a5a178dd4614c9c5e0be379a85c1598c7c497eda3a784dacf1ae1",
+    "sym-39f070195c4264afe88f0e9111e0940ce38bfec3c01f9de51e835126905cf52a",
+    "sym-0abdfef854a35f2be5eea0145cc4d63bcaf983f00ddc2a6b0a28d5f0e1c1c6a0",
+    "sym-6a0814a3728bcaf959439229b7db3facf3c63aab74fc0c81b2694318c2fc95c3",
+    "sym-5a4e22a9e5ab06f26abb10f853b22565e4a02b5793fb1ebd743ca55f28709754",
+    "sym-b6d083b39f96bd92ce0edf1b431d324178778afbacce9623e42f661256b5f546",
+    "sym-e3bdb154c918843bcf6bebc513ebcd5e80f3f70a7ab129f248ca435c02c477c0",
+    "sym-ed609847379a6c80dd2fba779c2308ff064d58d9b40307175a46a28cfc735530",
+    "sym-16bd964372e92cded4285546e38d59945593fc18e143fdd9607dcdef50d304c6",
+    "sym-baa6a352a58f4dd78d4aefabb2a9e4aa0c44cdf3cf49e43289ebca770ae30d50",
+    "sym-c37bcb3206e63c7e3855fd0c43b13782caa7214b5d92b700356a0d216219afb1",
+    "sym-dbb957990599f79e840aae3d4eb5d6c7eb2e723d3ce223cea21318322f5592b1",
+    "sym-2d807f0d87242aaab05a2898afb809ebf94fdfc9108fbffa6cff3c4ab6ddca9b",
+    "sym-f4638d3fb1c5f0dec3b855916c54a6e6182448d17a31baa0b093b029e953b081",
+    "sym-9dfb3e04732db458da67d323296ef627bf658565b24c0867c7baabb4ed2e0ac6",
+    "sym-10bf0abde97bc3c9174c318bfe9556feffeeaeabec22ae67b26daa655ab57b68",
+    "sym-648579db5498722edcd61048d4a5d91ff83988014ffb7d4c1f9295f31e87ef8e",
+    "sym-9748f4041ebb716a96f2af4ce5a19f172a4d721833bce42801c25e893641a0a9",
+    "sym-ecb7d6a20c426f0db254b62efc7c5f8eaf7e0774a9f14658e53573ab2678a6fc",
+    "sym-704a85675380f9a7ce50d7c1773c6954cb1e85b2387da9aec98d8d5de8866fd6",
+    "sym-789c064ccc996b444266e1c80552d2ca8816d72af863377fc0c1d4cefb205658",
+    "sym-2475151620726bedb27321c7c58da0b0d6e488a8499919fa5f2c681345648f85",
+    "sym-6ec94e363cfd0a6669d8ad09647eb2ddf97c8755cadcc13585dd639bef49115e",
+    "sym-497017e66538e81c636d3c7f79e2105b5e3d671706acd38a8410ceb299995e22",
+    "sym-c18a9e8bf7a6bfb481e65a8331833a7849afdfff499a0adeac9cb948470d40d7",
+    "sym-ce7d7b037f80086cccfc6a9649719d6d90a5031c731917a1374b998c8421f3f3",
+    "sym-4002b8c314e032aa5c29a3ccb24c000f662b7f107d3a183ada94eda900e96fd5",
+    "sym-b07464f2f3a3ab86f1e0555cb04468982da3ae7257805778a198507c8539a328",
+    "sym-4436242aaf36f6a69513b1631bf44f536eb6e4fb89b67ed452f5210fa81d1be4",
+    "sym-f2496cf3fe3aff7607ba904859a1faf18cd964ef7666dab7318057ef5dc74a19",
+    "sym-e51bef1b11b0aa4c3ded540c2b32c2e53a9e5437c332e8bd3c0a1c8aa6d92d92",
+    "sym-cd9e5ddfab0d07a31246559beacf9aac803d92f5e893a423f29609c8c57f6c50",
+    "sym-b10b5293bd3cd5207dab0551c4a7d85a7bf5ffd4b7061d53eae9ea0705f95c89",
+    "sym-deec8fa035e802f2219316301090fcffb578b2f09ca950894c18e71ab0502a6c",
+    "sym-de88afc020d792664cb1f5f55367cf4172091cf385edc3848770c4d9e12936bc",
+    "sym-13d73b6b2c16299b82d494e0418bdab6d9ca75272e995526450a3ac8297762cc",
+    "sym-e679d1272fedebb2a0f644a910771ff675f29575fa4d003bb055451bea046253",
+    "sym-6d7b69cc0969727ef492dc455b8cc444346fe3079fcefa07cff1ec82bbd2034d",
+    "sym-6afb1bec50bea494021e9cd76588d97955c2f204d186d899c2b2df2ae496f120",
+    "sym-fbefeb42aed95f287a5d55d00a309b30dae278131b13e99a3e676e92756fae7c",
+    "sym-dca78f0c8b2ec045c43303f6ed0a1f50cba321e522b5ba060958e08ceca7d4c2",
+    "sym-49ceba32e9f58b8de8d8c9a5dae399c7f1286bede1dad80138bf29c256e1ea89",
+    "sym-93ceca84e3cc7f068470153d50b9e28137ca42c60c0e18e38c6e947c46205077",
+    "sym-b01f46bf46a7481f186367dadfa3bfd5d3f2acc024d0c8ef4d4fd5c8aaa384b6",
+    "sym-6e4f0f9a7af059ef1a42a01f36c1378de1fbb1b83ca1492f4391965878575a01",
+    "sym-5f71066106ea3f0c759e1fa31f761b8578f46af9bade23111080b4a24ef25e2b",
+    "sym-d973a5c8e7d964f1e66d1ad1ac9057e081003d34311f3772be807e81af6d484e",
+    "sym-e4b7f1520e715a0a737c2d3b48843878a5fe49ba11b8fcb867410f7b98f0cc26",
+    "sym-3463aa8bf693bf9d037873921cef38e32c06b3eecdf4fba5da74f214cdb4beb4",
+    "sym-1c0ffaa44797b690ca929da80894b884ad2561fb98d03c0e044be94f0f388983",
+    "sym-fc0b7113172357922598ac90a6315001cc74c6331ad63746683f5346ac5bab3d",
+    "sym-e4e688e3fd766a7f465394d82edc1643a1ce3574213f782211519d03072e2feb",
+    "sym-e5116567d3b3654566ae49e310d5422ee477218c1a312a31ef39716ef06d3ec0",
+    "sym-2f68b00873ac5c1a1a6ecfec0e267298a9c35ab8317951bff0734e7ec908a1f3",
+    "sym-a1401d86841bf083c20f4c1e3324fb566cacd6a67ff9b51aa0ccb434c52bf3ff",
+    "sym-7cdd3957e156e0383f80b757f2d92dcf524fa0b3046a2ea93a131250506c57dd",
+    "sym-f9797ef7bd794393bb0697778792e7511c3d89e12ab5079b23db3861207be1b7",
+    "sym-ecf5d2340f184c4523084f5f6cca48efed6dff7e96d24b7cd2209fd43f87b5fd",
+    "sym-294521c6c99d845cc4b0a1b96106a7e6cbdfb4402c1295dd5afa556758665d8a",
+    "sym-72389857acc2d3caf0847fb723a7a73ccdd02e11711aba29bde9edeac6da0565",
+    "sym-37a99fe649a897e4290e8b34ffea199451a423a56845609477b02fe88373e5bc",
+    "sym-2d2c0124b13d5c53373dc760dd66163c31eb5853986481533c8e3156dcf42906",
+    "sym-88910f32f3c69671424439c58e9be39d9931d9ed69a79e67f4f0b5e643bbc6c3",
+    "sym-74bf4ee30e844fd70bed9c51da751038c5dba44056aa8d8a48686c4ca1c1d552",
+    "sym-a563c2e6a4c386dc71be87587861f01f5efea28ea4bcd28cffe6f04e06b5742b",
+    "sym-7f6244fe5cd1e338479890713d460139839e8ecf8e641f618c65667a066d000d",
+    "sym-b0d6d12d4afa282f1de5e75c5d8930e18b9ed3a01de1e5cd8c1e42dc11d6aa9c",
+    "sym-e0478a84af5d7327e8657807cc65b558a94c54d0b2c009fb72da7f4e3279b46f",
+    "sym-4082524dab278b81640b29a2d554fb48e119922f355d24628e38199bb3b97c0f",
+    "sym-a6d9c9f7d2cb484ec759599b1db5cb7f86e7d55c856b840b1dbba004cb9a5c7b",
+    "sym-03158fe6fe2fb0184a9a0016169cd3d42548bfa2a57e374381d599616c736fbe",
+    "sym-4368590531be03cf6575ec24b25d5ea136784338ec4edf90449d838787d7dbba",
+    "sym-40b2bc86cf436a7b3b31182f92277aab343deaf380f5e0a052493debf861bd5c",
+    "sym-3ac2baccc0e73d3826ccbf86b6c5450612fca41acb3f09b0bc6967587227ee5d",
+    "sym-f9a7c4eacddf7445452fad4717a2b97ca9b3818b0ab5bc104f04a56a29987b2a",
+    "sym-9f921824dbcb0fdbe5db1bd321f588f56ac78134878680f8b55628eff28aa81a",
+    "sym-dfdf38e1c943fc1c9ab44b748d2071c3ce7b95674a769ae21a0d140ba8db0fc8",
+    "sym-b8625f79bd8976124e6f2534e07941c34265866debf861ff1523ae7c56012684",
+    "sym-f4e8ddce6e1a9a1bc84e9db46e6b2b8e106ad6b4a48b240af676ab2f3dd3dfa3",
+    "sym-f6ce47908ec826d8b6d8f94a7405a71e25b77fa5fb3d70a0811a3e616f3f76a5",
+    "sym-fd2fff244fdd362598b3a3c074ed57242dd9f1a3dff7c0d34219abfa528ea124",
+    "sym-9a70994d050fbd5d670c47065d2666a79e09b90484a980d0df097689917faf4e",
+    "sym-b3d5304cbbb94639252e072586249f6e06de3b1788b15e22edd29737f202659c",
+    "sym-3eee5f99295ffd252ba50cc0e556bcb62d4856d4c8a35b79d8e8c1cd1c040527",
+    "sym-9b19bb2c8c243c566c7e2cdfdb8730a5a46a88b58dc70adc43ecc639613f1f1d",
+    "sym-30c820450d3e7f063e269eb2afc3b908be7b11ea58065a3674974f9eb9baadc8",
+    "sym-0188b472c6fa413ae6456b6a3164b6999b0768d63a6497255bbd2d0a5a68ac0b",
+    "sym-5b03eae1c30cb2330afa96c6096ea4a741bf0d64c6f0cce793918f8601a254be",
+    "sym-4da6b178a8539f2203f2cfebf05df60e4f408879f69feacc1e368b95045ac1da",
+    "sym-07f4c1c3be0ea68a7fb2c7fad67c96a13f01f8eaa2b95b42a37c5eaf87064829",
+    "sym-7b4f30adb38950056e57b637b37709bcb937abcd962f7482ca7b167a56e51f16",
+    "sym-bafbd2fc58996ef2bb79a28ce1c04c5fb02abc91aba777564be5b8837be00c1e",
+    "sym-3e69134d305ba3abd5c16089c9dd3f1a1262d4ceaecde8fa043e4cf227049e6d",
+    "sym-fa4d273b6ddfe2c371c62dae2dc1ef5cc50c10e636a72e4a43733293b7a01222",
+    "sym-62722f97c245b5c91ce9302cff59b22489d4e173a2504f47158643e3ccb51839",
+    "sym-9bafbb47aba4001ceefb5343374bd597910883771dc261c072942ed9ba5ce875",
+    "sym-81064d2835490bb333741b1e78e64166ab68ae3cd5568fc516033046f6f4d863",
+    "sym-c3f0fe1c5ec463b05976812fc031032cc86b986fac22c781ae9c804e952a5e5f",
+    "sym-1596ca1386149e1857ef5340fcc5179abc58518a08160a0358ced69ea5c10062",
+    "sym-840831f60c5a11c9428d4494db11961ed5616e43bb87f2f9fe55b3f0f1c5cb10",
+    "sym-07790b7f6f4e7d40faa880020127dfed82e0c7739838463a68f04991f15d26f4",
+    "sym-b3a349358e2192504c67d3f5c04352b4f149e994fe3de3dd3f32628832aa15f7",
+    "sym-6bde3d59fe36c33955efd3502f3aa5688c43ae168f773ed25fd284aa1380dfa9",
+    "sym-2d74afa7fcf8b4d3c41afd49d1b223c6366246551b20f8f1a5483b0ee98a5911",
+    "sym-96ad026521391f50ddc47bd095380c8203538e854e46419694a9ec5fe20cbd01",
+    "sym-6f90ee73b5b869d4fa9d6eaef7853a17ed4cde9d7f52545f1cc1e0b94b6dfd4a",
+    "sym-132578ab3f11c4ab2c29a5cb5054fd6dcd49c2868330b589f4c68192d3050f35",
+    "sym-468fbc12e53ee9f60407cdb875cd175b9be26c84641f6909fac047a324c17dab",
+    "sym-82a573fd1425de7438e2a8d488cec75e6f8eefabf750f6efc6af0ba782a34d86",
+    "sym-653073cb83d9d39280a3d7951e292512529d014ac8960b5d93aac75dda4e0a77",
+    "sym-9825b15de25189b3d9edb912b1e25d31ec198459778dfb2146f79391bdaa2c6c",
+    "sym-c7de9b3f65819ed3a37496dd49f169be4e2e7d5284c7d47f893cbf1a51480caa",
+    "sym-63c6870a31fbf8be20f8f95eaa31f60fa22cf573d7066c2dfb763456a8974dae",
+    "sym-ac7649aa390721700dabe05719c02582bfa4a5fd59d69055317050c82c9f5db8",
+    "sym-5e089a47da7115869a58d42e5b31b9a4dbf617ede8aa8d7320dd5ca5dbe9c478",
+    "sym-44293528be81a62647bd6f216b3b7e8d7f46241c4103c2997d21974a09e11400",
+    "sym-fa74c86e0ecf874989123865dfd62c2fefab6aa1c8dd43bddbddafbf856162cd",
+    "sym-8c9490c7dc635963e149296f9795843ef5e27ae2d99d3fb729f504ffa526ecdb",
+    "sym-d57651389b2611382fd487990d9dbc968cea35be49d5573f7aa3880e47193c49",
+    "sym-d77ba4e3dd2c9c82a7c6bcc59783223586fbac07daaa7118486fd59703d74b88",
+    "sym-e812c7c6ff956c06c928f5a7788d63e9e6ccdc3108d97dc897fc7a9f3a5038f2"
+  ],
+  "completed_since_initial_allocation_ids": [
+    "sym-06a1d3cab4ce8e51365d469ac95d4a821b0858d0438f27a056a572ba87607e13",
+    "sym-06ef3fcac41481834123e109cd840e1e9e1bae08675f60d60f65be95c527d48a",
+    "sym-077ffd751542261e7be70b70e31fa2cada2cdce879948da408bdd95d252414ba",
+    "sym-0dd8da7814dc996a2874a2c9dd77dabd1a9a898e7fe8934707b710c0c8ceebb4",
+    "sym-1303d2da04bec22ef9a551b2402b37f8d7b5a9a621a971eb4ddb2baad45fd5eb",
+    "sym-165649a87da37bfb47f2aae6175a15f069c7490e012ac363a0f6a234a29d6fe9",
+    "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+    "sym-1c8db0b39920869f8e8319fcbe55acf1202736042aec5097ed52f8d46e5f31d4",
+    "sym-1d03eb0e0a57eefa8759a44e9920d98bf7e88a5090151bad13ca3eebdbbdd9b4",
+    "sym-1df593f957fdb0353e1da8259d3dc9f248df25382647f36e1b4f6273795727c5",
+    "sym-1f3ed6312b3bacaff4c2630cc648b7faf1dd571777e0fe49e1c3721b372f4621",
+    "sym-201d7b2ef8478bb6c261d88ac2d9992a42aa187508077edda0f9fe83fb008471",
+    "sym-243201f28cb1b7b0feb7f4bb9222489c193fc1064526b19bf892e55c02ece0e0",
+    "sym-292b1b2aa84c7468de41c3916630833c6fa9d095ea05e0f6de204d0aca010344",
+    "sym-2a2364452bcb61001aba207fb3d60872eabeea01d957d4c3ac0715f2fbdadb15",
+    "sym-2b1f7b9ca0b82a5239cc2dbde576c370d5c9b69e3d94d879e104a2cd8a06e314",
+    "sym-2c03f4417755e84f424cef62cbb7abad483ee56d656973d52822c4d662769e8a",
+    "sym-2ed121f00f80838ebeec6c4b890351d41ab519c1583d7bf72953c7f9e8bb064e",
+    "sym-2fa12fe5881c6621510db44dcc6b7be58eb519969403129baa8964882a42b86b",
+    "sym-31bcdf4dc1865cfb6967d0c0661f3c7f9a469cf6993b2836c3ae887e9e064904",
+    "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587",
+    "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+    "sym-3689200e3441f8f78fb46ebc7cc4cd8a35092a1591d917f5bfcd026b9b2da1e2",
+    "sym-374b93474d04228fbfa7b54544c9f3031d9e34fe799ccb925df2ca973e446b36",
+    "sym-39ffbfdbd5f67aff54ce3d162dbcc75197fb085cf8d02fe504ca45ba03e6fe9d",
+    "sym-3c7db4dc863bb45138e3d00a1550fe84593891f20fb6771f7d31d6c93bfc9eb2",
+    "sym-43363afb909d03549aa3b2c2143a641cc091a97a3bc08f7e7282ff482832492c",
+    "sym-438aafc0b8e8e6b8febaf94e50d7fd0094df4450308305838154e02a347179d5",
+    "sym-43d2cca7fe80e2e1ffe1ad1611ca6a679ac56edfac45955ac473201c15dd5df4",
+    "sym-4495510bb68425475d394d7be7076f5afe1e3a336e94a21601d25595222540e2",
+    "sym-4682cf9daad756667e5d1b14fef544627cccc256a9a782e204d4d4d9628723d8",
+    "sym-47579c71f92ccf23c3734cf72f132bb852022cff3919120ab89619ca5ae00ba7",
+    "sym-49ac8ecd309f59996efafd92aded337ab9fe96811dda789bf2f0e411d198679e",
+    "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+    "sym-507adc4067f4c909dd6cba918a336717b82a087daf22ec16bab7b7dd2268498b",
+    "sym-507cc99d8e94efd1b25afb289fcd8d2ea223da312139dd7d1289d0b59848567f",
+    "sym-508de0e25ed3c287616aea0832e0408987e7892966a173e082f0b5f6c76aa415",
+    "sym-51e2a3491a05b4d9f8bfc1164c6b115f541c3bd3c3dd4b92d662a9b244b2da0c",
+    "sym-52bd0334e2639edc092ff2afa559d4b3a7289fc3c0bfdd9f0c0293754395d500",
+    "sym-53f3b26f360799aa2198d76cf17db55dd97adb08847174b0a1456986545aeac8",
+    "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+    "sym-5575a99fc4d2c72753bcee1e41ba1b36ebc0a6b0086d6e8d36ea011d3dbfd83b",
+    "sym-55de42ac6cacde06ad3f170d663c3492144be22088c1d3277fad904c945b034e",
+    "sym-581bc8acdbbbe2896ff3c87704ee598215c42ad6d9ce76b9497b8a95c19bc9cc",
+    "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+    "sym-5cf0107ecab22e8934446507430c23ad09e826b3c09fe522d6cc1781f8aaef01",
+    "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+    "sym-5fca3fc66337de8140e5183c9d05168c74cc4c2d39f3cbf2a6d5d652332d218c",
+    "sym-62011427a3ac9705a24805595414379f5ecccee38eb8ddad134348252adefbc8",
+    "sym-64af0bdc9a1d35fa1fcf2e8b072c3a50f90a9d56a90e5fb8796f3dd25e33bab6",
+    "sym-65ac087a3ee68135e8a15b8cfd9359c36a42fa59ed54416e680f2e277282cea2",
+    "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+    "sym-6bc9450e7f0331c8a677e5fba386122163d016f5aa2fd6e32fdc958836543e4c",
+    "sym-6c0ba966915bb6731eef7c6adb90f7165737a0dae672ef4eedaf06e8ae7c79f3",
+    "sym-6f5a795851b5af215df79445ff9cd154c04109e435656ca678015eef103c38cb",
+    "sym-77a0b2c85038a76a7ce76ef7a93ea409d8ddadb3c18ea65c43cb1fec753d070b",
+    "sym-77a2e0bbad83d36c690a02cfcd5c5ebe07bd07d3c1f380c0fb82c200103ceb7c",
+    "sym-787ab07633d93e847bac931d3cd7e9cea41b57675fc9eadfa1160132b7302b25",
+    "sym-7d6184eec380a3e07bbee6236241f597533047bebdc7def72fe80b4558679671",
+    "sym-7ea60776c9dbda429987d1e76c88ce80ffe64bbdd8f79d723388d7c6aefbaf28",
+    "sym-8529d16da96926ba1068a539f89e965450946936a05ac3e9fd9986d545db3bbc",
+    "sym-8602dd808d98a3ee57b31b1453f261ff6cc9abf35466c575f6d980d2b4c480c0",
+    "sym-887da38e56297ba6a1f62f322e5cb2b1cfcf092d99f89ef4bd939cea16fb2952",
+    "sym-892f55880076fcb31823b9f5418c6bcd28b4aebdebb7a71c72412353a755adfa",
+    "sym-89d5017e1c16f6c50b500d012941167dbf5b4432403cd4914261516ec791508f",
+    "sym-8ae5a37763d69995f863bbe8be1be294f61fbea8c381ecf3b801b813154a3f6c",
+    "sym-8caf2217988971bad23103d838fc8e1f38d532884f68961a6f20e5eb0dd94580",
+    "sym-92647d071b0b8ad2a9c5b2378588915bdec015ea2ea02f2cd26831bc7b062ecf",
+    "sym-9364d456e7fcbd50906e609f711e86863709d142f19045b44e7e47df51ede828",
+    "sym-94c59d5c0dd8a29578e0da981baa5d780ef35eedbaddac5129305ee96c36973b",
+    "sym-977573cfab2c1c57973e3fa16d3115b4435cb579b3672209e0f300a04f15a34f",
+    "sym-993092d097bb197edfec9996c12e929dff5cd9c63c0b09c76a7d4850137fa8b2",
+    "sym-9e7789621ff8134f5987aaf1a277391eb4809926e38cd26509c0da5644615f6a",
+    "sym-9fa15a3f54a928ceb1359c280f335ab3677320fae74edba8ccd9e12c3a98884e",
+    "sym-a1089f8e2e9778b3e232b1b77d7de07f2b6eebdff841b51f6641b7f04573c6de",
+    "sym-a24db1eb64f12d8fdfc0365fccc38e0edc21d5f97112f6ae39322182e860170d",
+    "sym-a651e4115cc0e5219b295a50d762e47a4bd3c97cded8915f0b4fd3e10c78d8dc",
+    "sym-a774e9fb7f18730ab662f8db9b359ac092adcc22cec64788edb19f96af63b713",
+    "sym-a7a6f521fb2997a965392485db9253893c687eac2e607bfecfc50242790e41a9",
+    "sym-a80b5a2a9274a6fb9fc8b13118a9b440c8ae762f54d65e5e2792957da8906758",
+    "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+    "sym-a8d96f26597f61f6cb42544b887194e902a1d8058475f406bb2a929f6eacd8dc",
+    "sym-a955844a5268ea19910739dabf781d5874a1710ff17416b643f44b6fb1009b34",
+    "sym-ab1cab4e8c36c99831f19baf51f59c8d156c6cc383cb897f617c5e1be9eddc72",
+    "sym-ab686a83429d1e97f7f87f164575f04babbd840d0849571eef19aa1535d9f718",
+    "sym-ab79e4d5d8499938ccfd0b36b55ca2477f5e9d413cda4047b61d1e41deec6f8a",
+    "sym-ad004442fa7ae4f62bdf16814a60c41ca0b263d7cdc0d18007d6983c9040ab26",
+    "sym-af59b71cdf8827eea559f9ccd86fdfc99335d4621d42d1509cf21239229e8823",
+    "sym-b30e3d446de5d31e70d48cdb418eec34e7be2987daae246ba8051fd2359995ff",
+    "sym-b3b275269579a178781fe1660f966f15d83ff04a7094c4d3115f57b4f1fdce38",
+    "sym-b93d59351b0ef702ad543f8a7bfc6f7341781b48ad6088aa47262ca8802012a5",
+    "sym-bbe581acbec8f51cadd07eb95e30b18abaa2cbd744b4eb48d3ef4c4a0dd26711",
+    "sym-bdae50df4bf92e785b316f91b6c90f42824e402fa5814bc544d75d93b384af7e",
+    "sym-c0116241f4ac8522f1dadff50c830fc6a82c6d45632beeb8ee0e57dd7b023ae9",
+    "sym-c3253f90b39b119d016833c044b040bc5745a0bbde102785ec02afa10db1df08",
+    "sym-c37863789f44cd3f347bcb6e3b7a38092671ff6ca30caa9c86d9c7f43707b6f8",
+    "sym-c647dbba58ed1df29aff022b923d2be0540d354f42f3bc2ac07e8a2e60416669",
+    "sym-c65c8195cd13985e9437f7e838890c0f0714fdded55d4bbf773068740f398cbe",
+    "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+    "sym-c790689aac664ac8ea11bc749b33eccdf605e165baad9ac3c03f76935787b7b2",
+    "sym-c808d119f017816afa515dfbf1d9ee663d92a7ce4deb11292a68ca993081e896",
+    "sym-c94d422d246f92c086fe4e4e4868be5892484dc98eef9bff68b7e340b82cb4ee",
+    "sym-c9651892ec227a85ff8a7e1832e9b09f805538d5eee44a89849cae6962794e81",
+    "sym-cb36ca91e25953caff451fbdaa5cda4411cff1147d4b113579d67824eaba53b9",
+    "sym-cefedaff2b4e83e42bd663d44d32e3dbbc17d96851bca6bc398b6e3e6368f529",
+    "sym-d1b9816437ee9f0f9603081f22eaa00e6f9a6d3d57c07747657195b4ad115235",
+    "sym-d2494e7315c7ef33464eb4be4beacd1f745d1370ef236964062221f2f0120e70",
+    "sym-d257f16fb54add7b7bcb6f2c1b559ce9c41398595eca8365a9132b8a3e925bfa",
+    "sym-d3b8fffa6c0a2f51f94df87127b9de342c7e8fc1492b3b37026c4651808e8171",
+    "sym-d3e9ca3b245fc2f117bbaa8a35226967078acbc939f5bd1abdcb63005f1e585d",
+    "sym-d41142832fa515ceaeba1760cf8f0241d08e45fd3b2f6c3a07b46eed5b631e40",
+    "sym-d415975fcdd222571155193b1b0c4bcb64d55de10e15f16bb4f7215915314aad",
+    "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247",
+    "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+    "sym-dac8c78e0ff3698f49f59dc0a4bac674d1630557ca7398979c57884de5220cca",
+    "sym-dbdcd0c4c91e0ac44af6056bdb3e41c37ac7ab0dbe9ccdfe2cda4443313bd5fa",
+    "sym-e0a9198c600392c91fd5a16f7efc2f21d23ddbaf9c1cd761174969feba8135de",
+    "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+    "sym-e76811f336ad727f286c732f0ce11b2a51074b9dba22890cb4ee45b109f4549b",
+    "sym-e7cbdd86107c86d02e1ff9cc95db8cfd653e1ee32f2cecfbd8bc2864ec8936b7",
+    "sym-ec4cf635fecbae7453d93d752e82cf9ce6e5556d419d76c9a11086348b961114",
+    "sym-ed3f44daff65a2f917220b0c9deaff1ddeffae745ef637490d724569615959ac",
+    "sym-eebf19554e2d9a1b6a63637f922795c457391603d835317f571f4f494c72b83e",
+    "sym-ef545a9a367eaf74e83ed7efcd12eb01597a76785996aa17c94854910c12d847",
+    "sym-f1e1f2ef0eabf62c125a1419e13528c6640a13ecbcb8eb7198e401d665677de2",
+    "sym-f2348472350846b39537ad2c057ba308822f53201fa26f814b04302be7b275bf",
+    "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+    "sym-f61d4ab759c0259f3d5313f98b59720344876ed266575d900ac2102f7a52343d",
+    "sym-f6b854abc816089d41d34cbfc17182264c8c639e6efc19f2ac641d17aed65624",
+    "sym-f6d1eb827c0a90c428877cd7972f402dabf60a43bc7f07c6f4042a3f523b60c9",
+    "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+    "sym-f9188ec8de3df4c3a40b08aa7518b6d3f9603aa2b4102b1b284078e141d6c781",
+    "sym-faa2f878bed1ed64ae75fb57b1c914a96d1e87c900d47396153a4659717ec58d",
+    "sym-fc1096eff1061417f85a37af7c4d2d57606a6d647a83cd0585d01a1504370a2c",
+    "sym-fd3d8002e8e0765471429f929e7c8f5a4d2cca3d48a115c16707cb570134d411",
+    "sym-fe6ffc6c6489b8e23e9879c149404afe30afe9f516577d15469f964ffe3e2147"
+  ],
+  "reconciled_at_utc": "2026-10-18T04:45:07.019911+00:00",
+  "actual_execution": "Root fallback sequential source review; no specialist session was created."
+}

@@ -1,0 +1,142 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "candidate_key": "CORRECTION_REVALUES_OLD_EFFECT_AT_CURRENT_RATE",
+  "original_lead": "FIN-LEAD-CORRECTION-RATE-001",
+  "reviewer": "financial_integrity",
+  "at_utc": "2026-10-19T09:13:49.914Z",
+  "status": "POLICY_QUESTION_WITH_SOURCE_SUPPORTED_RECONCILIATION_COUNTEREXAMPLE",
+  "severity_if_original_posted_effect_contract": "MEDIUM",
+  "confidence": "HIGH_SOURCE_BEHAVIOR_POLICY_QUALIFIED",
+  "source_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "line_ranges": [
+        [
+          15,
+          18
+        ],
+        [
+          39,
+          51
+        ],
+        [
+          82,
+          117
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from correctAttendance in lib/store.tsx - gated on `attendance_manage`. Posts\n/// only the DELTA between what the automatic late-penalty/overtime calculation already produced\n/// and what the correction implies, as a new 'adjustment' ledger entry - the original automatic\n/// entries (if any) are never rewritten or deleted, only reconciled forward.</summary>",
+        "        await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);\n        var record = await _db.AttendanceRecords\n            .FromSqlRaw(\"SELECT * FROM AttendanceRecords WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}\", request.RecordId)\n            .FirstOrDefaultAsync(ct)\n            ?? throw new InvalidOperationException(\"سجل الحضور غير موجود.\");\n        var auditId = $\"audit-attendance-correction-{request.RequestId}\";\n        var recorded = await _db.AuditEvents.AsNoTracking().FirstOrDefaultAsync(e => e.Id == auditId, ct);\n        if (recorded is not null)\n        {\n            if (recorded.ReferenceId != request.RecordId || recorded.UserId != request.ActorUserId)\n                throw new DomainException(\"مفتاح التصحيح مستخدم لعملية أخرى.\");\n            return JsonSerializer.Deserialize<AttendanceRecordDto>(recorded.NewValue!)\n                ?? throw new InvalidOperationException(\"تعذر قراءة تأكيد التصحيح السابق.\");",
+        "        if (employee is not null && employee.DailyWagePiastres > 0)\n        {\n            // Match employee cash-out's ledger lock so the resulting running balance\n            // cannot be computed from a simultaneous, stale drawer withdrawal.\n            await _db.EmployeeLedgerEntries\n                .FromSqlRaw(\"SELECT * FROM EmployeeLedgerEntries WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE EmployeeId = {0}\", record.EmployeeId)\n                .Select(e => e.Id).ToListAsync(ct);\n            var settings = await new SettingsQueryService(_db).GetAsync(ct);\n            var dailyWage = Money.FromPiastres(employee.DailyWagePiastres);\n\n            var oldPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, oldLateMinutes,\n                settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;\n            var newPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, request.LateMinutes,\n                settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;\n            var penaltyDelta = newPenalty.Piastres - oldPenalty.Piastres;\n            if (penaltyDelta != 0)\n            {\n                var isCredit = penaltyDelta < 0; // a REDUCED penalty credits the employee back\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, $\"led-correction-penalty-{request.RequestId}\", record.EmployeeId, nameof(LedgerEntryType.Adjustment),\n                    $\"تصحيح خصم تأخير حضور — {request.Reason}\",\n                    isCredit ? Money.Zero : Money.FromPiastres(Math.Abs(penaltyDelta)),\n                    isCredit ? Money.FromPiastres(Math.Abs(penaltyDelta)) : Money.Zero,\n                    verifiedApproverName, verifiedApproverName, null, record.Id, null, null, null, ct);\n            }\n\n            var oldOvertime = PayrollRules.CalculateOvertimeAmount(dailyWage, settings.StandardWorkdayHours, oldOvertimeHours, settings.OvertimeMultiplier).Amount;\n            var newOvertime = PayrollRules.CalculateOvertimeAmount(dailyWage, settings.StandardWorkdayHours, request.OvertimeHours, settings.OvertimeMultiplier).Amount;\n            var overtimeDelta = newOvertime.Piastres - oldOvertime.Piastres;\n            if (overtimeDelta != 0)\n            {\n                var isCredit = overtimeDelta > 0; // an INCREASED overtime credits the employee more\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, $\"led-correction-overtime-{request.RequestId}\", record.EmployeeId, nameof(LedgerEntryType.Adjustment),\n                    $\"تصحيح ساعات إضافية حضور — {request.Reason}\",\n                    isCredit ? Money.Zero : Money.FromPiastres(Math.Abs(overtimeDelta)),\n                    isCredit ? Money.FromPiastres(Math.Abs(overtimeDelta)) : Money.Zero,\n                    verifiedApproverName, verifiedApproverName, null, record.Id, null, null, null, ct);"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "line_ranges": [
+        [
+          138,
+          147
+        ]
+      ],
+      "source_excerpts": [
+        "        if (overtimeHours > 0 && employee.DailyWagePiastres > 0)\r\n        {\r\n            var overtimeResult = PayrollRules.CalculateOvertimeAmount(Money.FromPiastres(employee.DailyWagePiastres),\r\n                settings.StandardWorkdayHours, overtimeHours, settings.OvertimeMultiplier);\r\n            if (overtimeResult.Amount.IsPositive)\r\n            {\r\n                var overtimeId = $\"led-overtime-auto-{request.EmployeeId}-{date:yyyy-MM-dd}\";\r\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, overtimeId, request.EmployeeId, nameof(LedgerEntryType.Overtime),\r\n                    $\"ساعات إضافية تلقائية من البصمة ({overtimeHours} ساعة × {overtimeResult.Rate.Piastres} قرش/ساعة × {Math.Round(settings.OvertimeMultiplier * 100)}%)\",\r\n                    Money.Zero, overtimeResult.Amount, employee.Name, null, activeShiftId, null, overtimeHours, overtimeResult.Rate.Piastres, null, ct);\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "line_ranges": [
+        [
+          31,
+          49
+        ]
+      ],
+      "source_excerpts": [
+        "    public static async Task<EmployeeLedgerEntryEntity?> PostIfNewAsync(\n        FalahDbContext db, string id, string employeeId, string type, string description, Money debit, Money credit,\n        string recordedBy, string? authorizedBy, string? shiftId, string? referenceId, double? hours,\n        long? rateSnapshotPiastres, long? valueSnapshotPiastres, CancellationToken ct)\n    {\n        if (db.EmployeeLedgerEntries.Local.Any(e => e.Id == id)\n            || await db.EmployeeLedgerEntries.AsNoTracking().AnyAsync(e => e.Id == id, ct)) return null;\n\n        var currentBalance = await GetCurrentBalanceAsync(db, employeeId, ct);\n        var newBalance = currentBalance + credit - debit;\n        var entity = new EmployeeLedgerEntryEntity\n        {\n            Id = id, EmployeeId = employeeId, Type = type, Description = description,\n            DebitPiastres = debit.Piastres, CreditPiastres = credit.Piastres, BalanceAfterPiastres = newBalance.Piastres,\n            RecordedBy = recordedBy, AuthorizedBy = authorizedBy, ShiftId = shiftId, ReferenceId = referenceId,\n            Hours = hours, RateSnapshotPiastres = rateSnapshotPiastres, ValueSnapshotPiastres = valueSnapshotPiastres,\n            CreatedAtUtc = DateTimeOffset.UtcNow,\n        };\n        db.EmployeeLedgerEntries.Add(entity);"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "worktree_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "source_git_blob_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "line_ranges": [
+        [
+          32,
+          53
+        ]
+      ],
+      "source_excerpts": [
+        "/// <summary>Ported from EmployeeLedgerEntry in types.ts - append-only, no update/delete path\n/// anywhere (matching the reference app, which only ever appends to this array too).</summary>\npublic class EmployeeLedgerEntryEntity\n{\n    public string Id { get; set; } = default!;\n    public string EmployeeId { get; set; } = default!;\n    public string Type { get; set; } = default!;\n    public string Description { get; set; } = default!;\n    public long DebitPiastres { get; set; }\n    public long CreditPiastres { get; set; }\n    public long BalanceAfterPiastres { get; set; }\n    public string RecordedBy { get; set; } = default!;\n    public string? AuthorizedBy { get; set; }\n    public string? ShiftId { get; set; }\n    public string? ReferenceId { get; set; }\n    public double? Hours { get; set; }\n    public long? RateSnapshotPiastres { get; set; }\n    public long? ValueSnapshotPiastres { get; set; }\n    public string? PayrollRunId { get; set; }\n    public string? TreasuryMovementId { get; set; }\n    public string? IdempotencyKey { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          29,
+          32
+        ],
+        [
+          55,
+          60
+        ]
+      ],
+      "source_excerpts": [
+        "    /// <summary>Ported verbatim from normalHourlyRate - a non-positive workday-hours config\n    /// produces a zero rate rather than a division error/NaN.</summary>\n    public static Money NormalHourlyRate(Money dailyWage, int workdayHours) =>\n        workdayHours <= 0 ? Money.Zero : Money.FromPiastres(dailyWage.Piastres / workdayHours);",
+        "    public static OvertimeAmountResult CalculateOvertimeAmount(Money dailyWage, int workdayHours, double overtimeHours, double overtimeMultiplier)\n    {\n        var rate = NormalHourlyRate(dailyWage, workdayHours);\n        if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);\n        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier));\n        return new OvertimeAmountResult(rate, amount);"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "worktree_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "source_git_blob_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "line_ranges": [
+        [
+          95,
+          100
+        ]
+      ],
+      "source_excerpts": [
+        "        entity.Phone = request.Phone.Trim();\n        entity.HireDate = request.HireDate;\n        entity.CompensationType = request.CompensationType;\n        entity.DailyWagePiastres = request.DailyWagePiastres;\n        entity.ShiftValuePiastres = request.ShiftValuePiastres;\n        entity.MonthlySalaryPiastres = request.MonthlySalaryPiastres;"
+      ]
+    }
+  ],
+  "observed_behavior": "Correction reads current employee DailyWage/current Settings then recomputes BOTH old and new overtime/penalty. It never reads frozen actual original amount/rate or cumulative prior correction effect for delta. Row+ledger serialization and immutable retry audit are real controls, but do not restore old monetary basis.",
+  "source_counterexample": {
+    "original_daily_wage_piastres": 10000,
+    "standard_hours": 10,
+    "overtime_multiplier": 1.5,
+    "original_overtime_hours": 1,
+    "original_credit_piastres": 1500,
+    "later_daily_wage_piastres": 20000,
+    "corrected_overtime_hours": 0,
+    "recalculated_old_piastres": 3000,
+    "new_piastres": 0,
+    "posted_correction_debit_piastres": 3000,
+    "remaining_original_overtime_component_piastres": -1500,
+    "qualification": "Arithmetic from unchanged domain formula only, NOT a component/DB execution; whole employee account may contain other wages so not claiming negative total balance."
+  },
+  "policy_disposition": "Handler summary15-18 promises delta from automatic effect already produced and append-only originalfacts. Under that stated reconciliation meaning, removing1hour should reverse posted1500, not3000. If policy intentionally prices all correction increments at current rate, behavior is a policy choice and summary/financial presentation must say so; no blanket authoritative historical-rate requirement invented. Root independent challenge requested before promotion.",
+  "counterevidence": [
+    "Unchanged rates/settings and ordinary original matching values reconcile correctly.",
+    "Same correction request replays storedsnapshot boundactor/record; record lock serializes different corrections, so no duplicate-requestrace claim.",
+    "Actual entryTypeAdjustment debit is counted byPayrollRules deductions; distinct FIN012 credit omission, not duplicate classification bug.",
+    "Current Settings multiplier/workday changes can also alter oldbasis; authorized profile/settings writer required and manualcompensation can change netposition.",
+    "Existing frozenRateSnapshot field alone may omit multiplier or historicalpolicy needed to reconstruct all corrections; use actual postedfacts/cumulativedelta per agreedpolicy, not blindly single RateSnapshot."
+  ],
+  "correction_design_if_original_effect_policy": "Reconcile original earning/deduction plus already posted linked adjustments under explicit correction basis. Keep append-only originals, deterministic request identities, row/ledger lock order and zero-delta receipt. Historical reassessment/migration requires separate authorization, do not mint credits automatically.",
+  "regression_tests": [
+    "Original fixedrate overtime1hour1500 then doubleddailywage removehour: assert agreed reversal1500 (or explicitly approvedcurrentratepolicy), no accidental extra1500debit.",
+    "Change multiplier/grace/workday configuration, penalty-tozero and sequentialcorrections including returningoriginalhours; compare cumulative facts.",
+    "Repeat same request and interleaved later correction; currentrates unchangedpositivecontrol; historicalpaidperiod/manualcompensation protection."
+  ],
+  "runtime": "NOT_EXECUTED",
+  "next_action": "Root independently challenge statedcontract versus policy interpretation and classify confirmed/rejected/policyquestion; no canonicalID written."
+}

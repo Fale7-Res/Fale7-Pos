@@ -1,0 +1,24 @@
+{
+  "at_utc": "2026-10-18T04:37:13.541753+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "paths": [
+    "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+    "src/Falah.Infrastructure/Employees/PayrollQueryService.cs"
+  ],
+  "receipts": 45,
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayrollQueryService.cs",
+      "worktree_sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2"
+    }
+  ],
+  "all_time_balance_contract": "EmployeeRules, EmployeeQueryService.GetBalance, DailyStatement running balance and OwnerDashboard employee obligation use credit-debit stock; current versus date flow intentionally different.",
+  "known_finding_link": "FIN012 Adjustment credit not counted in six-bucket employee flow report despite remaining balance including it; do not add duplicate finding.",
+  "scope_question": "Active-only financial report can omit inactive staff with debt, while dashboard includes all ledger IDs. Requires owner labeling/settlement policy; not newly proven lost money.",
+  "runtime_verification": "NOT_EXECUTED",
+  "privacy": "Schema field names only; no employee record values queried."
+}

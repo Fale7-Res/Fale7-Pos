@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs",
+  "source_git_blob_sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7",
+  "worktree_sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:35:54.029741+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-45a7529d884bb46e84011c46964256ac19f62c95931106fe9e2e56a1bee74ff3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Delivery.DeliveryFactsComposer.Compose(Falah.Infrastructure.Persistence.Entities.DeliveryEntity, Falah.Infrastructure.Persistence.Entities.OrderEntity)",
+      "span": [
+        13,
+        5,
+        38,
+        6
+      ],
+      "reasoning": "Composes delivery/order read model from actual order total/refund, payment method and IsPaid, plus dispatch status/driver/shift/trip/outcome times. AmountToCollect=total-refund without floor; normal refund cap prevents negative unless corrupted/extreme arithmetic. Cash responsibility helper always uses amount even IsPaid; noncash skips if IsPaid. For Multi IsPaid false with immediate cash/card legs, full amount can become driver responsibility rather than just unpaid electronic residual; current UI/handler split policy must be traced before new finding. Does not enforce order.ID equals delivery.OrderId; normal callers fetch by parentID.",
+      "inputs": "DeliveryEntity/OrderEntity",
+      "outputs": "DeliveryFacts",
+      "side_effects": "Pure mapping, no DB or payment mutation.",
+      "database": "No DB query; caller supplies two snapshots.",
+      "trust_boundaries": "Order IsPaid source authoritative only when financial transitions correct; existing FIN001/002/003/010 qualify use.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed field/enum mapping.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Potential Multi driver responsibility overstatement lead not yet promoted; actual accepted dispatch flow must be checked against Confirm/Assign policy.",
+      "tests_missing": "Cash COD, confirmed/nonconfirmed electronic, partial refund, Multi paid legs vs driver amount, mismatched parent caller contract.",
+      "verified_callers_callees": "Compose14-36; DeliveryRules11/16/52; Assign81 fetches associated order."
+    },
+    {
+      "stable_id": "sym-38eb29e57271fcabb6b398acf7217b35dd2c23fbf2fb747657a2946c7d7af8ad",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Delivery.DeliveryFactsComposer.ToDriverCustody(Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity)",
+      "span": [
+        40,
+        5,
+        43,
+        62
+      ],
+      "reasoning": "Copies custody identity/ownership and all four money amounts/status/time into immutable domain record; parses persisted status case-sensitively. No recomputation Difference=Collected-Expected or Settled relation; business rules/handler write consistency needed. Unknown status throws, negative amounts preserved faithfully.",
+      "inputs": "DriverCustodyEntity",
+      "outputs": "DriverCustody",
+      "side_effects": "Pure map only.",
+      "database": "No DB access.",
+      "trust_boundaries": "Stored obligation facts supplied by trusted persistence, mapping is not financial validation.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant conversion.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new mapping-specific finding; no invented custody duplication from value copy.",
+      "tests_missing": "Roundtrip all amounts and owner fields, malformed status, signed invalid historical values.",
+      "verified_callers_callees": "Constructor41-43; settlement/query consumers use mapper, exact current path pending."
+    }
+  ],
+  "remaining_callable_ids": []
+}
