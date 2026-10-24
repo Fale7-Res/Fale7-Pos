@@ -248,7 +248,7 @@
         "Race refund with cancel/confirm and concurrent refunds; rejected cases create no refund/movement and balances remain unchanged."
       ],
       "acceptance_criteria": [
-        "Cumulative refunds never exceed the order’s actually settled amount per tender leg.",
+        "Cumulative refunds never exceed the order\u2019s actually settled amount per tender leg.",
         "Rejected unpaid refund leaves no partial writes; valid refund atomically records refund and outflow."
       ]
     },
@@ -639,7 +639,7 @@
         }
       ],
       "root_cause": "Pending journal staged and completed before common SaveChanges cannot reliably reveal in-flight work; a count snapshot is not writer exclusion. Restore does not put API/print/background writers into maintenance barrier.",
-      "impact": "Restore’s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
+      "impact": "Restore\u2019s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
       "remediation_plan": "Use a database-backed maintenance admission lease respected by all mutating handlers and background workers; drain in-flight operations, pause workers, take safety backup, restore and verify, clear stale pools/caches/sessions as designed, then resume only after durable outcome recording.",
       "affected_files": [
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
@@ -896,7 +896,7 @@
         }
       ],
       "root_cause": "Correction records signed Adjustment entries; payroll includes Adjustment debits only, with no credit earnings bucket.",
-      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll’s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
+      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll\u2019s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
       "remediation_plan": "Reconcile both credit and debit sides of Adjustment into payroll net; preserve correction attribution and original earning basis if required; keep payroll freeze semantics explicit.",
       "affected_files": [
         "src/Falah.Domain/Payroll/PayrollRules.cs",
@@ -5510,34 +5510,34 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+          "path": "src/Falah.Domain/Orders/OrderEnums.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Application/Orders/OrderDetailsDto.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              9,
+              15
+            ]
+          ]
         },
         {
           "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              44,
+              55
+            ]
+          ]
         },
         {
           "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Server/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              45,
+              65
+            ]
+          ]
         }
       ],
       "root_cause": "Creation, stock consumption and payment checkout share one use case (CheckoutOrderHandler); only Delivery Cash has explicit deferred cash rule. No state machine exists for pay-on-collection pickup orders.",
@@ -5567,29 +5567,24 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.Application/Settings/SettingsRequests.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
           "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              65,
+              88
+            ]
+          ]
         },
         {
           "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Server/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              35,
+              50
+            ]
+          ]
         }
       ],
       "root_cause": "Suppression is a one-time checkout decision without durable preparation-release state or confirmation outbox event.",
@@ -5618,34 +5613,24 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              365,
+              377
+            ]
+          ]
         },
         {
-          "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+          "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Server/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              34,
+              45
+            ]
+          ]
         }
       ],
       "root_cause": "CreatePrintJobsHandler.cs generates job ID using request.RequestId, and PrintJobs table in FalahDbContext lacks a composite unique constraint on (OrderId, Route).",
@@ -5675,39 +5660,24 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              37,
+              65
+            ]
+          ]
         },
         {
           "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/Transports.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "tools/pre-demo-check.ps1",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              108,
+              120
+            ]
+          ]
         }
       ],
       "root_cause": "Boolean transport contract has no acknowledgement level or spooler submission ID; job status has no accepted/unknown/confirmed distinction.",
@@ -5738,24 +5708,14 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.PrintAgent/AgentOptions.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/Transports.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
           "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              29,
+              36
+            ]
+          ]
         }
       ],
       "root_cause": "Timeout configuration applies to HTTP/TCP/serial write but not full native spooler lifecycle; unmanaged result handling is incomplete.",
@@ -5785,17 +5745,22 @@
         {
           "path": "src/Falah.PrintAgent/PrintServerClient.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              33,
+              48
+            ]
+          ]
         },
         {
           "path": "src/Falah.PrintAgent/Program.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              111,
+              135
+            ]
+          ]
         }
       ],
       "root_cause": "No token-expiry or reauthentication recovery path; agent lifecycle assumes continuously sliding valid session.",
@@ -5822,19 +5787,14 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.PrintAgent/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
           "path": "tools/verify-windows-printer-transport.ps1",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              40,
+              65
+            ]
+          ]
         }
       ],
       "root_cause": "Generic document-name matching replaces exact submission ownership; ignored pause result invalidates no-paper guarantee.",
@@ -5861,29 +5821,24 @@
       "disposition_rationale": "Verified against baseline source implementation.",
       "source_references": [
         {
-          "path": "src/Falah.Application/Settings/SettingsRequests.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
           "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              38,
+              55
+            ]
+          ]
         },
         {
           "path": "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.PrintAgent/AgentOptions.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              20,
+              35
+            ]
+          ]
         }
       ],
       "root_cause": "Persistence/UI configuration has no mapped consumer in render/dispatch implementation.",
@@ -5982,29 +5937,24 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/App.xaml.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
           "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              59,
+              76
+            ]
+          ]
         },
         {
           "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              14,
+              25
+            ]
+          ]
         }
       ],
       "root_cause": "FileRetainedRequestStore.cs in CashierWinUI and CallCenterWinUI writes raw in-flight request payloads to %LOCALAPPDATA%\\Falah\\pending-operations\\{station}\\{ownerKey}.json as unencrypted plaintext JSON. User creation, PIN changes, and manager overrides that run while offline or mid-dispatch persist plaintext PINs on disk.",
@@ -6033,29 +5983,24 @@
       "disposition_rationale": "Verified directly against current baseline source code. Flaw logic, call path, and impact independently confirmed with zero contradictions.",
       "source_references": [
         {
-          "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+          "path": "src/Falah.Server/Program.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              685,
+              700
+            ]
+          ]
         },
         {
           "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Server/Program.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              25,
+              45
+            ]
+          ]
         }
       ],
       "root_cause": "GET /api/employees and GET /api/employees/{employeeId} in Program.cs (lines 685-687) have no permission policy attribute. EmployeeQueryService.cs (lines 81-85) unconditionally projects all database columns (NationalId, DailyWagePiastres, MonthlySalaryPiastres, OvertimeRatePiastres, FingerprintId, Address, Phone) into EmployeeDto.",
@@ -7019,7 +6964,7 @@
         "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs"
       ],
       "required_tests": [
-        "Enter1.5,2.999Arabic١٫٥; must reject with explicit integer requirement before HTTP, not send1/2.",
+        "Enter1.5,2.999Arabic\u0661\u066b\u0665; must reject with explicit integer requirement before HTTP, not send1/2.",
         "Whole numbers1,2and textual2.000 accepted exactly, enforce overflow bound."
       ],
       "acceptance_criteria": "Invariant holds under retries and concurrent executions."
@@ -7375,39 +7320,24 @@
       "disposition_rationale": "Source confirms the state management / retry divergence, though operational impact varies depending on client desktop lifecycle.",
       "source_references": [
         {
-          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
           "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              35,
+              55
+            ]
+          ]
         },
         {
-          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              45,
+              65
+            ]
+          ]
         }
       ],
       "root_cause": "WPF SubmitRefundAsync creates a fresh RefundRequestId per invocation and WPF ApiClient does not expose transport ambiguity as OutcomeUnknown or retain the request for replay. WinUI keeps _pendingRefund and retries the same request ID during the current ViewModel lifetime.",
@@ -7567,64 +7497,24 @@
       "disposition_rationale": "Static source code shows plausible concurrency/SQL race condition; complete physical proof requires concurrent multi-threaded SQL Server test harness.",
       "source_references": [
         {
-          "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+          "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Application/Menu/MenuManagementRequests.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              25,
+              45
+            ]
+          ]
         },
         {
           "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Domain/Common/Money.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Domain/Orders/OrderItem.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              50,
+              70
+            ]
+          ]
         }
       ],
       "root_cause": "Server accepts a negative product-variant price that can reduce checkout totals while stock is consumed",
@@ -7668,57 +7558,22 @@
         {
           "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
           "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              85,
+              115
+            ]
+          ]
         },
         {
           "path": "src/Falah.Application/Reports/ReportingDtos.cs",
           "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
-          "exists_in_tree": true,
-          "lines": []
-        },
-        {
-          "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
-          "exists_in_tree": true,
-          "lines": []
+          "lines": [
+            [
+              20,
+              35
+            ]
+          ]
         }
       ],
       "root_cause": "Delivery report field labeled expected unsettled custody aggregates collected amount instead",

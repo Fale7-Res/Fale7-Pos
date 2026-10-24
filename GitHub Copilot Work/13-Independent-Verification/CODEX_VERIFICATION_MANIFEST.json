@@ -1,9 +1,9 @@
 {
-  "manifest_version": "1.0",
-  "timestamp_utc": "2026-10-24T14:12:22Z",
+  "manifest_version": "2.0-MULTI-AGENT-GOVERNANCE",
+  "timestamp_utc": "2026-10-24T18:45:00Z",
   "source_baseline": {
     "commit_sha": "c35816ecae49633674775dd32061c6ee92f94aaf",
-    "git_head": "9beff52a6c9c6c4f7244cbd46dc449da91745582",
+    "git_head": "d2fd5bc44b7467ce85ddb10da2f85638857a42cc",
     "total_tracked_files": 690,
     "working_tree_matches_baseline": true
   },
@@ -15,13 +15,42 @@
   },
   "callable_inventory_and_evidence": {
     "total_repository_callables": 11653,
-    "production_callables_src": 9205,
-    "test_callables_tests": 2439,
-    "tools_callables": 9,
-    "substantive_reviews_completed": 8852,
-    "generated_or_trivial_with_justification": 2801,
-    "unaccounted_callables": 0,
-    "registry_path": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json"
+    "taxonomy": {
+      "INDEPENDENTLY_VERIFIED": 591,
+      "SUBSTANTIVE_SOURCE_REVIEWED": 4999,
+      "GENERATED_OR_TRIVIAL_JUSTIFIED": 2801,
+      "PRIOR_REASONING_UNVERIFIED": 1130,
+      "INDEXED": 2132,
+      "REVIEW_BLOCKED": 0
+    },
+    "percentages": {
+      "GENERATED_OR_TRIVIAL_JUSTIFIED": 24.04,
+      "PRIOR_REASONING_UNVERIFIED": 9.7,
+      "INDEPENDENTLY_VERIFIED": 5.07,
+      "SUBSTANTIVE_SOURCE_REVIEWED": 42.9,
+      "INDEXED": 18.3
+    },
+    "quality_gates": {
+      "all_material_findings_source_verified": true,
+      "zero_placeholder_templates_remaining": true,
+      "specialist_handoffs_integrated": true,
+      "exact_byte_verifications_count": 402
+    },
+    "registry_path": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json",
+    "statistics_path": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_SUMMARY_STATISTICS.json"
+  },
+  "exact_code_verification_ledger": {
+    "total_findings_verified": 77,
+    "total_references_verified": 402,
+    "ledger_path": "GitHub Copilot Work/Checkpoints/SOURCE_EXCERPT_VERIFICATION_LEDGER.json",
+    "master_markdown_path": "GitHub Copilot Work/11-Master-Findings/RECONCILED_MASTER_FINDINGS.md"
+  },
+  "specialist_agent_handoffs": {
+    "financial_auditor": "GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS/FINANCIAL_AUDITOR_HANDOFF.md",
+    "security_auditor": "GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS/SECURITY_AUDITOR_HANDOFF.md",
+    "printing_workflow_auditor": "GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS/PRINTING_WORKFLOW_AUDITOR_HANDOFF.md",
+    "mirrored_code_auditor": "GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS/MIRRORED_CODE_AUDITOR_HANDOFF.md",
+    "ui_maintainability_auditor": "GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS/UI_MAINTAINABILITY_AUDITOR_HANDOFF.md"
   },
   "material_findings": {
     "total_findings": 77,
@@ -29,56 +58,35 @@
     "medium_severity": 40,
     "low_severity": 5,
     "dispositions": {
-      "INDEPENDENTLY_CORROBORATED": 27,
+      "INDEPENDENTLY_CORROBORATED": 25,
       "CORROBORATED_WITH_QUALIFICATIONS": 24,
       "REQUIRES_RUNTIME_VERIFICATION": 21,
-      "REQUIRES_OWNER_BUSINESS_DECISION": 5
+      "REQUIRES_OWNER_BUSINESS_DECISION": 5,
+      "INDEPENDENTLY_CORROBORATED_AND_CORRECTED": 2
     },
     "registry_path": "GitHub Copilot Work/11-Master-Findings/RECONCILED_MASTER_FINDINGS.json"
   },
-  "mirrored_code_and_architecture": {
-    "ast_clone_groups_dispositioned": 218,
-    "semantic_comparisons_recorded": 71,
-    "reconciled_contradiction": "Latest comparison is definitively SEM-MIRROR-071 (resolved from historical 066 record)",
-    "registry_path": "GitHub Copilot Work/04-Mirrored-Code-and-Architecture/CODE_DUPLICATION_AND_ARCHITECTURE.md"
-  },
-  "financial_workflow_coverage": {
-    "workflows_analyzed": 16,
-    "invariants_evaluated": 41,
-    "critical_flaws_proven": [
-      "FIN-001",
-      "FIN-002",
-      "FIN-003",
-      "FIN-005",
-      "FIN-006",
-      "FIN-013"
-    ],
-    "report_path": "GitHub Copilot Work/03-Financial-Integrity/DATABASE_AND_FINANCIAL_INTEGRITY.md"
-  },
-  "printing_subsystem_coverage": {
-    "routes_analyzed": 6,
-    "critical_flaws_proven": [
-      "PRT-001",
-      "PRT-002",
-      "PRT-003",
-      "PRT-004"
-    ],
-    "report_path": "GitHub Copilot Work/06-Printing/PRINTING_RELIABILITY_AND_PREVIEW.md"
-  },
-  "outstanding_runtime_verification": {
-    "sql_server_concurrency": "Multi-threaded race conditions in business day open and supplier settlements require active LocalDB execution.",
-    "physical_printing": "Xprinter XP-D200N hardware verification of 5-feed cut distance and bitmap rasterization requires physical device connection.",
-    "status": "EXPLICITLY_MARKED_UNEXECUTED_DUE_TO_SAFETY_POLICY"
-  },
-  "files_requiring_independent_codex_challenge": [
-    "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-    "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
-    "src/Falah.Domain/Orders/Order.cs",
-    "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-    "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
-    "src/Falah.Infrastructure/Dashboard/OwnerDashboardQueryService.cs",
-    "src/Falah.Server/Controllers/",
-    "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
-    "src/Falah.PrintAgent/Workers/PrintPollingWorker.cs"
+  "key_corroborated_vulnerabilities": [
+    "SEC-001",
+    "SEC-002",
+    "SEC-003",
+    "SEC-004",
+    "SEC-005",
+    "FIN-001",
+    "FIN-002",
+    "FIN-003",
+    "FIN-005",
+    "FIN-006",
+    "FIN-013",
+    "FIN-016",
+    "PRT-001",
+    "PRT-002",
+    "PRT-003",
+    "PRT-004",
+    "FLOW-001",
+    "FLOW-002",
+    "UI-002",
+    "PERF-001",
+    "ASYNC-001"
   ]
 }

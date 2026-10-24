@@ -1,130 +1,489 @@
-# Database and Financial Integrity Forensic Audit
+# Financial & Database Integrity Specialist Audit Report & Handoff
 
-- **Audit Target:** Fale7 POS Financial Logic, Accounting Invariants, SQL Server Transactions & Concurrency
-- **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
-- **Audit Authority:** GitHub Copilot Independent Software Audit
-- **Status:** Complete Substantive Analysis of All 16 Core Financial Workflows and 41 Financial Invariants.
-
----
-
-## 1. Executive Accounting & Integrity Posture
-
-The financial subsystem of Fale7 POS is built around the `Money` value object (storing values as 64-bit integer piastres to eliminate IEEE 754 floating-point rounding errors) and an append-only `TreasuryMovement` ledger backed by an `EfFinancialJournal` idempotency table.
-
-However, forensic source code analysis across the domain, application handlers, and SQL Server persistence layers reveals **critical accounting vulnerabilities** where multi-aggregate workflows break transaction boundaries or make false concurrency assumptions:
-
-```mermaid
-graph TD
-    subgraph FrontDesk["Point of Sale Till (Cashier)"]
-        Cart["Cart Items & Discounts"]
-        Checkout["CheckoutOrderHandler"]
-    end
-
-    subgraph Accounting["Financial Ledger & Treasury"]
-        Journal["EfFinancialJournal (sale-{reqId})"]
-        TM["TreasuryMovements (Append-only)"]
-        Drawer["CashDrawer & Shift Totals"]
-    end
-
-    subgraph Discrepancy["Confirmed Accounting Flaws"]
-        F1["FIN-001: Idempotency Key Collision on Split Confirm"]
-        F2["FIN-002: Hidden Cash Leakage on Elec Cancel"]
-        F3["FIN-003: Uncollected COD Order Refund Leakage"]
-    end
-
-    Checkout -->|"Starts & Completes Journal"| Journal
-    Checkout -->|"Appends Movement"| TM
-    Checkout -->|"Updates"| Drawer
-    Journal -.->|"Key collision prevents confirm"| F1
-    Drawer -.->|"Cash remains stranded"| F2
-    TM -.->|"Debits treasury for unpaid orders"| F3
-```
+- **Audit Authority:** Financial & Database Integrity Specialist
+- **Audit Target:** Fale7 POS Backend Architecture & Domain Invariants
+- **Date & UTC Timestamp:** 2026-10-24T18:15:00Z
+- **Baseline Git Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **Current HEAD Commit:** `9beff52a6c9c6c4f7244cbd46dc449da91745582`
+- **Scope Compliance:** **AUDIT DOCUMENTATION ONLY — ZERO APPLICATION SOURCE OR TEST CODE MODIFIED IN `src/` OR `tests/`**
+- **Handoff Target:** `GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS/FINANCIAL_AUDITOR_HANDOFF.md`
 
 ---
 
-## 2. In-Depth Workflow Investigations
+## 1. Executive Summary & Audit Mandate
 
-### Workflow 1: Checkout & Split-Payment Settlement
-- **Domain Invariant:** Every Egyptian Pound entering the cashier drawer or electronic account must be matched to an immutable `TreasuryMovement` and an active `BusinessDay` and `Shift`.
-- **Source Files:** `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`.
-- **Finding FIN-001 Analysis:**
-  When an order is paid via `PaymentMethod.Multi` (e.g. 100 EGP cash + 200 EGP InstaPay), `CheckoutRules.DefersAllMoney` evaluates to `false` because one leg is cash. Consequently, `CheckoutOrderHandler` claims and completes the journal idempotency key `sale-{CheckoutRequestId}`. When the electronic payment arrives and the cashier clicks "Confirm Electronic Payment", `ConfirmElectronicPaymentHandler` attempts to claim the identical key `sale-{orderEntity.CheckoutRequestId}`. Because the key already exists and is marked complete, `EfFinancialJournal.TryStart` returns `false`, throwing `ConfirmConflictException`.
-  **Verdict:** Confirmed defect. Split electronic payments cannot be confirmed.
-  **Remediation:** Suffix the financial journal idempotency key with the specific payment leg index or method (e.g., `sale-{CheckoutRequestId}-cash` and `sale-{CheckoutRequestId}-elec`).
+As the designated Financial & Database Integrity Specialist for Fale7 POS, a deep static and architectural audit was conducted across the entire financial surface of the application. The audit encompassed all **16 core financial workflows**:
+1. Order Checkout & Immediate Sale Journaling
+2. Split Tender (Cash + Electronic Tender)
+3. Electronic Payment Confirmation & Post-Checkout Settlement
+4. Pending Electronic Payment Voiding / Cancellation
+5. Order Refunds & Debit Reversals
+6. Cross-Shift Cash Refund Drawer Reconciliation
+7. Shift Float & Opening Drawer Authorization
+8. Cash Drawer Blind Closing & Handover Reconciliation
+9. Business Day Opening & Multi-Terminal Concurrency
+10. Treasury Movements: Safe Drops, Operating Expenses, & Internal Transfers
+11. Supplier Purchasing & Inbound Stock Receipt
+12. Supplier Invoice Debt Settlement & Concurrency Locking
+13. Inventory Valuation, Waste Accounting, & Outbound Stock Tracking
+14. Employee Time & Attendance Corrections
+15. Employee Credit / Advance Management & Standalone Cashouts
+16. Payroll Run Lifecycle: Generation, State Transition, & Payout Disbursement
 
-### Workflow 2: Electronic Payment Cancellation & Cash Reconciliation
-- **Domain Invariant:** Total drawer cash count at shift closing must equal `OpeningCash + SalesCash - RefundsCash + DrawerDeposits - DrawerWithdrawals`.
-- **Source Files:** `src/Falah.Domain/Orders/Order.cs:200-214`, `src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs`.
-- **Finding FIN-002 Analysis:**
-  If a customer orders a split-payment meal (part cash, part InstaPay), hands the cash to the cashier, but the InstaPay transfer fails and the operator cancels the pending electronic payment: `CancelElectronicPayment` transitions the order to `OrderStatus.Cancelled` and `IsPaid = false`. However, it writes NO compensating movement for the collected cash. The cash remains physically in the drawer, but the order is marked cancelled with zero revenue.
-  **Verdict:** Confirmed cash discrepancy defect. Causes untracked drawer overages.
-  **Remediation:** Disallow cancellation of mixed orders with collected cash unless a cash refund movement is posted simultaneously.
-
-### Workflow 3: Cash-on-Delivery (COD) & Unpaid Order Refunds
-- **Domain Invariant:** No money may be refunded to a customer unless that exact money was previously confirmed collected and deposited into restaurant funds.
-- **Source Files:** `src/Falah.Domain/Orders/Order.cs:220-232`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`.
-- **Finding FIN-003 Analysis:**
-  In `Order.ApplyRefund`, the aggregate checks:
-  ```csharp
-  if (Status == OrderStatus.Cancelled) throw new DomainException("لا يمكن استرجاع طلب ملغي.");
-  if (PaymentMethod == PaymentMethod.Multi) throw new DomainException("مرتجع الدفع المتعدد غير مدعوم في المسار المالي الحالي.");
-  var refundableBefore = Total - RefundAmount;
-  if (refund.Amount.IsZero || refund.Amount.IsNegative || refund.Amount > refundableBefore)
-      throw new DomainException("مبلغ المرتجع غير صالح.");
-  ```
-  Notice that `Order.ApplyRefund` DOES NOT CHECK `IsPaid`! For a delivery order dispatched with Cash-on-Delivery, `IsPaid` is `false` until the driver returns and settles the custody. If an operator triggers a refund while the driver is en route, `RefundOrderHandler` posts an outbound cash movement from the treasury drawer, giving away restaurant cash for an order that was never paid!
-  **Verdict:** Critical theft and cash-drain vulnerability.
-  **Remediation:** Enforce `if (!IsPaid) throw new DomainException("لا يمكن استرجاع طلب لم يتم تحصيل قيمته.");` in both `Order.ApplyRefund` and `RefundOrderHandler`.
-
-### Workflow 4: Supplier Invoices & Concurrent Settlements
-- **Domain Invariant:** A supplier invoice with remaining balance B can never be paid more than B.
-- **Source Files:** `src/Falah.Infrastructure/Purchasing/SettleSupplierInvoiceHandler.cs`.
-- **Finding FIN-005 Analysis:**
-  `SettleSupplierInvoiceHandler` reads the invoice balance, validates that the payment amount does not exceed the remaining balance, and posts the payment. However, the initial read is performed without an update lock (`WITH (UPDLOCK, ROWLOCK)`). Two simultaneous payment requests (e.g. from two manager terminals) can both read the full outstanding balance and both post payments, resulting in duplicate treasury debits and an overpaid supplier balance.
-  **Verdict:** Confirmed concurrency race condition.
-  **Remediation:** Query the invoice with `FromSqlRaw("SELECT * FROM SupplierInvoices WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", id)`.
-
-### Workflow 5: Payroll & Advance Deductions Lifecycle
-- **Domain Invariant:** Employee salaries paid must equal BaseSalary + OvertimeAmount - LateDeductions - AdvanceDeductions - Penalties, and must be backed by an outbound Treasury transaction.
-- **Source Files:** `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`, `src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`.
-- **Finding FIN-006 & FIN-012 Analysis:**
-  - `FIN-006`: Generic status transition in `PayrollPeriod` can mark a payroll run `Paid` without executing `PayPayrollHandler`, thereby marking employee pay records as cleared without actually posting the treasury debits or updating employee credit ledgers.
-  - `FIN-012`: When employee attendance records are corrected (e.g. excused absence or manager overtime approval), the correction credits generated in `CorrectAttendanceHandler` are not joined into `CreatePayrollHandler`'s wage summation query, causing employees to be underpaid for approved corrections.
-  **Verdict:** Confirmed HR and financial integrity defects.
-  **Remediation:** Remove generic transition; ensure payroll payment is atomic with Treasury debit; include attendance correction credits in payroll line summation.
-
-### Workflow 6: Inventory Costing & Waste Tracking
-- **Domain Invariant:** Total Inventory Balance = Sum(Stock In) - Sum(Stock Out).
-- **Source Files:** `src/Falah.Domain/Inventory/InventoryRules.cs`, `src/Falah.Infrastructure/Dashboard/OwnerDashboardQueryService.cs`.
-- **Finding FIN-013 Analysis:**
-  In `OwnerDashboardQueryService.cs`, the query calculating stock balance sums `QuantityMilliUnits` across all stock movements without filtering or negating by `Direction == MovementDirection.Out`. Consequently, when 2,000 units of damaged tomatoes are logged as waste (`Direction = Out`), the owner dashboard adds 2,000 units to stock instead of subtracting them, obscuring low-stock warnings and distorting food costing.
-  **Verdict:** Confirmed reporting calculation bug.
-  **Remediation:** Apply conditional subtraction: `.Sum(m => m.Direction == MovementDirection.In ? m.QuantityMilliUnits : -m.QuantityMilliUnits)`.
+### Primary Audit Findings Summary
+Every one of the 16 primary financial vulnerability items (`FIN-001` through `FIN-016`) was independently verified against baseline source code. In particular, the 7 priority vulnerabilities flagged for deep source verification:
+- **`FIN-001` (CRITICAL / HIGH):** Split payment electronic confirmation is completely bricked due to an idempotency key collision on `sale-{CheckoutRequestId}` in [`ConfirmElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs#L75-L79).
+- **`FIN-002` (CRITICAL / HIGH):** Cancelling a pending electronic payment via [`Order.cs:CancelElectronicPayment`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L200-L214) voids the order and excludes it from sales while permanently abandoning the already-collected cash split in the drawer without ledger reversal.
+- **`FIN-003` (CRITICAL / HIGH):** [`Order.cs:ApplyRefund`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L220-L232) and [`RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs#L78-L115) fail to assert `IsPaid`, allowing cashiers to drain physical cash from the drawer for unpaid COD or pending electronic orders.
+- **`FIN-005` (HIGH):** [`PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs#L36-L73) reads supplier invoice balances outside transaction and without `UPDLOCK`, permitting concurrent distinct requests to overpay the supplier.
+- **`FIN-006` (CRITICAL / HIGH):** [`TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs#L26-L59) admits status transition to `Paid` without executing treasury disbursements or employee ledger settlement debits.
+- **`FIN-013` (MEDIUM / HIGH):** [`OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs#L301-L304) sums raw `QuantityMilliUnits` without negating `Direction == Out`, adding waste and consumption to stock totals instead of subtracting them.
+- **`FIN-016` (HIGH):** [`CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L66) directly trusts unvalidated signed `request.DeliveryFeePiastres`, allowing client manipulation to bypass manager comp/discount authorizations.
 
 ---
 
-## 3. SQL Server Concurrency, Transactions & Idempotency Audit
+## 2. In-Depth Source Chains for Priority Findings
 
-| Component | Audit Observation | Concurrency Risk | Recommended Hardening |
+### 2.1 FIN-001: Split Payment Idempotency Key Collision
+
+- **Vulnerability ID:** `FIN-001`
+- **Severity:** HIGH / CRITICAL
+- **File Paths:**
+  - [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L148-L154) (Lines 148–154, 253–276)
+  - [`src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs#L75-L79) (Lines 75–79)
+  - [`src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs#L22-L45) (Lines 22–45)
+
+#### Exact Execution Flow & Failure Mechanism
+1. A customer places a split order with both Cash and Electronic tender (e.g., 50 EGP Cash, 150 EGP via InstaPay).
+2. In [`CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L148-L154):
+   ```csharp
+   var saleKey = $"sale-{request.CheckoutRequestId}";
+   if (!plan.DefersAllMoney)
+   {
+       var journal = new EfFinancialJournal(_db);
+       if (!journal.TryStart(saleKey, "sale"))
+           throw new CheckoutConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");
+   }
+   ```
+   Because the order contains immediate cash, `plan.DefersAllMoney` evaluates to `false`.
+3. The journal entry `sale-{CheckoutRequestId}` is inserted with status `Pending`.
+4. In [`CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L253-L276), the cash treasury movement is persisted, and the journal entry is completed:
+   ```csharp
+   new EfFinancialJournal(_db).Complete(saleKey);
+   ```
+   The order is saved with `IsPaid = false` and `ElectronicPaymentStatus = "pending"`. The database now contains a completed row in `FinancialJournalEntries` with `IdempotencyKey = $"sale-{request.CheckoutRequestId}"`.
+5. Later, the customer completes the electronic transfer. The cashier clicks "Confirm Payment", which invokes [`ConfirmElectronicPaymentHandler.HandleAsync`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs#L24).
+6. In [`ConfirmElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs#L75-L79):
+   ```csharp
+   var saleKey = $"sale-{orderEntity.CheckoutRequestId}";
+   var journal = new EfFinancialJournal(_db);
+   if (!journal.TryStart(saleKey, "sale"))
+       throw new ConfirmConflictException("مفتاح العملية المالية لهذا الطلب مستخدم بالفعل رغم أن الدفع لم يكن مؤكدًا - يحتاج مراجعة يدوية.");
+   ```
+7. [`EfFinancialJournal.TryStart`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs#L24-L26) checks:
+   ```csharp
+   if (_db.FinancialJournalEntries.Local.Any(e => e.IdempotencyKey == idempotencyKey)
+       || _db.FinancialJournalEntries.Any(e => e.IdempotencyKey == idempotencyKey))
+       return false;
+   ```
+   The key `sale-{orderEntity.CheckoutRequestId}` already exists from step 3. `TryStart` returns `false`.
+8. `ConfirmElectronicPaymentHandler` throws `ConfirmConflictException`. The transaction rolls back.
+9. **Impact:** The electronic leg of ANY split payment can **NEVER** be confirmed. The payment is permanently locked in `pending`, no electronic treasury movement is ever recorded, and the order cannot transition to `IsPaid = true`.
+
+---
+
+### 2.2 FIN-002: Pending Electronic Payment Cancellation Unreversed Cash Split
+
+- **Vulnerability ID:** `FIN-002`
+- **Severity:** HIGH / CRITICAL
+- **File Paths:**
+  - [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L200-L214) (Lines 200–214)
+  - [`src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs#L48-L70) (Lines 48–70)
+  - [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L255-L267) (Lines 255–267)
+
+#### Exact Execution Flow & Failure Mechanism
+1. A split order is checked out with 100 EGP Cash and 100 EGP InstaPay.
+2. In `CheckoutOrderHandler.cs`, lines 255–267, a `TreasuryMovement` of type `sale_collection` is created and committed to the cash drawer (`tre-drawer`) for the 100 EGP cash leg.
+3. The customer fails to execute the InstaPay transfer and walks away or requests cancellation.
+4. The cashier executes `CancelPendingElectronicPaymentHandler`.
+5. [`Order.CancelElectronicPayment`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L200-L214) executes:
+   ```csharp
+   Status = OrderStatus.Cancelled;
+   IsPaid = false;
+   ElectronicPayment = leg with { Status = ElectronicPaymentStatus.Cancelled };
+   CancelledAtUtc = nowUtc;
+   CancelReason = reason.Trim();
+   CancelledBy = cancelledBy;
+   ```
+   The code comment on line 195 states: *"no Treasury movement exists to reverse (checkout deferred it entirely)"*.
+   This assumption is true ONLY for 100% electronic orders, but **FALSE** for split orders!
+6. [`CancelPendingElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs#L48-L70) updates `orderEntity.Status = "cancelled"` and commits. It performs **no check** for existing posted treasury movements and executes **no treasury reversal or refund**.
+7. Because the order is now `Status = "cancelled"`, it is excluded from sales reports (`orders.Where(o => o.Status != "cancelled")`), but the 100 EGP cash movement remains posted to `tre-drawer`.
+8. When the shift closes, physical cash and drawer movements are orphaned from any valid sale, causing irreconcilable discrepancies. Furthermore, [`Order.ApplyRefund`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L222) blocks refunds on cancelled orders (`if (Status == OrderStatus.Cancelled) throw`), making it impossible to disburse or refund the cash through standard UI workflows.
+
+---
+
+### 2.3 FIN-003: Uncollected Order Refund Cash Drain Loophole
+
+- **Vulnerability ID:** `FIN-003`
+- **Severity:** HIGH / CRITICAL
+- **File Paths:**
+  - [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L220-L232) (Lines 220–232)
+  - [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs#L78-L121) (Lines 78–121)
+  - [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs#L20-L28)
+
+#### Exact Execution Flow & Failure Mechanism
+1. A delivery order is checked out as Cash-on-Delivery (COD), or an order is checked out with pending electronic tender.
+2. Under `CheckoutRules.BuildPlan`, `plan.DefersAllMoney` is `true` for COD delivery. At checkout, `Order.IsPaid` is set to `false`. Zero money has been collected; zero treasury movements exist for this order.
+3. A cashier or rogue operator submits `POST /api/orders/{id}/refund` targeting this unpaid order.
+4. In [`RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs#L78-L84):
+   ```csharp
+   var order = OrderMapper.ToDomain(orderEntity);
+   var refundable = RefundRules.RefundableRemaining(order.Total, order.RefundAmount);
+   var safeAmount = RefundRules.ClampRefundAmount(Money.FromPiastres(request.AmountPiastres), refundable);
+   if (!safeAmount.IsPositive) throw new DomainException("لا يوجد مبلغ متبقٍ للاسترجاع.");
+   ```
+   `RefundableRemaining` computes `order.Total - order.RefundAmount`. It **never inspects** whether any amount was actually collected or whether `order.IsPaid == true`.
+5. Lines 91–93 check `TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync` and `FinancialRules.AssertProtectedSourceBalance`. This check only verifies that the *pooled drawer account* contains sufficient cash from *other customers' orders*.
+6. In [`Order.cs:ApplyRefund`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L220-L232):
+   ```csharp
+   if (Status == OrderStatus.Cancelled) throw new DomainException("لا يمكن استرجاع طلب ملغي.");
+   if (PaymentMethod == PaymentMethod.Multi) throw new DomainException("مرتجع الدفع المتعدد غير مدعوم في المسار المالي الحالي.");
+
+   var refundableBefore = Total - RefundAmount;
+   if (refund.Amount.IsZero || refund.Amount.IsNegative || refund.Amount > refundableBefore)
+       throw new DomainException("مبلغ المرتجع غير صالح.");
+
+   _refunds.Add(refund);
+   RefundAmount += refund.Amount;
+   if (RefundAmount == Total) Status = OrderStatus.Refunded;
+   ```
+   There is **no check** that `IsPaid == true`.
+7. `RefundOrderHandler` posts an outbound `TreasuryMovement` debiting `tre-drawer` and hands real physical currency to the recipient.
+8. **Impact:** Direct cash leakage from the register. An unpaid order of 500 EGP can be "refunded" for 500 EGP in physical drawer cash without a single piastre ever having entered the business.
+
+---
+
+### 2.4 FIN-005: Concurrent Distinct Supplier Invoice Payments Overpayment Race
+
+- **Vulnerability ID:** `FIN-005`
+- **Severity:** HIGH
+- **File Paths:**
+  - [`src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs#L36-L73) (Lines 36–73, 95–99)
+  - [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs#L277-L305)
+
+#### Exact Execution Flow & Failure Mechanism
+1. A supplier invoice exists with 1,000 EGP outstanding debt.
+2. Two separate management clients (Terminal A and Terminal B) submit concurrent settlement requests for this invoice:
+   - Request A: RequestId = `req-A`, Amount = 800 EGP. IdempotencyKey = `purchase-payment-{id}-req-A`.
+   - Request B: RequestId = `req-B`, Amount = 800 EGP. IdempotencyKey = `purchase-payment-{id}-req-B`.
+3. In [`PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs#L36-L66):
+   ```csharp
+   var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)
+       .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct);
+   ...
+   var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()
+       .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);
+   var outstanding = PurchasingRules.SupplierOutstandingFromLedger(...);
+   PurchasingRules.AssertPurchasePayment(amount, outstanding);
+   ```
+   Notice that this read is performed:
+   - Completely outside the database transaction (transaction starts at line 73).
+   - Without any pessimistic table/row locks (`WITH (UPDLOCK, HOLDLOCK)` is absent).
+   - With `AsNoTracking()` on `SupplierLedgerEntries`.
+4. Both Request A and Request B execute lines 36–66 concurrently. Both read `outstanding = 1,000 EGP`.
+5. Since 800 <= 1,000, `PurchasingRules.AssertPurchasePayment` passes for both.
+6. Both enter line 73: `await using var transaction = await _db.Database.BeginTransactionAsync(ct);`.
+7. Line 80 locks the treasury account (`tre-main`), but does **not** lock the `Purchases` row or `SupplierLedgerEntries` table.
+8. Request A commits first: pays 800 EGP, sets `purchase.PaidPiastres = 800`, `RemainingAmountPiastres = 200`.
+9. Request B commits second: pays 800 EGP, sets `purchase.PaidPiastres = 800 + 800 = 1,600`, and computes `remaining = 1,000 - 800 = 200` based on its stale read!
+10. **Impact:** The business pays 1,600 EGP on a 1,000 EGP invoice (overpayment of 600 EGP). Furthermore, the purchase cache shows `RemainingAmountPiastres = 200` while `PaidPiastres = 1,600` on a 1,000 EGP invoice, corrupting the database audit trail and supplier ledger.
+
+---
+
+### 2.5 FIN-006: Generic Payroll Transition Missing Treasury / Ledger Disbursement
+
+- **Vulnerability ID:** `FIN-006`
+- **Severity:** HIGH / CRITICAL
+- **File Paths:**
+  - [`src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs#L26-L61) (Lines 26–61)
+  - [`src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs#L40-L75) (Lines 40–75)
+  - [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs#L18-L32)
+
+#### Exact Execution Flow & Failure Mechanism
+1. A payroll run is generated and approved (`Status = "Approved"`).
+2. The intended payout handler is [`PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs), which requires `payroll_pay` permission, validates an open business day, locks the treasury account, validates available funds, posts a `TreasuryMovement` debiting `tre-main`/`tre-bank`, and records `payroll_settlement` debits for each employee line in `EmployeeLedgerEntries`.
+3. However, the API also exposes `POST /api/payroll/{id}/transition` routed to [`TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs).
+4. An operator with only `employees_manage` permission submits `POST /api/payroll/{id}/transition` with `request.Status = "Paid"`.
+5. In [`TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs#L26-L59):
+   ```csharp
+   if (!Enum.TryParse<PayrollRunStatus>(request.Status, ignoreCase: true, out var targetStatus))
+       throw new DomainException("حالة Payroll غير صالحة.");
+   ...
+   var currentStatus = Enum.Parse<PayrollRunStatus>(run.Status);
+   PayrollRules.AssertTransition(currentStatus, targetStatus);
+   ...
+   run.Status = targetStatus.ToString();
+   await _db.SaveChangesAsync(ct);
+   ```
+6. `PayrollRules.AssertTransition` permits `Approved -> Paid`.
+7. `run.Status` is directly updated to `"Paid"` in the database.
+8. **Disbursement Failure:**
+   - Zero treasury movements are created.
+   - Zero employee ledger debits are posted; employee running balances remain owed.
+   - No payment account is debited or validated.
+9. **Deadlock State:** If someone subsequently attempts to legitimately disburse funds via [`PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs#L64-L74):
+   ```csharp
+   if (run.Status == nameof(PayrollRunStatus.Paid))
+   {
+       if (await LoadReplayAsync() is { } settledConcurrently) return settledConcurrently;
+   }
+   if (run.Status != nameof(PayrollRunStatus.Approved))
+       throw new DomainException("يجب اعتماد مسير الرواتب قبل الدفع.");
+   ```
+   `LoadReplayAsync` searches for a `TreasuryMovement` with key `payroll-payment-{runId}`. Because no movement was ever created, it returns `null`. Line 73 then throws `"يجب اعتماد مسير الرواتب قبل الدفع."`.
+10. **Impact:** The payroll run is permanently trapped in `Paid` without actual disbursement, and cannot be legitimately paid out through the system.
+
+---
+
+### 2.6 FIN-013: Owner Dashboard Stock Summation Sign Inversion
+
+- **Vulnerability ID:** `FIN-013` (Corroborating `FIN-029`)
+- **Severity:** MEDIUM / HIGH
+- **File Paths:**
+  - [`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs#L297-L315) (Lines 297–315)
+  - [`src/Falah.Domain/Inventory/InventoryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs#L50-L52) (Lines 50–52)
+  - [`src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs#L391-L403) (Lines 391–403)
+
+#### Exact Execution Flow & Failure Mechanism
+1. Stock movements in Fale7 POS record a positive magnitude `QuantityMilliUnits` alongside a `Direction` (`StockDirection.In` or `StockDirection.Out`).
+2. In domain logic ([`InventoryRules.StockBalanceMilliUnits`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs#L50-L52)) and inventory queries ([`InventoryQueryService.cs:402`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs#L402)):
+   ```csharp
+   var balance = itemMovements.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits);
+   ```
+3. However, in [`OwnerDashboardQueryService.cs:LoadStockAsync`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs#L301-L304):
+   ```csharp
+   var balances = await _db.StockMovements.AsNoTracking()
+       .GroupBy(m => m.InventoryItemId)
+       .Select(g => new { InventoryItemId = g.Key, Balance = g.Sum(m => m.QuantityMilliUnits) })
+       .ToDictionaryAsync(x => x.InventoryItemId, x => x.Balance, ct);
+   ```
+4. **Sign Inversion:** The query executes `g.Sum(m => m.QuantityMilliUnits)` in SQL without filtering or conditioning on `m.Direction`.
+5. Suppose an ingredient (e.g. Meat) has:
+   - Purchase receipt: 20,000 milliUnits (`Direction = In`).
+   - Order consumption: 15,000 milliUnits (`Direction = Out`).
+   - Waste / spoilage: 3,000 milliUnits (`Direction = Out`).
+6. Real inventory balance: `20,000 - 15,000 - 3,000 = 2,000` milliUnits.
+7. Owner Dashboard calculation: `20,000 + 15,000 + 3,000 = 38,000` milliUnits.
+8. If `MinimumMilliUnits` is 5,000 milliUnits:
+   - Reality: Stock is 2,000 (critically low, stockout imminent).
+   - Dashboard: Reports 38,000 (shows abundant stock, omitting it from `lowStockItems`).
+9. **Impact:** Restaurant owners viewing the executive dashboard are deceived into believing kitchen stock levels are plentiful when ingredients are actually exhausted, preventing timely replenishment.
+
+---
+
+### 2.7 FIN-016: Client-Controlled Delivery Fee Discount / Comp Bypass
+
+- **Vulnerability ID:** `FIN-016`
+- **Severity:** HIGH
+- **File Paths:**
+  - [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L66,L110-L144) (Lines 66, 110–144)
+  - [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs#L35-L39,L97) (Lines 35–39, 97)
+  - [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs)
+
+#### Exact Execution Flow & Failure Mechanism
+1. Authorization policies strictly guard discounts and comps at checkout:
+   - [`CheckoutOrderHandler.cs:112`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L112): `discount.IsPositive` requires `orders_discount` permission.
+   - [`CheckoutOrderHandler.cs:116`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L116): `compAmount.IsPositive` requires `orders_comp` permission, valid `CompReasonCode`, and authenticated `ManagerApproval`.
+2. However, line 66 directly instantiates:
+   ```csharp
+   var deliveryFee = Money.FromPiastres(request.DeliveryFeePiastres);
+   ```
+   There is **no validation** that `request.DeliveryFeePiastres >= 0`, nor is the fee verified against the registered `DeliveryServiceEntity.FeePiastres`.
+3. In [`CheckoutRules.ComputePayableTotal`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs#L35-L39):
+   ```csharp
+   public static Money ComputePayableTotal(Money cartTotal, Money deliveryFee, Money compAmount)
+   {
+       var result = cartTotal + deliveryFee - compAmount;
+       return result.IsNegative ? Money.Zero : result;
+   }
+   ```
+4. Because `Money` supports signed values, a cashier submitting `request.DeliveryFeePiastres = -5000` (-50 EGP) on a 150 EGP order reduces `PayableTotal` to 100 EGP.
+5. Submitting `request.DeliveryFeePiastres = -15000` on a 150 EGP order reduces `PayableTotal` to 0 EGP.
+6. Under `CheckoutRules.DefersAllMoney`:
+   ```csharp
+   var collectsNothing = !payableTotal.IsPositive;
+   return collectsNothing || ...
+   ```
+   `DefersAllMoney` evaluates to `true`.
+7. The order commits to the database, deducts physical ingredients from inventory, creates a kitchen print job, and requires zero cash tender — all while completely bypassing `orders_discount`, `orders_comp`, and manager approval verification.
+
+---
+
+## 3. Deep Source Verification of Findings FIN-004 to FIN-015
+
+| ID | Title | Key Source Locations | Primary Failure Mechanism |
 | :--- | :--- | :--- | :--- |
-| **Order Number Allocation** | `OrderSequenceService` uses SQL Server sequence or atomic table increment | Low | Maintain atomic increment |
-| **Electronic Confirmation** | Uses `UPDLOCK, ROWLOCK, HOLDLOCK` on `Orders` table | High (due to FIN-001 key collision) | Fix journal key formatting; keep row locks |
-| **Shift Closing** | Validates pending drawer transactions | Medium | Enforce serializable boundary during shift close snapshot |
-| **Business Day Opening** | Pre-checks active day before insert | Medium (`FIN-009`) | Unique filtered index on `BusinessDays(Status)` WHERE `Status = 'Active'` |
-| **Database Restore** | Drops active connections; switches to SINGLE_USER | High (`FIN-008`, `FIN-014`) | Refactor restore handler error catching |
+| **FIN-004** | Historical Cash Refund Omitted from Shift Expected Cash | [`ShiftReconciliation.cs:44-68`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs#L44-L68), [`RefundOrderHandler.cs:95-106`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs#L95-L106) | Shift reconciliation only queries orders where `o.ShiftId == currentShiftId`. A cash refund issued during Shift B for an order placed in Shift A is paid from Shift B's cash drawer, but is ignored in Shift B's expected cash calculation. Shift B closes with an artificial cash shortage. |
+| **FIN-007** | Backup Filename Collision Overwrite | [`CreateBackupHandler.cs:55-80`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/CreateBackupHandler.cs#L55-L80) | Backup filename timestamp uses `yyyyMMdd-HHmmss` (second resolution). Two backups triggered within the same second collide on file path, and SQL Server `BACKUP DATABASE ... WITH FORMAT` unconditionally overwrites the existing file. |
+| **FIN-008** | Restore Active Financial Work Check Race | [`RestoreBackupHandler.cs:85-86, 150-154`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs#L85-L86) | Handler checks `FinancialJournalEntries.CountAsync(j => j.Status != "Complete")` without locking the application or stopping ingress. New financial transactions arriving immediately after this check are abruptly killed and rolled back by `ALTER DATABASE SET SINGLE_USER WITH ROLLBACK IMMEDIATE`. |
+| **FIN-009** | Concurrent Open-Day Multi-Active Insertion | [`OpenBusinessDayHandler.cs:35-55`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs#L35-L55), [`FalahDbContext.cs:137-141`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs#L137-L141) | No transaction, no table lock, and no filtered database unique index on `Status == 'Open'`. Concurrent requests with distinct `RequestId`s both see no active day and both insert active business days. |
+| **FIN-010** | Sales Report Drops Immediate Money on Mixed Tender | [`SalesRules.cs:55-68`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/SalesRules.cs#L55-L68) | On an order with split cash and pending electronic payment, `SalesRules` treats `o.Total` as `PendingElectronicSales` instead of `o.ElectronicPayment.Amount`. It subtracts the entire order total, dropping the collected cash from `CollectedSales`. |
+| **FIN-011** | Protected Balance Pre-Check Outside Transaction | [`OpenShiftHandler.cs:53-69`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs#L53-L69), [`ReceivePurchaseHandler.cs:77-97`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs#L77-L97) | `LoadAccountMovementsForUpdateAsync` executes `SELECT ... WITH (UPDLOCK, HOLDLOCK)` BEFORE `BeginTransactionAsync`. The locks are released immediately on query completion, allowing concurrent transactions to spend the same funds before the transaction starts. |
+| **FIN-012** | Attendance Correction Credits Omitted from Payroll | [`PayrollRules.cs:95-101`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs#L95-L101), [`CorrectAttendanceHandler.cs:99-118`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs#L99-L118) | Correcting an attendance penalty or adding overtime posts an `Adjustment` entry with `Credit > 0`. `CalculatePayrollLines` sums `Debit` on Adjustments (deductions) but completely ignores `Credit` on Adjustments, depriving employees of legitimate compensation. |
+| **FIN-014** | Successful Restore Misclassified as Failure | [`RestoreBackupHandler.cs:161-193, 213-220`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs#L161-L193) | `databaseWasReplaced` is set to `true` only after `SET MULTI_USER`. If `RESTORE DATABASE` succeeds but `SET MULTI_USER` encounters an error, the catch block leaves `databaseWasReplaced = false`, fails to clear the connection pool, and reports `Status = Failed` to the user despite the database being overwritten. |
+| **FIN-015** | Post-Handover Checkout Commit to Closed Shift | [`CheckoutOrderHandler.cs:47-50, 145`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L47-L50), [`CloseShiftHandler.cs:62-79`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs#L62-L79) | `CheckoutOrderHandler` checks `shift.Status == Open` outside transaction with `AsNoTracking()`. If a manager closes the shift and completes cash handover while checkout prepares pricing/tax, checkout proceeds to commit cash sales into the closed shift. |
 
 ---
 
-## 4. Financial Integrity Action Plan
+## 4. Double-Entry Ledger & Concurrency Architecture Review
 
-1. **Immediate P0 Fixes:**
-   - Patch `CheckoutOrderHandler.cs` and `ConfirmElectronicPaymentHandler.cs` to namespace split idempotency keys (`FIN-001`).
-   - Patch `Order.cs:ApplyRefund` to enforce `IsPaid` requirement (`FIN-003`).
-   - Patch `Order.cs:CancelElectronicPayment` to handle mixed cash refunds (`FIN-002`).
-   - Patch `OwnerDashboardQueryService.cs` stock direction arithmetic (`FIN-013`).
-2. **Database Concurrency Protection:**
-   - Add unique filtered index in SQL Server migration: `CREATE UNIQUE INDEX UX_BusinessDays_Active ON BusinessDays(Status) WHERE Status = 'Active';`
-   - Add `UPDLOCK` hints to supplier invoice settlements and shift handovers.
-3. **Automated Verification:**
-   - Implement vertical slice integration test `MixedPaymentCheckoutAndConfirmationTests.cs`.
-   - Implement test `UnpaidOrderRefundMustFailTests.cs`.
+### 4.1 EfFinancialJournal Evaluation
+In [`EfFinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs):
+- **Mechanism:** Operates on the ambient `DbContext`. Inserts a `FinancialJournalEntryEntity` with `Status = "Pending"`, marked `Complete` at the end of the transaction.
+- **Strengths:** Primary key constraint on `IdempotencyKey` guarantees that duplicate inserts within the same database fail with a unique key violation.
+- **Flaws:**
+  - Idempotency keys are composite strings formatted by convention rather than strongly-typed schemas (e.g. `$"sale-{request.CheckoutRequestId}"`).
+  - As proven in **FIN-001**, reusing the prefix `sale-` across distinct lifecycle events (`Checkout` vs `ConfirmElectronicPayment`) causes fatal collisions.
+  - Ingestion keys should incorporate the event type: `$"sale-init-{CheckoutRequestId}"` vs `$"sale-elec-confirm-{OrderId}"`.
+
+### 4.2 Treasury Balance & Locking Invariants
+In [`TreasuryBalanceQuery.cs:LoadAccountMovementsForUpdateAsync`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/TreasuryBalanceQuery.cs):
+```csharp
+SELECT * FROM TreasuryMovements WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE (SourceAccountId = {0} OR DestinationAccountId = {0})
+```
+- **Finding:** While the SQL hint `WITH (UPDLOCK, ROWLOCK, HOLDLOCK)` is correct for SQL Server pessimistic locking, it is **rendered useless** when invoked outside an active `IDbContextTransaction`.
+- As proven in **FIN-011**, both [`OpenShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs#L53) and [`ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs#L77) execute this query prior to calling `_db.Database.BeginTransactionAsync(ct)`. Under default auto-commit connection semantics, the lock is acquired and immediately dropped before the subsequent statement executes.
+
+---
+
+## 5. Comprehensive Architectural Remediation Plan
+
+The following remediation specifications are documented for implementation by development agents:
+
+### 5.1 Remediation for FIN-001 (Split Payment Idempotency)
+- In [`ConfirmElectronicPaymentHandler.cs:75`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs#L75):
+  Change the financial journal key from `$"sale-{orderEntity.CheckoutRequestId}"` to:
+  ```csharp
+  var saleKey = $"confirm-electronic-{orderEntity.Id}";
+  ```
+- Update the replay lookup and exception handling accordingly.
+
+### 5.2 Remediation for FIN-002 (Pending Electronic Cancellation Reversal)
+- In [`Order.cs:CancelElectronicPayment`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L200):
+  When `PaymentMethod == PaymentMethod.Multi`, require explicit handling of the cash leg.
+- In [`CancelPendingElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs):
+  Inspect existing `TreasuryMovements` for `orderEntity.Id`. If a posted cash `sale_collection` exists, automatically generate a corresponding `sale_reversal` or `refund` treasury movement debiting `tre-drawer` and returning cash to the customer before marking the order cancelled.
+
+### 5.3 Remediation for FIN-003 (Uncollected Order Refund Guard)
+- In [`Order.cs:ApplyRefund`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L220):
+  Add domain invariant assertion:
+  ```csharp
+  if (!IsPaid) throw new DomainException("لا يمكن استرجاع طلب لم يتم تحصيله بعد.");
+  ```
+- In [`RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs):
+  Assert `orderEntity.IsPaid == true` before performing any balance checks or movement generation.
+
+### 5.4 Remediation for FIN-004 (Cross-Shift Cash Refund Allocation)
+- In [`ShiftReconciliation.cs:ComputeBreakdownAsync`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs#L59):
+  Add `"refund"` to `DrawerWithdrawalTypes`:
+  ```csharp
+  private static readonly string[] DrawerWithdrawalTypes = { "cash_out", "employee_advance", "employee_withdrawal", "refund" };
+  ```
+  Ensure cash refunds originating from this shift's drawer are deducted from expected cash regardless of the order's original shift.
+
+### 5.5 Remediation for FIN-005 (Supplier Payment Concurrency Lock)
+- In [`PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs#L36):
+  Move `_db.Database.BeginTransactionAsync` to the top of the handler.
+  Query the purchase row using:
+  ```csharp
+  var purchase = await _db.Purchases
+      .FromSqlRaw("SELECT * FROM Purchases WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.PurchaseId)
+      .Include(p => p.Payments)
+      .FirstOrDefaultAsync(ct);
+  ```
+  Compute outstanding debt inside the locked transaction.
+
+### 5.6 Remediation for FIN-006 (Generic Payroll Status Transition)
+- In [`TransitionPayrollHandler.cs:26`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs#L26):
+  Explicitly forbid `targetStatus == PayrollRunStatus.Paid`:
+  ```csharp
+  if (targetStatus == PayrollRunStatus.Paid)
+      throw new DomainException("لا يمكن تغيير حالة المسير إلى مدفوع مباشرة؛ يجب استخدام أمر صرف الرواتب (PayPayroll).");
+  ```
+
+### 5.7 Remediation for FIN-007 (Backup Filename Collision)
+- In [`CreateBackupHandler.cs:56`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/CreateBackupHandler.cs#L56):
+  Append a high-resolution sub-second timestamp or GUID to the backup file name:
+  ```csharp
+  var fileName = $"falah-{databaseName}-{now:yyyyMMdd-HHmmss-fff}-{Guid.NewGuid():N[..6]}.bak";
+  ```
+
+### 5.8 Remediation for FIN-008 & FIN-014 (Restore Safety & Outcome Classification)
+- For `FIN-008`: Add a global application maintenance gate that halts incoming HTTP requests before database teardown.
+- For `FIN-014` in [`RestoreBackupHandler.cs:159`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs#L159):
+  Set `databaseWasReplaced = true;` immediately after `await restore.ExecuteNonQueryAsync(ct);` succeeds, before attempting `SET MULTI_USER`.
+
+### 5.9 Remediation for FIN-009 (Business Day Database Constraint)
+- In [`FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs#L137):
+  Add a filtered unique index in EF Core configuration and database migration:
+  ```csharp
+  b.HasIndex(d => d.Status).IsUnique().HasFilter("[Status] IN ('Open', 'Closing', 'Reopened')");
+  ```
+
+### 5.10 Remediation for FIN-010 (Sales Report Split Leg Normalization)
+- In [`SalesRules.cs:55`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/SalesRules.cs#L55):
+  Calculate pending electronic amounts from the electronic split leg amount, not the whole order total:
+  ```csharp
+  var pendingElectronicSales = Money.FromPiastres(sales.Sum(o =>
+      o.ElectronicPayment is { Status: ElectronicPaymentStatus.Pending } leg ? leg.Amount.Piastres : 0));
+  ```
+
+### 5.11 Remediation for FIN-011 (Transaction Scope for Protected Balances)
+- In [`OpenShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs#L53-L69) and [`ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs#L77-L97):
+  Move `await using var transaction = await _db.Database.BeginTransactionAsync(ct);` to execute **BEFORE** calling `TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync`.
+
+### 5.12 Remediation for FIN-012 (Attendance Correction Credits in Payroll)
+- In [`PayrollRules.cs:100`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs#L100):
+  Include `Adjustment` credits in bonus/adjustments:
+  ```csharp
+  var adjustments = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == "Adjustment").Sum(e => e.Credit.Piastres));
+  ...
+  var net = baseAmount + overtime + extraShifts + bonuses + adjustments - deductions - emp.RequestedAdvanceDeduction;
+  ```
+
+### 5.13 Remediation for FIN-013 (Stock Outbound Movement Negation)
+- In [`OwnerDashboardQueryService.cs:303`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs#L303):
+  Conditionally negate outbound quantities:
+  ```csharp
+  .Select(g => new {
+      InventoryItemId = g.Key,
+      Balance = g.Sum(m => m.Direction == "In" ? m.QuantityMilliUnits : -m.QuantityMilliUnits)
+  })
+  ```
+
+### 5.14 Remediation for FIN-015 (Checkout Shift Status Revalidation)
+- In [`CheckoutOrderHandler.cs:146`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L146):
+  Inside the database transaction, lock and re-validate shift status:
+  ```csharp
+  var lockedShift = await _db.Shifts
+      .FromSqlRaw("SELECT * FROM Shifts WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.ShiftId)
+      .FirstOrDefaultAsync(ct) ?? throw new ShiftNotOpenException("الوردية غير موجودة.");
+  if (lockedShift.Status != nameof(ShiftStatus.Open))
+      throw new ShiftNotOpenException("تم إغلاق الوردية أثناء إعداد الطلب.");
+  ```
+
+### 5.15 Remediation for FIN-016 (Delivery Fee Server Validation)
+- In [`CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L66):
+  Assert that `request.DeliveryFeePiastres >= 0`.
+  For delivery orders with `DeliveryServiceId`, assert that the fee equals the configured service fee, or require `orders_discount` / `orders_comp` manager approval if the delivery fee is waived or reduced.
+
+---
+
+## 6. Verification Status & Handoff Sign-off
+
+- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & FINDINGS INDEPENDENTLY CORROBORATED FROM SOURCE**
+- **Code Modifications:** **0 files modified in `src/` or `tests/`**
+- **Next Phase:** Implementation of architectural remediations by authorized implementation agents in an isolated branch with dedicated disposable SQL Server container verification.
+
+*Report compiled and certified by Financial & Database Integrity Specialist.*

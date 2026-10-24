@@ -1,0 +1,36 @@
+# docs/IMPLEMENTATION_MATRIX.md
+
+Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Worktree SHA256 `28c1f130c8610878d5a08f08e6a024adae2e533e5fec258e70bfe5bbb2f1bc10`; Git blob SHA256 `5873ea6890e641671dff2d60d47dc5b62a16f60375e8a2e0a6182fae2394f851`. Read lines1–256.
+
+Status: full static document/configuration review; functions NOT_APPLICABLE.
+
+## role
+
+Chronological module/layer implementation matrix and acceptance history from backend migration through WinUI, printing and management.
+
+## reasoning
+
+All256lines read; initial broad output was truncated, then missing14-123 reread in bounded chunks, including96 separately. Early deferred/no-client/no-supplier/no-backup statements are superseded by later sections; header correctly qualifies ALL MODULES BUILT as screen existence. Current source contains CallCenter, management, print transport, photos and34migrations, so early rows cannot define present omissions. Strong invariants described here need counterchecks: recomputing supplier outstanding before a transaction does not prevent FIN005 race; generic payroll transition still permits status-only Paid(FIN006); second-resolution backup names with FORMAT undermine never-overwrite claim(FIN007 candidate). PIN approval login can replace shared bearer(UI020), and universal identity matching is SEC001-sensitive. Reprint/attempt idempotency prevents duplicate database rows, not distributed physical printing(PRT001). Historical checkout-after-sale autoprint is not kitchen-first/payment-later pickup. Unknown-cost handling and frozen station/tax snapshots remain useful design intent, not proof every report is correct(FIN010/013).
+
+## relationships
+
+- FIN005/006/007/010/013
+- UI001/005/020 and SEC001
+- OrderAutoPrintService/CreatePrintJobsHandler/PRT001
+- FINAL_VERIFICATION_PROGRESS chronology and migration inventory
+
+## tests
+
+No old 689/592-test total or live order/backup/accounting example rerun. Restore isolation, image endpoint, best-seller integration and physical/DPI/LAN gaps are historical outstanding items requiring current test-source reconciliation. Domain execution has a separate current checkpoint, not inferred from this document.
+
+## recommendation
+
+Preserve chronological evidence, add current baseline-specific implemented/reviewed/tested/accepted columns and link exact canonical findings. Treat legacy-parity choices as requirements history, not permission to retain financial vulnerabilities or implement fixes during this audit.
+
+## risks
+
+Long lines and contradictory historical stages can hide scope gaps or produce false completion claims. Prior claims of exhaustive concurrency coverage are challenged by current distinct-request races and fixture-oracle weaknesses.
+
+## Scope and effects
+
+Inputs are human/operator/build configuration; outputs are instructions/build membership/ignore behavior as described above. No application business logic, XAML, packages, databases, services or printers modified. Runtime/hardware claims remain explicitly unverified.

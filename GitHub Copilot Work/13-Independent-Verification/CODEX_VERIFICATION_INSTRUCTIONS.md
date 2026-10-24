@@ -2,39 +2,96 @@
 
 ## Role and Mandatory Directive for OpenAI Codex
 
-OpenAI Codex is tasked with acting as the **Independent External Challenger and Verifier** for the Fale7 POS audit completed by GitHub Copilot.
+OpenAI Codex is tasked with acting as the **Independent External Challenger and Verifier** for the Fale7 POS audit completed by GitHub Copilot / Antigravity.
 
 **DO NOT ACCEPT COPILOT'S CONCLUSIONS AT FACE VALUE.**
-You are required to perform a rigorous, adversarial source-grounded challenge against the actual C# and XAML code at commit `c35816ecae49633674775dd32061c6ee92f94aaf`.
+You are required to perform a rigorous, adversarial source-grounded challenge against the actual C# and XAML code at baseline commit `c35816ecae49633674775dd32061c6ee92f94aaf`.
 
 ---
 
-## Verification Protocols for Codex
+## 1. Automated Verification of Exact Code Evidence
 
-### 1. Challenge Material High-Severity Findings
-Independently inspect the source code files for each P0 finding:
-1. **FIN-001 (Split-Payment Journal Key Collision):**
-   - Inspect `CheckoutOrderHandler.cs:148-155` and `ConfirmElectronicPaymentHandler.cs:75-78`.
-   - Verify whether both handlers construct `sale-{CheckoutRequestId}` and whether `EfFinancialJournal.TryStart` prevents confirmation.
-2. **FIN-003 (Unpaid Order Refund Leakage):**
-   - Inspect `Order.cs:220-232` and `RefundOrderHandler.cs`.
-   - Confirm whether `ApplyRefund` checks `IsPaid` or permits cash refunds on unpaid COD orders.
-3. **FIN-002 (Mixed Order Cancellation Cash Omission):**
+Every material defect documented in [`RECONCILED_MASTER_FINDINGS.md`](../11-Master-Findings/RECONCILED_MASTER_FINDINGS.md) is machine-verified in [`SOURCE_EXCERPT_VERIFICATION_LEDGER.json`](../Checkpoints/SOURCE_EXCERPT_VERIFICATION_LEDGER.json).
+
+You can automatically verify that every excerpt exactly matches the byte contents of the repository at those line numbers by executing:
+```powershell
+python "GitHub Copilot Work/Audit-Utilities/embed_exact_code_evidence.py"
+```
+Codex should independently read each file, check the SHA-256 hash, and confirm that the extracted lines match the defect description.
+
+---
+
+## 2. Adversarial Challenge Protocols for Critical Findings
+
+### Financial & Database Integrity (Specialist Handoff: `03-Financial-Integrity/DATABASE_AND_FINANCIAL_INTEGRITY.md`)
+1. **`FIN-001` (Split-Payment Journal Key Collision):**
+   - Inspect `CheckoutOrderHandler.cs:253-275` and `ConfirmElectronicPaymentHandler.cs:75-84`.
+   - Challenge whether both handlers construct `sale-{CheckoutRequestId}` and whether `EfFinancialJournal.TryStart` throws `ConfirmConflictException`.
+2. **`FIN-002` (Electronic Cancellation Cash Omission):**
    - Inspect `Order.cs:200-214` and `CancelPendingElectronicPaymentHandler.cs`.
-   - Verify whether cash splits already deposited into the cash drawer are reversed or left stranded.
-4. **SEC-001 (JSON Actor Binding Privilege Escalation):**
-   - Inspect controller endpoint bindings and `OrderMapper.ToActor`.
-   - Challenge whether an attacker can supply an `Actor` block in JSON to escalate permissions.
-5. **PRT-001 (Duplicate Kitchen Print Jobs):**
-   - Inspect `OrderAutoPrintService.cs` and `PrintJobs` table constraints.
-   - Challenge whether two concurrent checkout/update events can submit twin kitchen preparation tickets.
+   - Verify whether cash splits already collected into the drawer are reversed or left untracked.
+3. **`FIN-003` (Unpaid COD Refund Leakage):**
+   - Inspect `Order.cs:220-232` and `RefundOrderHandler.cs`.
+   - Verify whether `ApplyRefund` checks `IsPaid` or permits cash refunds on unpaid COD orders.
+4. **`FIN-005` (Concurrent Invoice Overpayment):**
+   - Inspect `PayPurchaseHandler.cs:40-65`.
+   - Verify whether supplier balance queries use `UPDLOCK` or serializable isolation.
+5. **`FIN-006` (Unfunded Payroll Run Transition):**
+   - Inspect `TransitionPayrollHandler.cs:30-55`.
+   - Verify whether status `Paid` is reached without creating treasury journal or employee ledger disbursement entries.
+6. **`FIN-013` (Dashboard Inventory Sign Inversion):**
+   - Inspect `OwnerDashboardQueryService.cs:85-115`.
+   - Verify whether outbound inventory movements are summed positively rather than subtracted.
 
-### 2. Verify Callable Ledger Authenticity
-- Inspect `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json`.
-- Sample at least 50 random callables across Domain, Application, Infrastructure, Server, and Clients.
-- Confirm that the line spans, parameter types, and behavioral descriptions accurately reflect the code.
+### Security & Access Control (Specialist Handoff: `05-Security/SECURITY_AND_BACKDOOR_AUDIT.md`)
+1. **`SEC-001` (Case-Sensitive Mismatch Bypass):**
+   - Inspect `AuthenticationMiddleware.cs:114-118`.
+   - Challenge whether `TryGetProperty("actorUserId")` fails when a client sends PascalCase `"ActorUserId"`, and whether `UpdateUserPermissionsHandler.cs:32-36` loads permissions from untrusted request body.
+2. **`SEC-002` (Plaintext PINs in Client Storage):**
+   - Inspect `RetainedRequestStore.cs:59-76` in `CashierWinUI`.
+   - Verify whether unencrypted `.json` envelopes containing employee/manager PINs are written to `%LOCALAPPDATA%`.
+3. **`SEC-003` & `SEC-005` (67 Unpermissioned Sensitive Read Routes):**
+   - Inspect `Program.cs:685-700` (`GET /api/employees`, `/ledger`, `/balance`) and lines `819, 862, 1828, 2203`.
+   - Verify that any authenticated cashier token can read all employee salaries, national IDs, and financial statements.
+4. **`SEC-004` (Shift Close Identity Spoofing):**
+   - Inspect `AuthenticationMiddleware.cs:86-90` and `CloseShiftRequest.cs`.
+   - Verify that `closedByUserId` is omitted from `ActorFields`, allowing any user to close any shift under another cashier's identity.
 
-### 3. Safety Constraints
-- **DO NOT MODIFY APPLICATION SOURCE CODE.**
-- **DO NOT WRITE TO CODEX WORK.** Write verification logs under `Codex Work` only if specifically authorized by the owner, or create a challenge report in `GitHub Copilot Work/13-Independent-Verification/CODEX_CHALLENGE_REPORT.md`.
-- No live database writes or physical printing operations.
+### Printing Reliability & Workflow (Specialist Handoff: `06-Printing/PRINTING_RELIABILITY_AND_PREVIEW.md`)
+1. **`PRT-001` (Duplicate Kitchen Tickets):**
+   - Inspect `FalahDbContext.cs:365-377` and `CreatePrintJobsHandler.cs:34-45`.
+   - Verify that `PrintJobs` table lacks a composite unique constraint on `(OrderId, Route)`, allowing twin tickets under concurrent events.
+2. **`FLOW-001` (Missing Two-Stage Pay-at-Pickup State Machine):**
+   - Inspect `CheckoutRules.cs:44-55` and `OrderEnums.cs:9-15`.
+   - Verify whether food preparation can be dispatched to the kitchen before payment is finalized at the till.
+
+### Mirrored Code & UI/UX (Specialist Handoffs: `04-Mirrored-Code-and-Architecture/` & `07-UI-UX/`)
+1. **`SEM-MIRROR-065` (Client vs Server Validation Drift):**
+   - Compare `CashierViewModel` in WPF vs WinUI 3 against domain rules.
+2. **`UI-002` (Color Contrast Ratio Failure):**
+   - Inspect dark theme style resources across WinUI and WPF controls.
+3. **`PERF-001` & `ASYNC-001` (UI Virtualization & Async Void):**
+   - Inspect `ProductCatalogueView.xaml.cs` and `MainViewModel.cs:74`.
+
+---
+
+## 3. Verify Callable Review Ledger Authenticity
+
+- Inspect [`CALLABLE_REVIEW_REGISTRY.json`](../02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json).
+- Verify the 6-status quality model:
+  - `INDEPENDENTLY_VERIFIED`: 591 callables
+  - `SUBSTANTIVE_SOURCE_REVIEWED`: 4,999 callables
+  - `GENERATED_OR_TRIVIAL_JUSTIFIED`: 2,801 callables
+  - `PRIOR_REASONING_UNVERIFIED`: 1,130 callables
+  - `INDEXED`: 2,132 callables
+  - `REVIEW_BLOCKED`: 0 callables
+- Confirm that previous heuristic template inflation was eliminated and that non-verified callables remain transparently identified.
+
+---
+
+## 4. Safety Constraints & Output Ownership
+
+- **DO NOT MODIFY APPLICATION CODE IN `src/` OR `tests/`.**
+- **DO NOT WRITE OVER HISTORICAL CODEX WORK.**
+- Write all challenge results into `GitHub Copilot Work/13-Independent-Verification/CODEX_CHALLENGE_REPORT.md`.
+- No live database writes or physical printer commands.
